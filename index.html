@@ -496,7 +496,6 @@ button.li:hover b{color:var(--primary)}
 /* mobile employee app */
 #mobile{height:100%;display:flex;justify-content:center;align-items:center;background:var(--bg)}
 .phone{width:100%;max-width:430px;height:100%;background:var(--bg);display:flex;flex-direction:column;position:relative;overflow:hidden}
-@media (min-width:640px){#mobile{background:radial-gradient(circle at 20% 10%,var(--primary-soft),transparent 50%),var(--bg)}.phone{height:min(880px,calc(100% - 40px));border-radius:36px;border:10px solid #0A1324;box-shadow:0 30px 80px -30px rgba(10,19,36,.6)}}
 .m-top{background:var(--hero);color:#fff;padding:16px 18px 18px;display:flex;align-items:center;gap:12px}
 .m-top b{display:block;font-size:15px}.m-top small{color:#9FB0CF}
 .m-top .icon-btn{margin-left:auto;background:rgba(255,255,255,.08);border-color:transparent;color:#fff}
@@ -849,7 +848,6 @@ button.li:hover b{color:var(--accent)}
 .phone{background:
   radial-gradient(70% 40% at 15% 0%,var(--glow-a),transparent 70%),
   linear-gradient(170deg,var(--bg-deep),var(--bg-mid) 60%,var(--bg-soft))}
-@media (min-width:640px){#mobile{background:transparent}.phone{border:10px solid #07050a;border-radius:40px;box-shadow:var(--shadow-deep),var(--shadow-glow)}}
 .m-top{background:var(--surface);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--border);color:var(--text)}
 .m-top small{color:var(--text-muted)}
 .m-top .icon-btn{background:var(--surface-2);border-color:var(--border);color:var(--text)}
@@ -927,6 +925,53 @@ button.li:hover b{color:var(--accent)}
  body.printing .slip *{color:#111!important;-webkit-text-fill-color:#111}
  body.printing .slip-net{background:#f2f2f2;border-color:#ccc}
  body.printing .slip td,body.printing .slip th{border-bottom-color:#ddd}
+}
+/* ---------- employee app: full-screen on phones/tablets, navbar + menu ---------- */
+#mobile{position:fixed;inset:0;height:auto;z-index:5}
+#mobile .phone{width:100%;max-width:none;height:100%;border:0;border-radius:0;box-shadow:none}
+.phone .m-top{flex:none;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px));position:relative;z-index:20}
+.phone .m-top .m-menu-btn{margin-left:0;flex:none}
+.m-id{min-width:0;flex:1}
+.m-id b,.m-id small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-actions{display:flex;align-items:center;gap:8px;margin-left:auto;flex:none}
+.m-actions .theme-picker{margin-left:0}
+.phone .m-actions .icon-btn{margin-left:0}
+.m-body{padding:16px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+.m-tabs{flex:none;padding-left:max(4px,env(safe-area-inset-left,0px));padding-right:max(4px,env(safe-area-inset-right,0px))}
+.m-tabs button{min-height:48px;justify-content:center}
+.m-topnav{display:none}
+/* slide-out menu */
+.m-scrim{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:70;opacity:0;pointer-events:none;transition:opacity .25s}
+.m-drawer{position:absolute;top:0;bottom:0;left:0;width:min(300px,84%);z-index:80;background:var(--solid);border-right:1px solid var(--border);box-shadow:var(--shadow-deep);display:flex;flex-direction:column;padding:calc(14px + env(safe-area-inset-top,0px)) 12px calc(14px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));transform:translateX(-102%);visibility:hidden;transition:transform .25s var(--ease),visibility 0s linear .25s}
+.phone.menu-open .m-drawer{transform:none;visibility:visible;transition:transform .25s var(--ease)}
+.phone.menu-open .m-scrim{opacity:1;pointer-events:auto}
+.m-drawer-h{display:flex;align-items:center;gap:10px;padding:2px 4px 14px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.m-drawer-h small{color:var(--text-muted)}
+.m-drawer-nav{display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto}
+.m-drawer button.m-link{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 12px;border:1px solid transparent;border-radius:12px;background:none;color:var(--text-muted);font-weight:600;font-size:.95rem;text-align:left;cursor:pointer}
+.m-drawer button.m-link:hover{background:var(--surface-2);color:var(--text)}
+.m-drawer button.m-link.on{background:var(--accent-soft);color:var(--accent);border-color:var(--border-strong)}
+.m-drawer-f{border-top:1px solid var(--border);padding-top:10px;margin-top:10px}
+/* wider screens (tablets, phones in landscape): inline navbar instead of bottom tabs */
+@media (min-width:860px){
+ .phone .m-top .m-menu-btn,.m-tabs{display:none}
+ .m-topnav{display:flex;gap:4px;margin-left:12px}
+ .m-topnav button{display:flex;align-items:center;gap:8px;min-height:40px;padding:8px 14px;border:1px solid transparent;border-radius:var(--radius-pill);background:none;color:var(--text-muted);font-weight:600;cursor:pointer;white-space:nowrap}
+ .m-topnav button:hover{background:var(--surface-2);color:var(--text)}
+ .m-topnav button.on{background:var(--accent-soft);color:var(--accent);border-color:var(--border-strong)}
+ .m-id{flex:0 1 auto}
+ .m-body{padding-left:max(24px,calc((100% - 720px)/2));padding-right:max(24px,calc((100% - 720px)/2))}
+}
+@media (min-width:860px) and (max-width:1100px){.m-top .m-id{display:none}}
+/* desktop with a mouse: keep the phone preview frame */
+@media (min-width:900px) and (min-height:700px) and (hover:hover) and (pointer:fine){
+ #mobile{display:flex;justify-content:center;align-items:center}
+ #mobile .phone{max-width:430px;height:min(880px,calc(100% - 40px));border:10px solid #07050a;border-radius:40px;box-shadow:var(--shadow-deep),var(--shadow-glow)}
+ .phone .m-top .m-menu-btn{display:grid}
+ .m-tabs{display:grid}
+ .m-topnav{display:none}
+ .m-top .m-id{display:block;flex:1}
+ .m-body{padding-left:16px;padding-right:16px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.kpi:hover,.btn:hover,.btn.pri:hover{transform:none}}
 </style>
@@ -1674,12 +1719,20 @@ async function doPunch(selfie){
 function renderMobile(){
  $('#login').hidden=true;$('#console').hidden=true;const m=$('#mobile');m.hidden=false;const e=me();if(!e){setSess(null);return boot()}
  const tb=[['home','Home','home'],['att','Attendance','calendar'],['leave','Leave','plane'],['pay','Payslips','receipt'],['me','Profile','user']];
- m.innerHTML=`<div class="phone"><div class="m-top">${av(e)}<div><b>${esc(e.name)}</b><small>${esc(e.designation)}</small></div>${M.preview?`<button class="icon-btn" data-act="m-back" aria-label="Back to HR console">${ic('dashboard',17)}</button>`:pickerHTML(false)}</div>
- <div class="m-body" id="m-body"></div><nav class="m-tabs" aria-label="App">${tb.map(([v,l,i])=>`<button class="${M.tab===v?'on':''}" data-act="m-tab" data-v="${v}" aria-current="${M.tab===v?'page':'false'}">${ic(i,21)}${l}</button>`).join('')}</nav>
+ const act=M.preview?'m-back':'logout',actL=M.preview?'Back to HR console':'Sign out';
+ const navBtns=cls=>tb.map(([v,l,i])=>`<button class="${cls}${M.tab===v?' on':''}" data-act="m-tab" data-v="${v}" aria-current="${M.tab===v?'page':'false'}">${ic(i,cls==='m-link'?19:cls===''?21:17)}<span>${l}</span></button>`).join('');
+ m.innerHTML=`<div class="phone"><header class="m-top"><button class="icon-btn m-menu-btn" data-act="m-menu" aria-label="Open menu" aria-expanded="false" aria-controls="m-drawer">${ic('menu',19)}</button>${av(e)}<div class="m-id"><b>${esc(e.name)}</b><small>${esc(e.designation)}</small></div>
+ <nav class="m-topnav" aria-label="App sections">${navBtns('')}</nav>
+ <div class="m-actions">${M.preview?`<button class="icon-btn" data-act="m-back" aria-label="Back to HR console" title="Back to HR console">${ic('dashboard',17)}</button>`:pickerHTML(false)}</div></header>
+ <div class="m-body" id="m-body"></div><nav class="m-tabs" aria-label="App">${navBtns('')}</nav>
+ <div class="m-scrim" data-act="m-menu-close"></div>
+ <aside class="m-drawer" id="m-drawer" aria-label="Menu" aria-hidden="true"><div class="m-drawer-h">${av(e)}<div class="m-id"><b>${esc(e.name)}</b><small>${e.id}, ${esc(e.dept)}</small></div><button class="icon-btn" data-act="m-menu-close" aria-label="Close menu">${ic('x',18)}</button></div>
+ <nav class="m-drawer-nav" aria-label="App menu">${navBtns('m-link')}</nav>
+ <div class="m-drawer-f"><button class="m-link" data-act="${act}">${ic(M.preview?'dashboard':'logout',19)}<span>${actL}</span></button></div></aside>
  <input type="file" id="m-selfie" accept="image/*" capture="user" hidden data-chg="m-selfie"></div>`;
  mRender();startTracking();
 }
-function mRender(){const b=$('#m-body');if(!b)return;$$('.m-tabs button').forEach(x=>x.classList.toggle('on',x.dataset.v===M.tab));({home:mHome,att:mAtt,leave:mLeave,pay:mPay,me:mMe}[M.tab]||mHome)()}
+function mRender(){const b=$('#m-body');if(!b)return;$$('#mobile [data-act="m-tab"]').forEach(x=>{const on=x.dataset.v===M.tab;x.classList.toggle('on',on);x.setAttribute('aria-current',on?'page':'false')});({home:mHome,att:mAtt,leave:mLeave,pay:mPay,me:mMe}[M.tab]||mHome)()}
 function mHome(soft){
  const e=me(),tk=todayK(),r=(S.att[tk]||{})[e.id],o=S.company.office,off=isOffD(new Date());const tr=((S.tracks[tk]||{})[e.id])||[];
  const state=r&&r.status==='L'?'leave':!r||!r.in?'none':r.out?'done':'in';
@@ -1773,7 +1826,9 @@ A['login-mode']=t=>{loginMode=t.dataset.v;renderLogin()};
 A.login=()=>{const f=Object.fromEntries(new FormData($('#lgf')));if(loginMode==='admin'){if(f.u.trim().toLowerCase()==='admin@northwind.in'&&f.p==='admin123'){setSess({role:'admin'});boot()}else renderLogin('That email and password do not match. Use the demo login below.')}else{const e=empById(f.u.trim().toUpperCase());if(e&&e.status==='Active'&&e.pin===f.p){setSess({role:'emp',id:e.id});M.preview=false;M.tab='home';M.msg=null;M.lastPos=null;boot()}else renderLogin('Employee ID or PIN is incorrect.')}};
 A['open-app']=t=>{const id=t.dataset.id||'EMP105';setSess({role:'emp',id,admin:true});M.preview=true;M.tab='home';M.msg=null;M.lastPos=null;M.simBase=null;closeDrawer();renderMobile()};
 A['m-back']=()=>{setSess({role:'admin'});M.preview=false;stopTracking();renderConsole()};
-A['m-tab']=t=>{M.tab=t.dataset.v;M.msg=null;mRender();$('#m-body').scrollTop=0};
+A['m-tab']=t=>{M.tab=t.dataset.v;M.msg=null;mMenu(false);mRender();$('#m-body').scrollTop=0};
+function mMenu(open){const p=$('#mobile .phone');if(!p)return;const was=p.classList.contains('menu-open');p.classList.toggle('menu-open',open);const b=$('#mobile .m-menu-btn'),d=$('#m-drawer');if(b)b.setAttribute('aria-expanded',String(open));if(d)d.setAttribute('aria-hidden',String(!open));if(open){const f=$('#m-drawer .m-link.on')||$('#m-drawer .m-link');setTimeout(()=>f&&f.focus(),50)}else if(was&&b&&b.offsetParent)b.focus()}
+A['m-menu']=()=>mMenu(true);A['m-menu-close']=()=>mMenu(false);
 A['m-punch']=()=>doPunch();
 A['m-cal']=t=>{const mk=M.calMk||mkOf(new Date());const[y,m]=mk.split('-').map(Number);M.calMk=mkOf(new Date(y,m-1+ +t.dataset.v,1));mAtt()};
 A['m-leave']=()=>{const f=Object.fromEntries(new FormData($('#lform')));const e=me();if(!f.from||!f.to||f.to<f.from){toast('Pick a valid date range','bad');return}const days=countDays(f.from,f.to);if(!days){toast('Those dates are all holidays or weekly offs','bad');return}S.leaves.push({id:uid('LV'),emp:e.id,type:f.type,from:f.from,to:f.to,days,reason:f.reason||'No reason given',status:'Pending',applied:todayK()});save();toast('Leave request sent to your manager');mLeave()};
@@ -1875,7 +1930,7 @@ document.addEventListener('click',e=>{
  const t=e.target.closest('[data-act]');if(!t)return;const fn=A[t.dataset.act];if(!fn)return;if(t.tagName==='A'||t.tagName==='BUTTON')e.preventDefault();fn(t,e)});
 document.addEventListener('change',e=>{const t=e.target.closest('[data-chg]');if(t&&C[t.dataset.chg])C[t.dataset.chg](t,e)});
 document.addEventListener('input',e=>{const t=e.target.closest('[data-inp]');if(t&&INP[t.dataset.inp])INP[t.dataset.inp](t,e)});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#modal-root').innerHTML)closeModal();else closeDrawer()}if(e.key==='Enter'&&e.target.closest('#lgf')){e.preventDefault();A.login()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#mobile .phone.menu-open')){mMenu(false);return}if($('#modal-root').innerHTML)closeModal();else closeDrawer()}if(e.key==='Enter'&&e.target.closest('#lgf')){e.preventDefault();A.login()}});
 let rzT=null;window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(!$('#console').hidden&&U.view==='tracking')AFTER.tracking();if(!$('#mobile').hidden&&M.tab==='home'){const o=S.company.office;const cv=$('#m-geo');if(cv)mHome(true)}},150)});
 setInterval(()=>{const h=$('#hero-clock');if(h)h.innerHTML=clockTxt();const m=$('#m-clock');if(m)m.innerHTML=clockTxt().replace(/<small>/,' <small style="font-size:16px;color:var(--muted)">')},1000);
 
