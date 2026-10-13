@@ -842,6 +842,21 @@ button.li:hover b{color:var(--accent)}
 .login-card .btn.pri{min-height:50px;font-size:15px}
 .hint{color:var(--text-muted);background:var(--accent-soft);border:1px dashed var(--border-strong);border-radius:14px}
 .err{color:var(--bad)}
+/* internet speed check link on sign in */
+.net-check{display:flex;align-items:center;gap:14px;margin-top:18px;padding:12px 18px 12px 12px;border-radius:20px;text-decoration:none;color:var(--text);
+ background:linear-gradient(120deg,var(--accent-soft),transparent 75%),rgba(0,0,0,.16);border:1px solid var(--border-strong);
+ transition:transform 160ms var(--ease),border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease)}
+.net-check:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-glow)}
+.net-check:active{transform:translateY(0) scale(.99)}
+.net-check:focus-visible{outline:2px solid var(--ring);outline-offset:3px;border-radius:20px}
+.net-ic{width:44px;height:44px;flex:none;border-radius:50%;display:grid;place-items:center;background:linear-gradient(140deg,var(--accent),var(--accent-2));color:var(--text-on-accent);box-shadow:0 8px 20px -8px var(--accent)}
+.net-ic svg{transition:transform 600ms var(--ease)}
+.net-check:hover .net-ic svg{transform:rotate(-12deg)}
+.net-tx{flex:1;min-width:0}
+.net-tx b{display:block;font:600 1rem/1.25 var(--font-display)}
+.net-tx small{display:block;color:var(--text-muted);font-size:12.5px;margin-top:2px}
+.net-go{color:var(--accent);flex:none;transition:transform 200ms var(--ease)}
+.net-check:hover .net-go{transform:translateX(3px)}
 
 /* ---------- employee mobile app ---------- */
 #mobile{background:transparent}
@@ -986,6 +1001,7 @@ button.li:hover b{color:var(--accent)}
 'use strict';
 /* ================= ICONS ================= */
 const I={
+gauge:'M12 14l4-4M3.34 19a10 10 0 1 1 17.32 0',
 dashboard:'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',
 users:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
 clock:'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2',
@@ -1795,6 +1811,7 @@ function renderLogin(err){
  <div class="seg" role="tablist"><button class="${loginMode==='admin'?'on':''}" data-act="login-mode" data-v="admin">${ic('dashboard',16)} HR console</button><button class="${loginMode==='emp'?'on':''}" data-act="login-mode" data-v="emp">${ic('phone',16)} Employee app</button></div>
  ${loginMode==='admin'?`<form onsubmit="return false" id="lgf"><label class="fld">Work email<input class="inp" name="u" value="admin@northwind.in" autocomplete="username"></label><label class="fld">Password<input class="inp" name="p" type="password" value="admin123" autocomplete="current-password"></label><div class="err">${esc(err||'')}</div><button class="btn pri" style="justify-content:center;padding:11px" data-act="login">Sign in to HR console</button></form><div class="hint">Demo login: admin@northwind.in with password admin123.</div>`
  :`<form onsubmit="return false" id="lgf"><label class="fld">Employee ID<input class="inp" name="u" value="EMP105" autocomplete="username" style="text-transform:uppercase"></label><label class="fld">PIN<input class="inp" name="p" type="password" inputmode="numeric" value="1234" autocomplete="current-password"></label><div class="err">${esc(err||'')}</div><button class="btn pri" style="justify-content:center;padding:11px" data-act="login">Sign in to employee app</button></form><div class="hint">Try EMP105 (field sales, can check in anywhere) or EMP109 (office staff, must be inside the geofence). Every demo PIN is 1234.</div>`}
+ <a class="net-check" href="speedtest.html"><span class="net-ic">${ic('gauge',20)}</span><span class="net-tx"><b>Check internet speed</b><small>Test download, upload and ping before you sign in</small></span><span class="net-go">${ic('chevr',18)}</span></a>
  </div></section></div>`;
 }
 
