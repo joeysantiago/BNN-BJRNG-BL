@@ -3,7 +3,104 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Internet speed test</title>
+<title>Internet Speed Test: Check Download, Upload and Ping (Free)</title>
+<meta name="description" content="Free internet speed test. Check your download speed, upload speed, ping and jitter in 25 seconds. Works on phone and PC, no signup. Learn what a good speed is.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://thakurg.com/speedtest.html">
+<meta name="theme-color" content="#170a1c">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="thakurg.com">
+<meta property="og:title" content="Free Internet Speed Test: Download, Upload, Ping">
+<meta property="og:description" content="Free internet speed test. Check your download speed, upload speed, ping and jitter in 25 seconds. Works on phone and PC, no signup. Learn what a good speed is.">
+<meta property="og:url" content="https://thakurg.com/speedtest.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Free Internet Speed Test: Download, Upload, Ping">
+<meta name="twitter:description" content="Free internet speed test. Check your download speed, upload speed, ping and jitter in 25 seconds. Works on phone and PC, no signup. Learn what a good speed is.">
+<script type="application/ld+json">{
+ "@context": "https://schema.org",
+ "@type": "WebApplication",
+ "name": "Internet Speed Test",
+ "url": "https://thakurg.com/speedtest.html",
+ "applicationCategory": "UtilitiesApplication",
+ "operatingSystem": "Any",
+ "browserRequirements": "Requires JavaScript",
+ "description": "Measures internet download speed, upload speed, ping and jitter.",
+ "offers": {
+  "@type": "Offer",
+  "price": "0",
+  "priceCurrency": "USD"
+ }
+}</script>
+<script type="application/ld+json">{
+ "@context": "https://schema.org",
+ "@type": "FAQPage",
+ "mainEntity": [
+  {
+   "@type": "Question",
+   "name": "How accurate is this internet speed test?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "It measures against the nearest Cloudflare server, so it shows your real-world speed to a large, well-connected network. Results can vary slightly between runs because your connection, Wi-Fi signal and other devices on your network change from moment to moment. Run it two or three times and compare."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "What is a good internet speed?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "For most homes, 25 to 100 Mbps download is enough for HD streaming, video calls and browsing. Households with many devices, 4K streaming or large downloads benefit from 100 to 500 Mbps. Upload matters for video calls, cloud backups and live streaming, so aim for at least 10 Mbps."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Why is my speed lower than what my provider advertises?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Providers advertise the best-case speed on a wired connection. Wi-Fi distance, walls, router age, busy evening hours, other devices and a congested network can all reduce what you actually get. Testing with a cable connected to your router shows the true speed of your plan."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "What is the difference between download and upload speed?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Download speed is how fast data comes to your device, which affects streaming, browsing and downloading files. Upload speed is how fast data leaves your device, which affects video calls, sending large files and posting videos."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "What is ping and what is a good ping?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Ping, also called latency, is the time in milliseconds for data to travel to a server and back. Under 20 ms is excellent, 20 to 50 ms is good for gaming and calls, and above 100 ms can feel laggy."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "What is jitter?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Jitter is how much your ping changes from one moment to the next. Low jitter means a steady connection. High jitter causes choppy video calls, voice dropouts and online game lag even when your download speed is high."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Is this speed test free?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Yes. It is completely free, needs no signup and works on phones, tablets and computers in any modern browser."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Does the test use a lot of data?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "A full test downloads and uploads test data for about 25 seconds, so it can use a noticeable amount of data on a fast connection. If you are on a limited mobile plan, run it on Wi-Fi or sparingly."
+   }
+  }
+ ]
+}</script>
 <meta name="color-scheme" content="dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -254,6 +351,20 @@ h1,h2{font-family:var(--font-display);font-weight:600;letter-spacing:-.01em;marg
 .res dd.done{color:var(--text)}
 .note{margin:22px auto 0;max-width:58ch;font-size:12.5px;color:var(--text-muted);background:var(--accent-soft);border:1px dashed var(--border-strong);border-radius:14px;padding:10px 14px}
 
+
+.info{padding:clamp(24px,4vw,36px) clamp(20px,4vw,36px) clamp(28px,4vw,40px);border-top:1px solid var(--border);text-align:left;color:var(--text-muted);line-height:1.65;font-size:15px}
+.info h2{font:600 clamp(1.15rem,1rem + .6vw,1.4rem)/1.25 var(--font-display);color:var(--text);margin:30px 0 10px}
+.info h2:first-child{margin-top:0}
+.info p{margin:0 0 12px}
+.info ul,.info ol{margin:0 0 12px;padding-left:22px}
+.info li{margin:5px 0}
+.info strong{color:var(--text);font-weight:600}
+.info details{border:1px solid var(--border);border-radius:14px;background:rgba(0,0,0,.14);margin:8px 0;padding:0 16px}
+.info summary{cursor:pointer;color:var(--text);font-weight:600;padding:13px 0;list-style-position:outside}
+.info details[open] summary{color:var(--accent)}
+.info details p{margin:0 0 14px}
+.info a{color:var(--accent)}
+.info-foot{margin-top:22px}
 @media (max-width:620px){
  .res{grid-template-columns:repeat(2,minmax(0,1fr))}
  .st{border-radius:20px}
@@ -271,7 +382,7 @@ h1,h2{font-family:var(--font-display);font-weight:600;letter-spacing:-.01em;marg
  </header>
 
  <section class="st-main">
-  <h1>How fast is your <em>connection</em>?</h1>
+  <h1>Internet speed test: how fast is your <em>connection</em>?</h1>
   <p class="st-lead">Measures ping, download and upload against the nearest Cloudflare server. It takes about 25 seconds.</p>
 
   <div class="gauge">
@@ -296,6 +407,51 @@ h1,h2{font-family:var(--font-display);font-weight:600;letter-spacing:-.01em;marg
 
   <p class="note">For the most accurate result, pause downloads and video calls on this device and others on the same network. Wi-Fi results also depend on how close you are to the router.</p>
  </section>
+
+ <article class="info" id="about-speed-test">
+  <h2>Free internet speed test: check your download, upload and ping</h2>
+  <p>This free internet speed test shows how fast your connection really is in about 25 seconds. Press <strong>Start speed test</strong> and it measures your <strong>download speed</strong>, <strong>upload speed</strong>, <strong>ping</strong> and <strong>jitter</strong> against the nearest Cloudflare server. It works on any phone, tablet or computer, on Wi-Fi, mobile data or a cable, and you never need to sign up or install anything.</p>
+
+  <h2>What the results mean</h2>
+  <ul>
+   <li><strong>Download speed (Mbps):</strong> how quickly data reaches you. It controls video streaming, web pages, app updates and file downloads.</li>
+   <li><strong>Upload speed (Mbps):</strong> how quickly you send data. It matters for video calls, cloud backups, sharing large files and live streaming.</li>
+   <li><strong>Ping (ms):</strong> the delay between your device and a server. Lower is better, and under 20 ms is excellent for gaming and calls.</li>
+   <li><strong>Jitter (ms):</strong> how much the ping changes. Lower is better, and steady jitter means smooth calls and games.</li>
+  </ul>
+
+  <h2>What is a good internet speed?</h2>
+  <p>As a rough guide, 5 to 10 Mbps handles one HD video stream, 25 Mbps suits a small household, and 100 Mbps or more is comfortable for several people streaming, working from home and gaming at once. Video calls need a steady upload speed of a few Mbps, so a fast download alone does not guarantee a good call.</p>
+
+  <h2>How to get the most accurate speed test result</h2>
+  <ol>
+   <li>Pause downloads, streaming and video calls on every device on your network.</li>
+   <li>Move close to your router, or connect a device with a cable.</li>
+   <li>Close other browser tabs and turn off any VPN.</li>
+   <li>Run the test two or three times and compare the results.</li>
+  </ol>
+
+  <h2>How to fix slow internet</h2>
+  <ul>
+   <li>Restart your router and modem, then wait two minutes.</li>
+   <li>Place the router in an open, central spot, away from walls and appliances.</li>
+   <li>Switch to the 5 GHz Wi-Fi band for higher speed at short range.</li>
+   <li>Disconnect devices you are not using, and pause large background updates.</li>
+   <li>Update the router firmware, and replace an old router if it is several years old.</li>
+   <li>If speeds stay far below your plan on a cable connection, contact your internet provider.</li>
+  </ul>
+
+  <h2>Frequently asked questions</h2>
+  <details><summary>How accurate is this internet speed test?</summary><p>It measures against the nearest Cloudflare server, so it shows your real-world speed to a large, well-connected network. Results can vary slightly between runs because your connection, Wi-Fi signal and other devices on your network change from moment to moment. Run it two or three times and compare.</p></details>
+  <details><summary>What is a good internet speed?</summary><p>For most homes, 25 to 100 Mbps download is enough for HD streaming, video calls and browsing. Households with many devices, 4K streaming or large downloads benefit from 100 to 500 Mbps. Upload matters for video calls, cloud backups and live streaming, so aim for at least 10 Mbps.</p></details>
+  <details><summary>Why is my speed lower than what my provider advertises?</summary><p>Providers advertise the best-case speed on a wired connection. Wi-Fi distance, walls, router age, busy evening hours, other devices and a congested network can all reduce what you actually get. Testing with a cable connected to your router shows the true speed of your plan.</p></details>
+  <details><summary>What is the difference between download and upload speed?</summary><p>Download speed is how fast data comes to your device, which affects streaming, browsing and downloading files. Upload speed is how fast data leaves your device, which affects video calls, sending large files and posting videos.</p></details>
+  <details><summary>What is ping and what is a good ping?</summary><p>Ping, also called latency, is the time in milliseconds for data to travel to a server and back. Under 20 ms is excellent, 20 to 50 ms is good for gaming and calls, and above 100 ms can feel laggy.</p></details>
+  <details><summary>What is jitter?</summary><p>Jitter is how much your ping changes from one moment to the next. Low jitter means a steady connection. High jitter causes choppy video calls, voice dropouts and online game lag even when your download speed is high.</p></details>
+  <details><summary>Is this speed test free?</summary><p>Yes. It is completely free, needs no signup and works on phones, tablets and computers in any modern browser.</p></details>
+  <details><summary>Does the test use a lot of data?</summary><p>A full test downloads and uploads test data for about 25 seconds, so it can use a noticeable amount of data on a fast connection. If you are on a limited mobile plan, run it on Wi-Fi or sparingly.</p></details>
+  <p class="info-foot"><a href="index.html">Home</a></p>
+ </article>
 
  <div class="offline" id="offline" hidden role="alert" aria-live="assertive">
   <div class="offline-inner">
