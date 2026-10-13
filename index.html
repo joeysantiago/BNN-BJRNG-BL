@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Atrium HR — HRMS, Interviews, Attendance and Payroll</title>
+<title>Sign in</title>
 <meta name="color-scheme" content="dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -843,20 +843,16 @@ button.li:hover b{color:var(--accent)}
 .hint{color:var(--text-muted);background:var(--accent-soft);border:1px dashed var(--border-strong);border-radius:14px}
 .err{color:var(--bad)}
 /* internet speed check link on sign in */
-.net-check{display:flex;align-items:center;gap:14px;margin-top:18px;padding:12px 18px 12px 12px;border-radius:20px;text-decoration:none;color:var(--text);
- background:linear-gradient(120deg,var(--accent-soft),transparent 75%),rgba(0,0,0,.16);border:1px solid var(--border-strong);
- transition:transform 160ms var(--ease),border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease)}
-.net-check:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-glow)}
-.net-check:active{transform:translateY(0) scale(.99)}
-.net-check:focus-visible{outline:2px solid var(--ring);outline-offset:3px;border-radius:20px}
-.net-ic{width:44px;height:44px;flex:none;border-radius:50%;display:grid;place-items:center;background:linear-gradient(140deg,var(--accent),var(--accent-2));color:var(--text-on-accent);box-shadow:0 8px 20px -8px var(--accent)}
-.net-ic svg{transition:transform 600ms var(--ease)}
-.net-check:hover .net-ic svg{transform:rotate(-12deg)}
-.net-tx{flex:1;min-width:0}
-.net-tx b{display:block;font:600 1rem/1.25 var(--font-display)}
-.net-tx small{display:block;color:var(--text-muted);font-size:12.5px;margin-top:2px}
-.net-go{color:var(--accent);flex:none;transition:transform 200ms var(--ease)}
-.net-check:hover .net-go{transform:translateX(3px)}
+.net-check{position:fixed;right:clamp(16px,3vw,28px);bottom:clamp(16px,3vw,28px);z-index:40;
+ width:52px;height:52px;display:grid;place-items:center;border-radius:50%;text-decoration:none;color:var(--text-on-accent);
+ background:linear-gradient(140deg,var(--accent),var(--accent-2));border:1px solid transparent;
+ box-shadow:0 10px 26px -10px var(--accent),var(--shadow-glow);
+ transition:transform 160ms var(--ease),box-shadow var(--dur) var(--ease)}
+.net-check:hover{transform:translateY(-2px);box-shadow:0 16px 34px -8px var(--accent),var(--shadow-glow)}
+.net-check:active{transform:translateY(0) scale(.96)}
+.net-check:focus-visible{outline:2px solid var(--ring);outline-offset:3px}
+.net-check svg{transition:transform 600ms var(--ease)}
+.net-check:hover svg{transform:rotate(-20deg)}
 
 /* ---------- employee mobile app ---------- */
 #mobile{background:transparent}
@@ -924,6 +920,7 @@ button.li:hover b{color:var(--accent)}
 @media (max-width:860px){
  .theme-picker.is-floating{top:auto;bottom:20px;right:20px}
  .is-floating .theme-popover{top:auto;bottom:58px;transform-origin:bottom right}
+ .net-check{bottom:84px;right:20px}
 }
 @media (max-width:620px){
  .kpi .k-v{font-size:1.5rem}
@@ -1800,19 +1797,15 @@ function mMe(){
 }
 
 /* ================= LOGIN ================= */
-let loginMode='admin';
 function renderLogin(err){
  stopTracking();$('#console').hidden=true;$('#mobile').hidden=true;const l=$('#login');l.hidden=false;
- const mods=[['users','Employee records'],['clock','Attendance and shifts'],['pin','Geofence check-in'],['wallet','Payroll with PF, ESI, TDS'],['briefcase','Jobs and pipeline'],['video','Interviews and scorecards']];
- l.innerHTML=pickerHTML(true)+`<div class="login"><section class="login-art"><div class="brand" style="padding:0"><div class="brand-mark">A</div><div><b>Atrium HR</b><small>${esc(S.company.name)}</small></div></div>
- <div><h1>From first interview to monthly payslip, <em>in one place</em>.</h1><p>HR runs hiring, attendance and payroll from the console. Employees check in from their phone inside the office geofence and see their payslips the day payroll is released.</p></div>
- <div class="mods">${mods.map(([i,t])=>`<div>${ic(i,17)}${t}</div>`).join('')}</div><div class="rings" aria-hidden="true"></div></section>
- <section class="login-side"><div class="login-card"><h2>Sign in</h2><p class="muted" style="margin:0">Choose how you want to use Atrium.</p>
- <div class="seg" role="tablist"><button class="${loginMode==='admin'?'on':''}" data-act="login-mode" data-v="admin">${ic('dashboard',16)} HR console</button><button class="${loginMode==='emp'?'on':''}" data-act="login-mode" data-v="emp">${ic('phone',16)} Employee app</button></div>
- ${loginMode==='admin'?`<form onsubmit="return false" id="lgf"><label class="fld">Work email<input class="inp" name="u" value="admin@northwind.in" autocomplete="username"></label><label class="fld">Password<input class="inp" name="p" type="password" value="admin123" autocomplete="current-password"></label><div class="err">${esc(err||'')}</div><button class="btn pri" style="justify-content:center;padding:11px" data-act="login">Sign in to HR console</button></form><div class="hint">Demo login: admin@northwind.in with password admin123.</div>`
- :`<form onsubmit="return false" id="lgf"><label class="fld">Employee ID<input class="inp" name="u" value="EMP105" autocomplete="username" style="text-transform:uppercase"></label><label class="fld">PIN<input class="inp" name="p" type="password" inputmode="numeric" value="1234" autocomplete="current-password"></label><div class="err">${esc(err||'')}</div><button class="btn pri" style="justify-content:center;padding:11px" data-act="login">Sign in to employee app</button></form><div class="hint">Try EMP105 (field sales, can check in anywhere) or EMP109 (office staff, must be inside the geofence). Every demo PIN is 1234.</div>`}
- <a class="net-check" href="speedtest.html"><span class="net-ic">${ic('gauge',20)}</span><span class="net-tx"><b>Check internet speed</b><small>Test download, upload and ping before you sign in</small></span><span class="net-go">${ic('chevr',18)}</span></a>
- </div></section></div>`;
+ l.innerHTML=pickerHTML(true)+`<div class="login"><section class="login-art"><div class="brand" style="padding:0"><div class="brand-mark">A</div><div><b>Atrium</b></div></div>
+ <div><h1>Welcome <em>back</em>.</h1><p>Please sign in to continue.</p></div>
+ <div class="rings" aria-hidden="true"></div></section>
+ <section class="login-side"><div class="login-card"><h2>Sign in</h2><p class="muted" style="margin:0">Enter your credentials to continue.</p>
+ <form onsubmit="return false" id="lgf" style="margin-top:20px"><label class="fld">Username<input class="inp" name="u" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" autofocus></label><label class="fld">Password<input class="inp" name="p" type="password" autocomplete="current-password"></label><div class="err">${esc(err||'')}</div><button class="btn pri" style="justify-content:center;padding:11px" data-act="login">Sign in</button></form>
+ </div></section></div>
+ <a class="net-check" href="speedtest.html" aria-label="Check internet speed" title="Check internet speed">${ic('gauge',24)}</a>`;
 }
 
 /* ================= PALETTE PICKER (Auspicious design system) ================= */
@@ -1839,8 +1832,11 @@ A['theme-set']=t=>{const n=t.dataset.v;if(n==='auspicious')document.documentElem
 
 A.bell=()=>{const p=$('#bellpop');if(!p.hidden){p.hidden=true;return}const a=pendingActions();p.innerHTML=`<div style="padding:8px 10px 4px"><b>Notifications</b></div>`+(a.map(x=>`<button class="pop-item" data-act="go" data-v="${x.go}" ${x.tab?`data-tab="${x.tab}"`:''}><span class="li-ic" style="background:color-mix(in srgb,${x.c} 14%,transparent);color:${x.c}">${ic(x.i,16)}</span><div><b>${x.t}</b><small>${x.s}</small></div></button>`).join('')||empty('Nothing new',''));p.hidden=false};
 A.logout=()=>{setSess(null);M.preview=false;stopTracking();closeDrawer();closeModal();boot()};
-A['login-mode']=t=>{loginMode=t.dataset.v;renderLogin()};
-A.login=()=>{const f=Object.fromEntries(new FormData($('#lgf')));if(loginMode==='admin'){if(f.u.trim().toLowerCase()==='admin@northwind.in'&&f.p==='admin123'){setSess({role:'admin'});boot()}else renderLogin('That email and password do not match. Use the demo login below.')}else{const e=empById(f.u.trim().toUpperCase());if(e&&e.status==='Active'&&e.pin===f.p){setSess({role:'emp',id:e.id});M.preview=false;M.tab='home';M.msg=null;M.lastPos=null;boot()}else renderLogin('Employee ID or PIN is incorrect.')}};
+A.login=()=>{const f=Object.fromEntries(new FormData($('#lgf')));const u=(f.u||'').trim(),p=f.p||'';
+ if(u.toLowerCase()==='admin@northwind.in'&&p==='admin123'){setSess({role:'admin'});boot();return}
+ const e=empById(u.toUpperCase());
+ if(e&&e.status==='Active'&&e.pin===p){setSess({role:'emp',id:e.id});M.preview=false;M.tab='home';M.msg=null;M.lastPos=null;boot();return}
+ renderLogin('Incorrect username or password.')};
 A['open-app']=t=>{const id=t.dataset.id||'EMP105';setSess({role:'emp',id,admin:true});M.preview=true;M.tab='home';M.msg=null;M.lastPos=null;M.simBase=null;closeDrawer();renderMobile()};
 A['m-back']=()=>{setSess({role:'admin'});M.preview=false;stopTracking();renderConsole()};
 A['m-tab']=t=>{M.tab=t.dataset.v;M.msg=null;mMenu(false);mRender();$('#m-body').scrollTop=0};
