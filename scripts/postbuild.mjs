@@ -39,7 +39,15 @@ writeFileSync(join(dist, '.nojekyll'), '');
 
 writeFileSync(
   join(dist, 'robots.txt'),
-  `User-agent: *\nAllow: /\nDisallow: /atrium/\nDisallow: /error/\nDisallow: /offline/\n\nSitemap: ${SITE}/sitemap.xml\n`,
+  [
+    '# Everything is open to crawlers. Pages that should not be listed (error, offline, the Atrium app frame) carry a',
+    '# noindex tag, which Google can only read if it is allowed to fetch them.',
+    'User-agent: *',
+    'Allow: /',
+    '',
+    `Sitemap: ${SITE}/sitemap.xml`,
+    '',
+  ].join('\n'),
 );
 
 // Pages that belong in search results. The speed test has three language versions that point at each other.
