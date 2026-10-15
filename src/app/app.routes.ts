@@ -13,8 +13,8 @@ export const routes: Routes = [
   { path: 'HR', loadComponent: () => import('./pages/atrium/atrium').then((m) => m.Atrium) },
   { path: 'hr', redirectTo: 'HR' },
 
-  { path: 'creta', loadComponent: () => import('./pages/creta/creta').then((m) => m.Creta) },
-  { path: 'Creta', redirectTo: 'creta' },
+  { path: 'audio', loadComponent: () => import('./pages/creta/creta').then((m) => m.Creta) },
+  { path: 'audio', redirectTo: 'creta' },
 
   { path: 'about', loadComponent: staticPage, data: { kind: 'about' } },
   { path: 'privacy', loadComponent: staticPage, data: { kind: 'privacy' } },
