@@ -25,7 +25,8 @@ jobs:
           cache: npm
       - run: npm ci
       # Builds the site, prerenders every page, and creates 404.html (see scripts/postbuild.mjs).
-      - run: npm run build
+      - run: npx ng build --base-href /thakurG/
+      - run: node scripts/postbuild.mjs
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/thakurg/browser
