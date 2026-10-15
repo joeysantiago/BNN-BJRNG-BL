@@ -1,7 +1,9 @@
 import { AR } from '../i18n/ar';
 import { HI } from '../i18n/hi';
 import { DOCUMENT } from '@angular/common';
+import { APP_SETTINGS } from '../appSettings';
 import { LANGS, Lang, langInfo } from './site';
+import { PageId } from './models/app-settings.model';
 import { EN, TranslationKey, Translations } from '../i18n/en';
 import { Injectable, computed, inject, signal } from '@angular/core';
 
@@ -27,6 +29,11 @@ export class I18nService {
     } catch {
       return null;
     }
+  }
+
+  /** Name of a page in the current language, from appSettings.ts. */
+  page(id: PageId): string {
+    return APP_SETTINGS.pageNames[id][this.lang()] ?? APP_SETTINGS.pageNames[id].en;
   }
 
   /** Switch language. `persist` stores the choice so it is remembered on the next visit. */

@@ -1,10 +1,11 @@
 import { SITE_URL } from '../../core/site';
-import { APP_SETTINGS } from '../../appSettings';
 import { TranslationKey } from '../../i18n/en';
+import { APP_SETTINGS } from '../../appSettings';
 import { ActivatedRoute } from '@angular/router';
 import { SeoService } from '../../core/seo.service';
 import { isPlatformBrowser } from '@angular/common';
 import { I18nService } from '../../core/i18n.service';
+import { DanceDoodle } from '../../shared/dance-doodle';
 import { PlayerConfig, PlayerId, Repeat, Track } from './creta.model';
 import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
 
@@ -65,6 +66,7 @@ const fmtTime = (s: number): string => {
 
 @Component({
   selector: 'app-creta',
+  imports: [DanceDoodle],
   templateUrl: './creta.html',
   styleUrl: './creta.scss',
 })
@@ -72,7 +74,7 @@ export class Creta implements OnDestroy {
   protected readonly i18n = inject(I18nService);
   private readonly seo = inject(SeoService);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
-  private readonly audioRef = viewChild<ElementRef<HTMLAudioElement>>('audio');
+  protected readonly audioRef = viewChild<ElementRef<HTMLAudioElement>>('audio');
   protected readonly id: PlayerId = inject(ActivatedRoute).snapshot.data['player'] === 'nexon' ? 'nexon' : 'creta';
   private readonly cfg = PLAYERS[this.id];
   protected readonly pendingDelete = signal<Track | null>(null);

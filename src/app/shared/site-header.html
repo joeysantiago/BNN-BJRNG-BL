@@ -12,7 +12,13 @@
       </a>
 
       <nav class="nav" [attr.aria-label]="i18n.t('nav.main')">
-        <a [routerLink]="i18n.info().home" [class.on]="onSpeedRoute()" [attr.aria-current]="onSpeedRoute() ? 'page' : null">{{ i18n.t('nav.speed') }}</a>
+        <a [routerLink]="i18n.info().home" [class.on]="onSpeedRoute()" [attr.aria-current]="onSpeedRoute() ? 'page' : null">{{ i18n.page('speed') }}</a>
+        @if (settings.connection.enabled) {
+          <a [routerLink]="i18n.info().home" fragment="connection-details">{{ i18n.page('connection') }}</a>
+        }
+        @if (settings.services.enabled) {
+          <a [routerLink]="i18n.info().home" fragment="services-status">{{ i18n.page('services') }}</a>
+        }
       </nav>
     }
 

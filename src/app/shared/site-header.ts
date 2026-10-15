@@ -1,4 +1,5 @@
 import { filter, map } from 'rxjs';
+import { APP_SETTINGS } from '../appSettings';
 import { Lang, langInfo } from '../core/site';
 import { Skin } from '../core/models/theme.model';
 import { I18nService } from '../core/i18n.service';
@@ -23,6 +24,7 @@ export class SiteHeader {
   private readonly router = inject(Router);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
+  protected readonly settings = APP_SETTINGS;
   protected readonly themeOpen = signal(false);
   private readonly ios = viewChild.required<ElementRef<HTMLDialogElement>>('ios');
 

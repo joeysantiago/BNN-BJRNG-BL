@@ -9,10 +9,10 @@ import { I18nService } from '../core/i18n.service';
   template: `
     <footer class="foot">
       <div class="wrap foot-in">
-        <nav class="links" [attr.aria-label]="i18n.t('ft.about')">
-          <a routerLink="/about/">{{ i18n.t('ft.about') }}</a>
-          <a routerLink="/privacy/">{{ i18n.t('ft.privacy') }}</a>
-          <a routerLink="/terms/">{{ i18n.t('ft.terms') }}</a>
+        <nav class="links" [attr.aria-label]="i18n.t('nav.pages')">
+          <a routerLink="/about/">{{ i18n.page('about') }}</a>
+          <a routerLink="/privacy/">{{ i18n.page('privacy') }}</a>
+          <a routerLink="/terms/">{{ i18n.page('terms') }}</a>
         </nav>
         <p>&copy; {{ year }} {{ site }}. {{ i18n.t('ft.rights') }}</p>
       </div>

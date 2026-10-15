@@ -39,6 +39,9 @@
         </div>
       </div>
 
+      <app-dance-doodle [audio]="audioRef()?.nativeElement ?? null" [playing]="playing()" [seed]="index()" />
+
+
       <div class="seek">
         <span class="t" aria-hidden="true">{{ timeText() }}</span>
         <input

@@ -31,7 +31,8 @@ Copy the files into `public/audio/` and run `npm run build`. The playlist is cre
 ## How it works
 
 - **Speed test**: measures ping, jitter, download and upload against `speed.cloudflare.com` (`src/app/core/speed-engine.service.ts`).
-- **Save and share**: results are saved in the browser's `localStorage` only. No IP address is used and nothing is sent to a server. Share opens the device share sheet (with a result image) or WhatsApp, Facebook, X and Telegram links.
+- **Save and share**: results are saved in the browser's `localStorage` only. Saved results never leave the browser. Share opens the device share sheet (with a result image) or WhatsApp, Facebook, X and Telegram links.
+- **Connection details and services status** (home page sections in `src/app/shared/`): all configured in `src/app/appSettings.ts`. `connection.fields` switches each row on or off (provider, IP, IPv4, IPv6, MAC, location, test server, network type). `services.items` lists the services: set `enabled: false` to hide one, or add `statusPage` for an Atlassian Statuspage. `pageNames` holds the page and section names per language. Details come from ipwho.is, ipify and Cloudflare, called from the visitor's browser. A browser cannot read a MAC address, so that row says so. Services without a status API (Teams, Facebook, WhatsApp, X, Jio, Airtel, Vi, BSNL and others) get a reachability check, shown as such and not an official status.
 - **Languages**: strings live in `src/app/i18n/en.ts`, `hi.ts`, `ar.ts`. `en.ts` defines every key, and the build fails if Hindi or Arabic is missing one. The Hindi and Arabic text is a draft and should be reviewed.
 - **Themes**: Glassmorphism, Claymorphism, Skeuomorphism, Neumorphism. All four are token sets in `src/styles.scss`; the choice is remembered in `localStorage`.
 - **Install and offline**: `public/manifest.webmanifest` and the Angular service worker (`ngsw-config.json`) make the site installable and let the speed test open without a connection.
@@ -43,3 +44,18 @@ Copy the files into `public/audio/` and run `npm run build`. The playlist is cre
 
 - GitHub Pages is case sensitive. `/HR/` and `/creta/` are the real folders; `/hr` and `/Creta` are redirects handled by `404.html`.
 - Do not prerender redirect routes: on Windows `hr` and `HR` are the same folder (see `src/app/app.routes.server.ts`).
+
+## YouTube music page (`/youtube/`, private learning use)
+
+Audio-only player. A small helper (`scripts/youtube-server.mjs`) fetches the audio stream, so no video or ad is requested. GitHub Pages cannot run it, so it runs on your computer:
+
+```
+# this computer only
+npm run youtube
+
+# for the GitHub-hosted page and your phone: set a key, allow the site, and open an HTTPS tunnel
+YT_TOKEN=pick-a-secret YT_ORIGINS=https://thakurg.com npm run youtube
+cloudflared tunnel --url http://127.0.0.1:8787
+```
+
+Open `/youtube/`, press the gear button, enter the tunnel address and the key, and save. They are stored only in that browser. The helper must be running while you listen. It is not for public use or public hosting.

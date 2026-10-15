@@ -3,7 +3,7 @@
     <h1 id="st-h1">{{ i18n.t('st.h1a') }} <em>{{ i18n.t('st.h1b') }}</em></h1>
     <p class="lead">{{ i18n.t('st.lead') }}</p>
 
-    <div class="dial inset">
+    <div class="dial inset" [class.live]="engine.running()">
       <svg viewBox="-16 -8 272 216" role="img" [attr.aria-label]="status() + ' ' + fmt(engine.gauge()) + ' ' + unit()">
         <defs>
           <linearGradient id="gg" x1="0" y1="1" x2="1" y2="0">
@@ -11,6 +11,11 @@
             <stop offset="1" style="stop-color: var(--gauge-b)" />
           </linearGradient>
         </defs>
+        <g class="g-minor" aria-hidden="true">
+          @for (m of minorTicks; track $index) {
+            <line [attr.x1]="m.x1" [attr.y1]="m.y1" [attr.x2]="m.x2" [attr.y2]="m.y2" />
+          }
+        </g>
         <path class="g-bg" d="M52.12 187.88A96 96 0 1 1 187.88 187.88" fill="none" stroke-width="14" stroke-linecap="round" />
         <path
           class="g-fill"
@@ -23,6 +28,7 @@
           [style.stroke-dasharray]="dash() + ' 100'"
           [style.opacity]="arcVisible() ? 1 : 0"
         />
+        <circle class="g-tip" r="9" [attr.cx]="tip().x" [attr.cy]="tip().y" [style.opacity]="arcVisible() ? 1 : 0" />
         <g aria-hidden="true">
           @for (t of ticks; track t.label) {
             <text class="g-tick" [attr.x]="t.x" [attr.y]="t.y" text-anchor="middle">{{ t.label }}</text>
@@ -34,6 +40,20 @@
         <span class="unit">{{ unit() }}</span>
       </div>
     </div>
+
+    <div class="live" role="group" [attr.aria-label]="i18n.t('clk.now')">
+      <span class="chip inset">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span class="k">{{ i18n.t('clk.now') }}</span>
+        <span class="v">{{ clockText() }}</span>
+      </span>
+      <span class="chip inset">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4M12 14l3-3"/><circle cx="12" cy="14" r="8"/></svg>
+        <span class="k">{{ i18n.t('clk.elapsed') }}</span>
+        <span class="v">{{ elapsedText() }}</span>
+      </span>
+    </div>
+    <div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="progress()" [attr.aria-label]="status()"><i [style.width.%]="progress()"></i></div>
 
     <p class="status" [class.bad]="engine.phase() === 'error'" aria-live="polite">{{ status() }}</p>
     <button type="button" class="btn pri lg go" [class.stop]="engine.running()" (click)="start()">{{ buttonLabel() }}</button>
@@ -81,6 +101,14 @@
       </div>
     </dl>
 
+    @if (loadedHint(); as hint) {
+      <p class="loaded inset" [class.bad]="hint === 'loaded.bad'">
+        <span class="k">{{ i18n.t('res.loaded') }}</span>
+        <b>{{ engine.loaded() }}<small>{{ i18n.t('unit.ms') }}</small></b>
+        <span class="hint">{{ i18n.t(hint) }}</span>
+      </p>
+    }
+
     @if (current(); as r) {
       <div class="actions">
         <button type="button" class="btn" aria-haspopup="true" [attr.aria-expanded]="shareOpen()" (click)="onShare()">
@@ -113,6 +141,14 @@
 
     <p class="note">{{ i18n.t('st.note') }}</p>
   </section>
+
+  @if (settings.connection.enabled) {
+    <app-connection-details />
+  }
+
+  @if (settings.services.enabled) {
+    <app-service-status />
+  }
 
   <section class="card hist" aria-labelledby="hist-h">
     <div class="hist-head">
