@@ -1,10 +1,9 @@
+import { Kind } from './static-page.model';
 import { TranslationKey } from '../../i18n/en';
 import { SeoService } from '../../core/seo.service';
 import { I18nService } from '../../core/i18n.service';
 import { Component, effect, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-
-type Kind = 'about' | 'privacy' | 'terms';
 
 @Component({
   selector: 'app-static-page',

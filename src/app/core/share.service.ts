@@ -9,6 +9,12 @@ export const fmtMbps = (n: number): string => (n >= 100 ? n.toFixed(0) : n.toFix
 export class ShareService {
   private readonly i18n = inject(I18nService);
 
+  get canNativeShare(): boolean {
+    return typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+  }
+
+  // #region Public Methods
+
   /** The page that gets shared. Its Open Graph image is the 1200 x 630 speed test card. */
   url(): string {
     return SITE_URL + this.i18n.info().home;
@@ -16,47 +22,6 @@ export class ShareService {
 
   text(r: ShareableResult): string {
     return this.i18n.t('share.text', { down: fmtMbps(r.down), up: fmtMbps(r.up), ping: Math.round(r.ping) });
-  }
-
-  /** Links for the channels that do not have a native share sheet. */
-  links(r: ShareableResult): { id: string; labelKey: 'share.whatsapp' | 'share.facebook' | 'share.x' | 'share.telegram'; href: string }[] {
-    const url = encodeURIComponent(this.url());
-    const text = encodeURIComponent(this.text(r));
-    return [
-      { id: 'whatsapp', labelKey: 'share.whatsapp', href: `https://wa.me/?text=${text}%20${url}` },
-      { id: 'facebook', labelKey: 'share.facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}` },
-      { id: 'x', labelKey: 'share.x', href: `https://twitter.com/intent/tweet?text=${text}&url=${url}` },
-      { id: 'telegram', labelKey: 'share.telegram', href: `https://t.me/share/url?url=${url}&text=${text}` },
-    ];
-  }
-
-  get canNativeShare(): boolean {
-    return typeof navigator !== 'undefined' && typeof navigator.share === 'function';
-  }
-
-  /** Open the device share sheet, with the result image attached when the device allows files. */
-  async nativeShare(r: ShareableResult): Promise<boolean> {
-    const data: ShareData = { title: this.i18n.t('share.title'), text: this.text(r), url: this.url() };
-    try {
-      const blob = await this.image(r);
-      if (blob) {
-        const file = new File([blob], 'speed-test.png', { type: 'image/png' });
-        if (navigator.canShare?.({ files: [file] })) data.files = [file];
-      }
-      await navigator.share(data);
-      return true;
-    } catch (e) {
-      return (e as Error).name === 'AbortError'; // the person closed the share sheet
-    }
-  }
-
-  async copy(r: ShareableResult): Promise<boolean> {
-    try {
-      await navigator.clipboard.writeText(`${this.text(r)} ${this.url()}`);
-      return true;
-    } catch {
-      return false;
-    }
   }
 
   /** Draw the result as a 1200 x 630 PNG, the same size as the social preview image. */
@@ -135,6 +100,15 @@ export class ShareService {
     return new Promise((resolve) => canvas.toBlob((b) => resolve(b), 'image/png'));
   }
 
+  async copy(r: ShareableResult): Promise<boolean> {
+    try {
+      await navigator.clipboard.writeText(`${this.text(r)} ${this.url()}`);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async download(r: ShareableResult): Promise<void> {
     const blob = await this.image(r);
     if (!blob) return;
@@ -146,4 +120,34 @@ export class ShareService {
     a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
+
+  /** Open the device share sheet, with the result image attached when the device allows files. */
+  async nativeShare(r: ShareableResult): Promise<boolean> {
+    const data: ShareData = { title: this.i18n.t('share.title'), text: this.text(r), url: this.url() };
+    try {
+      const blob = await this.image(r);
+      if (blob) {
+        const file = new File([blob], 'speed-test.png', { type: 'image/png' });
+        if (navigator.canShare?.({ files: [file] })) data.files = [file];
+      }
+      await navigator.share(data);
+      return true;
+    } catch (e) {
+      return (e as Error).name === 'AbortError'; // the person closed the share sheet
+    }
+  }
+
+  /** Links for the channels that do not have a native share sheet. */
+  links(r: ShareableResult): { id: string; labelKey: 'share.whatsapp' | 'share.facebook' | 'share.x' | 'share.telegram'; href: string }[] {
+    const url = encodeURIComponent(this.url());
+    const text = encodeURIComponent(this.text(r));
+    return [
+      { id: 'whatsapp', labelKey: 'share.whatsapp', href: `https://wa.me/?text=${text}%20${url}` },
+      { id: 'facebook', labelKey: 'share.facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}` },
+      { id: 'x', labelKey: 'share.x', href: `https://twitter.com/intent/tweet?text=${text}&url=${url}` },
+      { id: 'telegram', labelKey: 'share.telegram', href: `https://t.me/share/url?url=${url}&text=${text}` },
+    ];
+  }
+
+  // #endregion
 }

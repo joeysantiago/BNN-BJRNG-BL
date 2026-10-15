@@ -6,6 +6,8 @@ import { DefaultUrlSerializer, UrlSerializer, UrlTree } from '@angular/router';
  * so links, canonical tags and the address bar agree.
  */
 export class TrailingSlashSerializer extends DefaultUrlSerializer {
+  // #region Public Methods
+
   override parse(url: string): UrlTree {
     return super.parse(url.replace(/\/+(?=$|[?#])/, '') || '/');
   }
@@ -17,6 +19,8 @@ export class TrailingSlashSerializer extends DefaultUrlSerializer {
     const rest = i < 0 ? '' : url.slice(i);
     return (path.endsWith('/') ? path : path + '/') + rest;
   }
+
+  // #endregion
 }
 
 export const provideTrailingSlashUrls = () => ({ provide: UrlSerializer, useClass: TrailingSlashSerializer });

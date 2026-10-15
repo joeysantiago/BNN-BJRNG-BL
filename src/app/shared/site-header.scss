@@ -201,3 +201,8 @@
     padding-inline: 10px;
   }
 }
+
+/* Without the brand on the left, keep the tools at the end of the bar. */
+.tools.solo {
+  margin-inline-start: auto;
+}

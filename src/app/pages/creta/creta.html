@@ -1,7 +1,7 @@
 <div class="wrap page">
-  <section class="card player" aria-labelledby="creta-h1">
-    <h1 id="creta-h1">{{ i18n.t('creta.h1') }}</h1>
-    <p class="lead">{{ i18n.t('creta.lead') }}</p>
+  <section class="card player" aria-labelledby="player-h1">
+    <h1 id="player-h1">{{ tt('h1') }}</h1>
+    <p class="lead">{{ tt('lead') }}</p>
 
     @if (src(); as s) {
       <audio
@@ -92,17 +92,56 @@
     } @else if (loaded()) {
       <div class="empty inset">
         <p class="empty-h">{{ i18n.t('creta.empty') }}</p>
-        <p>{{ i18n.t('creta.empty2') }}</p>
+        <p>{{ tt('empty2') }}</p>
       </div>
     }
   </section>
 
-  @if (tracks().length) {
-    <section class="card list" aria-labelledby="pl-h">
+  <section class="card list" aria-labelledby="pl-h">
+    <div class="list-head">
       <h2 id="pl-h">{{ i18n.t('creta.playlist') }}</h2>
+      <input #picker type="file" accept="audio/*,.mp3,.m4a,.aac,.ogg,.opus,.wav,.flac" multiple hidden (change)="onPick($event)" />
+      <button type="button" class="btn icon sm" [disabled]="busy()" [attr.aria-label]="i18n.t('creta.edit.add')" [attr.title]="i18n.t('creta.edit.add')" (click)="openAdd(picker)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button type="button" class="btn icon sm" [attr.aria-expanded]="setupOpen()" [attr.aria-label]="i18n.t('creta.edit.settings')" [attr.title]="i18n.t('creta.edit.settings')" (click)="setupOpen.set(!setupOpen())">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2L20 3M16 7l3 3M14 9l2 2"/></svg>
+      </button>
+    </div>
+
+    @if (setupOpen()) {
+      <form class="setup inset" (submit)="$event.preventDefault(); saveSetup(tok.value, rp.value)">
+        <p>{{ i18n.t('creta.edit.setup') }}</p>
+        <label>{{ i18n.t('creta.edit.repo') }}<input #rp type="text" [value]="repo()" autocomplete="off" spellcheck="false" /></label>
+        <label>{{ i18n.t('creta.edit.token') }}<input #tok type="password" [value]="token()" autocomplete="off" spellcheck="false" placeholder="github_pat_…" /></label>
+        <div class="setup-actions">
+          <button type="submit" class="btn pri">{{ i18n.t('creta.edit.save') }}</button>
+          @if (token()) {
+            <button type="button" class="btn" (click)="forgetToken(); setupOpen.set(false)">{{ i18n.t('creta.edit.forget') }}</button>
+          }
+        </div>
+      </form>
+    }
+
+    @if (pendingDelete(); as d) {
+      <form class="setup inset" (submit)="$event.preventDefault(); remove(d, pw.value)">
+        <p>{{ i18n.t('creta.edit.confirm', { name: d.title }) }}</p>
+        <label>{{ i18n.t('creta.edit.password') }}<input #pw type="password" autocomplete="off" autofocus /></label>
+        <div class="setup-actions">
+          <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t('creta.edit.delete') }}</button>
+          <button type="button" class="btn" (click)="pendingDelete.set(null)">{{ i18n.t('creta.edit.cancel') }}</button>
+        </div>
+      </form>
+    }
+
+    @if (status(); as st) {
+      <p class="status" [class.bad]="st.error" [attr.role]="st.error ? 'alert' : 'status'">{{ st.text }}</p>
+    }
+
+    @if (tracks().length) {
       <ol>
         @for (t of tracks(); track t.file; let i = $index) {
-          <li>
+          <li class="item">
             <button type="button" class="row" [class.on]="i === index()" [attr.aria-current]="i === index() ? 'true' : null" (click)="choose(i)">
               <span class="n" aria-hidden="true">{{ i + 1 }}</span>
               <span class="tt">
@@ -115,9 +154,14 @@
                 <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
               }
             </button>
+            <button type="button" class="btn icon sm del" [disabled]="busy()" [attr.aria-label]="i18n.t('creta.edit.delete') + ': ' + t.title" [attr.title]="i18n.t('creta.edit.delete')" (click)="askDelete(t)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg>
+            </button>
           </li>
         }
       </ol>
-    </section>
-  }
+    } @else if (loaded()) {
+      <p class="note">{{ i18n.t('creta.edit.none') }}</p>
+    }
+  </section>
 </div>

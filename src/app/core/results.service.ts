@@ -15,11 +15,11 @@ export class ResultsService {
     if (this.browser) this.items.set(this.read());
   }
 
-  save(r: Omit<SpeedResult, 'id'>): SpeedResult {
-    const item: SpeedResult = { ...r, id: `${r.at}-${Math.random().toString(36).slice(2, 7)}` };
-    this.items.update((list) => [item, ...list].slice(0, MAX));
+  // #region Public Methods
+
+  clear(): void {
+    this.items.set([]);
     this.write();
-    return item;
   }
 
   remove(id: string): void {
@@ -27,9 +27,23 @@ export class ResultsService {
     this.write();
   }
 
-  clear(): void {
-    this.items.set([]);
+  save(r: Omit<SpeedResult, 'id'>): SpeedResult {
+    const item: SpeedResult = { ...r, id: `${r.at}-${Math.random().toString(36).slice(2, 7)}` };
+    this.items.update((list) => [item, ...list].slice(0, MAX));
     this.write();
+    return item;
+  }
+
+  // #endregion
+
+  // #region Private Methods
+
+  private write(): void {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(this.items()));
+    } catch {
+      /* storage full or blocked */
+    }
   }
 
   private read(): SpeedResult[] {
@@ -41,11 +55,5 @@ export class ResultsService {
     }
   }
 
-  private write(): void {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(this.items()));
-    } catch {
-      /* storage full or blocked */
-    }
-  }
+  // #endregion
 }

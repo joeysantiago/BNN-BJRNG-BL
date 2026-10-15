@@ -37,6 +37,27 @@ export class SpeedEngine {
     () => this.phase() === 'done' && this.down() !== null && this.up() !== null && this.ping() !== null && this.jitter() !== null,
   );
 
+  // #region Public Methods
+
+  retry(): void {
+    if (!this.browser) return;
+    if (navigator.onLine === false) {
+      this.offline.set(true);
+      return;
+    }
+    this.offline.set(false);
+    void this.run();
+  }
+
+  /** Start a test, or stop the one that is running. */
+  toggle(): void {
+    if (this.ctrl) {
+      this.ctrl.abort();
+      return;
+    }
+    void this.run();
+  }
+
   /** Start listening for connection changes. Returns a cleanup function. */
   watchConnection(): () => void {
     if (!this.browser) return () => undefined;
@@ -56,23 +77,12 @@ export class SpeedEngine {
     };
   }
 
-  /** Start a test, or stop the one that is running. */
-  toggle(): void {
-    if (this.ctrl) {
-      this.ctrl.abort();
-      return;
-    }
-    void this.run();
-  }
+  // #endregion
 
-  retry(): void {
-    if (!this.browser) return;
-    if (navigator.onLine === false) {
-      this.offline.set(true);
-      return;
-    }
-    this.offline.set(false);
-    void this.run();
+  // #region Private Methods
+
+  private bust(): string {
+    return 'r=' + Math.random().toString(36).slice(2);
   }
 
   private async run(): Promise<void> {
@@ -151,10 +161,6 @@ export class SpeedEngine {
     return m;
   }
 
-  private bust(): string {
-    return 'r=' + Math.random().toString(36).slice(2);
-  }
-
   private async measureLatency(signal: AbortSignal): Promise<{ ping: number; jitter: number }> {
     const samples: number[] = [];
     for (let i = 0; i < 12; i++) {
@@ -168,6 +174,23 @@ export class SpeedEngine {
     let jitter = 0;
     for (let j = 1; j < samples.length; j++) jitter += Math.abs(samples[j] - samples[j - 1]);
     return { ping: median, jitter: jitter / (samples.length - 1) };
+  }
+
+  private async measureUpload(signal: AbortSignal, onRate: (mbps: number) => void): Promise<number> {
+    const m = this.meter(onRate);
+    const end = m.start + PHASE_MS;
+    const size = 1024 * 1024;
+    const buf = new Uint8Array(size);
+    for (let i = 0; i < size; i += 65536) crypto.getRandomValues(buf.subarray(i, i + 65536));
+    const blob = new Blob([buf]);
+    const stream = async () => {
+      while (performance.now() < end) {
+        await fetch(`${BASE}/__up?${this.bust()}`, { method: 'POST', body: blob, mode: 'no-cors', signal });
+        m.add(size);
+      }
+    };
+    await Promise.all(Array.from({ length: STREAMS }, stream));
+    return m.rate();
   }
 
   private async measureDownload(signal: AbortSignal, onRate: (mbps: number) => void): Promise<number> {
@@ -193,20 +216,5 @@ export class SpeedEngine {
     return m.rate();
   }
 
-  private async measureUpload(signal: AbortSignal, onRate: (mbps: number) => void): Promise<number> {
-    const m = this.meter(onRate);
-    const end = m.start + PHASE_MS;
-    const size = 1024 * 1024;
-    const buf = new Uint8Array(size);
-    for (let i = 0; i < size; i += 65536) crypto.getRandomValues(buf.subarray(i, i + 65536));
-    const blob = new Blob([buf]);
-    const stream = async () => {
-      while (performance.now() < end) {
-        await fetch(`${BASE}/__up?${this.bust()}`, { method: 'POST', body: blob, mode: 'no-cors', signal });
-        m.add(size);
-      }
-    };
-    await Promise.all(Array.from({ length: STREAMS }, stream));
-    return m.rate();
-  }
+  // #endregion
 }

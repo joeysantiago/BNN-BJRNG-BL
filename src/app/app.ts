@@ -63,8 +63,12 @@ export class App {
     });
   }
 
+  // #region Private Methods
+
   protected skip(ev: Event): void {
     ev.preventDefault();
     document.getElementById('main')?.focus();
   }
+
+  // #endregion
 }

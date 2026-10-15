@@ -151,8 +151,21 @@ export class Speedtest implements OnDestroy {
     });
   }
 
+  // #region Public Methods
+
   ngOnDestroy(): void {
     this.stopWatching();
+  }
+
+  // #endregion
+
+  // #region Private Methods
+
+  protected save(): void {
+    const r = this.current();
+    if (!r || this.saved()) return;
+    this.results.save(r);
+    this.saved.set(true);
   }
 
   protected start(): void {
@@ -162,34 +175,13 @@ export class Speedtest implements OnDestroy {
     this.engine.toggle();
   }
 
-  protected save(): void {
+  protected image(): void {
     const r = this.current();
-    if (!r || this.saved()) return;
-    this.results.save(r);
-    this.saved.set(true);
+    if (r) void this.share.download(r);
   }
 
   protected onShare(): void {
     this.shareOpen.update((v) => !v);
-  }
-
-  /** Open the phone or computer share sheet, with the result image attached when allowed. */
-  protected async shareNative(): Promise<void> {
-    const r = this.current();
-    if (r) await this.share.nativeShare(r);
-  }
-
-  protected async copy(): Promise<void> {
-    const r = this.current();
-    if (r && (await this.share.copy(r))) {
-      this.copied.set(true);
-      setTimeout(() => this.copied.set(false), 2000);
-    }
-  }
-
-  protected image(): void {
-    const r = this.current();
-    if (r) void this.share.download(r);
   }
 
   protected iso(at: number): string {
@@ -200,7 +192,23 @@ export class Speedtest implements OnDestroy {
     return new Date(at).toLocaleString(this.i18n.lang(), { dateStyle: 'medium', timeStyle: 'short' });
   }
 
+  protected async copy(): Promise<void> {
+    const r = this.current();
+    if (r && (await this.share.copy(r))) {
+      this.copied.set(true);
+      setTimeout(() => this.copied.set(false), 2000);
+    }
+  }
+
   protected itemText(r: SpeedResult): string {
     return this.i18n.t('hist.item', { down: fmtMbps(r.down), up: fmtMbps(r.up), ping: Math.round(r.ping), jitter: r.jitter.toFixed(1) });
   }
+
+  /** Open the phone or computer share sheet, with the result image attached when allowed. */
+  protected async shareNative(): Promise<void> {
+    const r = this.current();
+    if (r) await this.share.nativeShare(r);
+  }
+
+  // #endregion
 }

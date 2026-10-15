@@ -1,20 +1,22 @@
 <header class="bar">
   <div class="wrap bar-in">
-    <a class="brand" [routerLink]="i18n.info().home" [attr.aria-label]="i18n.t('brand.name')">
-      <span class="brand-mark" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
-      </span>
-      <span class="brand-text">
-        <b>{{ i18n.t('brand.name') }}</b>
-        <small>{{ i18n.t('brand.sub') }}</small>
-      </span>
-    </a>
+    @if (onSpeedRoute()) {
+      <a class="brand" [routerLink]="i18n.info().home" [attr.aria-label]="i18n.t('brand.name')">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+        </span>
+        <span class="brand-text">
+          <b>{{ i18n.t('brand.name') }}</b>
+          <small>{{ i18n.t('brand.sub') }}</small>
+        </span>
+      </a>
 
-    <nav class="nav" [attr.aria-label]="i18n.t('nav.main')">
-      <a [routerLink]="i18n.info().home" [class.on]="onSpeedRoute()" [attr.aria-current]="onSpeedRoute() ? 'page' : null">{{ i18n.t('nav.speed') }}</a>
-    </nav>
+      <nav class="nav" [attr.aria-label]="i18n.t('nav.main')">
+        <a [routerLink]="i18n.info().home" [class.on]="onSpeedRoute()" [attr.aria-current]="onSpeedRoute() ? 'page' : null">{{ i18n.t('nav.speed') }}</a>
+      </nav>
+    }
 
-    <div class="tools">
+    <div class="tools" [class.solo]="!onSpeedRoute()">
       @if (install.canPrompt()) {
         <button type="button" class="btn sm pri" [attr.aria-label]="i18n.t('install.btn')" (click)="install.prompt()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>

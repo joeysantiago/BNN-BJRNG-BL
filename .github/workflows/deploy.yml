@@ -27,6 +27,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Regenerates public/audio/playlist.json from the audio files in the repo.
+      - run: node scripts/build-playlist.mjs
       # Builds the site, prerenders every page, and creates 404.html (see scripts/postbuild.mjs).
       - run: npx ng build --base-href /
       - run: node scripts/postbuild.mjs

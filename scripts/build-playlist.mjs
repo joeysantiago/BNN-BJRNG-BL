@@ -11,12 +11,10 @@ import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join, parse, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const dir = join(resolve(dirname(fileURLToPath(import.meta.url)), '..'), 'public', 'audio');
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const FOLDERS = ['audio', 'nexon-audio'];
 const AUDIO = new Set(['.mp3', '.m4a', '.aac', '.ogg', '.oga', '.opus', '.wav', '.flac', '.weba']);
 const IMAGES = ['.jpg', '.jpeg', '.png', '.webp'];
-
-const files = readdirSync(dir).filter((f) => AUDIO.has(extname(f).toLowerCase()));
-files.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 
 const title = (file) =>
   parse(file)
@@ -26,14 +24,19 @@ const title = (file) =>
     .replace(/\s{2,}/g, ' ')
     .trim() || parse(file).name;
 
-const tracks = files.map((file) => {
-  const base = parse(file).name;
-  const cover = IMAGES.map((e) => base + e).find((c) => readdirSync(dir).some((f) => f.toLowerCase() === c.toLowerCase()));
-  const actual = cover && readdirSync(dir).find((f) => f.toLowerCase() === cover.toLowerCase());
-  return { title: title(file), file, ...(actual ? { cover: actual } : {}) };
-});
+for (const folder of FOLDERS) {
+  const dir = join(root, 'public', folder);
+  if (!existsSync(dir)) continue;
+  const files = readdirSync(dir).filter((f) => AUDIO.has(extname(f).toLowerCase()));
+  files.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+  const tracks = files.map((file) => {
+    const base = parse(file).name;
+    const cover = IMAGES.map((e) => base + e).find((c) => readdirSync(dir).some((f) => f.toLowerCase() === c.toLowerCase()));
+    const actual = cover && readdirSync(dir).find((f) => f.toLowerCase() === cover.toLowerCase());
+    return { title: title(file), file, ...(actual ? { cover: actual } : {}) };
+  });
 
-writeFileSync(join(dir, 'playlist.json'), JSON.stringify({ tracks }, null, 2) + '\n');
-console.log(`playlist: ${tracks.length} track${tracks.length === 1 ? '' : 's'} found in public/audio`);
-tracks.forEach((t) => console.log('  - ' + t.title));
-if (!existsSync(dir)) process.exit(1);
+  writeFileSync(join(dir, 'playlist.json'), JSON.stringify({ tracks }, null, 2) + '\n');
+  console.log(`playlist: ${tracks.length} track${tracks.length === 1 ? "" : "s"} found in public/${folder}`);
+  tracks.forEach((t) => console.log('  - ' + t.title));
+}

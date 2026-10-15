@@ -37,6 +37,8 @@ export class InstallService {
     });
   }
 
+  // #region Public Methods
+
   async prompt(): Promise<void> {
     if (!this.deferred) return;
     await this.deferred.prompt();
@@ -44,4 +46,6 @@ export class InstallService {
     this.deferred = null;
     this.canPrompt.set(false);
   }
+
+  // #endregion
 }

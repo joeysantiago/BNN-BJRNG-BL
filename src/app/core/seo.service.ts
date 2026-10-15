@@ -10,6 +10,8 @@ export class SeoService {
   private readonly meta = inject(Meta);
   private readonly doc = inject(DOCUMENT);
 
+  // #region Public Methods
+
   set(cfg: SeoConfig): void {
     const url = SITE_URL + cfg.path;
     const image = `${SITE_URL}/og/${cfg.image}.png`;
@@ -45,13 +47,9 @@ export class SeoService {
     this.setJsonLd(cfg.jsonLd ?? []);
   }
 
-  private setName(name: string, content: string): void {
-    this.meta.updateTag({ name, content });
-  }
+  // #endregion
 
-  private setProp(property: string, content: string): void {
-    this.meta.updateTag({ property, content });
-  }
+  // #region Private Methods
 
   private setCanonical(href: string): void {
     let el = this.doc.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
@@ -61,6 +59,25 @@ export class SeoService {
       this.doc.head.appendChild(el);
     }
     el.setAttribute('href', href);
+  }
+
+  private setJsonLd(items: object[]): void {
+    this.doc.head.querySelectorAll('script[data-seo-ld]').forEach((n) => n.remove());
+    for (const item of items) {
+      const el = this.doc.createElement('script');
+      el.setAttribute('type', 'application/ld+json');
+      el.setAttribute('data-seo-ld', '');
+      el.textContent = JSON.stringify(item);
+      this.doc.head.appendChild(el);
+    }
+  }
+
+  private setName(name: string, content: string): void {
+    this.meta.updateTag({ name, content });
+  }
+
+  private setProp(property: string, content: string): void {
+    this.meta.updateTag({ property, content });
   }
 
   private setAlternates(alternates?: Partial<Record<Lang, string>>): void {
@@ -80,14 +97,5 @@ export class SeoService {
     if (alternates.en) add('x-default', alternates.en);
   }
 
-  private setJsonLd(items: object[]): void {
-    this.doc.head.querySelectorAll('script[data-seo-ld]').forEach((n) => n.remove());
-    for (const item of items) {
-      const el = this.doc.createElement('script');
-      el.setAttribute('type', 'application/ld+json');
-      el.setAttribute('data-seo-ld', '');
-      el.textContent = JSON.stringify(item);
-      this.doc.head.appendChild(el);
-    }
-  }
+  // #endregion
 }

@@ -1,9 +1,8 @@
+import { Kind } from './status-page.model';
 import { SeoService } from '../../core/seo.service';
 import { I18nService } from '../../core/i18n.service';
 import { Component, effect, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-
-type Kind = '404' | 'error' | 'offline';
 
 const COPY = {
   '404': { h: 'nf.h1', p: 'nf.p', cta: 'nf.home', title: 'seo.404.title', desc: 'seo.404.desc', code: '404' },

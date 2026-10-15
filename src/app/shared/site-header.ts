@@ -36,6 +36,22 @@ export class SiteHeader {
 
   protected readonly onSpeedRoute = computed(() => SPEED_PATHS.has(this.path(this.url())));
 
+  // #region Private Methods
+
+  protected iosOpen(): void {
+    this.ios().nativeElement.showModal();
+  }
+
+  @HostListener('document:keydown.escape')
+  protected onEscape(): void {
+    this.themeOpen.set(false);
+  }
+
+  protected pick(skin: Skin): void {
+    this.theme.set(skin);
+    this.themeOpen.set(false);
+  }
+
   private path(url: string): string {
     const p = url.split(/[?#]/)[0].replace(/\/+$/, '');
     return p === '' ? '/' : p;
@@ -48,18 +64,15 @@ export class SiteHeader {
     if (this.onSpeedRoute()) void this.router.navigateByUrl(langInfo(code).home);
   }
 
+  @HostListener('document:click', ['$event'])
+  protected onDocClick(ev: Event): void {
+    if (this.themeOpen() && !this.host.nativeElement.querySelector('.menu')?.contains(ev.target as Node))
+      this.themeOpen.set(false);
+  }
+
   protected toggleTheme(ev: Event): void {
     ev.stopPropagation();
     this.themeOpen.update((v) => !v);
-  }
-
-  protected pick(skin: Skin): void {
-    this.theme.set(skin);
-    this.themeOpen.set(false);
-  }
-
-  protected iosOpen(): void {
-    this.ios().nativeElement.showModal();
   }
 
   /** Clicking the dark backdrop of the dialog closes it. */
@@ -67,15 +80,5 @@ export class SiteHeader {
     if (ev.target === this.ios().nativeElement) this.ios().nativeElement.close();
   }
 
-  @HostListener('document:click', ['$event'])
-  protected onDocClick(ev: Event): void {
-    if (this.themeOpen() && !this.host.nativeElement.querySelector('.menu')?.contains(ev.target as Node)) {
-      this.themeOpen.set(false);
-    }
-  }
-
-  @HostListener('document:keydown.escape')
-  protected onEscape(): void {
-    this.themeOpen.set(false);
-  }
+  // #endregion
 }
