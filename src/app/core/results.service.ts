@@ -1,15 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
+import { SpeedResult } from './models/results.model';
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
-
-export interface SpeedResult {
-  id: string;
-  /** Epoch milliseconds. */
-  at: number;
-  down: number;
-  up: number;
-  ping: number;
-  jitter: number;
-}
 
 const KEY = 'thakurg-results';
 const MAX = 30;

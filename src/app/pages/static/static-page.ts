@@ -1,8 +1,8 @@
+import { TranslationKey } from '../../i18n/en';
+import { SeoService } from '../../core/seo.service';
+import { I18nService } from '../../core/i18n.service';
 import { Component, effect, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { I18nService } from '../../core/i18n.service';
-import { SeoService } from '../../core/seo.service';
-import { TranslationKey } from '../../i18n/en';
 
 type Kind = 'about' | 'privacy' | 'terms';
 

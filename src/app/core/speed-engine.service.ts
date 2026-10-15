@@ -1,7 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
+import { Meter, Phase } from './models/speed-engine.model';
 import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
-
-export type Phase = 'idle' | 'ping' | 'down' | 'up' | 'done' | 'stopped' | 'error';
 
 const BASE = 'https://speed.cloudflare.com';
 const PHASE_MS = 10000;
@@ -11,12 +10,6 @@ const MAX_LOG = Math.log10(1001);
 
 /** Share of the gauge arc (0 to 1) for a speed in Mbps. The scale is logarithmic, 0 to 1 Gbps. */
 export const gaugeFraction = (mbps: number): number => Math.min(1, Math.log10(1 + Math.max(0, mbps)) / MAX_LOG);
-
-interface Meter {
-  start: number;
-  add(n: number): void;
-  rate(): number;
-}
 
 /**
  * Measures ping, jitter, download and upload against the nearest Cloudflare server.

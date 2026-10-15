@@ -1,14 +1,7 @@
-import { Injectable, inject } from '@angular/core';
-import { I18nService } from './i18n.service';
 import { SITE_URL } from './site';
-
-export interface ShareableResult {
-  at: number;
-  down: number;
-  up: number;
-  ping: number;
-  jitter: number;
-}
+import { I18nService } from './i18n.service';
+import { Injectable, inject } from '@angular/core';
+import { ShareableResult } from './models/share.model';
 
 export const fmtMbps = (n: number): string => (n >= 100 ? n.toFixed(0) : n.toFixed(1));
 

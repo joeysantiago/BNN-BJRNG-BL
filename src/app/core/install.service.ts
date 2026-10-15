@@ -1,10 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
+import { BeforeInstallPromptEvent } from './models/install.model';
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt(): Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
 
 /** Drives the Install app button: native prompt on Chrome, Edge and Android, a hint on iPhone and iPad. */
 @Injectable({ providedIn: 'root' })

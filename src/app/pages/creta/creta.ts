@@ -1,8 +1,8 @@
-import { isPlatformBrowser } from '@angular/common';
-import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
-import { I18nService } from '../../core/i18n.service';
-import { SeoService } from '../../core/seo.service';
 import { SITE_URL } from '../../core/site';
+import { SeoService } from '../../core/seo.service';
+import { isPlatformBrowser } from '@angular/common';
+import { I18nService } from '../../core/i18n.service';
+import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
 
 export interface Track {
   title: string;

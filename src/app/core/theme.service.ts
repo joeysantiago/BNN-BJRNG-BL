@@ -1,15 +1,6 @@
 import { DOCUMENT } from '@angular/common';
+import { Skin, SkinInfo } from './models/theme.model';
 import { Injectable, inject, signal } from '@angular/core';
-import { TranslationKey } from '../i18n/en';
-
-export type Skin = 'glass' | 'clay' | 'skeu' | 'neu';
-
-export interface SkinInfo {
-  id: Skin;
-  labelKey: TranslationKey;
-  /** Browser UI colour (theme-color meta) for this skin. */
-  chrome: string;
-}
 
 export const SKINS: readonly SkinInfo[] = [
   { id: 'glass', labelKey: 'theme.glass', chrome: '#170a1c' },

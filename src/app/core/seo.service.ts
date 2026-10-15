@@ -1,23 +1,8 @@
 import { DOCUMENT } from '@angular/common';
+import { SeoConfig } from './models/seo.model';
 import { Injectable, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { LANGS, Lang, SITE_NAME, SITE_URL, langInfo } from './site';
-
-export interface SeoConfig {
-  title: string;
-  description: string;
-  /** Path with a trailing slash, for example "/HR/". */
-  path: string;
-  /** File name inside /og/, for example "speedtest". */
-  image: string;
-  lang: Lang;
-  imageAlt?: string;
-  /** Pages that should not appear in search results. */
-  noindex?: boolean;
-  /** Alternate language URLs, as { lang: path }. */
-  alternates?: Partial<Record<Lang, string>>;
-  jsonLd?: object[];
-}
 
 @Injectable({ providedIn: 'root' })
 export class SeoService {

@@ -1,9 +1,9 @@
-import { DOCUMENT } from '@angular/common';
-import { Injectable, computed, inject, signal } from '@angular/core';
 import { AR } from '../i18n/ar';
-import { EN, TranslationKey, Translations } from '../i18n/en';
 import { HI } from '../i18n/hi';
+import { DOCUMENT } from '@angular/common';
 import { LANGS, Lang, langInfo } from './site';
+import { EN, TranslationKey, Translations } from '../i18n/en';
+import { Injectable, computed, inject, signal } from '@angular/core';
 
 const STORAGE_KEY = 'thakurg-lang';
 const DICTS: Record<Lang, Translations> = { en: EN, hi: HI, ar: AR };

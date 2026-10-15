@@ -1,12 +1,13 @@
-import { Component, OnDestroy, computed, effect, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { TranslationKey } from '../../i18n/en';
-import { I18nService } from '../../core/i18n.service';
-import { ResultsService, SpeedResult } from '../../core/results.service';
-import { SeoService } from '../../core/seo.service';
-import { ShareService, fmtMbps } from '../../core/share.service';
 import { Lang, SITE_URL } from '../../core/site';
+import { ActivatedRoute } from '@angular/router';
+import { SeoService } from '../../core/seo.service';
+import { I18nService } from '../../core/i18n.service';
+import { ResultsService } from '../../core/results.service';
+import { SpeedResult } from '../../core/models/results.model';
+import { ShareService, fmtMbps } from '../../core/share.service';
 import { SpeedEngine, gaugeFraction } from '../../core/speed-engine.service';
+import { Component, OnDestroy, computed, effect, inject, signal } from '@angular/core';
 
 const TICKS = [0, 5, 25, 100, 500, 1000];
 const range = (n: number) => Array.from({ length: n }, (_, i) => i + 1);

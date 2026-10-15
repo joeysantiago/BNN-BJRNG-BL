@@ -1,11 +1,12 @@
-import { Component, ElementRef, HostListener, computed, inject, signal, viewChild } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, map } from 'rxjs';
-import { I18nService } from '../core/i18n.service';
-import { InstallService } from '../core/install.service';
 import { Lang, langInfo } from '../core/site';
-import { Skin, ThemeService } from '../core/theme.service';
+import { Skin } from '../core/models/theme.model';
+import { I18nService } from '../core/i18n.service';
+import { ThemeService } from '../core/theme.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { InstallService } from '../core/install.service';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, ElementRef, HostListener, computed, inject, signal, viewChild } from '@angular/core';
 
 const SPEED_PATHS = new Set(['/', '/hi', '/ar']);
 

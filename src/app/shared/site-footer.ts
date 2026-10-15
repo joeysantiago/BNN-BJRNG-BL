@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { I18nService } from '../core/i18n.service';
 import { SITE_NAME } from '../core/site';
+import { RouterLink } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { I18nService } from '../core/i18n.service';
 
 @Component({
   selector: 'app-site-footer',

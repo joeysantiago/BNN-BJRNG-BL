@@ -1,9 +1,9 @@
+import { SITE_URL } from '../../core/site';
+import { RouterLink } from '@angular/router';
+import { SeoService } from '../../core/seo.service';
+import { I18nService } from '../../core/i18n.service';
 import { Component, effect, inject } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { RouterLink } from '@angular/router';
-import { I18nService } from '../../core/i18n.service';
-import { SeoService } from '../../core/seo.service';
-import { SITE_URL } from '../../core/site';
 
 /**
  * Atrium HR. The app is a self-contained page (public/atrium/app.html) shown full screen in a frame, so its own
