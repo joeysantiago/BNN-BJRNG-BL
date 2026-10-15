@@ -5,50 +5,16 @@
 
     <form class="find" role="search" (submit)="$event.preventDefault(); submit(q.value)">
       <label class="sr-only" for="yt-q">{{ i18n.t('yt.label') }}</label>
-      <input #q id="yt-q" type="search" class="inset" autocomplete="off" spellcheck="false" enterkeyhint="search" [placeholder]="i18n.t('yt.placeholder')" [disabled]="helper() !== 'up'" />
-      <button type="submit" class="btn pri" [disabled]="busy() || helper() !== 'up'">{{ busy() ? i18n.t('yt.searching') : i18n.t('yt.go') }}</button>
-      <button type="button" class="btn icon" [attr.aria-expanded]="setupOpen()" [attr.aria-label]="i18n.t('yt.settings')" [attr.title]="i18n.t('yt.settings')" (click)="setupOpen.set(!setupOpen())">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-      </button>
+      <input #q id="yt-q" type="search" class="inset" autocomplete="off" spellcheck="false" enterkeyhint="search" [placeholder]="i18n.t(canSearch ? 'yt.placeholder' : 'yt.placeholder.link')" />
+      <button type="submit" class="btn pri" [disabled]="busy()">{{ busy() ? i18n.t('yt.searching') : i18n.t(canSearch ? 'yt.go' : 'yt.play') }}</button>
     </form>
 
-    @if (helper() === 'down') {
-      <div class="helper inset" role="alert">
-        <p class="helper-h">{{ i18n.t('yt.helper.title') }}</p>
-        <p>{{ i18n.t('yt.helper.text') }}</p>
-        <code>npm run youtube</code>
-      </div>
-    }
-
-    @if (setupOpen() || helper() === 'down') {
-      <form class="helper setup inset" (submit)="$event.preventDefault(); saveSetup(hurl.value, hkey.value)">
-        <label>{{ i18n.t('yt.url') }}<input #hurl type="url" [value]="helperUrl()" autocomplete="off" spellcheck="false" placeholder="https://…" /></label>
-        <label>{{ i18n.t('yt.key') }}<input #hkey type="password" [value]="helperKey()" autocomplete="off" spellcheck="false" /></label>
-        <p>{{ i18n.t('yt.setup.hint') }}</p>
-        <div><button type="submit" class="btn pri">{{ i18n.t('yt.save') }}</button></div>
-      </form>
-    }
-
     @if (message(); as m) {
-      <p class="err" role="alert">{{ i18n.t(m === 'noresults' ? 'yt.noresults' : m === 'badlink' ? 'yt.badlink' : 'yt.failed') }}</p>
+      <p class="err" role="alert">{{ i18n.t(m === 'noresults' ? 'yt.noresults' : m === 'badlink' ? 'yt.badlink' : m === 'needlink' ? 'yt.needlink' : 'yt.failed') }}</p>
     }
 
-    @if (src(); as s) {
-      <audio
-        #audio
-        [src]="s"
-        preload="metadata"
-        (loadedmetadata)="onLoaded(audio)"
-        (durationchange)="duration.set(audio.duration || 0)"
-        (timeupdate)="time.set(audio.currentTime)"
-        (play)="onPlay()"
-        (pause)="onPause()"
-        (ended)="onEnded(audio)"
-        (error)="onError()"
-        (emptied)="onTrackChange()"
-        (loadstart)="onTrackChange()"
-      ></audio>
-    }
+    <!-- YouTube's own player. It stays visible, as YouTube's terms require; the controls below drive it. -->
+    <div class="video" [class.on]="!!current()"><div #host class="host"></div></div>
 
     @if (current(); as t) {
       <div class="now">

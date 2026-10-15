@@ -31,6 +31,7 @@ const ORIGINS = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 const VIDEO_ID = /^[\w-]{11}$/;
 const LIST_ID = /^[\w-]{10,64}$/;
 const URL_TTL = 20 * 60 * 1000;
+const CHUNK = 1024 * 1024;
 
 if (HOST !== '127.0.0.1' && !TOKEN) {
   console.error('Set YT_TOKEN before listening on anything other than 127.0.0.1.');
@@ -85,17 +86,33 @@ const resolve = async (id) => {
 
 const stream = async (req, res, id) => {
   const entry = await resolve(id);
-  const range = req.headers.range ?? 'bytes=0-';
-  const upstream = await fetch(entry.url, { headers: { Range: range } });
+  // YouTube refuses open-ended ranges ("bytes=0-", which is what a browser asks for first) and any Range header after the
+  // first chunk. Its own players ask for a piece with the "range" URL parameter instead, so every request is cut into a
+  // bounded chunk that way. The browser gets a 206 with the real total size and asks for the next chunk when it needs it.
+  const total = Number(new URL(entry.url).searchParams.get('clen')) || 0;
+  const asked = /^bytes=(\d+)-(\d*)$/.exec(req.headers.range ?? '');
+  const start = asked ? Number(asked[1]) : 0;
+  if (total && start >= total)
+    return send(res, 416, { error: 'range not satisfiable' }, { 'Content-Range': `bytes */${total}` });
+  let end = asked?.[2] ? Math.min(Number(asked[2]), start + CHUNK - 1) : start + CHUNK - 1;
+  if (total)
+    end = Math.min(end, total - 1);
+  const upstream = await fetch(`${entry.url}&range=${start}-${end}`);
   if (!upstream.ok && upstream.status !== 206) {
     urls.delete(id);
     return send(res, 502, { error: `upstream ${upstream.status}` });
   }
-  const headers = { 'Content-Type': entry.mime, 'Accept-Ranges': 'bytes', 'Cache-Control': 'no-store' };
-  for (const h of ['content-length', 'content-range'])
-    if (upstream.headers.get(h))
-      headers[h] = upstream.headers.get(h);
-  res.writeHead(upstream.status, headers);
+  const headers = {
+    'Content-Type': entry.mime,
+    'Accept-Ranges': 'bytes',
+    'Cache-Control': 'no-store',
+    'Content-Range': `bytes ${start}-${end}/${total || '*'}`,
+    // The page asks with crossorigin="anonymous"; without CORS the browser blocks every chunk after the first (ORB).
+    'Access-Control-Expose-Headers': 'Content-Range, Content-Length, Accept-Ranges',
+  };
+  if (upstream.headers.get('content-length'))
+    headers['Content-Length'] = upstream.headers.get('content-length');
+  res.writeHead(206, headers);
   Readable.fromWeb(upstream.body).on('error', () => res.destroy()).pipe(res);
   res.on('close', () => upstream.body.cancel().catch(() => undefined));
 };

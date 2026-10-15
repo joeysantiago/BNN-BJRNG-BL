@@ -1,38 +1,25 @@
 import { SITE_URL } from '../../core/site';
 import { Repeat } from '../creta/creta.model';
+import { APP_SETTINGS } from '../../appSettings';
 import { SeoService } from '../../core/seo.service';
 import { isPlatformBrowser } from '@angular/common';
 import { I18nService } from '../../core/i18n.service';
-import { HelperState, YtInput, YtVideo } from './youtube.model';
+import { YT_ENDED, YT_PAUSED, YT_PLAYING, YtInput, YtMessage, YtPlayer, YtPlayerApi, YtVideo, YtWindow } from './youtube.model';
 import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
 
-/** Helper started with `npm run youtube`. It returns audio-only streams, so no video and no ads are loaded. */
-const DEFAULT_HELPER = 'http://127.0.0.1:8787';
-const LS_URL = 'yt.helperUrl';
-const LS_KEY = 'yt.helperKey';
 const ID = /^[\w-]{11}$/;
-
-const lsGet = (k: string): string => {
-  try {
-    return localStorage.getItem(k) ?? '';
-  } catch {
-    return '';
-  }
-};
-const lsSet = (k: string, v: string): void => {
-  try {
-    if (v) localStorage.setItem(k, v);
-    else localStorage.removeItem(k);
-  } catch {
-    /* storage unavailable */
-  }
-};
+const API = 'https://www.googleapis.com/youtube/v3';
 
 const fmtTime = (s: number): string => {
   if (!Number.isFinite(s) || s < 0) return '0:00';
   const m = Math.floor(s / 60);
   return `${m}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 };
+
+const thumbOf = (id: string): string => `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
+
+/** Search results arrive with HTML entities such as &amp;. */
+const decode = (s: string): string => new DOMParser().parseFromString(s, 'text/html').documentElement.textContent ?? s;
 
 /** Finds a video or playlist id in a pasted YouTube link, or a bare 11 character video id. */
 const parseInput = (text: string): YtInput => {
@@ -50,6 +37,10 @@ const parseInput = (text: string): YtInput => {
   }
 };
 
+/**
+ * Plays YouTube videos with YouTube's own embedded player (IFrame Player API), driven by our controls. The video stays
+ * visible and YouTube's ads and terms apply. Nothing has to run on your computer.
+ */
 @Component({
   selector: 'app-youtube',
   templateUrl: './youtube.html',
@@ -59,15 +50,13 @@ export class Youtube implements OnDestroy {
   protected readonly i18n = inject(I18nService);
   private readonly seo = inject(SeoService);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
-  protected readonly audioRef = viewChild<ElementRef<HTMLAudioElement>>('audio');
+  private readonly host = viewChild<ElementRef<HTMLElement>>('host');
 
-  protected readonly helper = signal<HelperState>('checking');
-  protected readonly helperUrl = signal(DEFAULT_HELPER);
-  protected readonly helperKey = signal('');
-  protected readonly setupOpen = signal(false);
+  /** Searching by name and opening playlists use the YouTube Data API, so they need a key in appSettings.ts. */
+  protected readonly canSearch = !!APP_SETTINGS.youtube.apiKey;
   protected readonly results = signal<YtVideo[]>([]);
   protected readonly queue = signal<YtVideo[]>([]);
-  protected readonly message = signal<'' | 'noresults' | 'failed' | 'badlink'>('');
+  protected readonly message = signal<YtMessage>('');
   protected readonly busy = signal(false);
   protected readonly index = signal(0);
   protected readonly playing = signal(false);
@@ -80,14 +69,14 @@ export class Youtube implements OnDestroy {
   protected readonly failed = signal(false);
 
   protected readonly current = computed(() => this.queue()[this.index()] ?? null);
-  protected readonly src = computed(() => {
-    const t = this.current();
-    return t ? this.api(`/api/stream/${t.id}`) : null;
-  });
   protected readonly timeText = computed(() => fmtTime(this.time()));
   protected readonly durationText = computed(() => fmtTime(this.duration()));
 
-  protected autoplay = false;
+  private player: YtPlayer | null = null;
+  private apiReady: Promise<YtPlayerApi> | null = null;
+  private readonly playerReady = signal(false);
+  private loadedId = '';
+  private ticker: ReturnType<typeof setInterval> | undefined;
   private wakeLock: WakeLockSentinel | null = null;
 
   // A wake lock is dropped when the tab is hidden, so ask for it again when the tab returns.
@@ -120,18 +109,23 @@ export class Youtube implements OnDestroy {
       });
     });
 
-    // Keep the audio element's volume in step with the sliders.
+    // Load the chosen video into the player.
     effect(() => {
-      const a = this.audioRef()?.nativeElement;
-      if (!a) return;
-      a.volume = this.volume();
-      a.muted = this.muted();
+      const id = this.current()?.id;
+      if (id && this.browser) void this.load(id);
+    });
+
+    // Keep the player's volume in step with the sliders.
+    effect(() => {
+      const volume = this.volume();
+      const muted = this.muted();
+      if (!this.playerReady() || !this.player) return;
+      this.player.setVolume(Math.round(volume * 100));
+      if (muted) this.player.mute();
+      else this.player.unMute();
     });
 
     afterNextRender(() => {
-      this.helperUrl.set(lsGet(LS_URL) || DEFAULT_HELPER);
-      this.helperKey.set(lsGet(LS_KEY));
-      void this.checkHelper();
       this.setupMediaSession();
       document.addEventListener('visibilitychange', this.onVisible);
     });
@@ -140,7 +134,8 @@ export class Youtube implements OnDestroy {
   // #region Public Methods
 
   ngOnDestroy(): void {
-    this.audioRef()?.nativeElement.pause();
+    clearInterval(this.ticker);
+    this.player?.destroy();
     void this.releaseWake();
     if (!this.browser) return;
     document.removeEventListener('visibilitychange', this.onVisible);
@@ -152,51 +147,30 @@ export class Youtube implements OnDestroy {
   // #region Private Methods
 
   protected prev(): void {
-    const a = this.audioRef()?.nativeElement;
     const n = this.queue().length;
     if (!n) return;
-    if (a && a.currentTime > 3) {
-      a.currentTime = 0;
+    if (this.time() > 3) {
+      this.player?.seekTo(0, true);
       return;
     }
-    this.autoplay = true;
+    this.failed.set(false);
     this.index.set((this.index() - 1 + n) % n);
   }
 
   protected toggle(): void {
-    const a = this.audioRef()?.nativeElement;
-    if (!a || !this.current()) return;
-    if (a.paused) void a.play().catch(() => this.failed.set(true));
-    else a.pause();
-  }
-
-  protected onPlay(): void {
-    this.playing.set(true);
-    void this.requestWake();
-  }
-
-  protected onError(): void {
-    if (this.current()) this.failed.set(true);
-  }
-
-  protected onPause(): void {
-    this.playing.set(false);
-    void this.releaseWake();
+    if (!this.player || !this.current()) return;
+    if (this.player.getPlayerState() === YT_PLAYING) this.player.pauseVideo();
+    else this.player.playVideo();
   }
 
   protected cycleRepeat(): void {
     this.repeat.update((r) => (r === 'off' ? 'all' : r === 'all' ? 'one' : 'off'));
   }
 
-  protected onTrackChange(): void {
-    this.time.set(0);
-    this.duration.set(0);
-    this.updateMediaMetadata();
-  }
-
   protected seek(ev: Event): void {
-    const a = this.audioRef()?.nativeElement;
-    if (a) a.currentTime = +(ev.target as HTMLInputElement).value;
+    const to = +(ev.target as HTMLInputElement).value;
+    this.player?.seekTo(to, true);
+    this.time.set(to);
   }
 
   private setupMediaSession(): void {
@@ -213,14 +187,8 @@ export class Youtube implements OnDestroy {
       this.toggle();
       return;
     }
-    this.autoplay = true;
     this.failed.set(false);
     this.index.set(i);
-  }
-
-  private api(path: string): string {
-    const key = this.helperKey();
-    return this.helperUrl() + path + (key ? `${path.includes('?') ? '&' : '?'}key=${encodeURIComponent(key)}` : '');
   }
 
   protected next(auto = false): void {
@@ -240,7 +208,6 @@ export class Youtube implements OnDestroy {
         i = 0;
       }
     }
-    this.autoplay = true;
     this.failed.set(false);
     this.index.set(i);
   }
@@ -284,7 +251,7 @@ export class Youtube implements OnDestroy {
     this.queue.set(list);
     this.index.set(0);
     this.failed.set(false);
-    this.autoplay = true;
+    this.loadedId = '';
   }
 
   private async requestWake(): Promise<void> {
@@ -302,54 +269,123 @@ export class Youtube implements OnDestroy {
     this.wakeLock = null;
   }
 
-  private async checkHelper(): Promise<void> {
+  /** Loads YouTube's player script the first time a video is played, so nothing is requested from YouTube before that. */
+  private loadApi(): Promise<YtPlayerApi> {
+    const w = window as unknown as YtWindow;
+    if (w.YT?.Player) return Promise.resolve(w.YT);
+    return (this.apiReady ??= new Promise((resolve, reject) => {
+      w.onYouTubeIframeAPIReady = () => resolve(w.YT!);
+      const s = document.createElement('script');
+      s.src = 'https://www.youtube.com/iframe_api';
+      s.async = true;
+      s.onerror = () => reject(new Error('YouTube player could not be loaded'));
+      document.head.appendChild(s);
+    }));
+  }
+
+  private async load(id: string): Promise<void> {
+    if (id === this.loadedId) return;
+    this.loadedId = id;
     try {
-      await this.get('/api/health');
-      this.helper.set('up');
+      const player = await this.ensurePlayer();
+      player.loadVideoById(id);
+      this.updateMediaMetadata();
     } catch {
-      this.helper.set('down');
+      this.failed.set(true);
     }
   }
 
-  protected onEnded(a: HTMLAudioElement): void {
-    if (this.repeat() === 'one') {
-      a.currentTime = 0;
-      void a.play();
-    } else {
-      this.next(true);
+  private ensurePlayer(): Promise<YtPlayer> {
+    if (this.player) return Promise.resolve(this.player);
+    return this.loadApi().then(
+      (YT) =>
+        new Promise<YtPlayer>((resolve) => {
+          const holder = document.createElement('div');
+          this.host()!.nativeElement.appendChild(holder);
+          const player = new YT.Player(holder, {
+            host: 'https://www.youtube-nocookie.com',
+            width: '100%',
+            height: '100%',
+            playerVars: { playsinline: 1, rel: 0, controls: 0, disablekb: 1, origin: location.origin },
+            events: {
+              onReady: () => {
+                this.playerReady.set(true);
+                resolve(player);
+              },
+              onStateChange: (e) => this.onState(e.data),
+              onError: () => this.failed.set(true),
+            },
+          });
+          this.player = player;
+          this.ticker = setInterval(() => this.poll(), 500);
+        }),
+    );
+  }
+
+  /** Time and length come from the player; it offers no event for them. */
+  private poll(): void {
+    if (!this.player || !this.playerReady()) return;
+    this.time.set(this.player.getCurrentTime() || 0);
+    this.duration.set(this.player.getDuration() || 0);
+  }
+
+  private onState(state: number): void {
+    if (state === YT_PLAYING) {
+      this.playing.set(true);
+      this.failed.set(false);
+      void this.requestWake();
+    } else if (state === YT_PAUSED) {
+      this.playing.set(false);
+      void this.releaseWake();
+    } else if (state === YT_ENDED) {
+      this.playing.set(false);
+      if (this.repeat() === 'one') {
+        this.player?.seekTo(0, true);
+        this.player?.playVideo();
+      } else {
+        this.next(true);
+      }
     }
   }
 
-  protected onLoaded(a: HTMLAudioElement): void {
-    this.duration.set(a.duration || 0);
-    if (this.autoplay) {
-      this.autoplay = false;
-      void a.play().catch(() => undefined);
-    }
-  }
-
-  private async get<T>(path: string): Promise<T> {
-    const res = await fetch(this.api(path));
+  private async getJson<T>(url: string): Promise<T> {
+    const res = await fetch(url);
     if (!res.ok) throw new Error(String(res.status));
     return (await res.json()) as T;
   }
 
+  /** Title and channel of one video, from YouTube's public oEmbed address. No key needed. */
+  private async info(id: string): Promise<YtVideo> {
+    const link = encodeURIComponent(`https://www.youtube.com/watch?v=${id}`);
+    const j = await this.getJson<{ title: string; author_name: string }>(`https://www.youtube.com/oembed?format=json&url=${link}`);
+    return { id, title: j.title, artist: j.author_name, duration: 0, thumb: thumbOf(id) };
+  }
+
+  private async search(q: string): Promise<YtVideo[]> {
+    const url = `${API}/search?part=snippet&type=video&videoEmbeddable=true&maxResults=20&q=${encodeURIComponent(q)}&key=${APP_SETTINGS.youtube.apiKey}`;
+    const j = await this.getJson<{ items: { id: { videoId: string }; snippet: { title: string; channelTitle: string } }[] }>(url);
+    return j.items.map((i) => ({ id: i.id.videoId, title: decode(i.snippet.title), artist: decode(i.snippet.channelTitle), duration: 0, thumb: thumbOf(i.id.videoId) }));
+  }
+
+  private async playlist(list: string): Promise<YtVideo[]> {
+    const url = `${API}/playlistItems?part=snippet&maxResults=50&playlistId=${encodeURIComponent(list)}&key=${APP_SETTINGS.youtube.apiKey}`;
+    const j = await this.getJson<{ items: { snippet: { title: string; videoOwnerChannelTitle?: string; resourceId: { videoId: string } } }[] }>(url);
+    return j.items.map((i) => ({ id: i.snippet.resourceId.videoId, title: decode(i.snippet.title), artist: decode(i.snippet.videoOwnerChannelTitle ?? ''), duration: 0, thumb: thumbOf(i.snippet.resourceId.videoId) }));
+  }
+
   protected async submit(text: string): Promise<void> {
     const q = text.trim();
-    if (!q || this.busy() || this.helper() !== 'up') return;
+    if (!q || this.busy()) return;
     this.busy.set(true);
     this.message.set('');
     try {
       const found = parseInput(q);
-      if (found.list) {
-        const list = await this.get<YtVideo[]>(`/api/playlist/${encodeURIComponent(found.list)}`);
-        this.playNow(list);
-      } else if (found.video) {
-        this.playNow([await this.get<YtVideo>(`/api/info/${found.video}`)]);
-      } else if (/^https?:\/\//i.test(q)) {
-        this.message.set('badlink');
-      } else {
-        const list = await this.get<YtVideo[]>(`/api/search?q=${encodeURIComponent(q)}`);
+      if (found.list && !found.video && this.canSearch) this.playNow(await this.playlist(found.list));
+      else if (found.video) this.playNow([await this.info(found.video)]);
+      else if (found.list || /^https?:\/\//i.test(q)) this.message.set(found.list ? 'needlink' : 'badlink');
+      else if (!this.canSearch) this.message.set('needlink');
+      else {
+        const list = await this.search(q);
         this.results.set(list);
         if (!list.length) this.message.set('noresults');
       }
@@ -358,18 +394,6 @@ export class Youtube implements OnDestroy {
     } finally {
       this.busy.set(false);
     }
-  }
-
-  protected saveSetup(url: string, key: string): void {
-    const clean = url.trim().replace(/\/+$/, '');
-    const ok = /^https?:\/\/[^\s/]+$/i.test(clean);
-    this.helperUrl.set(ok ? clean : DEFAULT_HELPER);
-    this.helperKey.set(key.trim());
-    lsSet(LS_URL, ok && clean !== DEFAULT_HELPER ? clean : '');
-    lsSet(LS_KEY, this.helperKey());
-    this.setupOpen.set(false);
-    this.helper.set('checking');
-    void this.checkHelper();
   }
 
   // #endregion

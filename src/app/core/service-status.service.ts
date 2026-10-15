@@ -45,7 +45,7 @@ export class ServiceStatusService {
   private async probe(s: ServiceConfig): Promise<ServiceResult> {
     try {
       // no-cors: the answer is opaque, so this only proves the site can be reached from this browser.
-      await fetchTimeout(s.url, TIMEOUT, { mode: 'no-cors' });
+      await fetchTimeout(s.probeUrl ?? s.url, TIMEOUT, { mode: 'no-cors' });
       return { state: 'operational', source: 'probe' };
     } catch {
       return { state: 'unreachable', source: 'probe' };

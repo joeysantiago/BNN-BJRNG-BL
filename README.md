@@ -45,17 +45,10 @@ Copy the files into `public/audio/` and run `npm run build`. The playlist is cre
 - GitHub Pages is case sensitive. `/HR/` and `/creta/` are the real folders; `/hr` and `/Creta` are redirects handled by `404.html`.
 - Do not prerender redirect routes: on Windows `hr` and `HR` are the same folder (see `src/app/app.routes.server.ts`).
 
-## YouTube music page (`/youtube/`, private learning use)
+## YouTube page (/youtube/)
 
-Audio-only player. A small helper (`scripts/youtube-server.mjs`) fetches the audio stream, so no video or ad is requested. GitHub Pages cannot run it, so it runs on your computer:
+Plays a pasted YouTube link with YouTube's official embedded player (IFrame Player API), driven by the page's own controls (queue, shuffle, repeat, volume, seek, lock-screen buttons). Nothing runs on your computer and nothing extra is started: it is part of the normal build. The video stays visible and YouTube ads and terms apply.
 
-```
-# this computer only
-npm run youtube
+To also search by song name and open playlists, put a YouTube Data API v3 key in src/app/appSettings.ts (youtube.apiKey). Create it in Google Cloud and restrict it to your site address (HTTP referrers); a restricted key is safe in the browser. Without a key the page plays pasted links only.
 
-# for the GitHub-hosted page and your phone: set a key, allow the site, and open an HTTPS tunnel
-YT_TOKEN=pick-a-secret YT_ORIGINS=https://thakurg.com npm run youtube
-cloudflared tunnel --url http://127.0.0.1:8787
-```
-
-Open `/youtube/`, press the gear button, enter the tunnel address and the key, and save. They are stored only in that browser. The helper must be running while you listen. It is not for public use or public hosting.
+The old local helper (scripts/youtube-server.mjs, npm run youtube) is no longer used by the page.

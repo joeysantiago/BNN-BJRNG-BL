@@ -17,12 +17,18 @@ export interface ServiceConfig {
   enabled: boolean;
   /** Home page. Used for the reachability check and as the link target. */
   url: string;
+  /** Address used for the reachability check when the home page cannot be used (for example it blocks cross-site requests). */
+  probeUrl?: string;
   /** Base address of a public Atlassian Statuspage (https://host). When set, the official status is used. */
   statusPage?: string;
 }
 
 export interface AppSettings {
   githubRepo: string;
+  youtube: {
+    /** YouTube Data API v3 key. Leave empty to play pasted links only. */
+    apiKey: string;
+  };
   /** Page names per language, used in the menu, footer and section headings. */
   pageNames: Record<PageId, PageName>;
   connection: {

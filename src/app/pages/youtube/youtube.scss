@@ -296,38 +296,25 @@ input[type='range']::-moz-range-thumb {
   min-height: 48px;
 }
 
-.helper {
-  margin-top: 16px;
-  padding: 16px;
+/* The player is always 16:9 and never smaller than YouTube asks for. It is hidden until a video is chosen. */
+.video {
+  display: none;
+  width: min(480px, 100%);
+  margin: 20px auto 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--inset-radius);
+  background: #000;
+  box-shadow: var(--inset-shadow);
 }
-.helper p {
-  margin: 0 0 8px;
-  color: var(--inset-muted);
+.video.on {
+  display: block;
 }
-.helper .helper-h {
-  font-weight: 800;
-  color: inherit;
-}
-.setup {
-  display: grid;
-  gap: 12px;
-}
-.setup label {
-  display: grid;
-  gap: 4px;
-  font-weight: 700;
-  font-size: 14px;
-}
-.setup input {
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--muted);
-  background: transparent;
-  color: inherit;
-  font: 500 14px var(--font-mono);
-}
-.helper code {
-  font: 700 14px var(--font-mono);
+.host,
+.host :is(iframe, div) {
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
 
 .row img {
