@@ -7,7 +7,10 @@
     "build": "ng build && node scripts/postbuild.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "images": "node scripts/generate-images.mjs"
+    "images": "node scripts/generate-images.mjs",
+    "prestart": "node scripts/build-playlist.mjs",
+    "prebuild": "node scripts/build-playlist.mjs",
+    "playlist": "node scripts/build-playlist.mjs"
   },
   "private": true,
   "packageManager": "npm@11.4.2",

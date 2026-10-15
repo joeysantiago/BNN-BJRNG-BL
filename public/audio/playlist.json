@@ -1,6 +1,12 @@
 {
   "tracks": [
-    { "title": "Aye Khuda", "file": "Aye Khuda Murder 2 320 Kbps.mp3" },
-    { "title": "Toh Phir Aao", "file": "Toh Phir Aao Awarapan 320 Kbps.mp3" }
+    {
+      "title": "Aye Khuda Murder 2",
+      "file": "Aye Khuda Murder 2 320 Kbps.mp3"
+    },
+    {
+      "title": "Toh Phir Aao Awarapan",
+      "file": "Toh Phir Aao Awarapan 320 Kbps.mp3"
+    }
   ]
 }

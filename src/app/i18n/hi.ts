@@ -124,7 +124,7 @@ export const HI: Translations = {
   'creta.h1': 'क्रेटा ऑडियो प्लेयर',
   'creta.lead': 'लोकल Audio फ़ोल्डर के गाने सीधे अपने ब्राउज़र में सुनें।',
   'creta.empty': 'अभी कोई ट्रैक नहीं है।',
-  'creta.empty2': 'ऑडियो फ़ाइलें public/audio फ़ोल्डर में रखें और उन्हें public/audio/playlist.json में लिखें।',
+  'creta.empty2': 'ऑडियो फ़ाइलें public/audio फ़ोल्डर में कॉपी करें और साइट बिल्ड करें। प्लेलिस्ट उन्हीं से अपने आप बन जाती है।',
   'creta.now': 'अभी चल रहा है',
   'creta.playlist': 'प्लेलिस्ट',
   'creta.play': 'चलाएं',

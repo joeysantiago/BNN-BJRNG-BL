@@ -128,7 +128,7 @@ export const EN = {
   'creta.h1': 'Creta audio player',
   'creta.lead': 'Play the tracks from the local Audio folder, right in your browser.',
   'creta.empty': 'No tracks yet.',
-  'creta.empty2': 'Add audio files to the public/audio folder and list them in public/audio/playlist.json.',
+  'creta.empty2': 'Copy audio files into the public/audio folder and build the site. The playlist is created from them.',
   'creta.now': 'Now playing',
   'creta.playlist': 'Playlist',
   'creta.play': 'Play',

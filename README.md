@@ -22,18 +22,11 @@ npm run images     # redraws the share images and app icons (needs Chrome or Edg
 ## Deploying
 
 Push to `main`. `.github/workflows/deploy.yml` builds the site and publishes it to GitHub Pages.
-In the repository settings, set **Pages > Source** to **GitHub Actions**. `public/CNAME` keeps the custom domain `thakurg.com`.
+In the repository settings, set **Pages > Source** to **GitHub Actions**. The build writes `CNAME` for `thakurg.com` into `dist`.
 
 ## Adding audio to /creta
 
-1. Copy the files into `public/audio/`.
-2. List them in `public/audio/playlist.json`:
-
-```json
-{ "tracks": [ { "title": "My song", "artist": "Name", "file": "my-song.mp3", "cover": "cover.jpg" } ] }
-```
-
-`artist` and `cover` are optional. Only publish audio you have the rights to share.
+Copy the files into `public/audio/` and run `npm run build`. The playlist is created from the folder by `scripts/build-playlist.mjs`, in file name order, with the title taken from the file name. An image with the same name (`song.mp3` and `song.jpg`) becomes the cover. Only publish audio you have the rights to share.
 
 ## How it works
 
@@ -44,7 +37,7 @@ In the repository settings, set **Pages > Source** to **GitHub Actions**. `publi
 - **Install and offline**: `public/manifest.webmanifest` and the Angular service worker (`ngsw-config.json`) make the site installable and let the speed test open without a connection.
 - **Share images**: `public/og/*.png` are 1200 x 630, one per page (`speedtest`, `hr`, `creta`, `default`). Edit the cards in `scripts/generate-images.mjs` and run `npm run images`.
 - **Atrium HR**: the app is the self-contained page `public/atrium/app.html`, shown full screen inside `/HR/`. The text under it is what search engines read.
-- **SEO**: each page sets its own title, description, canonical URL, Open Graph and Twitter tags, `hreflang` (speed test) and JSON-LD in `src/app/core/seo.service.ts`. `public/sitemap.xml` and `public/robots.txt` are static, so update the sitemap when you add a page.
+- **SEO**: each page sets its own title, description, canonical URL, Open Graph and Twitter tags, `hreflang` (speed test) and JSON-LD in `src/app/core/seo.service.ts`. `CNAME`, `robots.txt` and `sitemap.xml` are generated into `dist` by `scripts/postbuild.mjs`; add new pages to its list.
 
 ## Notes
 

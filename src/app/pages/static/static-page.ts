@@ -20,8 +20,6 @@ type Kind = 'about' | 'privacy' | 'terms';
           <h2>{{ i18n.t('about.h2.tools') }}</h2>
           <ul>
             <li><a [routerLink]="i18n.info().home">{{ i18n.t('about.l.speed') }}</a></li>
-            <li><a routerLink="/HR/">{{ i18n.t('about.l.hr') }}</a></li>
-            <li><a routerLink="/creta/">{{ i18n.t('about.l.creta') }}</a></li>
           </ul>
         }
       </article>

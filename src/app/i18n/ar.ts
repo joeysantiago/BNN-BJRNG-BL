@@ -124,7 +124,7 @@ export const AR: Translations = {
   'creta.h1': 'مشغل كريتا الصوتي',
   'creta.lead': 'شغّل المقاطع من مجلد Audio المحلي مباشرة في متصفحك.',
   'creta.empty': 'لا توجد مقاطع بعد.',
-  'creta.empty2': 'أضف الملفات الصوتية إلى المجلد public/audio واذكرها في الملف public/audio/playlist.json.',
+  'creta.empty2': 'انسخ الملفات الصوتية إلى المجلد public/audio ثم ابنِ الموقع. تُنشأ قائمة التشغيل منها تلقائيًا.',
   'creta.now': 'قيد التشغيل الآن',
   'creta.playlist': 'قائمة التشغيل',
   'creta.play': 'تشغيل',
