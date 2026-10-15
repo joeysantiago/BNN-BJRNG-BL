@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /atrium/
+Disallow: /error/
+Disallow: /offline/
 
 Sitemap: https://thakurg.com/sitemap.xml

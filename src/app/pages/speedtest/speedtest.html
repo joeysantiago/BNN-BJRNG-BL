@@ -1,0 +1,194 @@
+<div class="wrap page">
+  <section class="card hero" aria-labelledby="st-h1">
+    <h1 id="st-h1">{{ i18n.t('st.h1a') }} <em>{{ i18n.t('st.h1b') }}</em></h1>
+    <p class="lead">{{ i18n.t('st.lead') }}</p>
+
+    <div class="dial inset">
+      <svg viewBox="-16 -8 272 216" role="img" [attr.aria-label]="status() + ' ' + fmt(engine.gauge()) + ' ' + unit()">
+        <defs>
+          <linearGradient id="gg" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" style="stop-color: var(--gauge-a)" />
+            <stop offset="1" style="stop-color: var(--gauge-b)" />
+          </linearGradient>
+        </defs>
+        <path class="g-bg" d="M52.12 187.88A96 96 0 1 1 187.88 187.88" fill="none" stroke-width="14" stroke-linecap="round" />
+        <path
+          class="g-fill"
+          d="M52.12 187.88A96 96 0 1 1 187.88 187.88"
+          fill="none"
+          stroke="url(#gg)"
+          stroke-width="14"
+          stroke-linecap="round"
+          pathLength="100"
+          [style.stroke-dasharray]="dash() + ' 100'"
+          [style.opacity]="arcVisible() ? 1 : 0"
+        />
+        <g aria-hidden="true">
+          @for (t of ticks; track t.label) {
+            <text class="g-tick" [attr.x]="t.x" [attr.y]="t.y" text-anchor="middle">{{ t.label }}</text>
+          }
+        </g>
+      </svg>
+      <div class="read" aria-hidden="true">
+        <span class="val">{{ fmt(engine.gauge()) }}</span>
+        <span class="unit">{{ unit() }}</span>
+      </div>
+    </div>
+
+    <p class="status" [class.bad]="engine.phase() === 'error'" aria-live="polite">{{ status() }}</p>
+    <button type="button" class="btn pri lg go" [class.stop]="engine.running()" (click)="start()">{{ buttonLabel() }}</button>
+
+    <dl class="res" [attr.aria-label]="i18n.t('res.label')">
+      <div class="cell inset" [class.on]="engine.phase() === 'down'" [class.done]="engine.down() !== null">
+        <dt>{{ i18n.t('res.download') }}</dt>
+        <dd>
+          @if (engine.down() !== null) {
+            {{ fmt(engine.down()!) }}<small>{{ i18n.t('unit.mbps') }}</small>
+          } @else {
+            –
+          }
+        </dd>
+      </div>
+      <div class="cell inset" [class.on]="engine.phase() === 'up'" [class.done]="engine.up() !== null">
+        <dt>{{ i18n.t('res.upload') }}</dt>
+        <dd>
+          @if (engine.up() !== null) {
+            {{ fmt(engine.up()!) }}<small>{{ i18n.t('unit.mbps') }}</small>
+          } @else {
+            –
+          }
+        </dd>
+      </div>
+      <div class="cell inset" [class.on]="engine.phase() === 'ping'" [class.done]="engine.ping() !== null">
+        <dt>{{ i18n.t('res.ping') }}</dt>
+        <dd>
+          @if (engine.ping() !== null) {
+            {{ engine.ping() }}<small>{{ i18n.t('unit.ms') }}</small>
+          } @else {
+            –
+          }
+        </dd>
+      </div>
+      <div class="cell inset" [class.on]="engine.phase() === 'ping'" [class.done]="engine.jitter() !== null">
+        <dt>{{ i18n.t('res.jitter') }}</dt>
+        <dd>
+          @if (engine.jitter() !== null) {
+            {{ engine.jitter() }}<small>{{ i18n.t('unit.ms') }}</small>
+          } @else {
+            –
+          }
+        </dd>
+      </div>
+    </dl>
+
+    @if (current(); as r) {
+      <div class="actions">
+        <button type="button" class="btn" aria-haspopup="true" [attr.aria-expanded]="shareOpen()" (click)="onShare()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+          {{ i18n.t('act.share') }}
+        </button>
+        <button type="button" class="btn" [disabled]="saved()" (click)="save()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+          {{ saved() ? i18n.t('act.saved') : i18n.t('act.save') }}
+        </button>
+        <button type="button" class="btn" (click)="image()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          {{ i18n.t('act.image') }}
+        </button>
+      </div>
+
+      @if (shareOpen()) {
+        <div class="share-panel inset" role="group" [attr.aria-label]="i18n.t('share.menu')">
+          <span class="share-h">{{ i18n.t('share.menu') }}</span>
+          @if (share.canNativeShare) {
+            <button type="button" class="btn sm pri" (click)="shareNative()">{{ i18n.t('act.share') }}</button>
+          }
+          @for (l of shareLinks(); track l.id) {
+            <a class="btn sm" [href]="l.href" target="_blank" rel="noopener noreferrer">{{ i18n.t(l.labelKey) }}</a>
+          }
+          <button type="button" class="btn sm" (click)="copy()">{{ copied() ? i18n.t('act.copied') : i18n.t('act.copy') }}</button>
+        </div>
+      }
+    }
+
+    <p class="note">{{ i18n.t('st.note') }}</p>
+  </section>
+
+  <section class="card hist" aria-labelledby="hist-h">
+    <div class="hist-head">
+      <h2 id="hist-h">{{ i18n.t('hist.title') }}</h2>
+      @if (results.items().length) {
+        <button type="button" class="btn sm" (click)="results.clear()">{{ i18n.t('hist.clear') }}</button>
+      }
+    </div>
+    @if (results.items().length) {
+      <ul class="hist-list">
+        @for (r of results.items(); track r.id) {
+          <li class="inset">
+            <div>
+              <time [attr.datetime]="iso(r.at)">{{ when(r.at) }}</time>
+              <p>{{ itemText(r) }}</p>
+            </div>
+            <button type="button" class="btn sm" (click)="results.remove(r.id)" [attr.aria-label]="i18n.t('hist.delete') + ' ' + when(r.at)">{{ i18n.t('hist.delete') }}</button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="empty">{{ i18n.t('hist.empty') }}</p>
+    }
+    <p class="note">{{ i18n.t('hist.note') }}</p>
+  </section>
+
+  <article class="card prose info" id="about-speed-test">
+    <h2>{{ i18n.t('info.h2.intro') }}</h2>
+    <p>{{ i18n.t('info.intro') }}</p>
+
+    <h2>{{ i18n.t('info.h2.mean') }}</h2>
+    <ul>
+      @for (k of meanKeys; track k) {
+        <li>{{ i18n.t(k) }}</li>
+      }
+    </ul>
+
+    <h2>{{ i18n.t('info.h2.good') }}</h2>
+    <p>{{ i18n.t('info.good') }}</p>
+
+    <h2>{{ i18n.t('info.h2.accurate') }}</h2>
+    <ol>
+      @for (k of accKeys; track k) {
+        <li>{{ i18n.t(k) }}</li>
+      }
+    </ol>
+
+    <h2>{{ i18n.t('info.h2.fix') }}</h2>
+    <ul>
+      @for (k of fixKeys; track k) {
+        <li>{{ i18n.t(k) }}</li>
+      }
+    </ul>
+
+    <h2>{{ i18n.t('info.h2.faq') }}</h2>
+    @for (f of faqs; track f.q) {
+      <details>
+        <summary>{{ i18n.t(f.q) }}</summary>
+        <p>{{ i18n.t(f.a) }}</p>
+      </details>
+    }
+  </article>
+</div>
+
+@if (engine.offline() && !dismissed()) {
+  <div class="offline" role="alertdialog" aria-modal="true" aria-labelledby="off-title" aria-describedby="off-text">
+    <div class="offline-inner card">
+      <span class="offline-ic" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><path d="M12 20h.01"/></svg>
+      </span>
+      <h2 id="off-title">{{ i18n.t('off.title') }}</h2>
+      <p id="off-text">{{ i18n.t('off.text') }}</p>
+      <div class="offline-actions">
+        <button type="button" class="btn pri" (click)="engine.retry()">{{ i18n.t('off.retry') }}</button>
+        <button type="button" class="btn" (click)="dismissed.set(true)">{{ i18n.t('install.close') }}</button>
+      </div>
+    </div>
+  </div>
+}

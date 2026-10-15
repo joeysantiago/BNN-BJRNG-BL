@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-skin="glass">
+  <head>
+    <meta charset="utf-8" />
+    <title>Internet Speed Test: Check Download, Upload and Ping (Free)</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#170a1c" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="application-name" content="Speed Test" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Speed Test" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <link rel="icon" href="favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+
+    <!-- Apply the saved look before the first paint so there is no flash of the wrong skin. -->
+    <script>
+      (function () {
+        try {
+          var s = localStorage.getItem('thakurg-skin');
+          if (s && /^(glass|clay|skeu|neu)$/.test(s)) document.documentElement.setAttribute('data-skin', s);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <app-root></app-root>
+    <noscript>
+      <p style="padding: 24px; font-family: sans-serif">This site needs JavaScript to run the speed test. Please turn it on and reload the page.</p>
+    </noscript>
+  </body>
+</html>
