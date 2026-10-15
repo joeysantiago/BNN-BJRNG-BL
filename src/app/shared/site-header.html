@@ -12,8 +12,6 @@
 
     <nav class="nav" [attr.aria-label]="i18n.t('nav.main')">
       <a [routerLink]="i18n.info().home" [class.on]="onSpeedRoute()" [attr.aria-current]="onSpeedRoute() ? 'page' : null">{{ i18n.t('nav.speed') }}</a>
-      <a routerLink="/creta/" routerLinkActive="on">{{ i18n.t('nav.creta') }}</a>
-      <a routerLink="/HR/" routerLinkActive="on">{{ i18n.t('nav.hr') }}</a>
     </nav>
 
     <div class="tools">
