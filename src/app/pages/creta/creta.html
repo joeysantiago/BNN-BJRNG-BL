@@ -110,9 +110,8 @@
     </div>
 
     @if (setupOpen()) {
-      <form class="setup inset" (submit)="$event.preventDefault(); saveSetup(tok.value, rp.value)">
+      <form class="setup inset" (submit)="$event.preventDefault(); saveSetup(tok.value)">
         <p>{{ i18n.t('creta.edit.setup') }}</p>
-        <label>{{ i18n.t('creta.edit.repo') }}<input #rp type="text" [value]="repo()" autocomplete="off" spellcheck="false" /></label>
         <label>{{ i18n.t('creta.edit.token') }}<input #tok type="password" [value]="token()" autocomplete="off" spellcheck="false" placeholder="github_pat_…" /></label>
         <div class="setup-actions">
           <button type="submit" class="btn pri">{{ i18n.t('creta.edit.save') }}</button>

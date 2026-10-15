@@ -1,4 +1,5 @@
 import { SITE_URL } from '../../core/site';
+import { APP_SETTINGS } from '../../appSettings';
 import { TranslationKey } from '../../i18n/en';
 import { ActivatedRoute } from '@angular/router';
 import { SeoService } from '../../core/seo.service';
@@ -29,9 +30,7 @@ const sha256 = async (text: string): Promise<string> => {
   return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
 };
 const BRANCH = 'main';
-const DEFAULT_REPO = 'joeysantiago/BNN-BJRNG-BL';
 const LS_TOKEN = 'creta.ghToken';
-const LS_REPO = 'creta.ghRepo';
 const AUDIO_EXT = /\.(mp3|m4a|aac|ogg|oga|opus|wav|flac|weba)$/i;
 
 const lsGet = (k: string): string => {
@@ -104,7 +103,7 @@ export class Creta implements OnDestroy {
 
   // Playlist editing: commits to GitHub, whose push triggers the rebuild and redeploy.
   protected readonly token = signal('');
-  protected readonly repo = signal(DEFAULT_REPO);
+  protected readonly repo = signal(APP_SETTINGS.githubRepo);
   protected readonly setupOpen = signal(false);
   protected readonly busy = signal(false);
   protected readonly status = signal<{ text: string; error: boolean } | null>(null);
@@ -147,7 +146,6 @@ export class Creta implements OnDestroy {
 
     afterNextRender(() => {
       this.token.set(lsGet(LS_TOKEN));
-      this.repo.set(lsGet(LS_REPO) || DEFAULT_REPO);
       void this.loadPlaylist();
     });
   }
@@ -337,11 +335,9 @@ export class Creta implements OnDestroy {
     else this.setupOpen.set(true);
   }
 
-  protected saveSetup(token: string, repo: string): void {
+  protected saveSetup(token: string): void {
     this.token.set(token.trim());
-    this.repo.set(repo.trim() || DEFAULT_REPO);
     lsSet(LS_TOKEN, this.token());
-    lsSet(LS_REPO, this.repo() === DEFAULT_REPO ? '' : this.repo());
     this.setupOpen.set(false);
     this.status.set(null);
   }
