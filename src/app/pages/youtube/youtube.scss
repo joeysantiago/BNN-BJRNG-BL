@@ -295,6 +295,10 @@ input[type='range']::-moz-range-thumb {
 .find .btn {
   min-height: 48px;
 }
+/* Space between the search box and whatever panel follows it (empty state, key box, player). */
+.player > .find {
+  margin-bottom: 24px;
+}
 
 /* The player is always 16:9 and never smaller than YouTube asks for. It is hidden until a video is chosen. */
 .video {

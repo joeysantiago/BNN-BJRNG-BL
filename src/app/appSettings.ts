@@ -30,11 +30,11 @@ export const APP_SETTINGS: AppSettings = {
       isp: true,
       ip: true,
       ipv4: true,
-      ipv6: true,
-      mac: true, // browsers cannot read a MAC address; the row explains that
+      ipv6: false,
+      mac: false, // browsers cannot read a MAC address; the row explains that
       location: true,
       testServer: true,
-      networkType: true,
+      networkType: false,
     },
   },
 

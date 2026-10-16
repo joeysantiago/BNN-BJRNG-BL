@@ -55,8 +55,10 @@ export class ServiceStatusService {
   private async check(s: ServiceConfig): Promise<ServiceResult> {
     if (!s.statusPage) return this.probe(s);
     try {
-      const body = await fetchJson<{ status?: { indicator?: string } }>(`${s.statusPage}/api/v2/status.json`, TIMEOUT);
-      const state = INDICATORS[body.status?.indicator ?? ''];
+      const body = await fetchJson<{ status?: { indicator?: string; description?: string } }>(`${s.statusPage}/api/v2/status.json`, TIMEOUT);
+      // Statuspage sends "major" with the text "Partial System Outage" when only some locations are hit, so that is degraded, not an outage.
+      const partial = body.status?.indicator === 'major' && /partial/i.test(body.status.description ?? '');
+      const state = partial ? 'degraded' : INDICATORS[body.status?.indicator ?? ''];
       if (state) return { state, source: 'official' };
     } catch {
       /* the status page could not be read: fall back to a reachability check */
