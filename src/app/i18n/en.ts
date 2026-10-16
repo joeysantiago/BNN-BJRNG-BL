@@ -290,6 +290,8 @@ export const EN = {
   'yt.noresults': 'No songs found.',
   'yt.badlink': 'This is not a YouTube video or playlist link.',
   'yt.failed': 'Could not reach YouTube. Please try again.',
+  'yt.video.on': 'Video: On (tap for audio only)',
+  'yt.video.off': 'Video: Off, audio only (tap to show)',
   'yt.note': 'Played with the official YouTube player, so YouTube ads and terms apply. The video must stay visible, and on phones it usually pauses when the screen turns off.',
   'seo.yt.title': 'YouTube Music Player: Queue, Shuffle and Repeat',
   'seo.yt.desc': 'Paste a YouTube link and play it with the official YouTube player, with queue, shuffle, repeat and lock-screen controls.',
