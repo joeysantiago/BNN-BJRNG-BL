@@ -9,6 +9,7 @@ import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, compute
 
 const ID = /^[\w-]{11}$/;
 const API = 'https://www.googleapis.com/youtube/v3';
+const KEY_STORE = 'thakurg-yt-key';
 
 const fmtTime = (s: number): string => {
   if (!Number.isFinite(s) || s < 0) return '0:00';
@@ -52,8 +53,9 @@ export class Youtube implements OnDestroy {
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly host = viewChild<ElementRef<HTMLElement>>('host');
 
-  /** Searching by name and opening playlists use the YouTube Data API, so they need a key in appSettings.ts. */
-  protected readonly canSearch = !!APP_SETTINGS.youtube.apiKey;
+  /** Searching by name and opening playlists use the YouTube Data API. The key comes from appSettings.ts or is pasted once on the page. */
+  protected readonly apiKey = signal(APP_SETTINGS.youtube.apiKey);
+  protected readonly canSearch = computed(() => !!this.apiKey());
   protected readonly results = signal<YtVideo[]>([]);
   protected readonly queue = signal<YtVideo[]>([]);
   protected readonly message = signal<YtMessage>('');
@@ -85,6 +87,14 @@ export class Youtube implements OnDestroy {
   };
 
   constructor() {
+    if (this.browser && !this.apiKey()) {
+      try {
+        this.apiKey.set(localStorage.getItem(KEY_STORE) ?? '');
+      } catch {
+        /* storage blocked: the key just has to be entered again next time */
+      }
+    }
+
     effect(() => {
       this.seo.set({
         title: this.i18n.t('seo.yt.title'),
@@ -225,8 +235,36 @@ export class Youtube implements OnDestroy {
     else if (i === current) this.index.set(Math.min(i, Math.max(0, this.queue().length - 1)));
   }
 
+  /** Adds a song to the playlist. The first song added starts playing straight away. */
   protected enqueue(v: YtVideo): void {
-    if (!this.queue().some((q) => q.id === v.id)) this.queue.update((q) => [...q, v]);
+    if (this.queue().some((q) => q.id === v.id)) return;
+    const first = !this.queue().length;
+    this.queue.update((q) => [...q, v]);
+    if (first) {
+      this.index.set(0);
+      this.failed.set(false);
+    }
+  }
+
+  protected saveKey(value: string): void {
+    const key = value.trim();
+    if (!key) return;
+    this.apiKey.set(key);
+    this.message.set('');
+    try {
+      localStorage.setItem(KEY_STORE, key);
+    } catch {
+      /* storage blocked */
+    }
+  }
+
+  protected clearKey(): void {
+    this.apiKey.set('');
+    try {
+      localStorage.removeItem(KEY_STORE);
+    } catch {
+      /* storage blocked */
+    }
   }
 
   protected setVolume(ev: Event): void {
@@ -350,7 +388,7 @@ export class Youtube implements OnDestroy {
 
   private async getJson<T>(url: string): Promise<T> {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(String(res.status));
+    if (!res.ok) throw Object.assign(new Error(String(res.status)), { status: res.status });
     return (await res.json()) as T;
   }
 
@@ -362,13 +400,13 @@ export class Youtube implements OnDestroy {
   }
 
   private async search(q: string): Promise<YtVideo[]> {
-    const url = `${API}/search?part=snippet&type=video&videoEmbeddable=true&maxResults=20&q=${encodeURIComponent(q)}&key=${APP_SETTINGS.youtube.apiKey}`;
+    const url = `${API}/search?part=snippet&type=video&videoEmbeddable=true&maxResults=20&q=${encodeURIComponent(q)}&key=${this.apiKey()}`;
     const j = await this.getJson<{ items: { id: { videoId: string }; snippet: { title: string; channelTitle: string } }[] }>(url);
     return j.items.map((i) => ({ id: i.id.videoId, title: decode(i.snippet.title), artist: decode(i.snippet.channelTitle), duration: 0, thumb: thumbOf(i.id.videoId) }));
   }
 
   private async playlist(list: string): Promise<YtVideo[]> {
-    const url = `${API}/playlistItems?part=snippet&maxResults=50&playlistId=${encodeURIComponent(list)}&key=${APP_SETTINGS.youtube.apiKey}`;
+    const url = `${API}/playlistItems?part=snippet&maxResults=50&playlistId=${encodeURIComponent(list)}&key=${this.apiKey()}`;
     const j = await this.getJson<{ items: { snippet: { title: string; videoOwnerChannelTitle?: string; resourceId: { videoId: string } } }[] }>(url);
     return j.items.map((i) => ({ id: i.snippet.resourceId.videoId, title: decode(i.snippet.title), artist: decode(i.snippet.videoOwnerChannelTitle ?? ''), duration: 0, thumb: thumbOf(i.snippet.resourceId.videoId) }));
   }
@@ -380,17 +418,18 @@ export class Youtube implements OnDestroy {
     this.message.set('');
     try {
       const found = parseInput(q);
-      if (found.list && !found.video && this.canSearch) this.playNow(await this.playlist(found.list));
+      if (found.list && !found.video && this.canSearch()) this.playNow(await this.playlist(found.list));
       else if (found.video) this.playNow([await this.info(found.video)]);
       else if (found.list || /^https?:\/\//i.test(q)) this.message.set(found.list ? 'needlink' : 'badlink');
-      else if (!this.canSearch) this.message.set('needlink');
+      else if (!this.canSearch()) this.message.set('needlink');
       else {
         const list = await this.search(q);
         this.results.set(list);
         if (!list.length) this.message.set('noresults');
       }
-    } catch {
-      this.message.set('failed');
+    } catch (e) {
+      const status = (e as { status?: number }).status;
+      this.message.set(status === 400 || status === 403 ? 'badkey' : 'failed');
     } finally {
       this.busy.set(false);
     }

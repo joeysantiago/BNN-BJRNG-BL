@@ -128,13 +128,13 @@ export class SpeedEngine {
       this.jitter.set(Math.round(lat.jitter * 10) / 10);
 
       this.begin('down');
-      const down = await this.measureDownload(signal, (m) => this.gauge.set(m));
+      const down = await this.measureDownload(signal, (m) => this.follow(m));
       this.down.set(down.rate);
       this.loadedDown.set(down.loaded);
 
       this.begin('up');
       this.gauge.set(0);
-      const up = await this.measureUpload(signal, (m) => this.gauge.set(m));
+      const up = await this.measureUpload(signal, (m) => this.follow(m));
       this.up.set(up.rate);
       this.loadedUp.set(up.loaded);
 
@@ -152,6 +152,11 @@ export class SpeedEngine {
     } finally {
       this.ctrl = null;
     }
+  }
+
+  /** Eases the gauge toward the latest reading so it moves smoothly instead of jumping. */
+  private follow(mbps: number): void {
+    this.gauge.update((g) => (Math.abs(mbps - g) < 0.05 ? mbps : g + (mbps - g) * 0.4));
   }
 
   private begin(phase: Phase): void {
@@ -275,7 +280,13 @@ export class SpeedEngine {
         }
       }
     };
-    await Promise.all([...Array.from({ length: STREAMS }, stream), this.probe(signal, m, pings)]);
+    // Refresh the gauge on a timer, so it moves from the first moment and not only when data arrives.
+    const ui = setInterval(() => onRate(m.rate()), 80);
+    try {
+      await Promise.all([...Array.from({ length: STREAMS }, stream), this.probe(signal, m, pings)]);
+    } finally {
+      clearInterval(ui);
+    }
     return { rate: m.final(), loaded: this.rounded(median(pings)) };
   }
 
@@ -288,7 +299,10 @@ export class SpeedEngine {
     const pings: number[] = [];
     const live = new Set<XMLHttpRequest>();
     const abortAll = () => live.forEach((x) => x.abort());
-    const watchdog = setInterval(() => m.over() && abortAll(), 100);
+    const watchdog = setInterval(() => {
+      onRate(m.rate());
+      if (m.over()) abortAll();
+    }, 80);
     signal.addEventListener('abort', abortAll);
     const body = this.uploadBody();
 
@@ -303,6 +317,7 @@ export class SpeedEngine {
           sent = e.loaded;
         };
         x.onload = () => {
+          m.add(Math.max(0, body.size - sent));
           live.delete(x);
           resolve();
         };

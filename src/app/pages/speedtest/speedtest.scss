@@ -35,16 +35,16 @@ h1 em {
 /* ---------- Dial ---------- */
 .dial {
   position: relative;
-  width: min(560px, 100%);
+  width: min(420px, 100%);
   margin: 0 auto 8px;
-  padding: 24px 16px 12px;
+  padding: 16px;
   overflow: hidden;
 }
 /* A soft glow behind the dial. It pulses while a test is running. */
 .dial::before {
   content: '';
   position: absolute;
-  inset: 12% 14% 10%;
+  inset: 14%;
   border-radius: 50%;
   background: radial-gradient(closest-side, color-mix(in srgb, var(--gauge-a) 26%, transparent), transparent 72%);
   opacity: 0.55;
@@ -86,7 +86,7 @@ h1 em {
 }
 .g-fill {
   transition:
-    stroke-dasharray 0.18s linear,
+    stroke-dasharray 0.1s linear,
     opacity 0.2s;
   filter: drop-shadow(0 0 6px color-mix(in srgb, var(--gauge-a) 55%, transparent));
 }
@@ -97,7 +97,8 @@ h1 em {
 .read {
   position: absolute;
   inset-inline: 0;
-  inset-block-start: 46%;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
   display: grid;
   justify-items: center;
   line-height: 1;
@@ -111,6 +112,14 @@ h1 em {
   margin-block-start: 8px;
   font: 700 clamp(0.95rem, 2.6vw, 1.2rem) var(--inset-font);
   color: var(--inset-muted);
+}
+
+.result-img {
+  display: block;
+  width: min(560px, 100%);
+  height: auto;
+  margin: 0 auto 8px;
+  border-radius: var(--radius, 16px);
 }
 
 .status {

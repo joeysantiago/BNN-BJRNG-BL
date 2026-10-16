@@ -5,12 +5,25 @@
 
     <form class="find" role="search" (submit)="$event.preventDefault(); submit(q.value)">
       <label class="sr-only" for="yt-q">{{ i18n.t('yt.label') }}</label>
-      <input #q id="yt-q" type="search" class="inset" autocomplete="off" spellcheck="false" enterkeyhint="search" [placeholder]="i18n.t(canSearch ? 'yt.placeholder' : 'yt.placeholder.link')" />
-      <button type="submit" class="btn pri" [disabled]="busy()">{{ busy() ? i18n.t('yt.searching') : i18n.t(canSearch ? 'yt.go' : 'yt.play') }}</button>
+      <input #q id="yt-q" type="search" class="inset" autocomplete="off" spellcheck="false" enterkeyhint="search" [placeholder]="i18n.t(canSearch() ? 'yt.placeholder' : 'yt.placeholder.link')" />
+      <button type="submit" class="btn pri" [disabled]="busy()">{{ busy() ? i18n.t('yt.searching') : i18n.t(canSearch() ? 'yt.go' : 'yt.play') }}</button>
     </form>
 
+    @if (!canSearch()) {
+      <form class="keybox inset" (submit)="$event.preventDefault(); saveKey(k.value)">
+        <b>{{ i18n.t('yt.key.title') }}</b>
+        <p>{{ i18n.t('yt.key.help') }}</p>
+        <div class="find">
+          <input #k type="password" autocomplete="off" spellcheck="false" class="inset" [placeholder]="i18n.t('yt.key.placeholder')" [attr.aria-label]="i18n.t('yt.key.placeholder')" />
+          <button type="submit" class="btn">{{ i18n.t('yt.key.save') }}</button>
+        </div>
+      </form>
+    } @else if (message() === 'badkey') {
+      <button type="button" class="btn sm" (click)="clearKey()">{{ i18n.t('yt.key.change') }}</button>
+    }
+
     @if (message(); as m) {
-      <p class="err" role="alert">{{ i18n.t(m === 'noresults' ? 'yt.noresults' : m === 'badlink' ? 'yt.badlink' : m === 'needlink' ? 'yt.needlink' : 'yt.failed') }}</p>
+      <p class="err" role="alert">{{ i18n.t(m === 'noresults' ? 'yt.noresults' : m === 'badlink' ? 'yt.badlink' : m === 'needlink' ? 'yt.needlink' : m === 'badkey' ? 'yt.badkey' : 'yt.failed') }}</p>
     }
 
     <!-- YouTube's own player. It stays visible, as YouTube's terms require; the controls below drive it. -->

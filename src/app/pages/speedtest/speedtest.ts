@@ -12,7 +12,7 @@ import { ConnectionDetails } from '../../shared/connection-details';
 import { PHASE_MS, SpeedEngine, gaugeFraction } from '../../core/speed-engine.service';
 import { Component, OnDestroy, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 
-const TICKS = [0, 5, 25, 100, 500, 1000];
+const TICKS = [0, 5, 25, 100, 500];
 const range = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
 
 @Component({
@@ -35,6 +35,7 @@ export class Speedtest implements OnDestroy {
   protected readonly saved = signal(false);
   protected readonly copied = signal(false);
   protected readonly dismissed = signal(false);
+  protected readonly resultUrl = signal<string | null>(null);
   protected readonly now = signal<number | null>(null);
   private clock: ReturnType<typeof setInterval> | undefined;
 
@@ -82,26 +83,26 @@ export class Speedtest implements OnDestroy {
   protected readonly accKeys = range(4).map((i) => `info.acc.${i}` as TranslationKey);
   protected readonly fixKeys = range(6).map((i) => `info.fix.${i}` as TranslationKey);
 
-  /** Arc fill, as a share of the 270 degree dial (pathLength is 100). */
+  /** Ring fill, as a share of the full circle (pathLength is 100). */
   protected readonly dash = computed(() => (gaugeFraction(this.engine.gauge()) * 100).toFixed(2));
   protected readonly arcVisible = computed(() => gaugeFraction(this.engine.gauge()) * 100 > 0.2);
 
-  /** Fine tick marks inside the arc. Decoration only. */
-  protected readonly minorTicks = Array.from({ length: 55 }, (_, i) => {
-    const a = ((135 + (270 * i) / 54) * Math.PI) / 180;
-    const r = i % 9 === 0 ? 74 : 79;
-    return { x1: +(120 + r * Math.cos(a)).toFixed(1), y1: +(120 + r * Math.sin(a)).toFixed(1), x2: +(120 + 84 * Math.cos(a)).toFixed(1), y2: +(120 + 84 * Math.sin(a)).toFixed(1) };
+  /** Fine tick marks inside the ring, every fifth one longer. Decoration only. */
+  protected readonly minorTicks = Array.from({ length: 60 }, (_, i) => {
+    const a = ((-90 + (360 * i) / 60) * Math.PI) / 180;
+    const r = i % 5 === 0 ? 68 : 74;
+    return { x1: +(120 + r * Math.cos(a)).toFixed(1), y1: +(120 + r * Math.sin(a)).toFixed(1), x2: +(120 + 80 * Math.cos(a)).toFixed(1), y2: +(120 + 80 * Math.sin(a)).toFixed(1) };
   });
 
-  /** The glowing dot at the leading end of the arc. */
+  /** The glowing dot at the leading end of the ring. */
   protected readonly tip = computed(() => {
-    const a = ((135 + 270 * gaugeFraction(this.engine.gauge())) * Math.PI) / 180;
-    return { x: +(120 + 96 * Math.cos(a)).toFixed(1), y: +(120 + 96 * Math.sin(a)).toFixed(1) };
+    const a = ((-90 + 360 * gaugeFraction(this.engine.gauge())) * Math.PI) / 180;
+    return { x: +(120 + 94 * Math.cos(a)).toFixed(1), y: +(120 + 94 * Math.sin(a)).toFixed(1) };
   });
 
   protected readonly ticks = TICKS.map((m) => {
-    const a = ((135 + 270 * gaugeFraction(m)) * Math.PI) / 180;
-    return { label: m >= 1000 ? '1G' : String(m), x: +(120 + 116 * Math.cos(a)).toFixed(1), y: +(120 + 116 * Math.sin(a) + 4).toFixed(1) };
+    const a = ((-90 + 360 * gaugeFraction(m)) * Math.PI) / 180;
+    return { label: String(m), x: +(120 + 111 * Math.cos(a)).toFixed(1), y: +(120 + 111 * Math.sin(a) + 3.5).toFixed(1) };
   });
 
   protected readonly status = computed(() => {
@@ -201,6 +202,28 @@ export class Speedtest implements OnDestroy {
             })),
           },
         ],
+      });
+    });
+
+    // Once a test finishes, the dial gives way to the result card drawn as an image.
+    effect((onCleanup) => {
+      const r = this.current();
+      if (!r) {
+        this.resultUrl.set(null);
+        return;
+      }
+      let url: string | null = null;
+      let stale = false;
+      void this.share.image(r).then((blob) => {
+        if (!blob || stale)
+          return;
+        url = URL.createObjectURL(blob);
+        this.resultUrl.set(url);
+      });
+      onCleanup(() => {
+        stale = true;
+        if (url)
+          URL.revokeObjectURL(url);
       });
     });
 

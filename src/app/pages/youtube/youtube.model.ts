@@ -14,7 +14,7 @@ export interface YtInput {
   list?: string;
 }
 
-export type YtMessage = '' | 'noresults' | 'failed' | 'badlink' | 'needlink';
+export type YtMessage = '' | 'noresults' | 'failed' | 'badlink' | 'needlink' | 'badkey';
 
 /** The part of the YouTube IFrame Player API that this page uses. https://developers.google.com/youtube/iframe_api_reference */
 export interface YtPlayer {

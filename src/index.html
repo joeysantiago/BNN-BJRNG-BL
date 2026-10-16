@@ -19,6 +19,14 @@
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
 
+    <!-- Routes use the hash (/#/creta). A plain path such as /creta/ is moved to /#/creta before Angular starts. -->
+    <script>
+      (function () {
+        var p = location.pathname;
+        if (p !== '/' && !/^#\//.test(location.hash) && !/\.\w+$/.test(p)) location.replace('/#' + p.replace(/\/+$/, '') + location.search);
+      })();
+    </script>
+
     <!-- Apply the saved look before the first paint so there is no flash of the wrong skin. -->
     <script>
       (function () {
