@@ -6,7 +6,8 @@ export const APP_SETTINGS: AppSettings = {
 
   // YouTube page. Pasting a video link always works. To also search by song name and open playlists, create a YouTube Data API v3
   // key in Google Cloud, restrict it to your site address (HTTP referrers), and paste it here. A restricted key is safe in the browser.
-  youtube: { apiKey: '' },
+  // `server` is the helper that turns a song into a 320 kbps MP3 download (npm run youtube); `token` is its YT_TOKEN, if any.
+  youtube: { apiKey: '', server: 'http://127.0.0.1:8787', token: '' },
 
   // Page names per language. Change the text here and the menu, footer and section headings follow.
   pageNames: {

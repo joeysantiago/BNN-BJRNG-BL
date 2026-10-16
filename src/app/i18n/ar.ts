@@ -276,6 +276,7 @@ export const AR: Translations = {
   'yt.queue': 'قائمة الانتظار',
   'yt.add': 'إضافة إلى القائمة',
   'yt.remove': 'إزالة من القائمة',
+  'yt.download': 'تنزيل MP3 (320 kbps)',
   'yt.empty': 'لا يوجد شيء قيد التشغيل بعد.',
   'yt.empty2': 'الصق رابط فيديو YouTube أعلاه.',
   'yt.noresults': 'لم يتم العثور على أغانٍ.',

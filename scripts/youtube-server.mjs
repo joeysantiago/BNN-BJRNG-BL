@@ -6,6 +6,7 @@
  *   GET /api/info/:id        -> title, artist, duration, thumbnail of one video
  *   GET /api/playlist/:id    -> videos of a playlist
  *   GET /api/stream/:id      -> the audio-only stream, forwarded with Range support
+ *   GET /api/download/:id    -> the song as a 320 kbps MP3 file download (uses ffmpeg-static, or YT_FFMPEG)
  *
  * It only plays audio, so no video and no ad is ever requested. It is for private learning use.
  *
@@ -19,13 +20,16 @@
  * (for example: cloudflared tunnel --url http://127.0.0.1:8787), then enter the tunnel address and key on the page.
  */
 import { createServer } from 'node:http';
+import { spawn } from 'node:child_process';
 import { Readable } from 'node:stream';
+import ffmpegPath from 'ffmpeg-static';
 import { timingSafeEqual } from 'node:crypto';
 import { Innertube, UniversalCache } from 'youtubei.js';
 
 const PORT = Number(process.env.YT_PORT) || 8787;
 const HOST = process.env.YT_HOST || '127.0.0.1';
 const TOKEN = process.env.YT_TOKEN || '';
+const FFMPEG = process.env.YT_FFMPEG || ffmpegPath || 'ffmpeg';
 const EXTRA = (process.env.YT_ORIGINS || '').split(',').map((o) => o.trim()).filter(Boolean);
 const ORIGINS = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 const VIDEO_ID = /^[\w-]{11}$/;
@@ -117,6 +121,42 @@ const stream = async (req, res, id) => {
   res.on('close', () => upstream.body.cancel().catch(() => undefined));
 };
 
+/** Downloads the whole audio stream chunk by chunk and converts it to a 320 kbps MP3 with ffmpeg while sending it. */
+const download = async (res, id) => {
+  const entry = await resolve(id);
+  const total = Number(new URL(entry.url).searchParams.get('clen')) || 0;
+  const name = `${entry.video.title.replace(/[^\w\s.-]/g, '').trim().slice(0, 80) || id}.mp3`;
+  const ffmpeg = spawn(FFMPEG, ['-hide_banner', '-loglevel', 'error', '-i', 'pipe:0', '-vn', '-codec:a', 'libmp3lame', '-b:a', '320k', '-metadata', `title=${entry.video.title}`, '-metadata', `artist=${entry.video.artist}`, '-f', 'mp3', 'pipe:1']);
+  ffmpeg.on('error', () => res.destroy());
+  ffmpeg.stdin.on('error', () => undefined);
+  res.writeHead(200, {
+    'Content-Type': 'audio/mpeg',
+    'Content-Disposition': `attachment; filename="${name.replace(/[^\x20-\x7e]/g, '_')}"; filename*=UTF-8''${encodeURIComponent(name)}`,
+    'Cache-Control': 'no-store',
+    'Access-Control-Expose-Headers': 'Content-Disposition',
+  });
+  ffmpeg.stdout.pipe(res);
+  res.on('close', () => ffmpeg.kill());
+  try {
+    for (let start = 0; !total || start < total; start += CHUNK) {
+      const upstream = await fetch(`${entry.url}&range=${start}-${start + CHUNK - 1}`);
+      if (!upstream.ok && upstream.status !== 206) {
+        urls.delete(id);
+        break;
+      }
+      const part = Buffer.from(await upstream.arrayBuffer());
+      if (!part.length)
+        break;
+      if (!ffmpeg.stdin.write(part))
+        await new Promise((ok) => ffmpeg.stdin.once('drain', ok));
+      if (!total && part.length < CHUNK)
+        break;
+    }
+  } finally {
+    ffmpeg.stdin.end();
+  }
+};
+
 const handle = async (req, res) => {
   const url = new URL(req.url, `http://127.0.0.1:${PORT}`);
   const [, api, action, param] = url.pathname.split('/');
@@ -140,6 +180,8 @@ const handle = async (req, res) => {
     const list = await (await client()).getPlaylist(param);
     return send(res, 200, list.items.filter((i) => i.type === 'PlaylistVideo').map(toVideo));
   }
+  if (action === 'download' && VIDEO_ID.test(param ?? ''))
+    return download(res, param);
   if (action === 'stream' && VIDEO_ID.test(param ?? ''))
     return stream(req, res, param);
   return send(res, 404, { error: 'not found' });

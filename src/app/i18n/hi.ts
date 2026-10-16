@@ -276,6 +276,7 @@ export const HI: Translations = {
   'yt.queue': 'कतार',
   'yt.add': 'कतार में जोड़ें',
   'yt.remove': 'कतार से हटाएं',
+  'yt.download': 'MP3 डाउनलोड करें (320 kbps)',
   'yt.empty': 'अभी कुछ नहीं चल रहा।',
   'yt.empty2': 'ऊपर YouTube वीडियो का लिंक पेस्ट करें।',
   'yt.noresults': 'कोई गाना नहीं मिला।',

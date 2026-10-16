@@ -285,6 +285,7 @@ export const EN = {
   'yt.queue': 'Queue',
   'yt.add': 'Add to queue',
   'yt.remove': 'Remove from queue',
+  'yt.download': 'Download MP3 (320 kbps)',
   'yt.empty': 'Nothing playing yet.',
   'yt.empty2': 'Paste a YouTube video link above.',
   'yt.noresults': 'No songs found.',

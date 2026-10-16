@@ -28,6 +28,10 @@ export interface AppSettings {
   youtube: {
     /** YouTube Data API v3 key. Leave empty to play pasted links only. */
     apiKey: string;
+    /** Address of the helper server (scripts/youtube-server.mjs) that makes the 320 kbps MP3 downloads. */
+    server: string;
+    /** The helper's YT_TOKEN, if it has one. */
+    token: string;
   };
   /** Page names per language, used in the menu, footer and section headings. */
   pageNames: Record<PageId, PageName>;

@@ -335,6 +335,18 @@ export class Youtube implements OnDestroy {
     this.muted.set(false);
   }
 
+  /** Starts a normal browser download of the song as a 320 kbps MP3 made by the helper server. Works the same on phones and computers. */
+  protected download(v: YtVideo): void {
+    const { server, token } = APP_SETTINGS.youtube;
+    const a = document.createElement('a');
+    a.href = `${server.replace(/\/$/, '')}/api/download/${v.id}${token ? `?key=${encodeURIComponent(token)}` : ''}`;
+    a.rel = 'noopener';
+    a.download = `${v.title}.mp3`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
   protected playResult(v: YtVideo): void {
     this.enqueue(v);
     this.choose(this.queue().findIndex((q) => q.id === v.id));
