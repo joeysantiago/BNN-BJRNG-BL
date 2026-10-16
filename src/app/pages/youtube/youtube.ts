@@ -1,10 +1,10 @@
 import { SITE_URL } from '../../core/site';
 import { Repeat } from '../creta/creta.model';
-import { APP_SETTINGS } from '../../appSettings';
 import { SeoService } from '../../core/seo.service';
 import type { TranslationKey } from '../../i18n/en';
 import { isPlatformBrowser } from '@angular/common';
 import { I18nService } from '../../core/i18n.service';
+import { SettingsService } from '../../core/settings.service';
 import { YT_ENDED, YT_PAUSED, YT_PLAYING, YtInput, YtMessage, YtPlayer, YtPlayerApi, YtPlaylist, YtVideo, YtWindow } from './youtube.model';
 import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 
@@ -73,12 +73,13 @@ const parseInput = (text: string): YtInput => {
 export class Youtube implements OnDestroy {
   protected readonly i18n = inject(I18nService);
   private readonly seo = inject(SeoService);
+  protected readonly cfg = inject(SettingsService);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly host = viewChild<ElementRef<HTMLElement>>('host');
 
   /** Searching by name and opening playlists use the YouTube Data API. The key comes from appSettings.ts or is pasted once on the page. */
-  protected readonly apiKey = signal(APP_SETTINGS.youtube.apiKey);
-  protected readonly canSearch = computed(() => !!this.apiKey());
+  protected readonly apiKey = signal('');
+  protected readonly canSearch = computed(() => !!this.apiKey() && this.cfg.on('yt.search'));
   protected readonly results = signal<YtVideo[]>([]);
   protected readonly queue = signal<YtVideo[]>([]);
   protected readonly message = signal<YtMessage>('');
@@ -96,8 +97,8 @@ export class Youtube implements OnDestroy {
   protected readonly quality = signal('auto');
   protected readonly qualities = signal<string[]>([]);
   protected canFullscreen = false;
-  protected readonly serverUrl = signal(APP_SETTINGS.youtube.server);
-  protected readonly serverToken = signal(APP_SETTINGS.youtube.token);
+  protected readonly serverUrl = signal('');
+  protected readonly serverToken = signal('');
   protected readonly playlists = signal<YtPlaylist[]>([]);
   protected readonly target = signal('');
   protected readonly showTip = signal(false);
@@ -136,6 +137,11 @@ export class Youtube implements OnDestroy {
   constructor() {
     if (this.browser) {
       this.canFullscreen = !!document.fullscreenEnabled;
+      this.cfg.restore();
+      const saved = this.cfg.settings().youtube;
+      this.apiKey.set(saved.apiKey);
+      this.serverUrl.set(saved.server);
+      this.serverToken.set(saved.token);
       try {
         if (!this.serverUrl()) this.serverUrl.set(localStorage.getItem(SERVER_STORE) ?? '');
         if (!this.serverToken()) this.serverToken.set(localStorage.getItem(TOKEN_STORE) ?? '');
@@ -198,7 +204,7 @@ export class Youtube implements OnDestroy {
     // Load the chosen video into the player.
     effect(() => {
       const id = this.current()?.id;
-      if (id && this.browser) untracked(() => void this.start(id));
+      if (id && this.browser && this.cfg.on('yt.play')) untracked(() => void this.start(id));
     });
 
     // Keep the player's volume in step with the sliders.
@@ -585,6 +591,7 @@ export class Youtube implements OnDestroy {
 
   /** Downloads the song as a 320 kbps MP3 made by the helper server and saves it on this device, phone or computer. */
   protected async download(v: YtVideo): Promise<void> {
+    if (!this.cfg.on('yt.download')) return;
     const base = this.serverBase();
     if (!base) {
       this.message.set('noserver');
@@ -887,6 +894,7 @@ export class Youtube implements OnDestroy {
     try {
       const found = parseInput(q);
       if (found.list && !found.video && this.canSearch()) this.playNow(await this.playlist(found.list));
+      else if (found.video && !this.cfg.on('yt.play')) this.results.set([await this.info(found.video)]);
       else if (found.video) this.playNow([await this.info(found.video)]);
       else if (found.list || /^https?:\/\//i.test(q)) this.message.set(found.list ? 'needlink' : 'badlink');
       else if (!this.canSearch()) this.message.set('needlink');

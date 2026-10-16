@@ -17,11 +17,11 @@ export class ServiceStatus implements OnDestroy {
   protected readonly status = inject(ServiceStatusService);
   private stopWatching: () => void = () => {};
 
-  protected readonly groups = GROUPS.map((g) => ({
+  protected readonly groups = computed(() => GROUPS.map((g) => ({
     id: g,
     label: `svc.group.${g}` as TranslationKey,
-    items: this.status.services.filter((s) => s.group === g),
-  })).filter((g) => g.items.length);
+    items: this.status.services().filter((s) => s.group === g),
+  })).filter((g) => g.items.length));
 
   protected readonly issues = computed(() => Object.values(this.status.results()).filter((r) => r.state !== 'operational' && r.state !== 'checking').length);
 

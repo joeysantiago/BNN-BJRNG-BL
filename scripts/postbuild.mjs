@@ -13,7 +13,7 @@ const dist = join(resolve(dirname(fileURLToPath(import.meta.url)), '..'), 'dist'
 copyFileSync(join(dist, 'index.csr.html'), join(dist, '404.html'));
 console.log('created 404.html');
 
-const pages = ['', 'hi', 'ar', 'HR', 'creta', 'nexon', 'youtube', 'about', 'privacy', 'terms', 'offline', 'error'];
+const pages = ['', 'hi', 'ar', 'HR', 'creta', 'nexon', 'youtube', 'about', 'privacy', 'terms', 'master', 'offline', 'error'];
 const missing = pages.filter((p) => !existsSync(join(dist, p, 'index.html')));
 if (missing.length) {
   console.error('Missing prerendered pages: ' + missing.map((m) => '/' + m).join(', '));

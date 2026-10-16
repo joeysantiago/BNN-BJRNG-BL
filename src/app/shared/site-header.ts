@@ -1,11 +1,11 @@
 import { filter, map } from 'rxjs';
-import { APP_SETTINGS } from '../appSettings';
 import { Lang, langInfo } from '../core/site';
 import { Skin } from '../core/models/theme.model';
 import { I18nService } from '../core/i18n.service';
 import { ThemeService } from '../core/theme.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { InstallService } from '../core/install.service';
+import { SettingsService } from '../core/settings.service';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Component, ElementRef, HostListener, computed, inject, signal, viewChild } from '@angular/core';
 
@@ -21,10 +21,11 @@ export class SiteHeader {
   protected readonly i18n = inject(I18nService);
   protected readonly theme = inject(ThemeService);
   protected readonly install = inject(InstallService);
+  protected readonly cfg = inject(SettingsService);
   private readonly router = inject(Router);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  protected readonly settings = APP_SETTINGS;
+  protected readonly settings = this.cfg.settings;
   protected readonly themeOpen = signal(false);
   private readonly ios = viewChild.required<ElementRef<HTMLDialogElement>>('ios');
 

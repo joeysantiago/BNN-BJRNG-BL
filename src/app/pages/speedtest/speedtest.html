@@ -48,6 +48,7 @@
     </div>
     }
 
+    @if (cfg.on('speed.clock')) {
     <div class="live" role="group" [attr.aria-label]="i18n.t('clk.now')">
       <span class="chip inset">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
@@ -60,7 +61,10 @@
         <span class="v">{{ elapsedText() }}</span>
       </span>
     </div>
+    }
+    @if (cfg.on('speed.progress')) {
     <div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="progress()" [attr.aria-label]="status()"><i [style.width.%]="progress()"></i></div>
+    }
 
     <p class="status" [class.bad]="engine.phase() === 'error'" aria-live="polite">{{ status() }}</p>
     <button type="button" class="btn pri lg go" [class.stop]="engine.running()" (click)="start()">{{ buttonLabel() }}</button>
@@ -108,7 +112,7 @@
       </div>
     </dl>
 
-    @if (loadedHint(); as hint) {
+    @if (cfg.on('speed.loaded') && loadedHint(); as hint) {
       <p class="loaded inset" [class.bad]="hint === 'loaded.bad'">
         <span class="k">{{ i18n.t('res.loaded') }}</span>
         <b>{{ engine.loaded() }}<small>{{ i18n.t('unit.ms') }}</small></b>
@@ -118,21 +122,27 @@
 
     @if (current(); as r) {
       <div class="actions">
+        @if (cfg.on('speed.share')) {
         <button type="button" class="btn" aria-haspopup="true" [attr.aria-expanded]="shareOpen()" (click)="onShare()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
           {{ i18n.t('act.share') }}
         </button>
+        }
+        @if (cfg.on('speed.save')) {
         <button type="button" class="btn" [disabled]="saved()" (click)="save()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
           {{ saved() ? i18n.t('act.saved') : i18n.t('act.save') }}
         </button>
+        }
+        @if (cfg.on('speed.image')) {
         <button type="button" class="btn" (click)="image()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
           {{ i18n.t('act.image') }}
         </button>
+        }
       </div>
 
-      @if (shareOpen()) {
+      @if (cfg.on('speed.share') && shareOpen()) {
         <div class="share-panel inset" role="group" [attr.aria-label]="i18n.t('share.menu')">
           <span class="share-h">{{ i18n.t('share.menu') }}</span>
           @if (share.canNativeShare) {
@@ -149,14 +159,15 @@
     <p class="note">{{ i18n.t('st.note') }}</p>
   </section>
 
-  @if (settings.connection.enabled) {
+  @if (settings().connection.enabled) {
     <app-connection-details />
   }
 
-  @if (settings.services.enabled) {
+  @if (settings().services.enabled) {
     <app-service-status />
   }
 
+  @if (cfg.on('speed.history')) {
   <section class="card hist" aria-labelledby="hist-h">
     <div class="hist-head">
       <h2 id="hist-h">{{ i18n.t('hist.title') }}</h2>
@@ -182,6 +193,9 @@
     <p class="note">{{ i18n.t('hist.note') }}</p>
   </section>
 
+  }
+
+  @if (cfg.on('speed.info')) {
   <article class="card prose info" id="about-speed-test">
     <h2>{{ i18n.t('info.h2.intro') }}</h2>
     <p>{{ i18n.t('info.intro') }}</p>
@@ -218,6 +232,7 @@
       </details>
     }
   </article>
+  }
 </div>
 
 @if (engine.offline() && !dismissed()) {

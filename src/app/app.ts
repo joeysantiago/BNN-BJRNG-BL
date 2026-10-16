@@ -1,11 +1,13 @@
 import { filter, map } from 'rxjs';
+import { pageFeature } from './core/features';
 import { I18nService } from './core/i18n.service';
 import { SiteFooter } from './shared/site-footer';
 import { SiteHeader } from './shared/site-header';
 import { ThemeService } from './core/theme.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { SettingsService } from './core/settings.service';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { Component, afterNextRender, computed, inject } from '@angular/core';
+import { Component, afterNextRender, computed, effect, inject } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -32,6 +34,7 @@ import { Component, afterNextRender, computed, inject } from '@angular/core';
 export class App {
   protected readonly i18n = inject(I18nService);
   private readonly theme = inject(ThemeService);
+  private readonly cfg = inject(SettingsService);
   private readonly router = inject(Router);
 
   private readonly url = toSignal(
@@ -46,8 +49,15 @@ export class App {
   protected readonly bare = computed(() => /^\/HR(\/|$|[?#])/.test(this.url()));
 
   constructor() {
+    // A page that is switched off in appSettings.ts or on the /config page shows "page not found".
+    effect(() => {
+      const feature = pageFeature(this.url());
+      if (feature && !this.cfg.on(feature)) void this.router.navigateByUrl('/disabled', { replaceUrl: true });
+    });
+
     afterNextRender(() => {
       // Applied after hydration so the prerendered HTML and the first client render match.
+      this.cfg.restore();
       this.theme.restore();
       const stored = this.i18n.stored();
       if (!stored) return;

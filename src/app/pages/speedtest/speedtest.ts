@@ -1,5 +1,4 @@
 import { TranslationKey } from '../../i18n/en';
-import { APP_SETTINGS } from '../../appSettings';
 import { Lang, SITE_URL } from '../../core/site';
 import { ActivatedRoute } from '@angular/router';
 import { SeoService } from '../../core/seo.service';
@@ -7,6 +6,7 @@ import { I18nService } from '../../core/i18n.service';
 import { ResultsService } from '../../core/results.service';
 import { ServiceStatus } from '../../shared/service-status';
 import { SpeedResult } from '../../core/models/results.model';
+import { SettingsService } from '../../core/settings.service';
 import { ShareService, fmtMbps } from '../../core/share.service';
 import { ConnectionDetails } from '../../shared/connection-details';
 import { PHASE_MS, SpeedEngine, gaugeFraction } from '../../core/speed-engine.service';
@@ -29,7 +29,8 @@ export class Speedtest implements OnDestroy {
   private readonly seo = inject(SeoService);
   private readonly stopWatching: () => void;
 
-  protected readonly settings = APP_SETTINGS;
+  protected readonly cfg = inject(SettingsService);
+  protected readonly settings = this.cfg.settings;
   protected readonly fmt = fmtMbps;
   protected readonly shareOpen = signal(false);
   protected readonly saved = signal(false);

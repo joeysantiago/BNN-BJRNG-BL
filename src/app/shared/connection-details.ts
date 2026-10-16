@@ -1,6 +1,6 @@
-import { APP_SETTINGS } from '../appSettings';
 import { TranslationKey } from '../i18n/en';
 import { I18nService } from '../core/i18n.service';
+import { SettingsService } from '../core/settings.service';
 import { ConnectionService } from '../core/connection.service';
 import { ConnectionField } from '../core/models/app-settings.model';
 import { Component, OnDestroy, afterNextRender, computed, inject } from '@angular/core';
@@ -16,11 +16,12 @@ const NET_KEYS: Record<string, TranslationKey> = { wifi: 'conn.net.wifi', cellul
 export class ConnectionDetails implements OnDestroy {
   protected readonly i18n = inject(I18nService);
   protected readonly conn = inject(ConnectionService);
+  private readonly cfg = inject(SettingsService);
   private stopWatching: () => void = () => {};
 
   protected readonly rows = computed(() =>
-    (Object.keys(APP_SETTINGS.connection.fields) as ConnectionField[])
-      .filter((id) => APP_SETTINGS.connection.fields[id])
+    (Object.keys(this.cfg.settings().connection.fields) as ConnectionField[])
+      .filter((id) => this.cfg.settings().connection.fields[id])
       .map((id) => {
         const value = this.value(id);
         return { id, label: `conn.${id}` as TranslationKey, text: value ?? this.missing(id), found: value !== null };

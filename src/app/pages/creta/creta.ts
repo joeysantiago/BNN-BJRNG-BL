@@ -6,6 +6,7 @@ import { SeoService } from '../../core/seo.service';
 import { isPlatformBrowser } from '@angular/common';
 import { I18nService } from '../../core/i18n.service';
 import { DanceDoodle } from '../../shared/dance-doodle';
+import { SettingsService } from '../../core/settings.service';
 import { PlayerConfig, PlayerId, Repeat, Track } from './creta.model';
 import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
 
@@ -73,6 +74,7 @@ const fmtTime = (s: number): string => {
 export class Creta implements OnDestroy {
   protected readonly i18n = inject(I18nService);
   private readonly seo = inject(SeoService);
+  protected readonly flags = inject(SettingsService);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   protected readonly audioRef = viewChild<ElementRef<HTMLAudioElement>>('audio');
   protected readonly id: PlayerId = inject(ActivatedRoute).snapshot.data['player'] === 'nexon' ? 'nexon' : 'creta';

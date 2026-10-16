@@ -10,6 +10,49 @@ export const APP_SETTINGS: AppSettings = {
   // Leave it empty to use the same host as the page on port 8787 when testing locally, or let visitors enter it on the page.
   youtube: { apiKey: '', server: '', token: '' },
 
+  // Features. Set one to false to hide it everywhere it appears. Everything here can also be changed live on the /config page
+  // (saved in the visitor's browser, on top of the values in this file). A page set to false shows "page not found".
+  features: {
+    'site.install': true, // "Install app" button in the header
+    'site.theme': true, // skin picker in the header
+    'site.language': true, // language picker in the header
+    'site.nav': true, // speed test / connection / services links in the header
+    'site.footer': true, // About, Privacy, Terms and Settings links in the footer
+    'page.speed': true,
+    'page.youtube': true,
+    'page.creta': true,
+    'page.nexon': true,
+    'page.hr': true,
+    'page.about': true,
+    'page.privacy': true,
+    'page.terms': true,
+    'speed.clock': true,
+    'speed.progress': true,
+    'speed.loaded': true,
+    'speed.share': true,
+    'speed.save': true,
+    'speed.image': true,
+    'speed.history': true,
+    'speed.info': true,
+    'yt.search': true,
+    'yt.play': true,
+    'yt.video': true,
+    'yt.seek': true,
+    'yt.shuffle': true,
+    'yt.repeat': true,
+    'yt.volume': true,
+    'yt.queue': true,
+    'yt.playlists': true,
+    'yt.download': false,
+    'audio.doodle': true,
+    'audio.seek': true,
+    'audio.shuffle': true,
+    'audio.repeat': true,
+    'audio.volume': true,
+    'audio.playlist': true,
+    'audio.edit': true,
+  },
+
   // Page names per language. Change the text here and the menu, footer and section headings follow.
   pageNames: {
     speed: { en: 'Speed test', hi: 'स्पीड टेस्ट', ar: 'اختبار السرعة' },

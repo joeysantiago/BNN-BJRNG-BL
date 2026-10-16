@@ -1,7 +1,7 @@
-import { APP_SETTINGS } from '../appSettings';
-import { Injectable, signal } from '@angular/core';
-import { ServiceConfig } from './models/app-settings.model';
+import { SettingsService } from './settings.service';
 import { fetchJson, fetchTimeout } from './fetch-timeout';
+import { ServiceConfig } from './models/app-settings.model';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { ServiceResult, ServiceState } from './models/service-status.model';
 
 const TIMEOUT = 8000;
@@ -11,7 +11,8 @@ const INDICATORS: Record<string, ServiceState> = { none: 'operational', minor: '
 
 @Injectable({ providedIn: 'root' })
 export class ServiceStatusService {
-  readonly services = APP_SETTINGS.services.items.filter((s) => s.enabled);
+  private readonly cfg = inject(SettingsService);
+  readonly services = computed(() => this.cfg.settings().services.items.filter((s) => s.enabled));
   readonly checkedAt = signal<number | null>(null);
   readonly results = signal<Record<string, ServiceResult>>({});
 
@@ -20,17 +21,17 @@ export class ServiceStatusService {
   /** Check now and then on a timer while the page is open. Browser only. Returns a function that stops the timer. */
   watch(): () => void {
     void this.refresh();
-    const secs = APP_SETTINGS.services.refreshSeconds;
+    const secs = this.cfg.settings().services.refreshSeconds;
     const timer = secs > 0 ? setInterval(() => !document.hidden && void this.refresh(), secs * 1000) : undefined;
     return () => clearInterval(timer);
   }
 
   async refresh(): Promise<void> {
     const checking: Record<string, ServiceResult> = {};
-    for (const s of this.services) checking[s.id] = this.results()[s.id] ?? { state: 'checking', source: s.statusPage ? 'official' : 'probe' };
+    for (const s of this.services()) checking[s.id] = this.results()[s.id] ?? { state: 'checking', source: s.statusPage ? 'official' : 'probe' };
     this.results.set(checking);
     await Promise.all(
-      this.services.map(async (s) => {
+      this.services().map(async (s) => {
         const result = await this.check(s);
         this.results.update((r) => ({ ...r, [s.id]: result }));
       }),

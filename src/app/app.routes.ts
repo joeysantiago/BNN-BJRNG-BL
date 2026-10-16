@@ -25,6 +25,10 @@ export const routes: Routes = [
   { path: 'privacy', loadComponent: staticPage, data: { kind: 'privacy' } },
   { path: 'terms', loadComponent: staticPage, data: { kind: 'terms' } },
 
+  { path: 'master', loadComponent: () => import('./pages/config/config').then((m) => m.Config) },
+  { path: 'config', redirectTo: 'master' },
+  { path: 'disabled', loadComponent: status, data: { kind: '404' } },
+
   { path: 'offline', loadComponent: status, data: { kind: 'offline' } },
   { path: 'error', loadComponent: status, data: { kind: 'error' } },
 

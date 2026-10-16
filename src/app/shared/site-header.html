@@ -11,19 +11,22 @@
         </span>
       </a>
 
+      @if (cfg.on('site.nav')) {
       <nav class="nav" [attr.aria-label]="i18n.t('nav.main')">
         <a [routerLink]="i18n.info().home" [class.on]="onSpeedRoute()" [attr.aria-current]="onSpeedRoute() ? 'page' : null">{{ i18n.page('speed') }}</a>
-        @if (settings.connection.enabled) {
+        @if (settings().connection.enabled) {
           <a [routerLink]="i18n.info().home" fragment="connection-details">{{ i18n.page('connection') }}</a>
         }
-        @if (settings.services.enabled) {
+        @if (settings().services.enabled) {
           <a [routerLink]="i18n.info().home" fragment="services-status">{{ i18n.page('services') }}</a>
         }
       </nav>
+      }
     }
 
     <div class="tools" [class.solo]="!onSpeedRoute()">
-      @if (install.canPrompt()) {
+      @if (!cfg.on('site.install')) {
+      } @else if (install.canPrompt()) {
         <button type="button" class="btn sm pri" [attr.aria-label]="i18n.t('install.btn')" (click)="install.prompt()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>
           <span>{{ i18n.t('install.btn') }}</span>
@@ -35,6 +38,7 @@
         </button>
       }
 
+      @if (cfg.on('site.theme')) {
       <div class="menu">
         <button
           type="button"
@@ -66,6 +70,9 @@
         }
       </div>
 
+      }
+
+      @if (cfg.on('site.language')) {
       <label class="lang">
         <span class="sr-only">{{ i18n.t('lang.label') }}</span>
         <select class="btn sm" [value]="i18n.lang()" (change)="onLang($event)">
@@ -74,6 +81,7 @@
           }
         </select>
       </label>
+      }
     </div>
   </div>
 </header>

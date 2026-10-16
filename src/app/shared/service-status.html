@@ -6,7 +6,7 @@
   <p class="lead">{{ i18n.t('svc.lead') }}</p>
   <p class="summary" aria-live="polite">{{ summary() }}</p>
 
-  @for (g of groups; track g.id) {
+  @for (g of groups(); track g.id) {
     <h3>{{ i18n.t(g.label) }}</h3>
     <ul class="list">
       @for (s of g.items; track s.id) {

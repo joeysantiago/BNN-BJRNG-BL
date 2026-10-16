@@ -2,6 +2,7 @@ import { SITE_NAME } from '../core/site';
 import { RouterLink } from '@angular/router';
 import { Component, inject } from '@angular/core';
 import { I18nService } from '../core/i18n.service';
+import { SettingsService } from '../core/settings.service';
 
 @Component({
   selector: 'app-site-footer',
@@ -10,9 +11,18 @@ import { I18nService } from '../core/i18n.service';
     <footer class="foot">
       <div class="wrap foot-in">
         <nav class="links" [attr.aria-label]="i18n.t('nav.pages')">
-          <a routerLink="/about/">{{ i18n.page('about') }}</a>
-          <a routerLink="/privacy/">{{ i18n.page('privacy') }}</a>
-          <a routerLink="/terms/">{{ i18n.page('terms') }}</a>
+          @if (cfg.on('site.footer')) {
+            @if (cfg.on('page.about')) {
+              <a routerLink="/about/">{{ i18n.page('about') }}</a>
+            }
+            @if (cfg.on('page.privacy')) {
+              <a routerLink="/privacy/">{{ i18n.page('privacy') }}</a>
+            }
+            @if (cfg.on('page.terms')) {
+              <a routerLink="/terms/">{{ i18n.page('terms') }}</a>
+            }
+          }
+          <a routerLink="/master/">{{ i18n.t('cfg.link') }}</a>
         </nav>
         <p>&copy; {{ year }} {{ site }}. {{ i18n.t('ft.rights') }}</p>
       </div>
@@ -56,6 +66,7 @@ import { I18nService } from '../core/i18n.service';
 })
 export class SiteFooter {
   protected readonly i18n = inject(I18nService);
+  protected readonly cfg = inject(SettingsService);
   protected readonly site = SITE_NAME;
   protected readonly year = new Date().getFullYear();
 }
