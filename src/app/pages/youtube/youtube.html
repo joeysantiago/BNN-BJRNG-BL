@@ -27,9 +27,12 @@
     }
 
     <!-- YouTube's own player. It stays visible, as YouTube's terms require; the controls below drive it. -->
-    <div class="video" [class.on]="!!current()"><div #host class="host"></div></div>
+    <div class="video" [class.on]="!!current()" [class.off]="!showVideo()"><div #host class="host"></div></div>
 
     @if (current(); as t) {
+      <button type="button" class="btn sm vtoggle" [class.is-on]="showVideo()" role="switch" [attr.aria-checked]="showVideo()" (click)="toggleVideo()">
+        {{ i18n.t(showVideo() ? 'yt.video.on' : 'yt.video.off') }}
+      </button>
       <div class="now">
         <div class="art inset" aria-hidden="true">
           <img [src]="t.thumb" alt="" width="160" height="90" />

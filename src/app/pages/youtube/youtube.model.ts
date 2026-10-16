@@ -25,6 +25,7 @@ export interface YtPlayer {
   destroy(): void;
   setVolume(volume: number): void;
   loadVideoById(videoId: string): void;
+  setPlaybackQuality(quality: string): void;
   seekTo(seconds: number, allowSeekAhead: boolean): void;
   getDuration(): number;
   getCurrentTime(): number;

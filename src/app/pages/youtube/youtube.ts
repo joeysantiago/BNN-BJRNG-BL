@@ -10,6 +10,7 @@ import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, compute
 const ID = /^[\w-]{11}$/;
 const API = 'https://www.googleapis.com/youtube/v3';
 const KEY_STORE = 'thakurg-yt-key';
+const VIDEO_STORE = 'thakurg-yt-video';
 
 const fmtTime = (s: number): string => {
   if (!Number.isFinite(s) || s < 0) return '0:00';
@@ -69,6 +70,7 @@ export class Youtube implements OnDestroy {
   protected readonly shuffle = signal(false);
   protected readonly repeat = signal<Repeat>('off');
   protected readonly failed = signal(false);
+  protected readonly showVideo = signal(true);
 
   protected readonly current = computed(() => this.queue()[this.index()] ?? null);
   protected readonly timeText = computed(() => fmtTime(this.time()));
@@ -80,20 +82,32 @@ export class Youtube implements OnDestroy {
   private loadedId = '';
   private ticker: ReturnType<typeof setInterval> | undefined;
   private wakeLock: WakeLockSentinel | null = null;
+  private keepAlive: HTMLAudioElement | null = null;
+  private wantPlay = false;
 
   // A wake lock is dropped when the tab is hidden, so ask for it again when the tab returns.
   private onVisible = (): void => {
     if (document.visibilityState === 'visible' && this.playing()) void this.requestWake();
+    // Phones pause embedded players when the page is hidden; start again if the listener never asked to pause.
+    if (this.wantPlay && this.player && this.player.getPlayerState() === YT_PAUSED)
+      this.player.playVideo();
   };
 
   constructor() {
-    if (this.browser && !this.apiKey()) {
+    if (this.browser) {
       try {
-        this.apiKey.set(localStorage.getItem(KEY_STORE) ?? '');
+        if (!this.apiKey()) this.apiKey.set(localStorage.getItem(KEY_STORE) ?? '');
+        this.showVideo.set(localStorage.getItem(VIDEO_STORE) !== '0');
       } catch {
         /* storage blocked: the key just has to be entered again next time */
       }
     }
+
+    // Switching the video off or on changes the requested picture quality.
+    effect(() => {
+      this.showVideo();
+      this.applyQuality();
+    });
 
     effect(() => {
       this.seo.set({
@@ -145,6 +159,7 @@ export class Youtube implements OnDestroy {
 
   ngOnDestroy(): void {
     clearInterval(this.ticker);
+    this.keepAlive?.pause();
     this.player?.destroy();
     void this.releaseWake();
     if (!this.browser) return;
@@ -169,8 +184,56 @@ export class Youtube implements OnDestroy {
 
   protected toggle(): void {
     if (!this.player || !this.current()) return;
-    if (this.player.getPlayerState() === YT_PLAYING) this.player.pauseVideo();
-    else this.player.playVideo();
+    if (this.player.getPlayerState() === YT_PLAYING) {
+      this.wantPlay = false;
+      this.player.pauseVideo();
+    } else {
+      this.wantPlay = true;
+      this.player.playVideo();
+    }
+  }
+
+  protected toggleVideo(): void {
+    this.showVideo.update((v) => !v);
+    try {
+      localStorage.setItem(VIDEO_STORE, this.showVideo() ? '1' : '0');
+    } catch {
+      /* storage blocked */
+    }
+  }
+
+  /** Asks YouTube for its smallest picture while the video is off. YouTube treats this as a hint and may ignore it. */
+  private applyQuality(): void {
+    if (!this.playerReady() || !this.player) return;
+    this.player.setPlaybackQuality(this.showVideo() ? 'default' : 'tiny');
+  }
+
+  /** A looping silent clip keeps the page registered as a media player, so phones are less eager to suspend it in the background. */
+  private startKeepAlive(): void {
+    if (!this.browser) return;
+    if (!this.keepAlive) {
+      const bytes = new Uint8Array(44 + 8000).fill(128);
+      const dv = new DataView(bytes.buffer);
+      const tag = (o: number, s: string): void => [...s].forEach((c, i) => dv.setUint8(o + i, c.charCodeAt(0)));
+      tag(0, 'RIFF');
+      dv.setUint32(4, 36 + 8000, true);
+      tag(8, 'WAVEfmt ');
+      dv.setUint32(16, 16, true);
+      dv.setUint16(20, 1, true);
+      dv.setUint16(22, 1, true);
+      dv.setUint32(24, 8000, true);
+      dv.setUint32(28, 8000, true);
+      dv.setUint16(32, 1, true);
+      dv.setUint16(34, 8, true);
+      tag(36, 'data');
+      dv.setUint32(40, 8000, true);
+      let bin = '';
+      bytes.forEach((b) => (bin += String.fromCharCode(b)));
+      this.keepAlive = new Audio(`data:audio/wav;base64,${btoa(bin)}`);
+      this.keepAlive.loop = true;
+      this.keepAlive.volume = 0.01;
+    }
+    void this.keepAlive.play().catch(() => undefined);
   }
 
   protected cycleRepeat(): void {
@@ -326,7 +389,9 @@ export class Youtube implements OnDestroy {
     this.loadedId = id;
     try {
       const player = await this.ensurePlayer();
+      this.wantPlay = true;
       player.loadVideoById(id);
+      this.applyQuality();
       this.updateMediaMetadata();
     } catch {
       this.failed.set(true);
@@ -368,12 +433,25 @@ export class Youtube implements OnDestroy {
   }
 
   private onState(state: number): void {
+    const ms = 'mediaSession' in navigator ? navigator.mediaSession : null;
     if (state === YT_PLAYING) {
       this.playing.set(true);
       this.failed.set(false);
+      this.applyQuality();
+      this.startKeepAlive();
+      if (ms)
+        ms.playbackState = 'playing';
       void this.requestWake();
     } else if (state === YT_PAUSED) {
+      // The browser paused us while hidden, not the listener: carry on.
+      if (this.wantPlay && document.visibilityState === 'hidden') {
+        this.player?.playVideo();
+        return;
+      }
       this.playing.set(false);
+      this.keepAlive?.pause();
+      if (ms)
+        ms.playbackState = 'paused';
       void this.releaseWake();
     } else if (state === YT_ENDED) {
       this.playing.set(false);
