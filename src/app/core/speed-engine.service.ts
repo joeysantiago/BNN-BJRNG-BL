@@ -11,7 +11,9 @@ const WARMUP_MS = 1500;
 const BIN_MS = 100;
 /** One connection fewer than the browser limit of six per host, so the latency probe is not queued behind the data streams. */
 const STREAMS = 5;
-const UPLOAD_BYTES = 8 * 1024 * 1024;
+const UPLOAD_BYTES = 4 * 1024 * 1024;
+const CHUNK_MIN = 128 * 1024;
+const CHUNK_MAX = UPLOAD_BYTES;
 const MAX_LOG = Math.log10(1001);
 
 /** Share of the gauge arc (0 to 1) for a speed in Mbps. The scale is logarithmic, 0 to 1 Gbps. */
@@ -291,48 +293,42 @@ export class SpeedEngine {
   }
 
   /**
-   * Upload with XMLHttpRequest, because only it reports progress while a request is still being sent. fetch can only count a
-   * request once it has finished, which makes the reading jump and under-reports fast links.
+   * Upload with fetch in small chunks. A cross-origin XMLHttpRequest with an upload progress listener forces a CORS preflight that
+   * the speed server does not answer, so nothing was counted. Each chunk is counted when it completes, and its size follows the
+   * current speed so the reading stays smooth on slow and fast links alike.
    */
   private async measureUpload(signal: AbortSignal, onRate: (mbps: number) => void): Promise<PhaseResult> {
     const m = this.meter(onRate);
     const pings: number[] = [];
-    const live = new Set<XMLHttpRequest>();
-    const abortAll = () => live.forEach((x) => x.abort());
+    const local = new AbortController();
+    const abortAll = () => local.abort();
     const watchdog = setInterval(() => {
       onRate(m.rate());
-      if (m.over()) abortAll();
+      if (m.over())
+        abortAll();
     }, 80);
     signal.addEventListener('abort', abortAll);
     const body = this.uploadBody();
 
-    const send = () =>
-      new Promise<void>((resolve, reject) => {
-        const x = new XMLHttpRequest();
-        let sent = 0;
-        live.add(x);
-        x.open('POST', `${BASE}/__up?${this.bust()}`);
-        x.upload.onprogress = (e) => {
-          m.add(e.loaded - sent);
-          sent = e.loaded;
-        };
-        x.onload = () => {
-          m.add(Math.max(0, body.size - sent));
-          live.delete(x);
-          resolve();
-        };
-        x.onabort = () => {
-          live.delete(x);
-          resolve();
-        };
-        x.onerror = () => {
-          live.delete(x);
-          reject(new Error('Upload failed'));
-        };
-        x.send(body);
-      });
     const stream = async () => {
-      while (!m.over() && !signal.aborted) await send();
+      let size = CHUNK_MIN;
+      while (!m.over() && !signal.aborted) {
+        const t = performance.now();
+        try {
+          const res = await fetch(`${BASE}/__up?${this.bust()}`, { method: 'POST', body: body.slice(0, size), cache: 'no-store', signal: local.signal });
+          await res.arrayBuffer();
+          if (!res.ok)
+            throw new Error('HTTP ' + res.status);
+        } catch (e) {
+          if (local.signal.aborted)
+            return;
+          throw e;
+        }
+        m.add(size);
+        // Aim for about a quarter of a second per chunk.
+        const bytesPerSecond = size / Math.max((performance.now() - t) / 1000, 0.01);
+        size = Math.min(CHUNK_MAX, Math.max(CHUNK_MIN, Math.round(bytesPerSecond / 4)));
+      }
     };
 
     try {
@@ -342,7 +338,8 @@ export class SpeedEngine {
       signal.removeEventListener('abort', abortAll);
       abortAll();
     }
-    if (signal.aborted) throw new DOMException('Aborted', 'AbortError');
+    if (signal.aborted)
+      throw new DOMException('Aborted', 'AbortError');
     return { rate: m.final(), loaded: this.rounded(median(pings)) };
   }
 
