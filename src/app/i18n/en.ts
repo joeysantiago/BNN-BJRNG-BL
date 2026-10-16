@@ -292,6 +292,7 @@ export const EN = {
   'yt.tip.ok': 'Got it',
   'yt.noserver': 'Downloads need the helper server. Enter its address below.',
   'yt.serverdown': 'Could not reach the download server. Check it is running and the address starts with https:// (or http:// on your own network).',
+  'yt.serverkey': 'Wrong server key. Enter the key the helper server was started with (YT_TOKEN).',
   'yt.server.title': 'Download server',
   'yt.server.help': 'Enter the address of the helper server (npm run youtube) and its key, if it has one.',
   'yt.server.placeholder': 'https://your-server.example',

@@ -26,6 +26,7 @@ const MESSAGE_KEYS: Record<Exclude<YtMessage, ''>, TranslationKey> = {
   failed: 'yt.failed',
   noserver: 'yt.noserver',
   serverdown: 'yt.serverdown',
+  serverkey: 'yt.serverkey',
   noplaylist: 'yt.pl.pick',
 };
 
@@ -100,6 +101,8 @@ export class Youtube implements OnDestroy {
   protected readonly playlists = signal<YtPlaylist[]>([]);
   protected readonly target = signal('');
   protected readonly showTip = signal(false);
+  protected readonly downloading = signal('');
+  protected readonly openList = signal('');
   /** True while the song plays from the helper server through a normal audio element, which phones keep playing in the background. */
   protected readonly audioMode = signal(false);
 
@@ -116,10 +119,14 @@ export class Youtube implements OnDestroy {
   private keepAlive: HTMLAudioElement | null = null;
   private audio: HTMLAudioElement | null = null;
   private startAt = 0;
+  private serverOk = false;
+  private autoAudio = false;
   private wantPlay = false;
 
   // A wake lock is dropped when the tab is hidden, so ask for it again when the tab returns.
   private onVisible = (): void => {
+    if (document.visibilityState === 'hidden') this.handOff();
+    else if (this.autoAudio) this.handBack();
     if (document.visibilityState === 'visible' && this.playing()) void this.requestWake();
     // Phones pause embedded players when the page is hidden; start again if the listener never asked to pause.
     if (!this.audioMode() && this.wantPlay && this.player && this.player.getPlayerState() === YT_PAUSED)
@@ -262,6 +269,7 @@ export class Youtube implements OnDestroy {
   }
 
   protected async toggleVideo(): Promise<void> {
+    this.autoAudio = false;
     this.showVideo.update((v) => !v);
     try {
       localStorage.setItem(VIDEO_STORE, this.showVideo() ? '1' : '0');
@@ -321,14 +329,45 @@ export class Youtube implements OnDestroy {
 
   /** Whether the helper server answers. A network error means it is not running or the address is wrong. */
   private async audioReachable(): Promise<boolean> {
+    return (await this.ping()) === 'ok';
+  }
+
+  /** Asks the helper if it is up. A readable 401 means the key is wrong; a blocked read still proves the server answers. */
+  private async ping(): Promise<'ok' | 'down' | 'key'> {
     const base = this.serverBase();
-    if (!base) return false;
+    if (!base) return 'down';
+    const url = `${base}/api/health${this.keyQuery()}`;
     try {
-      await fetch(`${base}/api/health${this.keyQuery()}`, { mode: 'no-cors' });
-      return true;
+      const res = await fetch(url);
+      this.serverOk = res.status !== 401;
+      return res.status === 401 ? 'key' : 'ok';
     } catch {
-      return false;
+      try {
+        await fetch(url, { mode: 'no-cors' });
+        this.serverOk = true;
+        return 'ok';
+      } catch {
+        this.serverOk = false;
+        return 'down';
+      }
     }
+  }
+
+  /** The page is going to the background: switch to the helper's audio, which phones keep playing with the screen off. */
+  private handOff(): void {
+    const id = this.current()?.id;
+    if (!id || !this.serverOk || this.audioMode() || !this.playing() || !this.serverBase()) return;
+    const at = this.player?.getCurrentTime() ?? 0;
+    this.autoAudio = true;
+    this.audioMode.set(true);
+    this.player?.pauseVideo();
+    this.loadAudio(id, at, true);
+  }
+
+  /** The page is back in front: give the song back to YouTube's player at the same position. */
+  private handBack(): void {
+    this.autoAudio = false;
+    if (this.showVideo()) this.leaveAudio();
   }
 
   private keyQuery(): string {
@@ -341,8 +380,9 @@ export class Youtube implements OnDestroy {
       this.message.set('noserver');
       return;
     }
-    if (!(await this.audioReachable())) {
-      this.message.set('serverdown');
+    const state = await this.ping();
+    if (state !== 'ok') {
+      this.message.set(state === 'key' ? 'serverkey' : 'serverdown');
       return;
     }
     if (this.showVideo()) return;
@@ -543,29 +583,44 @@ export class Youtube implements OnDestroy {
     this.muted.set(false);
   }
 
-  /** Starts a normal browser download of the song as a 320 kbps MP3 made by the helper server. Works the same on phones and computers. */
+  /** Downloads the song as a 320 kbps MP3 made by the helper server and saves it on this device, phone or computer. */
   protected async download(v: YtVideo): Promise<void> {
     const base = this.serverBase();
     if (!base) {
       this.message.set('noserver');
       return;
     }
-    const key = this.keyQuery();
-    // Check the helper answers before leaving for it, so a dead address shows a message instead of an error page.
-    try {
-      await fetch(`${base}/api/health${key}`, { mode: 'no-cors' });
-    } catch {
-      this.message.set('serverdown');
+    const state = await this.ping();
+    if (state !== 'ok') {
+      this.message.set(state === 'key' ? 'serverkey' : 'serverdown');
       return;
     }
     this.message.set('');
+    const link = `${base}/api/download/${v.id}${this.keyQuery()}`;
+    const name = `${v.title.replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 80) || v.id}.mp3`;
+    this.downloading.set(v.id);
+    try {
+      const res = await fetch(link);
+      if (!res.ok) throw new Error(String(res.status));
+      this.save(URL.createObjectURL(await res.blob()), name, true);
+    } catch (e) {
+      // The browser may not be allowed to read the reply (the page's address is not in YT_ORIGINS): let it download the link itself.
+      if (e instanceof TypeError) this.save(link, name, false);
+      else this.message.set('failed');
+    } finally {
+      this.downloading.set('');
+    }
+  }
+
+  private save(href: string, name: string, revoke: boolean): void {
     const a = document.createElement('a');
-    a.href = `${base}/api/download/${v.id}${key}`;
+    a.href = href;
+    a.download = name;
     a.rel = 'noopener';
-    a.download = `${v.title}.mp3`;
     document.body.appendChild(a);
     a.click();
     a.remove();
+    if (revoke) setTimeout(() => URL.revokeObjectURL(href), 60000);
   }
 
   /** The saved address, or the page's own host on port 8787 when testing on this computer or home network. Empty when unknown. */
@@ -606,8 +661,10 @@ export class Youtube implements OnDestroy {
     const n = name.trim();
     if (!n) return;
     const pl: YtPlaylist = { id: newId(), name: n, songs: [] };
+    this.message.set('');
     this.playlists.update((l) => [...l, pl]);
     this.target.set(pl.id);
+    this.openList.set(pl.id);
   }
 
   protected renamePlaylist(id: string, name: string): void {
@@ -641,6 +698,7 @@ export class Youtube implements OnDestroy {
     const pl: YtPlaylist = { id: newId(), name: n, songs: [...this.queue()] };
     this.playlists.update((l) => [...l, pl]);
     this.target.set(pl.id);
+    this.openList.set(pl.id);
   }
 
   protected removeSong(id: string, songId: string): void {
@@ -770,6 +828,7 @@ export class Youtube implements OnDestroy {
       this.applyQuality();
       this.qualities.set((this.player?.getAvailableQualityLevels() ?? []).filter((l) => l in QUALITY_LABELS));
       this.startKeepAlive();
+      if (!this.serverOk && this.serverBase()) void this.ping();
       if (ms)
         ms.playbackState = 'playing';
       void this.requestWake();

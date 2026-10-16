@@ -20,7 +20,7 @@ export interface YtPlaylist {
   songs: YtVideo[];
 }
 
-export type YtMessage = '' | 'noresults' | 'failed' | 'badlink' | 'needlink' | 'badkey' | 'noserver' | 'serverdown' | 'noplaylist';
+export type YtMessage = '' | 'noresults' | 'failed' | 'badlink' | 'needlink' | 'badkey' | 'noserver' | 'serverdown' | 'serverkey' | 'noplaylist';
 
 /** The part of the YouTube IFrame Player API that this page uses. https://developers.google.com/youtube/iframe_api_reference */
 export interface YtPlayer {

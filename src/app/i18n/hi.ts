@@ -283,6 +283,7 @@ export const HI: Translations = {
   'yt.tip.ok': 'ठीक है',
   'yt.noserver': 'डाउनलोड के लिए हेल्पर सर्वर चाहिए। नीचे उसका पता डालें।',
   'yt.serverdown': 'डाउनलोड सर्वर तक नहीं पहुँच सके। जाँचें कि वह चल रहा है और पता https:// से शुरू होता है (अपने नेटवर्क पर http:// भी चलेगा)।',
+  'yt.serverkey': 'सर्वर की (key) गलत है। हेल्पर सर्वर शुरू करते समय दी गई कुंजी (YT_TOKEN) दर्ज करें।',
   'yt.server.title': 'डाउनलोड सर्वर',
   'yt.server.help': 'हेल्पर सर्वर (npm run youtube) का पता और, यदि हो, उसकी कुंजी डालें।',
   'yt.server.placeholder': 'https://your-server.example',

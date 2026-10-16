@@ -283,6 +283,7 @@ export const AR: Translations = {
   'yt.tip.ok': 'حسنًا',
   'yt.noserver': 'التنزيل يحتاج إلى الخادم المساعد. أدخل عنوانه أدناه.',
   'yt.serverdown': 'تعذّر الوصول إلى خادم التنزيل. تأكد أنه يعمل وأن العنوان يبدأ بـ https:// (أو http:// على شبكتك).',
+  'yt.serverkey': 'مفتاح الخادم غير صحيح. أدخل المفتاح الذي بدأ به الخادم المساعد (YT_TOKEN).',
   'yt.server.title': 'خادم التنزيل',
   'yt.server.help': 'أدخل عنوان الخادم المساعد (npm run youtube) ومفتاحه إن وُجد.',
   'yt.server.placeholder': 'https://your-server.example',
