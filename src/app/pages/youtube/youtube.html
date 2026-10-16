@@ -23,10 +23,12 @@
     }
 
     @if (message(); as m) {
+      @if (cfg.on('yt.download') || (m !== 'noserver' && m !== 'serverdown' && m !== 'serverkey')) {
       <p class="err" role="alert">{{ i18n.t(msgKey(m)) }}</p>
+      }
     }
 
-    @if (message() === 'noserver' || message() === 'serverdown' || message() === 'serverkey') {
+    @if (cfg.on('yt.download') && (message() === 'noserver' || message() === 'serverdown' || message() === 'serverkey')) {
       <form class="keybox inset" (submit)="$event.preventDefault(); saveServer(s.value, t.value)">
         <b>{{ i18n.t('yt.server.title') }}</b>
         <p>{{ i18n.t('yt.server.help') }}</p>

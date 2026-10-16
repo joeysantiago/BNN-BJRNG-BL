@@ -362,7 +362,7 @@ export class Youtube implements OnDestroy {
   /** The page is going to the background: switch to the helper's audio, which phones keep playing with the screen off. */
   private handOff(): void {
     const id = this.current()?.id;
-    if (!id || !this.serverOk || this.audioMode() || !this.playing() || !this.serverBase()) return;
+    if (!id || !this.cfg.on('yt.download') || !this.serverOk || this.audioMode() || !this.playing() || !this.serverBase()) return;
     const at = this.player?.getCurrentTime() ?? 0;
     this.autoAudio = true;
     this.audioMode.set(true);
@@ -382,6 +382,8 @@ export class Youtube implements OnDestroy {
 
   /** Audio only: hand the song over from YouTube's player to the helper server's audio, which keeps playing in the background. */
   private async enterAudio(): Promise<void> {
+    if (!this.cfg.on('yt.download'))
+      return;
     if (!this.serverBase()) {
       this.message.set('noserver');
       return;
@@ -835,7 +837,7 @@ export class Youtube implements OnDestroy {
       this.applyQuality();
       this.qualities.set((this.player?.getAvailableQualityLevels() ?? []).filter((l) => l in QUALITY_LABELS));
       this.startKeepAlive();
-      if (!this.serverOk && this.serverBase()) void this.ping();
+      if (this.cfg.on('yt.download') && !this.serverOk && this.serverBase()) void this.ping();
       if (ms)
         ms.playbackState = 'playing';
       void this.requestWake();
