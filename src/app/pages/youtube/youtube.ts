@@ -2,15 +2,34 @@ import { SITE_URL } from '../../core/site';
 import { Repeat } from '../creta/creta.model';
 import { APP_SETTINGS } from '../../appSettings';
 import { SeoService } from '../../core/seo.service';
+import type { TranslationKey } from '../../i18n/en';
 import { isPlatformBrowser } from '@angular/common';
 import { I18nService } from '../../core/i18n.service';
-import { YT_ENDED, YT_PAUSED, YT_PLAYING, YtInput, YtMessage, YtPlayer, YtPlayerApi, YtVideo, YtWindow } from './youtube.model';
-import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { YT_ENDED, YT_PAUSED, YT_PLAYING, YtInput, YtMessage, YtPlayer, YtPlayerApi, YtPlaylist, YtVideo, YtWindow } from './youtube.model';
+import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 
 const ID = /^[\w-]{11}$/;
 const API = 'https://www.googleapis.com/youtube/v3';
 const KEY_STORE = 'thakurg-yt-key';
 const VIDEO_STORE = 'thakurg-yt-video';
+const SERVER_STORE = 'thakurg-yt-server';
+const TOKEN_STORE = 'thakurg-yt-token';
+const LISTS_STORE = 'thakurg-yt-playlists';
+const TIP_STORE = 'thakurg-yt-tip';
+const LOCAL_HOST = /^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/;
+
+const MESSAGE_KEYS: Record<Exclude<YtMessage, ''>, TranslationKey> = {
+  noresults: 'yt.noresults',
+  badlink: 'yt.badlink',
+  needlink: 'yt.needlink',
+  badkey: 'yt.badkey',
+  failed: 'yt.failed',
+  noserver: 'yt.noserver',
+  serverdown: 'yt.serverdown',
+  noplaylist: 'yt.pl.pick',
+};
+
+const newId = (): string => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 const fmtTime = (s: number): string => {
   if (!Number.isFinite(s) || s < 0) return '0:00';
@@ -18,7 +37,9 @@ const fmtTime = (s: number): string => {
   return `${m}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 };
 
-const thumbOf = (id: string): string => `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
+const QUALITY_LABELS: Record<string, string> = { tiny: '144p', small: '240p', medium: '360p', large: '480p', hd720: '720p', hd1080: '1080p', hd1440: '1440p', hd2160: '2160p', highres: '4320p' };
+
+const thumbOf =(id: string): string => `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
 
 /** Search results arrive with HTML entities such as &amp;. */
 const decode = (s: string): string => new DOMParser().parseFromString(s, 'text/html').documentElement.textContent ?? s;
@@ -71,6 +92,16 @@ export class Youtube implements OnDestroy {
   protected readonly repeat = signal<Repeat>('off');
   protected readonly failed = signal(false);
   protected readonly showVideo = signal(true);
+  protected readonly quality = signal('auto');
+  protected readonly qualities = signal<string[]>([]);
+  protected canFullscreen = false;
+  protected readonly serverUrl = signal(APP_SETTINGS.youtube.server);
+  protected readonly serverToken = signal(APP_SETTINGS.youtube.token);
+  protected readonly playlists = signal<YtPlaylist[]>([]);
+  protected readonly target = signal('');
+  protected readonly showTip = signal(false);
+  /** True while the song plays from the helper server through a normal audio element, which phones keep playing in the background. */
+  protected readonly audioMode = signal(false);
 
   protected readonly current = computed(() => this.queue()[this.index()] ?? null);
   protected readonly timeText = computed(() => fmtTime(this.time()));
@@ -83,18 +114,30 @@ export class Youtube implements OnDestroy {
   private ticker: ReturnType<typeof setInterval> | undefined;
   private wakeLock: WakeLockSentinel | null = null;
   private keepAlive: HTMLAudioElement | null = null;
+  private audio: HTMLAudioElement | null = null;
+  private startAt = 0;
   private wantPlay = false;
 
   // A wake lock is dropped when the tab is hidden, so ask for it again when the tab returns.
   private onVisible = (): void => {
     if (document.visibilityState === 'visible' && this.playing()) void this.requestWake();
     // Phones pause embedded players when the page is hidden; start again if the listener never asked to pause.
-    if (this.wantPlay && this.player && this.player.getPlayerState() === YT_PAUSED)
+    if (!this.audioMode() && this.wantPlay && this.player && this.player.getPlayerState() === YT_PAUSED)
       this.player.playVideo();
   };
 
   constructor() {
     if (this.browser) {
+      this.canFullscreen = !!document.fullscreenEnabled;
+      try {
+        if (!this.serverUrl()) this.serverUrl.set(localStorage.getItem(SERVER_STORE) ?? '');
+        if (!this.serverToken()) this.serverToken.set(localStorage.getItem(TOKEN_STORE) ?? '');
+        this.playlists.set(JSON.parse(localStorage.getItem(LISTS_STORE) ?? '[]') as YtPlaylist[]);
+        this.target.set(this.playlists()[0]?.id ?? '');
+        this.showTip.set(matchMedia('(pointer: coarse)').matches && localStorage.getItem(TIP_STORE) !== '1');
+      } catch {
+        /* storage blocked or unreadable: start with no saved playlists */
+      }
       try {
         if (!this.apiKey()) this.apiKey.set(localStorage.getItem(KEY_STORE) ?? '');
         this.showVideo.set(localStorage.getItem(VIDEO_STORE) !== '0');
@@ -103,9 +146,21 @@ export class Youtube implements OnDestroy {
       }
     }
 
+    // Playlists are kept in this browser.
+    effect(() => {
+      const lists = this.playlists();
+      if (!this.browser) return;
+      try {
+        localStorage.setItem(LISTS_STORE, JSON.stringify(lists));
+      } catch {
+        /* storage blocked */
+      }
+    });
+
     // Switching the video off or on changes the requested picture quality.
     effect(() => {
       this.showVideo();
+      this.quality();
       this.applyQuality();
     });
 
@@ -136,13 +191,17 @@ export class Youtube implements OnDestroy {
     // Load the chosen video into the player.
     effect(() => {
       const id = this.current()?.id;
-      if (id && this.browser) void this.load(id);
+      if (id && this.browser) untracked(() => void this.start(id));
     });
 
     // Keep the player's volume in step with the sliders.
     effect(() => {
       const volume = this.volume();
       const muted = this.muted();
+      if (this.audio) {
+        this.audio.volume = volume;
+        this.audio.muted = muted;
+      }
       if (!this.playerReady() || !this.player) return;
       this.player.setVolume(Math.round(volume * 100));
       if (muted) this.player.mute();
@@ -160,6 +219,7 @@ export class Youtube implements OnDestroy {
   ngOnDestroy(): void {
     clearInterval(this.ticker);
     this.keepAlive?.pause();
+    this.audio?.pause();
     this.player?.destroy();
     void this.releaseWake();
     if (!this.browser) return;
@@ -175,7 +235,7 @@ export class Youtube implements OnDestroy {
     const n = this.queue().length;
     if (!n) return;
     if (this.time() > 3) {
-      this.player?.seekTo(0, true);
+      this.seekTo(0);
       return;
     }
     this.failed.set(false);
@@ -183,7 +243,15 @@ export class Youtube implements OnDestroy {
   }
 
   protected toggle(): void {
-    if (!this.player || !this.current()) return;
+    if (!this.current()) return;
+    if (this.audioMode()) {
+      const a = this.audioEl();
+      this.wantPlay = a.paused;
+      if (a.paused) void a.play().catch(() => undefined);
+      else a.pause();
+      return;
+    }
+    if (!this.player) return;
     if (this.player.getPlayerState() === YT_PLAYING) {
       this.wantPlay = false;
       this.player.pauseVideo();
@@ -193,19 +261,159 @@ export class Youtube implements OnDestroy {
     }
   }
 
-  protected toggleVideo(): void {
+  protected async toggleVideo(): Promise<void> {
     this.showVideo.update((v) => !v);
     try {
       localStorage.setItem(VIDEO_STORE, this.showVideo() ? '1' : '0');
     } catch {
       /* storage blocked */
     }
+    if (this.showVideo()) this.leaveAudio();
+    else await this.enterAudio();
+  }
+
+  private audioEl(): HTMLAudioElement {
+    if (this.audio) return this.audio;
+    const a = new Audio();
+    a.preload = 'auto';
+    a.volume = this.volume();
+    a.muted = this.muted();
+    const ms = (): MediaSession | null => ('mediaSession' in navigator ? navigator.mediaSession : null);
+    a.addEventListener('play', () => {
+      if (!this.audioMode()) return;
+      this.playing.set(true);
+      this.failed.set(false);
+      const m = ms();
+      if (m) m.playbackState = 'playing';
+    });
+    a.addEventListener('pause', () => {
+      if (!this.audioMode() || a.ended) return;
+      this.playing.set(false);
+      const m = ms();
+      if (m) m.playbackState = 'paused';
+    });
+    a.addEventListener('timeupdate', () => {
+      if (this.audioMode()) this.time.set(a.currentTime || 0);
+    });
+    const length = (): void => {
+      if (this.audioMode()) this.duration.set(Number.isFinite(a.duration) ? a.duration : 0);
+    };
+    a.addEventListener('durationchange', length);
+    a.addEventListener('loadedmetadata', length);
+    a.addEventListener('ended', () => {
+      if (!this.audioMode()) return;
+      this.playing.set(false);
+      if (this.repeat() === 'one') {
+        a.currentTime = 0;
+        void a.play().catch(() => undefined);
+      } else {
+        this.next(true);
+      }
+    });
+    // The helper could not serve the song: go back to YouTube's player so the song still plays.
+    a.addEventListener('error', () => {
+      if (!this.audioMode()) return;
+      this.message.set('serverdown');
+      this.leaveAudio();
+    });
+    return (this.audio = a);
+  }
+
+  /** Whether the helper server answers. A network error means it is not running or the address is wrong. */
+  private async audioReachable(): Promise<boolean> {
+    const base = this.serverBase();
+    if (!base) return false;
+    try {
+      await fetch(`${base}/api/health${this.keyQuery()}`, { mode: 'no-cors' });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private keyQuery(): string {
+    return this.serverToken() ? `?key=${encodeURIComponent(this.serverToken())}` : '';
+  }
+
+  /** Audio only: hand the song over from YouTube's player to the helper server's audio, which keeps playing in the background. */
+  private async enterAudio(): Promise<void> {
+    if (!this.serverBase()) {
+      this.message.set('noserver');
+      return;
+    }
+    if (!(await this.audioReachable())) {
+      this.message.set('serverdown');
+      return;
+    }
+    if (this.showVideo()) return;
+    this.message.set('');
+    const id = this.current()?.id;
+    const at = this.player?.getCurrentTime() ?? 0;
+    const was = this.playing() || this.wantPlay;
+    this.audioMode.set(true);
+    this.player?.pauseVideo();
+    if (id) this.loadAudio(id, at, was);
+  }
+
+  /** Video on again: hand the song back to YouTube's player at the same position. */
+  private leaveAudio(): void {
+    if (!this.audioMode()) return;
+    const a = this.audio;
+    this.startAt = a?.currentTime ?? 0;
+    this.audioMode.set(false);
+    if (a) {
+      a.pause();
+      a.removeAttribute('src');
+      a.load();
+    }
+    const id = this.current()?.id;
+    this.loadedId = '';
+    if (id) void this.load(id);
+  }
+
+  private loadAudio(id: string, at = 0, play = true): void {
+    const a = this.audioEl();
+    a.src = `${this.serverBase()}/api/stream/${id}${this.keyQuery()}`;
+    if (at > 1) a.addEventListener('loadedmetadata', () => (a.currentTime = at), { once: true });
+    this.wantPlay = play;
+    this.updateMediaMetadata();
+    if (play) void a.play().catch(() => this.playing.set(false));
+  }
+
+  /** Picks the player for a newly chosen song: the helper's audio when video is off and the helper answers, else YouTube's player. */
+  private async start(id: string): Promise<void> {
+    if (!this.showVideo() && !this.audioMode() && (await this.audioReachable())) this.audioMode.set(true);
+    if (this.audioMode()) this.loadAudio(id);
+    else await this.load(id);
+  }
+
+  private seekTo(to: number): void {
+    if (this.audioMode()) this.audioEl().currentTime = to;
+    else this.player?.seekTo(to, true);
   }
 
   /** Asks YouTube for its smallest picture while the video is off. YouTube treats this as a hint and may ignore it. */
   private applyQuality(): void {
     if (!this.playerReady() || !this.player) return;
-    this.player.setPlaybackQuality(this.showVideo() ? 'default' : 'tiny');
+    const q = this.quality();
+    this.player.setPlaybackQuality(!this.showVideo() ? 'tiny' : q === 'auto' ? 'default' : q);
+  }
+
+  protected fullscreen(): void {
+    const box = this.host()?.nativeElement.parentElement;
+    if (document.fullscreenElement)
+      void document.exitFullscreen();
+    else
+      void box?.requestFullscreen().catch(() => undefined);
+  }
+
+  protected qualityLabel(level: string): string {
+    return QUALITY_LABELS[level] ?? level;
+  }
+
+  protected setQuality(ev: Event): void {
+    this.quality.set((ev.target as HTMLSelectElement).value);
+    this.applyQuality();
   }
 
   /** A looping silent clip keeps the page registered as a media player, so phones are less eager to suspend it in the background. */
@@ -242,7 +450,7 @@ export class Youtube implements OnDestroy {
 
   protected seek(ev: Event): void {
     const to = +(ev.target as HTMLInputElement).value;
-    this.player?.seekTo(to, true);
+    this.seekTo(to);
     this.time.set(to);
   }
 
@@ -336,15 +544,123 @@ export class Youtube implements OnDestroy {
   }
 
   /** Starts a normal browser download of the song as a 320 kbps MP3 made by the helper server. Works the same on phones and computers. */
-  protected download(v: YtVideo): void {
-    const { server, token } = APP_SETTINGS.youtube;
+  protected async download(v: YtVideo): Promise<void> {
+    const base = this.serverBase();
+    if (!base) {
+      this.message.set('noserver');
+      return;
+    }
+    const key = this.keyQuery();
+    // Check the helper answers before leaving for it, so a dead address shows a message instead of an error page.
+    try {
+      await fetch(`${base}/api/health${key}`, { mode: 'no-cors' });
+    } catch {
+      this.message.set('serverdown');
+      return;
+    }
+    this.message.set('');
     const a = document.createElement('a');
-    a.href = `${server.replace(/\/$/, '')}/api/download/${v.id}${token ? `?key=${encodeURIComponent(token)}` : ''}`;
+    a.href = `${base}/api/download/${v.id}${key}`;
     a.rel = 'noopener';
     a.download = `${v.title}.mp3`;
     document.body.appendChild(a);
     a.click();
     a.remove();
+  }
+
+  /** The saved address, or the page's own host on port 8787 when testing on this computer or home network. Empty when unknown. */
+  private serverBase(): string {
+    const saved = this.serverUrl().trim();
+    if (saved) return saved.replace(/\/$/, '');
+    return LOCAL_HOST.test(location.hostname) ? `${location.protocol}//${location.hostname}:8787` : '';
+  }
+
+  protected saveServer(url: string, token: string): void {
+    const address = url.trim();
+    if (!address) return;
+    this.serverUrl.set(address);
+    this.serverToken.set(token.trim());
+    this.message.set('');
+    try {
+      localStorage.setItem(SERVER_STORE, address);
+      localStorage.setItem(TOKEN_STORE, token.trim());
+    } catch {
+      /* storage blocked */
+    }
+  }
+
+  protected msgKey(m: Exclude<YtMessage, ''>): TranslationKey {
+    return MESSAGE_KEYS[m];
+  }
+
+  protected dismissTip(): void {
+    this.showTip.set(false);
+    try {
+      localStorage.setItem(TIP_STORE, '1');
+    } catch {
+      /* storage blocked */
+    }
+  }
+
+  protected createPlaylist(name: string): void {
+    const n = name.trim();
+    if (!n) return;
+    const pl: YtPlaylist = { id: newId(), name: n, songs: [] };
+    this.playlists.update((l) => [...l, pl]);
+    this.target.set(pl.id);
+  }
+
+  protected renamePlaylist(id: string, name: string): void {
+    const n = name.trim();
+    if (!n) return;
+    this.playlists.update((l) => l.map((p) => (p.id === id ? { ...p, name: n } : p)));
+  }
+
+  protected deletePlaylist(id: string): void {
+    this.playlists.update((l) => l.filter((p) => p.id !== id));
+    if (this.target() === id) this.target.set(this.playlists()[0]?.id ?? '');
+  }
+
+  protected setTarget(ev: Event): void {
+    this.target.set((ev.target as HTMLSelectElement).value);
+  }
+
+  protected addToPlaylist(v: YtVideo): void {
+    const id = this.target();
+    if (!this.playlists().some((p) => p.id === id)) {
+      this.message.set('noplaylist');
+      return;
+    }
+    this.message.set('');
+    this.playlists.update((l) => l.map((p) => (p.id === id && !p.songs.some((s) => s.id === v.id) ? { ...p, songs: [...p.songs, v] } : p)));
+  }
+
+  protected saveQueue(name: string): void {
+    const n = name.trim();
+    if (!n || !this.queue().length) return;
+    const pl: YtPlaylist = { id: newId(), name: n, songs: [...this.queue()] };
+    this.playlists.update((l) => [...l, pl]);
+    this.target.set(pl.id);
+  }
+
+  protected removeSong(id: string, songId: string): void {
+    this.playlists.update((l) => l.map((p) => (p.id === id ? { ...p, songs: p.songs.filter((s) => s.id !== songId) } : p)));
+  }
+
+  protected moveSong(id: string, i: number, by: number): void {
+    this.playlists.update((l) =>
+      l.map((p) => {
+        const j = i + by;
+        if (p.id !== id || j < 0 || j >= p.songs.length) return p;
+        const songs = [...p.songs];
+        [songs[i], songs[j]] = [songs[j], songs[i]];
+        return { ...p, songs };
+      }),
+    );
+  }
+
+  protected playPlaylist(p: YtPlaylist): void {
+    this.playNow([...p.songs]);
   }
 
   protected playResult(v: YtVideo): void {
@@ -402,7 +718,8 @@ export class Youtube implements OnDestroy {
     try {
       const player = await this.ensurePlayer();
       this.wantPlay = true;
-      player.loadVideoById(id);
+      player.loadVideoById(id, this.startAt);
+      this.startAt = 0;
       this.applyQuality();
       this.updateMediaMetadata();
     } catch {
@@ -439,17 +756,19 @@ export class Youtube implements OnDestroy {
 
   /** Time and length come from the player; it offers no event for them. */
   private poll(): void {
-    if (!this.player || !this.playerReady()) return;
+    if (this.audioMode() || !this.player || !this.playerReady()) return;
     this.time.set(this.player.getCurrentTime() || 0);
     this.duration.set(this.player.getDuration() || 0);
   }
 
   private onState(state: number): void {
+    if (this.audioMode()) return;
     const ms = 'mediaSession' in navigator ? navigator.mediaSession : null;
     if (state === YT_PLAYING) {
       this.playing.set(true);
       this.failed.set(false);
       this.applyQuality();
+      this.qualities.set((this.player?.getAvailableQualityLevels() ?? []).filter((l) => l in QUALITY_LABELS));
       this.startKeepAlive();
       if (ms)
         ms.playbackState = 'playing';

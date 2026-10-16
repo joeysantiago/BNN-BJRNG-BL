@@ -23,16 +23,55 @@
     }
 
     @if (message(); as m) {
-      <p class="err" role="alert">{{ i18n.t(m === 'noresults' ? 'yt.noresults' : m === 'badlink' ? 'yt.badlink' : m === 'needlink' ? 'yt.needlink' : m === 'badkey' ? 'yt.badkey' : 'yt.failed') }}</p>
+      <p class="err" role="alert">{{ i18n.t(msgKey(m)) }}</p>
+    }
+
+    @if (message() === 'noserver' || message() === 'serverdown') {
+      <form class="keybox inset" (submit)="$event.preventDefault(); saveServer(s.value, t.value)">
+        <b>{{ i18n.t('yt.server.title') }}</b>
+        <p>{{ i18n.t('yt.server.help') }}</p>
+        <div class="find">
+          <input #s type="url" autocomplete="off" spellcheck="false" class="inset" [value]="serverUrl()" [placeholder]="i18n.t('yt.server.placeholder')" [attr.aria-label]="i18n.t('yt.server.placeholder')" />
+          <input #t type="password" autocomplete="off" spellcheck="false" class="inset" [value]="serverToken()" [placeholder]="i18n.t('yt.server.token')" [attr.aria-label]="i18n.t('yt.server.token')" />
+          <button type="submit" class="btn">{{ i18n.t('yt.key.save') }}</button>
+        </div>
+      </form>
+    }
+
+    @if (showTip()) {
+      <p class="tip inset" role="note">
+        <span>{{ i18n.t('yt.tip.desktop') }}</span>
+        <button type="button" class="btn sm" (click)="dismissTip()">{{ i18n.t('yt.tip.ok') }}</button>
+      </p>
     }
 
     <!-- YouTube's own player. It stays visible, as YouTube's terms require; the controls below drive it. -->
     <div class="video" [class.on]="!!current()" [class.off]="!showVideo()"><div #host class="host"></div></div>
 
     @if (current(); as t) {
-      <button type="button" class="btn sm vtoggle" [class.is-on]="showVideo()" role="switch" [attr.aria-checked]="showVideo()" (click)="toggleVideo()">
-        {{ i18n.t(showVideo() ? 'yt.video.on' : 'yt.video.off') }}
-      </button>
+      <div class="vopts">
+        <button type="button" class="btn sm vtoggle" [class.is-on]="showVideo()" role="switch" [attr.aria-checked]="showVideo()" (click)="toggleVideo()">
+          {{ i18n.t(showVideo() ? 'yt.video.on' : 'yt.video.off') }}
+        </button>
+        @if (showVideo()) {
+          <label class="sr-only" for="yt-quality">{{ i18n.t('yt.quality') }}</label>
+          <select id="yt-quality" class="btn sm inset" [value]="quality()" (change)="setQuality($event)">
+            <option value="auto">{{ i18n.t('yt.quality.auto') }}</option>
+            @for (l of qualities(); track l) {
+              <option [value]="l">{{ qualityLabel(l) }}</option>
+            }
+          </select>
+          @if (canFullscreen) {
+            <button type="button" class="btn sm" [attr.aria-label]="i18n.t('yt.fullscreen')" (click)="fullscreen()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+              {{ i18n.t('yt.fullscreen') }}
+            </button>
+          }
+        }
+      </div>
+      @if (audioMode()) {
+        <p class="note">{{ i18n.t('yt.bg.on') }}</p>
+      }
       <div class="now">
         <div class="art inset" aria-hidden="true">
           <img [src]="t.thumb" alt="" width="160" height="90" />
@@ -126,6 +165,9 @@
             <button type="button" class="btn icon sm" [attr.aria-label]="i18n.t('yt.download') + ': ' + v.title" [attr.title]="i18n.t('yt.download')" (click)="download(v)">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>
             </button>
+            <button type="button" class="btn icon sm" [attr.aria-label]="i18n.t('yt.pl.add') + ': ' + v.title" [attr.title]="i18n.t('yt.pl.add')" (click)="addToPlaylist(v)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h12M3 12h12M3 18h8M17 15v6M14 18h6"/></svg>
+            </button>
           </li>
         }
       </ul>
@@ -148,12 +190,74 @@
                 <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
               }
             </button>
+            <button type="button" class="btn icon sm" [attr.aria-label]="i18n.t('yt.pl.add') + ': ' + v.title" [attr.title]="i18n.t('yt.pl.add')" (click)="addToPlaylist(v)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h12M3 12h12M3 18h8M17 15v6M14 18h6"/></svg>
+            </button>
             <button type="button" class="btn icon sm" [attr.aria-label]="i18n.t('yt.remove') + ': ' + v.title" [attr.title]="i18n.t('yt.remove')" (click)="removeAt(i)">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg>
             </button>
           </li>
         }
       </ol>
+      <form class="find pl-save" (submit)="$event.preventDefault(); saveQueue(sq.value); sq.value = ''">
+        <input #sq type="text" class="inset" maxlength="60" [placeholder]="i18n.t('yt.pl.name')" [attr.aria-label]="i18n.t('yt.pl.name')" />
+        <button type="submit" class="btn">{{ i18n.t('yt.pl.saveq') }}</button>
+      </form>
     </section>
   }
+
+  <section class="card list" aria-labelledby="yt-pl-h">
+    <h2 id="yt-pl-h">{{ i18n.t('yt.pl.title') }}</h2>
+    <form class="find pl-new" (submit)="$event.preventDefault(); createPlaylist(np.value); np.value = ''">
+      <input #np type="text" class="inset" maxlength="60" [placeholder]="i18n.t('yt.pl.new')" [attr.aria-label]="i18n.t('yt.pl.new')" />
+      <button type="submit" class="btn pri">{{ i18n.t('yt.pl.create') }}</button>
+    </form>
+
+    @if (playlists().length) {
+      <label class="pl-target">
+        <span>{{ i18n.t('yt.pl.addto') }}</span>
+        <select class="btn sm inset" [value]="target()" (change)="setTarget($event)">
+          @for (p of playlists(); track p.id) {
+            <option [value]="p.id" [selected]="p.id === target()">{{ p.name }}</option>
+          }
+        </select>
+      </label>
+      <ul>
+        @for (p of playlists(); track p.id) {
+          <li class="pl">
+            <details>
+              <summary>
+                <b>{{ p.name }}</b>
+                <small>{{ p.songs.length }}</small>
+              </summary>
+              <div class="find pl-edit">
+                <input type="text" class="inset" maxlength="60" [value]="p.name" [attr.aria-label]="i18n.t('yt.pl.rename')" (change)="renamePlaylist(p.id, $any($event.target).value)" />
+                <button type="button" class="btn sm" [disabled]="!p.songs.length" (click)="playPlaylist(p)">{{ i18n.t('yt.pl.play') }}</button>
+                <button type="button" class="btn sm" (click)="deletePlaylist(p.id)">{{ i18n.t('yt.pl.delete') }}</button>
+              </div>
+              @if (p.songs.length) {
+                <ol>
+                  @for (s of p.songs; track s.id; let i = $index) {
+                    <li class="item">
+                      <span class="tt">
+                        <b>{{ s.title }}</b>
+                        <small>{{ s.artist }}</small>
+                      </span>
+                      <button type="button" class="btn icon sm" [disabled]="i === 0" [attr.aria-label]="i18n.t('yt.pl.up') + ': ' + s.title" (click)="moveSong(p.id, i, -1)">↑</button>
+                      <button type="button" class="btn icon sm" [disabled]="i === p.songs.length - 1" [attr.aria-label]="i18n.t('yt.pl.down') + ': ' + s.title" (click)="moveSong(p.id, i, 1)">↓</button>
+                      <button type="button" class="btn icon sm" [attr.aria-label]="i18n.t('yt.remove') + ': ' + s.title" (click)="removeSong(p.id, s.id)">✕</button>
+                    </li>
+                  }
+                </ol>
+              } @else {
+                <p class="note">{{ i18n.t('yt.pl.nosongs') }}</p>
+              }
+            </details>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="note">{{ i18n.t('yt.pl.empty') }}</p>
+    }
+  </section>
 </div>

@@ -319,9 +319,72 @@ input[type='range']::-moz-range-thumb {
   clip-path: inset(50%);
   pointer-events: none;
 }
-.vtoggle {
-  display: block;
+.tip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  font-size: 14px;
+}
+.tip span {
+  flex: 1 1 220px;
+}
+.pl-save,
+.pl-new {
+  margin-top: 14px;
+}
+.pl-target {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  font-weight: 700;
+}
+.pl summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px 14px;
+  border: var(--btn-border);
+  border-radius: 16px;
+  background: var(--btn-bg);
+  color: var(--btn-color);
+  box-shadow: var(--btn-shadow);
+  cursor: pointer;
+}
+.pl summary b {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.pl-edit {
+  margin: 12px 0;
+}
+.pl ol {
+  margin: 0 0 8px;
+}
+.vopts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   margin: 16px auto 0;
+}
+.vopts .btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.video:fullscreen {
+  width: 100%;
+  margin: 0;
+  aspect-ratio: auto;
+  border-radius: 0;
 }
 .host,
 .host :is(iframe, div) {

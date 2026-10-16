@@ -14,7 +14,13 @@ export interface YtInput {
   list?: string;
 }
 
-export type YtMessage = '' | 'noresults' | 'failed' | 'badlink' | 'needlink' | 'badkey';
+export interface YtPlaylist {
+  id: string;
+  name: string;
+  songs: YtVideo[];
+}
+
+export type YtMessage = '' | 'noresults' | 'failed' | 'badlink' | 'needlink' | 'badkey' | 'noserver' | 'serverdown' | 'noplaylist';
 
 /** The part of the YouTube IFrame Player API that this page uses. https://developers.google.com/youtube/iframe_api_reference */
 export interface YtPlayer {
@@ -24,8 +30,9 @@ export interface YtPlayer {
   unMute(): void;
   destroy(): void;
   setVolume(volume: number): void;
-  loadVideoById(videoId: string): void;
+  loadVideoById(videoId: string, startSeconds?: number): void;
   setPlaybackQuality(quality: string): void;
+  getAvailableQualityLevels(): string[];
   seekTo(seconds: number, allowSeekAhead: boolean): void;
   getDuration(): number;
   getCurrentTime(): number;
