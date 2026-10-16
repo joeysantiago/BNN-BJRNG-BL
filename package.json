@@ -11,7 +11,8 @@
     "prestart": "node scripts/build-playlist.mjs",
     "prebuild": "node scripts/build-playlist.mjs",
     "playlist": "node scripts/build-playlist.mjs",
-    "youtube": "node scripts/youtube-server.mjs"
+    "youtube": "node scripts/youtube-server.mjs",
+    "youtube:live": "node scripts/youtube-live.mjs"
   },
   "private": true,
   "packageManager": "npm@11.4.2",

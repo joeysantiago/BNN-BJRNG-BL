@@ -30,7 +30,7 @@ const PORT = Number(process.env.YT_PORT) || 8787;
 const HOST = process.env.YT_HOST || '127.0.0.1';
 const TOKEN = process.env.YT_TOKEN || '';
 const FFMPEG = process.env.YT_FFMPEG || ffmpegPath || 'ffmpeg';
-const EXTRA = (process.env.YT_ORIGINS || '').split(',').map((o) => o.trim()).filter(Boolean);
+const EXTRA = ['https://thakurg.com', 'https://www.thakurg.com', ...(process.env.YT_ORIGINS || '').split(',')].map((o) => o.trim()).filter(Boolean);
 const ORIGINS = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 const VIDEO_ID = /^[\w-]{11}$/;
 const LIST_ID = /^[\w-]{10,64}$/;
@@ -191,7 +191,7 @@ createServer((req, res) => {
   const origin = req.headers.origin;
   const cors = origin && allowed(origin) ? { 'Access-Control-Allow-Origin': origin, Vary: 'Origin' } : {};
   if (req.method === 'OPTIONS') {
-    res.writeHead(204, { ...cors, 'Access-Control-Allow-Headers': 'Range', 'Access-Control-Allow-Methods': 'GET' });
+    res.writeHead(204, { ...cors, 'Access-Control-Allow-Private-Network': 'true', 'Access-Control-Allow-Headers': 'Range', 'Access-Control-Allow-Methods': 'GET' });
     return res.end();
   }
   if (req.method !== 'GET')
