@@ -5,6 +5,7 @@ import { environment } from '../../environments/environment';
 /** Talks to our own API. JSON endpoints answer { success, message, data }; this unwraps `data` and throws the server's message on failure. */
 @Injectable({ providedIn: 'root' })
 export class ApiService {
+
   readonly base = environment.apiBaseUrl.replace(/\/$/, '');
 
   // #region Public Methods
@@ -15,6 +16,11 @@ export class ApiService {
 
   async get<T>(path: string, ms = 15000): Promise<T> {
     return this.unwrap<T>(await this.request(path, {}, ms));
+  }
+
+  /** Request options for a JSON body, plus extra headers such as X-Master-Key. Pass the result to `send`, `sendFull` or `message`. */
+  json(body: unknown, headers: Record<string, string> = {}): RequestInit {
+    return { headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body) };
   }
 
   /** Same as `get` but for any method and body, with extra headers such as X-Edit-Password. */

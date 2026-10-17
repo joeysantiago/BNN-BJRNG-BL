@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Thakurg.Application.Services;
 using Thakurg.Contracts.Settings;
 using Thakurg.Contracts.Wrappers;
@@ -24,6 +25,15 @@ public class SettingsController : ControllerBase
         var settings = await _settingsService.GetAsync(cancellationToken);
 
         return Ok(ApiResponse<AppSettingsDto>.SuccessResponse(settings));
+    }
+
+    [HttpPut]
+    [EnableRateLimiting("sensitive")]
+    public async Task<ActionResult<ApiResponse<AppSettingsDto>>> Save([FromBody] SettingsUpdateDto request, [FromHeader(Name = "X-Master-Key")] string? masterKey, CancellationToken cancellationToken)
+    {
+        var result = await _settingsService.SaveAsync(request, masterKey, cancellationToken);
+
+        return Ok(ApiResponse<AppSettingsDto>.SuccessResponse(result.Data, result.Message));
     }
 
     #endregion

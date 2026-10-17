@@ -1,15 +1,24 @@
 using Thakurg.Application.Repositories;
 using Thakurg.Application.Services;
+using Thakurg.Contracts.Exceptions;
+using Thakurg.Contracts.Messages;
 using Thakurg.Contracts.Settings;
+using Thakurg.Contracts.Wrappers;
 
 namespace Thakurg.Infrastructure.Services;
 
 public class SettingsService : ISettingsService
 {
+    private readonly IMessageService _messageService;
+
+    private readonly IMasterKeyService _masterKeyService;
+
     private readonly ISettingsRepository _settingsRepository;
 
-    public SettingsService(ISettingsRepository settingsRepository)
+    public SettingsService(IMessageService messageService, IMasterKeyService masterKeyService, ISettingsRepository settingsRepository)
     {
+        _messageService = messageService;
+        _masterKeyService = masterKeyService;
         _settingsRepository = settingsRepository;
     }
 
@@ -37,13 +46,55 @@ public class SettingsService : ISettingsService
         };
     }
 
+    public async Task<ServiceResultDto<AppSettingsDto>> SaveAsync(SettingsUpdateDto update, string? masterKey, CancellationToken cancellationToken)
+    {
+        await _masterKeyService.VerifyAsync(masterKey, cancellationToken);
+        var current = await GetAsync(cancellationToken);
+        var features = update.Features ?? new Dictionary<string, bool>();
+        var fields = update.Connection?.Fields ?? new Dictionary<string, bool>();
+        var items = update.Services?.Items ?? new Dictionary<string, bool>();
+
+        RequireKnown(features.Keys, current.Features.Keys);
+        RequireKnown(fields.Keys, current.Connection.Fields.Keys);
+        RequireKnown(items.Keys, current.Services.Items.Select(i => i.Id));
+
+        if (update.Services?.RefreshSeconds is < 0 or > 3600)
+            throw new BusinessException(MessageCodes.SettingsInvalid, 400);
+
+        var appSettings = new Dictionary<string, string>();
+
+        if (update.Connection?.Enabled is { } connectionEnabled)
+            appSettings["Connection.Enabled"] = ToText(connectionEnabled);
+
+        if (update.Services?.Enabled is { } servicesEnabled)
+            appSettings["Services.Enabled"] = ToText(servicesEnabled);
+
+        if (update.Services?.RefreshSeconds is { } refreshSeconds)
+            appSettings["Services.RefreshSeconds"] = refreshSeconds.ToString();
+
+        await _settingsRepository.UpdateAsync(features, fields, items, appSettings, cancellationToken);
+
+        return new ServiceResultDto<AppSettingsDto> { Data = await GetAsync(cancellationToken), Message = await _messageService.GetAsync(MessageCodes.SettingsSaved) };
+    }
+
     #endregion
 
     #region Private Methods
 
+    private static string ToText(bool value)
+    {
+        return value ? "true" : "false";
+    }
+
     private static int ReadInt(Dictionary<string, string> values, string code, int fallback)
     {
         return values.TryGetValue(code, out var text) && int.TryParse(text, out var value) ? value : fallback;
+    }
+
+    private static void RequireKnown(IEnumerable<string> requested, IEnumerable<string> known)
+    {
+        if (requested.Except(known).Any())
+            throw new BusinessException(MessageCodes.SettingsInvalid, 400);
     }
 
     private static bool ReadBool(Dictionary<string, string> values, string code, bool fallback)

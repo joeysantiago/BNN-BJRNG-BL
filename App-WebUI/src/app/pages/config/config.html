@@ -3,16 +3,37 @@
     <h1 id="cfg-h1">{{ i18n.t('cfg.h1') }}</h1>
     <p class="lead">{{ i18n.t('cfg.lead') }}</p>
     <p class="note">{{ i18n.t('cfg.note') }}</p>
+  </section>
+
+  <section class="card topbar" aria-labelledby="cfg-save-h">
+    <h2 id="cfg-save-h" class="sr-only">{{ i18n.t('cfg.save.all') }}</h2>
+    <label class="stack">
+      <span>{{ i18n.t('cfg.save.master') }}</span>
+      <input type="password" name="master-key" autocomplete="off" [value]="masterKey()" (input)="key($event)" />
+      <small class="help">{{ i18n.t('cfg.save.master.help') }}</small>
+    </label>
     <div class="bar">
       <p class="status" role="status">{{ count() ? i18n.t('cfg.changed', { n: count() }) : i18n.t('cfg.nochange') }}</p>
-      <button type="button" class="btn" [disabled]="!count()" (click)="reset()">{{ i18n.t('cfg.reset') }}</button>
+      <div class="acts">
+        <button type="button" class="btn" [disabled]="!count() || saving() !== null" (click)="reset()">{{ i18n.t('cfg.reset') }}</button>
+        <button type="button" class="btn pri" [disabled]="!count() || saving() !== null" [attr.title]="count() ? null : i18n.t('cfg.save.nothing')" (click)="save('all')">{{ saveLabel('all') }}</button>
+      </div>
     </div>
+    @if (noticeFor('all'); as n) {
+      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+    }
   </section>
 
   @for (g of groups; track g.id) {
     <section class="card grp" [attr.aria-labelledby]="'cfg-' + g.id">
-      <h2 [id]="'cfg-' + g.id">{{ g.label }}</h2>
+      <div class="sechead">
+        <h2 [id]="'cfg-' + g.id">{{ g.label }}</h2>
+        <button type="button" class="btn pri" [disabled]="!pendingIn(g.id) || saving() !== null" [attr.title]="pendingIn(g.id) ? null : i18n.t('cfg.save.nothing')" [attr.aria-describedby]="'cfg-' + g.id" (click)="save(g.id)">{{ saveLabel(g.id) }}</button>
+      </div>
       <p class="help">{{ g.help }}</p>
+      @if (noticeFor(g.id); as n) {
+        <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+      }
       <ul class="rows">
         @for (f of g.items; track f.id) {
           <li class="inset" [class.diff]="settings().features[f.id] !== defaults.features[f.id]">
@@ -34,7 +55,13 @@
   }
 
   <section class="card grp" aria-labelledby="cfg-conn">
-    <h2 id="cfg-conn">{{ i18n.t('cfg.conn.h') }}</h2>
+    <div class="sechead">
+      <h2 id="cfg-conn">{{ i18n.t('cfg.conn.h') }}</h2>
+      <button type="button" class="btn pri" [disabled]="!pendingIn('connection') || saving() !== null" [attr.title]="pendingIn('connection') ? null : i18n.t('cfg.save.nothing')" aria-describedby="cfg-conn" (click)="save('connection')">{{ saveLabel('connection') }}</button>
+    </div>
+    @if (noticeFor('connection'); as n) {
+      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+    }
     <ul class="rows">
       <li class="inset">
         <label>
@@ -56,7 +83,13 @@
   </section>
 
   <section class="card grp" aria-labelledby="cfg-svc">
-    <h2 id="cfg-svc">{{ i18n.t('cfg.svc.h') }}</h2>
+    <div class="sechead">
+      <h2 id="cfg-svc">{{ i18n.t('cfg.svc.h') }}</h2>
+      <button type="button" class="btn pri" [disabled]="!pendingIn('services') || saving() !== null" [attr.title]="pendingIn('services') ? null : i18n.t('cfg.save.nothing')" aria-describedby="cfg-svc" (click)="save('services')">{{ saveLabel('services') }}</button>
+    </div>
+    @if (noticeFor('services'); as n) {
+      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+    }
     <ul class="rows">
       <li class="inset">
         <label>

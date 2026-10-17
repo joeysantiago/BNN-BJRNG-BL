@@ -1,23 +1,21 @@
+import { FEATURES } from './features';
 import { ApiService } from './api.service';
 import { EMPTY_SETTINGS } from '../appSettings';
-import { isPlatformBrowser } from '@angular/common';
-import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
-import { AppSettings, ConnectionField, FeatureId, SettingsOverrides } from './models/app-settings.model';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { AppSettings, ConnectionField, FeatureFlags, FeatureId, SettingsOverrides, SettingsSection } from './models/app-settings.model';
 
-const STORAGE_KEY = 'thakurg-settings';
 const LOAD_TIMEOUT = 5000;
+const SAVE_TIMEOUT = 15000;
 
 /**
- * The settings in use. The master tables (served by GET /settings) hold the defaults; the /config page saves changes in this browser and they
- * are layered on top. Prerendered HTML uses the API values only; saved changes are applied once the page runs in the browser.
+ * The settings in use. The master tables (served by GET /settings) hold the saved values. Edits made on the /master page are drafts: they are
+ * layered on top so the site previews them at once, live in memory only (a reload discards them) and are written back with `save`.
  */
 @Injectable({ providedIn: 'root' })
 export class SettingsService {
-  private restored = false;
   private readonly api = inject(ApiService);
   readonly overrides = signal<SettingsOverrides>({});
   private readonly base = signal<AppSettings>(EMPTY_SETTINGS);
-  private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   readonly changed = computed(() => Object.keys(this.overrides()).length > 0);
   readonly settings = computed<AppSettings>(() => {
     const o = this.overrides();
@@ -40,22 +38,9 @@ export class SettingsService {
 
   // #region Public Methods
 
+  /** Discard every unsaved edit. */
   reset(): void {
-    this.apply({});
-  }
-
-  /** Read the saved changes. Safe to call many times; browser only. */
-  restore(): void {
-    if (!this.browser || this.restored)
-      return;
-    this.restored = true;
-    try {
-      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
-      if (raw && typeof raw === 'object')
-        this.overrides.set(this.clean(raw as SettingsOverrides));
-    } catch {
-      /* storage blocked or unreadable: use the defaults */
-    }
+    this.overrides.set({});
   }
 
   /** Whether a feature is on. Reads a signal, so templates and effects update when it changes. */
@@ -72,9 +57,9 @@ export class SettingsService {
     }
   }
 
-  /** Replace all saved changes, for example with settings pasted into the /config page. */
+  /** Replace all unsaved edits, for example with settings pasted into the /master page. */
   import(next: SettingsOverrides): void {
-    this.apply(this.clean(next));
+    this.overrides.set(this.clean(next));
   }
 
   setRefreshSeconds(value: number): void {
@@ -87,6 +72,19 @@ export class SettingsService {
 
   setConnectionEnabled(value: boolean): void {
     this.change((o) => this.put((o.connection ??= {}), 'enabled', value, this.defaults.connection.enabled));
+  }
+
+  /** How many edits are unsaved, optionally only in the given sections. Reads a signal, so templates update when it changes. */
+  pending(sections?: SettingsSection[]): number {
+    const o = this.slice(this.overrides(), sections);
+    return (
+      Object.keys(o.features ?? {}).length +
+      Object.keys(o.connection?.fields ?? {}).length +
+      Object.keys(o.services?.items ?? {}).length +
+      (o.connection?.enabled === undefined ? 0 : 1) +
+      (o.services?.enabled === undefined ? 0 : 1) +
+      (o.services?.refreshSeconds === undefined ? 0 : 1)
+    );
   }
 
   setFeature(id: FeatureId, value: boolean): void {
@@ -102,25 +100,23 @@ export class SettingsService {
     this.change((o) => this.put(((o.connection ??= {}).fields ??= {}), id, value, this.defaults.connection.fields[id]));
   }
 
+  /**
+   * Writes the unsaved edits (all of them, or only those of the given sections) to the master tables with the master key, then makes the
+   * answer the new saved values and drops the edits that were saved. Resolves with the server's message; rejects with the server's message.
+   */
+  async save(masterKey: string, sections?: SettingsSection[]): Promise<string> {
+    const body = this.slice(this.overrides(), sections);
+    if (!Object.keys(body).length)
+      return '';
+    const res = await this.api.sendFull<Partial<AppSettings>>('PUT', '/settings', this.api.json(body, { 'X-Master-Key': masterKey }), SAVE_TIMEOUT);
+    this.base.set(this.merge(res.data));
+    this.overrides.set(this.clean(this.overrides()));
+    return res.message ?? '';
+  }
+
   // #endregion
 
   // #region Private Methods
-
-  private apply(next: SettingsOverrides): void {
-    this.restored = true;
-    this.overrides.set(next);
-    if (!this.browser)
-      return;
-    try {
-      if (this.changed()) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } else {
-        localStorage.removeItem(STORAGE_KEY);
-      }
-    } catch {
-      /* storage blocked: the change lasts until the page is closed */
-    }
-  }
 
   /** Fills anything the API left out from the fallback, so a partial answer cannot break a page. */
   private merge(data: Partial<AppSettings>): AppSettings {
@@ -133,7 +129,7 @@ export class SettingsService {
     };
   }
 
-  /** Keep only values that exist in the loaded settings, have the right type and differ from the default. */
+  /** Keep only values that exist in the loaded settings, have the right type and differ from the saved value. */
   private clean(o: SettingsOverrides): SettingsOverrides {
     const d = this.defaults;
     const diff = <T extends object>(src: Partial<T> | undefined, base: T): Partial<T> | undefined => {
@@ -177,10 +173,27 @@ export class SettingsService {
   private change(fn: (o: SettingsOverrides) => void): void {
     const next = structuredClone(this.overrides());
     fn(next);
-    this.apply(this.clean(next));
+    this.overrides.set(this.clean(next));
   }
 
-  /** Set a value, or remove it when it equals the default so only real differences are saved. */
+  /** The part of the edits that belongs to the given sections (all of it when none are given). */
+  private slice(o: SettingsOverrides, sections?: SettingsSection[]): SettingsOverrides {
+    const wants = (s: SettingsSection) => !sections || sections.includes(s);
+    const features = Object.entries(o.features ?? {}).filter(([id]) => {
+      const group = FEATURES.find((f) => f.id === id)?.group;
+      return group !== undefined && wants(group);
+    });
+    const out: SettingsOverrides = {};
+    if (features.length)
+      out.features = Object.fromEntries(features) as Partial<FeatureFlags>;
+    if (o.connection && wants('connection'))
+      out.connection = o.connection;
+    if (o.services && wants('services'))
+      out.services = o.services;
+    return out;
+  }
+
+  /** Set a value, or remove it when it equals the saved value so only real differences are kept. */
   private put<T extends object, K extends keyof T>(target: T, key: K, value: T[K], base: T[K]): void {
     if (value === base) {
       delete target[key];

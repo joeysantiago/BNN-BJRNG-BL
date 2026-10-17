@@ -16,16 +16,16 @@ public class MusicAccessService : IMusicAccessService
 
     private readonly IMusicRepository _musicRepository;
 
-    private readonly ISettingsRepository _settingsRepository;
+    private readonly IMasterKeyService _masterKeyService;
 
     private static readonly Regex PasswordPattern = new(@"^[\x21-\x7E]{6,64}$", RegexOptions.Compiled);
 
-    public MusicAccessService(IPasswordHasher passwordHasher, IMessageService messageService, IMusicRepository musicRepository, ISettingsRepository settingsRepository)
+    public MusicAccessService(IPasswordHasher passwordHasher, IMessageService messageService, IMusicRepository musicRepository, IMasterKeyService masterKeyService)
     {
         _passwordHasher = passwordHasher;
         _messageService = messageService;
         _musicRepository = musicRepository;
-        _settingsRepository = settingsRepository;
+        _masterKeyService = masterKeyService;
     }
 
     #region Public Methods
@@ -39,11 +39,7 @@ public class MusicAccessService : IMusicAccessService
     public async Task<string> ResetPasswordAsync(string player, string? masterKey, string? newPassword, CancellationToken cancellationToken)
     {
         var musicPlayer = await RequirePlayerAsync(player, cancellationToken);
-        var stored = await _settingsRepository.GetSettingValueAsync("Security.MasterKeyHash", cancellationToken);
-
-        if (string.IsNullOrEmpty(stored) || !_passwordHasher.Verify(masterKey ?? string.Empty, stored))
-            throw new BusinessException(MessageCodes.MasterKeyInvalid, 401);
-
+        await _masterKeyService.VerifyAsync(masterKey, cancellationToken);
         await _musicRepository.UpdatePasswordAsync(musicPlayer.Id, _passwordHasher.Hash(RequireStrong(newPassword)), cancellationToken);
 
         return await _messageService.GetAsync(MessageCodes.MusicPasswordReset);

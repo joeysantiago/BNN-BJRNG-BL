@@ -73,6 +73,7 @@ public static class DependencyInjection
         services.AddScoped<IYoutubeService, YoutubeService>();
         services.AddScoped<ISettingsService, SettingsService>();
         services.AddScoped<ISpeedTestService, SpeedTestService>();
+        services.AddScoped<IMasterKeyService, MasterKeyService>();
         services.AddScoped<IMusicAccessService, MusicAccessService>();
         services.AddScoped<ITranslationService, TranslationService>();
 

@@ -5,6 +5,12 @@ import { ShareableResult } from './models/share.model';
 
 export const fmtMbps = (n: number): string => (n >= 100 ? n.toFixed(0) : n.toFixed(1));
 
+/** A speed in Mbps as shown on screen: below 1000 in Mbps (12.3, 940), from 1000 in Gbps (1.25, 3.32, 12.5). */
+export const fmtSpeed = (mbps: number): string => (mbps >= 10000 ? (mbps / 1000).toFixed(1) : mbps >= 1000 ? (mbps / 1000).toFixed(2) : fmtMbps(mbps));
+
+/** Translation key of the unit that goes with fmtSpeed(mbps). */
+export const speedUnitKey = (mbps: number): 'unit.gbps' | 'unit.mbps' => (mbps >= 1000 ? 'unit.gbps' : 'unit.mbps');
+
 @Injectable({ providedIn: 'root' })
 export class ShareService {
   private readonly i18n = inject(I18nService);
@@ -20,8 +26,12 @@ export class ShareService {
     return SITE_URL + this.i18n.info().home;
   }
 
+  speedText(mbps: number): string {
+    return `${fmtSpeed(mbps)} ${this.i18n.t(speedUnitKey(mbps))}`;
+  }
+
   text(r: ShareableResult): string {
-    return this.i18n.t('share.text', { down: fmtMbps(r.down), up: fmtMbps(r.up), ping: Math.round(r.ping) });
+    return this.i18n.t('share.text', { down: this.speedText(r.down), up: this.speedText(r.up), ping: Math.round(r.ping) });
   }
 
   /** Draw the result as a 1200 x 630 PNG, the same size as the social preview image. */
@@ -56,8 +66,8 @@ export class ShareService {
     ctx.fillText(t('res.label'), x0, 100);
 
     const cells: [string, string, string][] = [
-      [t('res.download'), fmtMbps(r.down), t('unit.mbps')],
-      [t('res.upload'), fmtMbps(r.up), t('unit.mbps')],
+      [t('res.download'), fmtSpeed(r.down), t(speedUnitKey(r.down))],
+      [t('res.upload'), fmtSpeed(r.up), t(speedUnitKey(r.up))],
       [t('res.ping'), String(Math.round(r.ping)), t('unit.ms')],
       [t('res.jitter'), r.jitter.toFixed(1), t('unit.ms')],
     ];

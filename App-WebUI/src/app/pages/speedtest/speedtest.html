@@ -74,7 +74,7 @@
         <dt>{{ i18n.t('res.download') }}</dt>
         <dd>
           @if (engine.down() !== null) {
-            {{ fmt(engine.down()!) }}<small>{{ i18n.t('unit.mbps') }}</small>
+            {{ fmt(engine.down()!) }}<small>{{ i18n.t(unitKey(engine.down()!)) }}</small>
           } @else {
             –
           }
@@ -84,7 +84,7 @@
         <dt>{{ i18n.t('res.upload') }}</dt>
         <dd>
           @if (engine.up() !== null) {
-            {{ fmt(engine.up()!) }}<small>{{ i18n.t('unit.mbps') }}</small>
+            {{ fmt(engine.up()!) }}<small>{{ i18n.t(unitKey(engine.up()!)) }}</small>
           } @else {
             –
           }

@@ -124,3 +124,38 @@ textarea {
 .pw ~ .status {
   margin-block-start: 16px;
 }
+.sechead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.sechead h2 {
+  margin: 0;
+  min-width: 0;
+}
+.topbar {
+  display: grid;
+  gap: 12px;
+}
+.topbar .bar {
+  margin-block-start: 0;
+}
+.acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.status:empty {
+  display: none;
+}
+@media (min-width: 900px) {
+  /* stays in view while you scroll through the sections; the site header is about 70px tall */
+  .topbar {
+    position: sticky;
+    inset-block-start: 76px;
+    z-index: 5;
+  }
+}

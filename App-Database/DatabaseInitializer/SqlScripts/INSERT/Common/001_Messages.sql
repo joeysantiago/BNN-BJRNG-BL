@@ -23,6 +23,8 @@ BEGIN
         ('MASTER_KEY_INVALID', N'{"en":"The master key is not correct.","hi":"मास्टर कुंजी सही नहीं है।","ar":"المفتاح الرئيسي غير صحيح."}'),
         ('TRANSLATION_LANGUAGE_INVALID', N'{"en":"This language is not supported.","hi":"यह भाषा समर्थित नहीं है।","ar":"هذه اللغة غير مدعومة."}'),
         ('TOO_MANY_REQUESTS', N'{"en":"Too many attempts. Please wait a minute and try again.","hi":"बहुत अधिक प्रयास। कृपया एक मिनट प्रतीक्षा करें और फिर प्रयास करें।","ar":"محاولات كثيرة جدًا. يرجى الانتظار دقيقة ثم المحاولة مرة أخرى."}'),
-        ('YOUTUBE_FFMPEG_MISSING', N'{"en":"MP3 conversion is not available on this server.","hi":"इस सर्वर पर MP3 रूपांतरण उपलब्ध नहीं है।","ar":"تحويل MP3 غير متاح على هذا الخادم."}');
+        ('YOUTUBE_FFMPEG_MISSING', N'{"en":"MP3 conversion is not available on this server.","hi":"इस सर्वर पर MP3 रूपांतरण उपलब्ध नहीं है।","ar":"تحويل MP3 غير متاح على هذا الخادم."}'),
+        ('SETTINGS_SAVED', N'{"en":"Settings saved.","hi":"सेटिंग्स सहेजी गईं।","ar":"تم حفظ الإعدادات."}'),
+        ('SETTINGS_INVALID', N'{"en":"Some of the settings are not valid.","hi":"कुछ सेटिंग्स मान्य नहीं हैं।","ar":"بعض الإعدادات غير صالحة."}');
 END
 GO

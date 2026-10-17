@@ -15,4 +15,6 @@ public interface ISettingsRepository
     Task<string?> GetSettingValueAsync(string code, CancellationToken cancellationToken);
 
     Task<List<ConnectionField>> GetConnectionFieldsAsync(CancellationToken cancellationToken);
+
+    Task UpdateAsync(Dictionary<string, bool> features, Dictionary<string, bool> fields, Dictionary<string, bool> services, Dictionary<string, string> appSettings, CancellationToken cancellationToken);
 }

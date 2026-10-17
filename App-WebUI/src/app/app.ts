@@ -32,6 +32,7 @@ import { Component, afterNextRender, computed, effect, inject } from '@angular/c
   `,
 })
 export class App {
+
   private readonly router = inject(Router);
   private readonly theme = inject(ThemeService);
   protected readonly i18n = inject(I18nService);
@@ -57,7 +58,6 @@ export class App {
 
     afterNextRender(() => {
       // Applied after hydration so the prerendered HTML and the first client render match.
-      this.cfg.restore();
       this.theme.restore();
       const stored = this.i18n.stored();
       if (!stored)
