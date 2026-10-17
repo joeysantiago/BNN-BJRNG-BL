@@ -1,0 +1,106 @@
+:host {
+  display: block;
+}
+
+.page {
+  display: grid;
+  gap: 24px;
+  align-content: start;
+  padding-block: 24px 0;
+  max-width: 760px;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 5vw, 2.5rem);
+  font-weight: 600;
+  text-align: center;
+}
+.lead {
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.setup {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.setup label {
+  display: grid;
+  gap: 4px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.setup input {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--muted);
+  background: transparent;
+  color: inherit;
+  font: 500 14px var(--font-mono);
+}
+.setup input:disabled {
+  opacity: 0.6;
+}
+.setup progress {
+  width: 100%;
+  height: 8px;
+  accent-color: var(--accent, currentColor);
+}
+.setup-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.setup-actions a.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.status {
+  margin: 0;
+  font-weight: 700;
+}
+.status.bad {
+  color: var(--danger);
+}
+.note {
+  margin: 0;
+  color: var(--muted);
+}
+
+.list ol {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+.n {
+  flex: none;
+  min-width: 1.6em;
+  text-align: center;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.tt {
+  display: grid;
+  min-width: 0;
+}
+.tt b {
+  overflow-wrap: anywhere;
+}
+.tt small {
+  opacity: 0.8;
+}
