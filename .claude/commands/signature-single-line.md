@@ -7,7 +7,7 @@ Rule (full details in document/signature-single-line.md and document/page-break.
 - Only a declaration with more than 4 parameters AND more than 250 characters wraps: group 4–5 parameters per line (never one per line), each line within 250 characters.
 - Calls follow the same limit only when the argument list has no lambda/function bodies, initializers, comments or nested multi-line expressions.
 - HTML templates keep their own 250 limit (html-single-line.md).
-- Do not change names, types or logic — only whitespace/line breaks. Do not touch FileDropper. Afterwards re-check method ordering (method-ordering-regions*.md sort by first-signature-line length) and build.
+- Do not change names, types or logic — only whitespace/line breaks. Afterwards re-check method ordering (method-ordering-regions*.md sort by first-signature-line length) and build.
 
 Example:
 

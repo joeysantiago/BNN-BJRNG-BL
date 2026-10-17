@@ -2,7 +2,9 @@
 
 Follow these rules whenever writing or modifying code in this repo. They are consolidated from `.claude/commands/*`. Scope tags: **WebAPI** = `App-WebAPI` (backend, C#), **WebUI** = `App-WebUI` (Angular/TypeScript).
 
-**Global exclusions:** never touch FileDropper (`features/file-dropper`) unless explicitly asked. Skip `*.spec.ts` for UI ordering/import rules.
+**Repo layout:** `App-Database` (DatabaseInitializer), `App-WebAPI` (`Thakurg` solution), `App-WebUI` (Angular app — run `npm` / `ng` commands and find `scripts/`, `public/`, `src/` there), `App-Data` (git-ignored runtime files; audio lives here per player folder, served by the API in packets), `App-Prototype`, `document`. Paths in the rules below that start with `src/`, `scripts/` or `public/` are relative to `App-WebUI`.
+
+**Global exclusions:** skip `*.spec.ts` for UI ordering/import rules; skip auto-generated code (`bin`, `obj`, `Migrations`).
 **Global principle:** formatting/refactor rules are *pure* changes — never alter names, types, logic, values or behaviour. Build / type-check afterwards (`ng build` for UI, build the API projects for backend).
 
 ---
@@ -75,11 +77,11 @@ addAll(num: number, num2: number)      // longest last
 - Relocation only — don't change property names, types or order.
 - Details: `document/model-separation.md`.
 
-## 7. Messages — single source (WebAPI Generic/HRMS/IMS and WebUI)
-- No message text typed in code. Texts live in the Messages table (`Code`, `Texts` = one JSON object with every language), edited via Settings → Configurations → Resource Management.
-- **API:** `throw new BusinessException(MessageCodes.X, status, args)`; success text via `await _messageService.GetAsync(MessageCodes.X)` (`ISettingsServices.Messages`), returned by the controller in `SuccessResponse`. No sentences in controllers/services. Use placeholders `{0}`, `{1}` — no string interpolation.
-- **UI:** toasts/inline errors use `MessageTextService.get(UiMessageCodes.X, ...args)`; API messages arrive translated in the response and are shown as-is.
-- Every new code = a constant (`MessageCodes.*.cs` / `HrmsMessageCodes` / `ImsMessageCodes` / `UiMessageCodes`) **plus** an English row in the Messages seed script.
+## 7. Messages — single source (WebAPI Thakurg and WebUI)
+- No message text typed in code. API texts live in the `Messages` table (`Code`, `Texts` = one JSON object with `en`/`hi`/`ar`); UI texts live in the `Translations` table (one row per page: `PageCode`, `Eng`, `Hin`, `Arab` = JSON key → text), served by `GET api/translations/{lang}`.
+- **API:** `throw new BusinessException(MessageCodes.X, status, args)`; success text via `await _messageService.GetAsync(MessageCodes.X)`, returned by the controller in `SuccessResponse`. No sentences in controllers/services. Use placeholders `{0}`, `{1}` — no string interpolation.
+- **UI:** every visible text comes from `i18n.t('key', params)` (placeholders `{name}`); API messages arrive translated in the response and are shown as-is.
+- Every new API code = a constant in `Thakurg.Contracts/Messages/MessageCodes*.cs` **plus** a row in `INSERT/Common/001_Messages.sql` (all languages). Every new UI key = an entry in the page's row of `INSERT/Common/009_Translations.sql` (`Eng`, `Hin`, `Arab`).
 - Keep English wording/behaviour identical.
 - Details: `document/messages-single-source.md`.
 
@@ -93,6 +95,14 @@ The target is 100% SEO coverage and fully indexable pages on mobile and desktop.
 - **Semantics and accessibility:** one `<h1>` per page, ordered headings, landmarks, `lang`/`dir` set per language (Arabic is RTL), alt text / `aria-label`s, descriptive link text, sufficient contrast in all four skins.
 - **Verify before finishing:** run `npm run build` (postbuild fails if a page is missing), open the built HTML for the page and confirm title, description, canonical, h1 and content are present with JS disabled, and check the mobile layout. State plainly anything that could not be verified (for example live indexing in Google Search Console) — do not claim "100% indexed" without proof.
 
+## 9. WebAPI C# layout, layering and SQL (App-WebAPI + App-Database)
+- **Usings:** one block, `System.*` first then ordinal alphabetical, no unused usings, one blank line before `namespace` (`document/sort-usings.md`).
+- **Declarations:** all fields and properties at the top of the type, one block sorted by declaration length (shortest first, ties alphabetical), then constructors (`document/declaration-order-by-length.md`).
+- **Methods:** `#region Public Methods` then `#region Private Methods`; inside each, sorted by first-signature-line length, shortest first (`document/method-ordering-regions.md`).
+- **Layering:** Controller → Service → Repository, each behind an interface registered `AddScoped<IX, X>()` in `Thakurg.Infrastructure/DependencyInjection.cs`; no `DbContext` outside repositories (`document/controller-service-repository.md`).
+- **Constructors:** at most 6 parameters; group extras into a bundle (`document/constructor-injection-limit.md`).
+- **SQL:** CREATE scripts use the aligned column grid (`document/sql-table-format.md`); one re-runnable INSERT script per table, numbered in dependency order (`document/sql-seed-data.md`). Every master table carries `IsActive`, `IsSoftDeleted`, `IsDeleted`, `CreatedBy`, `CreatedOn`, `ModifiedBy`, `ModifiedOn`, and the API reads only active, non-deleted rows.
+
 ---
 
 ## Pre-finish checklist
@@ -100,6 +110,7 @@ The target is 100% SEO coverage and fully indexable pages on mobile and desktop.
 2. Signatures on one line (≤ 250 chars; wrap rules only for > 4 params).
 3. UI imports sorted by length; class methods in Public/Private regions sorted by signature length.
 4. Models in `*.model.ts`; WebAPI model properties blank-line separated, WebUI not.
-5. No hardcoded message text; codes + seed rows added.
+5. No hardcoded message text; message codes / translation keys + seed rows added.
 6. SEO/indexing rules in §8 met on mobile and web (prerendered, metadata, sitemap, JSON-LD, hreflang).
-7. FileDropper untouched; build / type-check passes.
+7. WebAPI C# follows §9 (usings, declaration and method order, layering, constructor limit); SQL scripts follow the table and seed rules.
+8. Build / type-check passes (`ng build` for UI, build the API and database projects).

@@ -14,7 +14,6 @@ Rules:
 - Model files contain only models — no decorators, injected dependencies, or logic.
 - Do not add blank lines between properties in WebUI models (the `format-model` rule is WebAPI-only).
 - Do not change property names, types, or order — relocation only.
-- Do not touch FileDropper (`features/file-dropper`) unless explicitly asked.
 - Verify with an Angular build (`ng build`) after moving.
 
 See `document/model-separation.md` for the full standard.

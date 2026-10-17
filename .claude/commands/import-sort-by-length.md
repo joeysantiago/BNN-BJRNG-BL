@@ -1,4 +1,4 @@
-Sort the `import` statements by length in the specified scope (App-WebUI TypeScript; skip *.spec.ts and FileDropper).
+Sort the `import` statements by length in the specified scope (App-WebUI TypeScript; skip *.spec.ts).
 
 Rule (full details in document/import-sort-by-length.md):
 - Sort the top-of-file import block by the character count of the whole statement written on one line (`import` ... `;`, wrapped imports measured joined with single spaces), shortest first, longest last.
