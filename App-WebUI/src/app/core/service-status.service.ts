@@ -10,6 +10,7 @@ const TIMEOUT = 8000;
 const INDICATORS: Record<string, ServiceState> = { none: 'operational', minor: 'degraded', maintenance: 'degraded', major: 'outage', critical: 'outage' };
 
 @Injectable({ providedIn: 'root' })
+
 export class ServiceStatusService {
   private readonly cfg = inject(SettingsService);
   readonly checkedAt = signal<number | null>(null);

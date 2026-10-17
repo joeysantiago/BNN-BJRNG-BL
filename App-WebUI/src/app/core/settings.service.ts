@@ -12,6 +12,7 @@ const SAVE_TIMEOUT = 15000;
  * layered on top so the site previews them at once, live in memory only (a reload discards them) and are written back with `save`.
  */
 @Injectable({ providedIn: 'root' })
+
 export class SettingsService {
   private readonly api = inject(ApiService);
   readonly overrides = signal<SettingsOverrides>({});

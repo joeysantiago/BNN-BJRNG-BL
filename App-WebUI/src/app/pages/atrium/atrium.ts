@@ -16,6 +16,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   templateUrl: './atrium.html',
   styleUrl: './atrium.scss',
 })
+
 export class Atrium {
   private readonly seo = inject(SeoService);
   private readonly i18n = inject(I18nService);

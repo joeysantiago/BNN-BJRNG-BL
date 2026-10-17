@@ -15,6 +15,7 @@ Applies to every `.ts` file in `App-WebUI/src` except `*.spec.ts` and `*.d.ts`. 
 - **Ties** (same length): alphabetical by declaration text, ordinal, case-sensitive.
 - **Decorators, JSDoc and comments travel with their declaration** when it moves.
 - **Blank lines:** none between model members. In classes, a declaration that carries a comment keeps one blank line above its comment; all others sit on consecutive lines.
+- **Blank line after the decorator:** a decorated class has **exactly one blank line between its last decorator and the `export class Foo {` line** (after the closing `})` of `@Component({ … })`, or after `@Injectable({ providedIn: 'root' })`). The first member follows the `export class Foo {` line directly, with **no** blank line. Interfaces and type literals are not affected.
 - **Construction order.** A class field initializer that reads another field while the object is being constructed (for example `private readonly cfg = PLAYERS[this.id];`) must stay **after** the field it reads. Reads inside function bodies (`computed(() => this.x())`, `effect(...)`, arrow functions) happen later and do not count. If the strict length order would put a field before one it depends on, **leave that class as it is and tell the user**.
 - **Not reordered:** enum members, union members, interfaces that declare index or call signatures, object literals and `const` objects, constructor parameter properties, and anything in `*.spec.ts`.
 - This is a pure reorder: never change a declaration's text, name, type or modifier to satisfy the rule.
@@ -38,6 +39,29 @@ export interface ApiResponse<T> {
   data: T;
   success: boolean;
   message: string | null;
+}
+```
+
+### Do (decorated class: one blank line after the decorator, none after the opening line)
+
+```ts
+@Injectable({ providedIn: 'root' })
+
+export class ConnectionService {
+  readonly loading = signal(true);
+  readonly info = signal<ConnectionInfo>(EMPTY);
+}
+```
+
+```ts
+@Component({
+  selector: 'app-atrium',
+  templateUrl: './atrium.html',
+  styleUrl: './atrium.scss',
+})
+
+export class Atrium {
+  private readonly seo = inject(SeoService);
 }
 ```
 

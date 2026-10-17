@@ -16,6 +16,7 @@ const PASSWORD_HEADER = 'X-Edit-Password';
   templateUrl: './creta-add.html',
   styleUrl: './creta-add.scss',
 })
+
 export class CretaAdd {
   protected readonly id: PlayerId = inject(ActivatedRoute).snapshot.data['player'] === 'nexon' ? 'nexon' : 'creta';
   protected readonly busy = signal(false);

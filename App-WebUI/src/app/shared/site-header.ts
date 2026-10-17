@@ -17,6 +17,7 @@ const SPEED_PATHS = new Set(['/', '/hi', '/ar']);
   templateUrl: './site-header.html',
   styleUrl: './site-header.scss',
 })
+
 export class SiteHeader {
   protected readonly i18n = inject(I18nService);
   protected readonly theme = inject(ThemeService);

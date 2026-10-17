@@ -26,6 +26,7 @@ const fmtTime = (s: number): string => {
   templateUrl: './creta.html',
   styleUrl: './creta.scss',
 })
+
 export class Creta implements OnDestroy {
   protected readonly id: PlayerId = inject(ActivatedRoute).snapshot.data['player'] === 'nexon' ? 'nexon' : 'creta';
   protected autoplay = false;

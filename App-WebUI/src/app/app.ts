@@ -31,8 +31,8 @@ import { Component, afterNextRender, computed, effect, inject } from '@angular/c
     }
   `,
 })
-export class App {
 
+export class App {
   private readonly router = inject(Router);
   private readonly theme = inject(ThemeService);
   protected readonly i18n = inject(I18nService);

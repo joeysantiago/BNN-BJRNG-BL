@@ -7,8 +7,8 @@ import { ServiceStatus } from '../../shared/service-status';
 import { TranslationKey } from '../../core/models/i18n.model';
 import { SpeedResult } from '../../core/models/results.model';
 import { SettingsService } from '../../core/settings.service';
-import { ShareService, fmtMbps } from '../../core/share.service';
 import { ConnectionDetails } from '../../shared/connection-details';
+import { ShareService, fmtSpeed, speedUnitKey } from '../../core/share.service';
 import { PHASE_MS, SpeedEngine, gaugeFraction } from '../../core/speed-engine.service';
 import { Component, OnDestroy, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 
@@ -21,6 +21,7 @@ const range = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
   templateUrl: './speedtest.html',
   styleUrl: './speedtest.scss',
 })
+
 export class Speedtest implements OnDestroy {
   protected readonly i18n = inject(I18nService);
   protected readonly engine = inject(SpeedEngine);
@@ -31,7 +32,8 @@ export class Speedtest implements OnDestroy {
 
   protected readonly cfg = inject(SettingsService);
   protected readonly settings = this.cfg.settings;
-  protected readonly fmt = fmtMbps;
+  protected readonly fmt = fmtSpeed;
+  protected readonly unitKey = speedUnitKey;
   protected readonly shareOpen = signal(false);
   protected readonly saved = signal(false);
   protected readonly copied = signal(false);
@@ -134,11 +136,12 @@ export class Speedtest implements OnDestroy {
 
   protected readonly unit = computed(() => {
     const p = this.engine.phase();
+    const scale = this.engine.gauge() >= 1000 ? 'gbps' : 'mbps';
     if (p === 'down' || p === 'done')
-      return this.i18n.t('unit.mbps_down');
+      return this.i18n.t(`unit.${scale}_down`);
     if (p === 'up')
-      return this.i18n.t('unit.mbps_up');
-    return this.i18n.t('unit.mbps');
+      return this.i18n.t(`unit.${scale}_up`);
+    return this.i18n.t(`unit.${scale}`);
   });
 
   protected readonly buttonLabel = computed(() => {
@@ -296,7 +299,7 @@ export class Speedtest implements OnDestroy {
   }
 
   protected itemText(r: SpeedResult): string {
-    return this.i18n.t('hist.item', { down: fmtMbps(r.down), up: fmtMbps(r.up), ping: Math.round(r.ping), jitter: r.jitter.toFixed(1) });
+    return this.i18n.t('hist.item', { down: this.share.speedText(r.down), up: this.share.speedText(r.up), ping: Math.round(r.ping), jitter: r.jitter.toFixed(1) });
   }
 
   /** Open the phone or computer share sheet, with the result image attached when allowed. */

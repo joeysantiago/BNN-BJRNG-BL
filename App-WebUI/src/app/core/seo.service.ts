@@ -5,6 +5,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { LANGS, Lang, SITE_NAME, SITE_URL, langInfo } from './site';
 
 @Injectable({ providedIn: 'root' })
+
 export class SeoService {
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);

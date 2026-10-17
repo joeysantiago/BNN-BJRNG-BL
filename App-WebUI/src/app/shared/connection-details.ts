@@ -13,6 +13,7 @@ const NET_KEYS: Record<string, TranslationKey> = { wifi: 'conn.net.wifi', cellul
   templateUrl: './connection-details.html',
   styleUrl: './connection-details.scss',
 })
+
 export class ConnectionDetails implements OnDestroy {
   private stopWatching: () => void = () => {};
   protected readonly i18n = inject(I18nService);

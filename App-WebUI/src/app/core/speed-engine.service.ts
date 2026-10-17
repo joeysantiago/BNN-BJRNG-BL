@@ -31,6 +31,7 @@ const median = (values: number[]): number | null => {
  * Browser only: methods do nothing during prerendering.
  */
 @Injectable({ providedIn: 'root' })
+
 export class SpeedEngine {
   /** Live reading shown on the gauge, in Mbps. */
   readonly gauge = signal(0);

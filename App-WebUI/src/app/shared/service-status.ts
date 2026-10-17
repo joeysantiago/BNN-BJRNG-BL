@@ -12,6 +12,7 @@ const GROUPS: ServiceGroup[] = ['apps', 'telecom'];
   templateUrl: './service-status.html',
   styleUrl: './service-status.scss',
 })
+
 export class ServiceStatus implements OnDestroy {
   private stopWatching: () => void = () => {};
   protected readonly i18n = inject(I18nService);

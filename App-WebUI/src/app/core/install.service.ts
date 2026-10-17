@@ -4,6 +4,7 @@ import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 
 /** Drives the Install app button: native prompt on Chrome, Edge and Android, a hint on iPhone and iPad. */
 @Injectable({ providedIn: 'root' })
+
 export class InstallService {
   /** True when the browser offered a native install prompt. */
   readonly canPrompt = signal(false);

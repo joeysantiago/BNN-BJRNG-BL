@@ -12,6 +12,7 @@ export const fmtSpeed = (mbps: number): string => (mbps >= 10000 ? (mbps / 1000)
 export const speedUnitKey = (mbps: number): 'unit.gbps' | 'unit.mbps' => (mbps >= 1000 ? 'unit.gbps' : 'unit.mbps');
 
 @Injectable({ providedIn: 'root' })
+
 export class ShareService {
   private readonly i18n = inject(I18nService);
 

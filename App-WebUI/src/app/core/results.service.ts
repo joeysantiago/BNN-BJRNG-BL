@@ -7,6 +7,7 @@ const MAX = 30;
 
 /** Saved speed test results. Stored in localStorage only, nothing leaves the browser. */
 @Injectable({ providedIn: 'root' })
+
 export class ResultsService {
   readonly items = signal<SpeedResult[]>([]);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));

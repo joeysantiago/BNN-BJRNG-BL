@@ -10,6 +10,7 @@ const STORAGE_KEY = 'thakurg-lang';
 const LOAD_TIMEOUT = 5000;
 
 @Injectable({ providedIn: 'root' })
+
 export class I18nService {
   readonly languages = LANGS;
   readonly lang = signal<Lang>('en');

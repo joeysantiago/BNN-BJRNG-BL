@@ -12,6 +12,7 @@ export const SKINS: readonly SkinInfo[] = [
 const STORAGE_KEY = 'thakurg-skin';
 
 @Injectable({ providedIn: 'root' })
+
 export class ThemeService {
   readonly skins = SKINS;
   readonly skin = signal<Skin>('glass');

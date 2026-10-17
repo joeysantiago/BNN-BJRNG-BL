@@ -52,6 +52,7 @@ const COPY = {
     }
   `,
 })
+
 export class StatusPage {
   private readonly seo = inject(SeoService);
   protected readonly i18n = inject(I18nService);

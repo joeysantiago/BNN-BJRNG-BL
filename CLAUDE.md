@@ -107,6 +107,7 @@ The target is 100% SEO coverage and fully indexable pages on mobile and desktop.
 - **Model members:** the members of every `interface` / `type X = { … }` form one block sorted by the character count of the whole member written on one line — shortest first. No blank lines between members.
 - **Class fields and properties** (`inject`, `signal`, `computed`, `input`, `viewChild`, constants, decorated and arrow-function properties): one block at the top of the class, before accessors and the constructor, sorted the same way.
 - **`id` is always first** (whatever its length); everything else follows by length.
+- **Blank line after the decorator:** a decorated class has **exactly one blank line between its last decorator and the `export class Foo {` line** (after the closing `})` of `@Component({ … })`, or after `@Injectable({ providedIn: 'root' })`). The first member follows the `export class Foo {` line directly, with **no** blank line. Interfaces and type literals are not affected.
 - Length = the full declaration on one line (multi-line ones joined with single spaces); decorators, JSDoc and comments are not counted and travel with their declaration. Ties: alphabetical, ordinal.
 - A field whose initializer reads another field during construction (`PLAYERS[this.id]`, not inside `computed`/`effect`/arrow bodies) must stay after it; if length order would break that, leave the class as is and tell the user.
 - Enums, unions, interfaces with index/call signatures, object literals and constructor parameter properties are not reordered. Pure reorder.

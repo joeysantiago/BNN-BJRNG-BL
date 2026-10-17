@@ -11,6 +11,7 @@ const IPV6 = 'https://api6.ipify.org?format=json';
 const EMPTY: ConnectionInfo = { isp: null, ip: null, ipv4: null, ipv6: null, location: null, testServer: null };
 
 @Injectable({ providedIn: 'root' })
+
 export class ConnectionService {
   readonly loading = signal(true);
   private readonly api = inject(ApiService);

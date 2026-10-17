@@ -35,6 +35,7 @@ import { TranslationKey } from '../../core/models/i18n.model';
     }
   `,
 })
+
 export class StaticPage {
   protected readonly i18n = inject(I18nService);
   private readonly seo = inject(SeoService);

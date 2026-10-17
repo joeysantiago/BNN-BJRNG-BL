@@ -4,8 +4,8 @@ import { environment } from '../../environments/environment';
 
 /** Talks to our own API. JSON endpoints answer { success, message, data }; this unwraps `data` and throws the server's message on failure. */
 @Injectable({ providedIn: 'root' })
-export class ApiService {
 
+export class ApiService {
   readonly base = environment.apiBaseUrl.replace(/\/$/, '');
 
   // #region Public Methods

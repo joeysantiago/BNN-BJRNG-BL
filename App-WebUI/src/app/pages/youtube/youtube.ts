@@ -62,6 +62,7 @@ const parseInput = (text: string): YtInput => {
   templateUrl: './youtube.html',
   styleUrl: './youtube.scss',
 })
+
 export class Youtube implements OnDestroy {
   private startAt = 0;
   private loadedId = '';
@@ -130,7 +131,6 @@ export class Youtube implements OnDestroy {
   constructor() {
     if (this.browser) {
       this.canFullscreen = !!document.fullscreenEnabled;
-      this.cfg.restore();
       try {
         this.playlists.set(JSON.parse(localStorage.getItem(LISTS_STORE) ?? '[]') as YtPlaylist[]);
         this.target.set(this.playlists()[0]?.id ?? '');

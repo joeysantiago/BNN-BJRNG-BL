@@ -64,6 +64,7 @@ import { SettingsService } from '../core/settings.service';
     }
   `,
 })
+
 export class SiteFooter {
   protected readonly site = SITE_NAME;
   protected readonly i18n = inject(I18nService);

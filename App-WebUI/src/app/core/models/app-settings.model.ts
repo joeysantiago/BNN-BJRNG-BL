@@ -10,6 +10,9 @@ export type ConnectionField = 'isp' | 'ip' | 'ipv4' | 'ipv6' | 'mac' | 'location
 
 export type FeatureGroup = 'site' | 'pages' | 'speed' | 'youtube' | 'audio';
 
+/** A part of the /master page that has its own Save button. */
+export type SettingsSection = FeatureGroup | 'connection' | 'services';
+
 export type FeatureId =
   | 'site.install' | 'site.theme' | 'site.language' | 'site.nav' | 'site.footer'
   | 'page.speed' | 'page.youtube' | 'page.creta' | 'page.nexon' | 'page.hr' | 'page.about' | 'page.privacy' | 'page.terms'
@@ -26,7 +29,7 @@ export interface FeatureInfo {
 
 export type FeatureFlags = Record<FeatureId, boolean>;
 
-/** What the /config page saves in this browser. Only what differs from the master-table settings served by the API is stored. */
+/** Unsaved edits made on the /master page. Kept in memory only (never in browser storage); only what differs from the settings loaded from the API. */
 export interface SettingsOverrides {
   features?: Partial<FeatureFlags>;
   connection?: { enabled?: boolean; fields?: Partial<Record<ConnectionField, boolean>> };

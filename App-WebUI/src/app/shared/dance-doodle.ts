@@ -24,6 +24,7 @@ const avg = (buf: Uint8Array, from: number, to: number): number => {
   templateUrl: './dance-doodle.html',
   styleUrl: './dance-doodle.scss',
 })
+
 export class DanceDoodle implements OnDestroy {
   private raf = 0;
   private last = 0;
