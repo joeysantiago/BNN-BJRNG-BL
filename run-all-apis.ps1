@@ -27,7 +27,39 @@ $databaseInitializerProject = Join-Path $root "App-Database\DatabaseInitializer\
 
 if (Test-Path $databaseInitializerProject) {
     Write-Host ""
-    $runDb = Read-Host "Run the Database Initializer (create/reset the database) before starting the apps? [y/N]"
+
+    # First run on this machine: when the local database does not exist yet there is nothing to ask - create it.
+    # Reads the same MSSQLServer string the initializer uses (appsettings.Development.json, else appsettings.json).
+    $databaseMissing = $false
+    try {
+        $dbFolder = Split-Path $databaseInitializerProject -Parent
+        $dbSettings = Get-Content (Join-Path $dbFolder "appsettings.json") -Raw | ConvertFrom-Json
+        $devFile = Join-Path $dbFolder "appsettings.Development.json"
+        if (Test-Path $devFile) { $dbSettings = Get-Content $devFile -Raw | ConvertFrom-Json }
+        if ($dbSettings.DatabaseProvider.UseLocalServer) {
+            $connection = New-Object System.Data.SqlClient.SqlConnectionStringBuilder($dbSettings.ConnectionStrings.MSSQLServer)
+            $databaseName = $connection.InitialCatalog
+            $connection["Initial Catalog"] = "master"
+            $sql = New-Object System.Data.SqlClient.SqlConnection($connection.ConnectionString)
+            $sql.Open()
+            $command = $sql.CreateCommand()
+            $command.CommandText = "SELECT DB_ID(@name)"
+            [void]$command.Parameters.AddWithValue("@name", $databaseName)
+            $databaseMissing = $command.ExecuteScalar() -is [System.DBNull]
+            $sql.Close()
+        }
+    }
+    catch {
+        Write-Warning "Could not check the local SQL Server ($($_.Exception.Message)). Is SQL Server LocalDB installed?"
+    }
+
+    if ($databaseMissing) {
+        Write-Host "Database '$databaseName' does not exist on this machine yet - creating it now." -ForegroundColor Yellow
+        $runDb = 'y'
+    }
+    else {
+        $runDb = Read-Host "Run the Database Initializer (create/reset the database) before starting the apps? [y/N]"
+    }
     if ($runDb -match '^(y|yes)$') {
         Write-Host ""
         Write-Host "Running Database Initializer..." -ForegroundColor Cyan
