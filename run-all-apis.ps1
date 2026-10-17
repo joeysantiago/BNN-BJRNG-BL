@@ -3,7 +3,7 @@
     Optionally (re)creates the database, then starts Thakurg.API and the
     thakurg-web Angular app, one after another, all inside this single terminal window.
 .DESCRIPTION
-    Run this from the repository root (or just double-click run-all-apis.bat)
+    Run this from the repository root (or just double-click run-bro.bat)
     instead of starting each project individually in its own terminal.
 
     First asks whether to run App-Database\DatabaseInitializer. That project's own
@@ -20,6 +20,7 @@
 #>
 
 $ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $root = $PSScriptRoot
 
 $databaseInitializerProject = Join-Path $root "App-Database\DatabaseInitializer\DatabaseInitializer.csproj"
@@ -34,14 +35,18 @@ if (Test-Path $databaseInitializerProject) {
         # DatabaseInitializer is a plain console app (Host.CreateApplicationBuilder), which resolves
         # its content root - and so appsettings.json/ConnectionStrings - from the process's current
         # working directory, not from wherever --project points. `dotnet run --project` here would
-        # inherit this script's own cwd (the repo root) and silently fail to find CommonConnection.
+        # inherit this script's own cwd (the repo root) and silently fail to find the MSSQLServer / AzureSQLConnection strings.
         # Running from inside the project's own folder is what actually works.
+        # DOTNET_ENVIRONMENT picks appsettings.Development.json (local SQL Server). Set QA / UAT / Live yourself to target those.
+        $previousEnvironment = $env:DOTNET_ENVIRONMENT
+        if (-not $env:DOTNET_ENVIRONMENT) { $env:DOTNET_ENVIRONMENT = 'Development' }
         Push-Location (Split-Path $databaseInitializerProject -Parent)
         try {
             dotnet run
         }
         finally {
             Pop-Location
+            $env:DOTNET_ENVIRONMENT = $previousEnvironment
         }
 
         Write-Host ""
@@ -98,20 +103,23 @@ foreach ($app in $apps) {
     else {
         $nodeModules = Join-Path $app.Path "node_modules"
         if (-not (Test-Path $nodeModules)) {
-            Write-Prefixed $app.Name "node_modules not found - running npm i --legacy-peer-deps..."
+            Write-Prefixed $app.Name "node_modules not found - running npm ci..."
             Push-Location $app.Path
             try {
-                npm i --legacy-peer-deps
-                if ($LASTEXITCODE -ne 0) { Write-Warning "npm install exited with code $LASTEXITCODE" }
+                npm ci
+                if ($LASTEXITCODE -ne 0) { Write-Warning "npm ci exited with code $LASTEXITCODE" }
             }
             finally {
                 Pop-Location
             }
         }
 
+        # The dev server renders pages on the server too and calls the API over https://localhost:7001. Node does not trust the
+        # ASP.NET Core development certificate (even when Windows does), so allow it for this local dev process only.
         $job = Start-Job -Name $app.Name -ScriptBlock {
             param($dir)
             Set-Location $dir
+            $env:NODE_TLS_REJECT_UNAUTHORIZED = '0'
             npm start
         } -ArgumentList $app.Path
     }
@@ -134,7 +142,12 @@ Write-Host ""
 try {
     while ($true) {
         foreach ($job in $jobs) {
-            Receive-Job -Job $job | ForEach-Object { Write-Prefixed $job.Name $_ }
+            # Warnings that ng / dotnet write to stderr arrive as error records. With $ErrorActionPreference = 'Stop' they would
+            # end this loop and stop every app, so keep going and print them like any other line.
+            Receive-Job -Job $job -ErrorAction Continue 2>&1 | ForEach-Object {
+                $line = if ($_ -is [System.Management.Automation.ErrorRecord]) { $_.Exception.Message } else { $_ }
+                Write-Prefixed $job.Name $line
+            }
         }
         Start-Sleep -Milliseconds 300
     }
