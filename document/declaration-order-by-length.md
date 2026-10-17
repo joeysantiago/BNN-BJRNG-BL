@@ -5,7 +5,7 @@ Applies to every C# class, struct and record in `App-WebAPI` (`Thakurg`) and `Ap
 ## Rule
 
 1. **All field and property declarations go at the top of the type, before the constructor(s).** Nothing else (constructor, method, nested type) may sit above or between them.
-2. The declarations form **one block sorted by the character count of the whole declaration, shortest first, longest last** — the same "short to long" idea as `import-sort-by-length.md`. Fields (`const`, `static`, instance) and properties (including `override`, expression-bodied and auto-properties) are sorted **together**, not in separate groups.
+2. The declarations form **one block sorted by the character count of the whole declaration, shortest first, longest last** (except that a property named `Id` always comes first — see Details) — the same "short to long" idea as `import-sort-by-length.md`. Fields (`const`, `static`, instance) and properties (including `override`, expression-bodied and auto-properties) are sorted **together**, not in separate groups.
 3. A type is laid out top to bottom as:
    1. Field and property declarations (shortest → longest)
    2. Constructor(s)
@@ -16,6 +16,7 @@ Applies to every C# class, struct and record in `App-WebAPI` (`Thakurg`) and `Ap
 ## Details
 
 - **Length** = the characters of the complete declaration written on one line, from the first modifier through the closing `;` / `}`, with no leading indentation. A declaration spanning several lines (initializer, accessor bodies) is measured as if joined with single spaces. Attributes (`[Required]`), XML docs and `//` comments are **not** counted.
+- **`Id` is always first.** A property named exactly `Id` is the first declaration of its type, whatever its length; every other declaration is then sorted by length. (`UserId`, `PlayerId` and similar are ordinary properties.)
 - **Ties** (same length): alphabetical by declaration text, ordinal, case-sensitive.
 - **Attributes, XML docs and comments travel with their declaration** when it moves.
 - **One blank line between declarations**, and one blank line between the declaration block and the constructor (matches `format-model.md`).
@@ -66,7 +67,7 @@ public sealed class AzureSqlServer : SqlServerProvisionerBase, IAzureSqlServer
 
 ## Checklist when adding a field or property
 
-1. Put it in the declaration block at the top, at the position its length dictates (shortest first).
+1. Put it in the declaration block at the top, at the position its length dictates (shortest first); an `Id` property always goes first.
 2. Keep one blank line between declarations and before the constructor.
 3. Move its attributes/comments with it.
 4. Build the affected project.

@@ -55,7 +55,7 @@ import { Aaa, Bbb } from 'aaa';
 ```
 
 ## 5. Method ordering and regions (WebUI TypeScript classes; skip `*.spec.ts`)
-- Class layout top to bottom: fields/properties, accessors (get/set), constructor, `// #region Public Methods`, `// #region Private Methods` (each closed with `// #endregion`).
+- Class layout top to bottom: fields/properties (sorted by length, see §10), accessors (get/set), constructor, `// #region Public Methods`, `// #region Private Methods` (each closed with `// #endregion`).
 - Public (no modifier / `public`, incl. Angular lifecycle hooks and template handlers) → Public Methods. `private` / `protected` / `#private` → Private Methods. Omit a region if empty.
 - Within each region sort by character count of the first signature line (trimmed indentation; decorators and comments not counted; wrapped signatures count only the first physical line) — shortest first. Ties: fewer parameters first, then keep existing order.
 - Decorators, JSDoc and comments move with their method. Arrow-function properties stay with properties. Module-level functions, interfaces, types, enums untouched.
@@ -97,18 +97,35 @@ The target is 100% SEO coverage and fully indexable pages on mobile and desktop.
 
 ## 9. WebAPI C# layout, layering and SQL (App-WebAPI + App-Database)
 - **Usings:** one block, `System.*` first then ordinal alphabetical, no unused usings, one blank line before `namespace` (`document/sort-usings.md`).
-- **Declarations:** all fields and properties at the top of the type, one block sorted by declaration length (shortest first, ties alphabetical), then constructors (`document/declaration-order-by-length.md`).
+- **Declarations:** all fields and properties at the top of the type, one block sorted by declaration length (shortest first, ties alphabetical; a property named `Id` always first), then constructors (`document/declaration-order-by-length.md`). The same rule for TypeScript is §10.
 - **Methods:** `#region Public Methods` then `#region Private Methods`; inside each, sorted by first-signature-line length, shortest first (`document/method-ordering-regions.md`).
 - **Layering:** Controller → Service → Repository, each behind an interface registered `AddScoped<IX, X>()` in `Thakurg.Infrastructure/DependencyInjection.cs`; no `DbContext` outside repositories (`document/controller-service-repository.md`).
 - **Constructors:** at most 6 parameters; group extras into a bundle (`document/constructor-injection-limit.md`).
 - **SQL:** CREATE scripts use the aligned column grid (`document/sql-table-format.md`); one re-runnable INSERT script per table, numbered in dependency order (`document/sql-seed-data.md`). Every master table carries `IsActive`, `IsSoftDeleted`, `IsDeleted`, `CreatedBy`, `CreatedOn`, `ModifiedBy`, `ModifiedOn`, and the API reads only active, non-deleted rows.
+
+## 10. Declaration ordering by length (WebUI TypeScript; skip `*.spec.ts`)
+- **Model members:** the members of every `interface` / `type X = { … }` form one block sorted by the character count of the whole member written on one line — shortest first. No blank lines between members.
+- **Class fields and properties** (`inject`, `signal`, `computed`, `input`, `viewChild`, constants, decorated and arrow-function properties): one block at the top of the class, before accessors and the constructor, sorted the same way.
+- **`id` is always first** (whatever its length); everything else follows by length.
+- Length = the full declaration on one line (multi-line ones joined with single spaces); decorators, JSDoc and comments are not counted and travel with their declaration. Ties: alphabetical, ordinal.
+- A field whose initializer reads another field during construction (`PLAYERS[this.id]`, not inside `computed`/`effect`/arrow bodies) must stay after it; if length order would break that, leave the class as is and tell the user.
+- Enums, unions, interfaces with index/call signatures, object literals and constructor parameter properties are not reordered. Pure reorder.
+- Details: `document/declaration-order-by-length-ui.md`.
+
+```ts
+interface ApiResponse<T> {
+  data: T;                  // shortest first
+  success: boolean;
+  message: string | null;   // longest last
+}
+```
 
 ---
 
 ## Pre-finish checklist
 1. Single-statement `if` braces removed (no else, one statement).
 2. Signatures on one line (≤ 250 chars; wrap rules only for > 4 params).
-3. UI imports sorted by length; class methods in Public/Private regions sorted by signature length.
+3. UI imports sorted by length; class fields/properties and model members sorted by length (§10); class methods in Public/Private regions sorted by signature length.
 4. Models in `*.model.ts`; WebAPI model properties blank-line separated, WebUI not.
 5. No hardcoded message text; message codes / translation keys + seed rows added.
 6. SEO/indexing rules in §8 met on mobile and web (prerendered, metadata, sitemap, JSON-LD, hreflang).

@@ -20,8 +20,8 @@ Applies to every TypeScript **class** in `App-WebUI` (components, services, guar
 - **Measuring "first signature line"**: take the physical line that declares the method (modifiers, `async`, name, parameters and return type up to the end of that line; if the signature is wrapped per `page-break.md`, only that first line counts). Count its characters after trimming the leading indentation. Decorators (`@HostListener(...)`), JSDoc/`//` comments are **not** counted.
 - **Ties**: fewer parameters first; if still equal, keep the existing relative order.
 - **Decorators, JSDoc and comments travel with their method** — they stay directly above it when it moves.
-- Fields, properties, accessors and the constructor are **not** sorted by this rule; they stay above the regions in their current relative order.
-- Arrow-function class properties (`handler = () => {...}`) are properties, not methods — they stay in the properties block.
+- Fields and properties are ordered by `declaration-order-by-length-ui.md` (one block at the top, shortest first), not by this rule; accessors and the constructor are not sorted either. They all stay above the regions.
+- Arrow-function class properties (`handler = () => {...}`) are properties, not methods — they stay in the properties block and are sorted there by `declaration-order-by-length-ui.md`.
 - Module-level functions/constants outside a class, interfaces, types and enums are not affected.
 - Pure reorder: never change a method's body, signature, name or visibility to satisfy the rule.
 - Formatting still follows the other standards: `signature-single-line.md`, `page-break.md`, `simplify-if.md`, a blank line between members.
