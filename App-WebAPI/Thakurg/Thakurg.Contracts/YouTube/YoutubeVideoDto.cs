@@ -2,9 +2,9 @@ namespace Thakurg.Contracts.YouTube;
 
 public class YoutubeVideoDto
 {
-    public int Duration { get; set; }
-
     public string Id { get; set; } = string.Empty;
+
+    public int Duration { get; set; }
 
     public string Thumb { get; set; } = string.Empty;
 

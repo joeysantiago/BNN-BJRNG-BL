@@ -2,13 +2,13 @@ namespace Thakurg.Contracts.Settings;
 
 public class ServiceItemDto
 {
+    public string Id { get; set; } = string.Empty;
+
     public bool Enabled { get; set; }
 
     public string? ProbeUrl { get; set; }
 
     public string? StatusPage { get; set; }
-
-    public string Id { get; set; } = string.Empty;
 
     public string Url { get; set; } = string.Empty;
 
