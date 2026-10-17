@@ -1,0 +1,43 @@
+<div class="wrap page">
+  <section class="card add" aria-labelledby="add-h1">
+    <h1 id="add-h1">{{ i18n.t('creta.add.h1') }}</h1>
+    <p class="lead">{{ i18n.t('creta.add.lead', { name: i18n.page(id) }) }}</p>
+
+    <form class="setup inset" [attr.aria-busy]="busy()" (submit)="$event.preventDefault(); upload(apw, files)">
+      <label>{{ i18n.t('creta.edit.password') }}<input #apw type="password" autocomplete="off" [disabled]="busy()" /></label>
+      <label>{{ i18n.t('creta.edit.pick') }}<input #files type="file" accept="audio/*,.mp3,.m4a,.aac,.ogg,.opus,.wav,.flac" multiple [disabled]="busy()" /></label>
+      @if (busy()) {
+        <progress aria-hidden="true"></progress>
+      }
+      <div class="setup-actions">
+        <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t('creta.edit.upload') }}</button>
+        <a class="btn" [routerLink]="'/' + id">{{ i18n.t('creta.add.back') }}</a>
+      </div>
+    </form>
+
+    @if (status(); as st) {
+      <p class="status" [class.bad]="st.error" [attr.role]="st.error ? 'alert' : 'status'">{{ st.text }}</p>
+    }
+  </section>
+
+  <section class="card list" aria-labelledby="cur-h">
+    <h2 id="cur-h">{{ i18n.t('creta.add.current') }}</h2>
+    @if (tracks().length) {
+      <ol>
+        @for (t of tracks(); track t.id; let i = $index) {
+          <li>
+            <span class="n" aria-hidden="true">{{ i + 1 }}</span>
+            <span class="tt">
+              <b>{{ t.title }}</b>
+              @if (t.artist) {
+                <small>{{ t.artist }}</small>
+              }
+            </span>
+          </li>
+        }
+      </ol>
+    } @else if (loaded()) {
+      <p class="note">{{ i18n.t('creta.edit.none') }}</p>
+    }
+  </section>
+</div>

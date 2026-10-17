@@ -1,0 +1,151 @@
+<div class="wrap page">
+  <section class="card player" aria-labelledby="player-h1">
+    <h1 id="player-h1">{{ tt('h1') }}</h1>
+    <p class="lead">{{ tt('lead') }}</p>
+
+    @if (src(); as s) {
+      <audio #audio [src]="s" crossorigin="anonymous" preload="metadata" (loadedmetadata)="onLoaded(audio)" (durationchange)="duration.set(audio.duration || 0)" (timeupdate)="time.set(audio.currentTime)" (play)="playing.set(true)"
+        (pause)="playing.set(false)" (ended)="onEnded(audio)" (error)="onError()" (emptied)="onTrackChange()" (loadstart)="onTrackChange()"></audio>
+    }
+
+    @if (current(); as t) {
+      <div class="now">
+        <div class="art inset" aria-hidden="true">
+          @if (coverUrl(); as c) {
+            <img [src]="c" alt="" width="160" height="160" />
+          } @else {
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          }
+        </div>
+        <div class="meta">
+          <span class="label">{{ i18n.t('creta.now') }}</span>
+          <h2 class="title">{{ t.title }}</h2>
+          <p class="artist">{{ t.artist || '' }}</p>
+          @if (failed()) {
+            <p class="err" role="alert">{{ i18n.t('creta.error') }}</p>
+          }
+        </div>
+      </div>
+
+      @if (flags.on('audio.doodle')) {
+      <app-dance-doodle [audio]="audioRef()?.nativeElement ?? null" [playing]="playing()" [seed]="index()" />
+      }
+
+
+      @if (flags.on('audio.seek')) {
+      <div class="seek">
+        <span class="t" aria-hidden="true">{{ timeText() }}</span>
+        <input
+          type="range"
+          min="0"
+          [max]="duration() || 0"
+          step="1"
+          [value]="time()"
+          [attr.aria-label]="i18n.t('creta.seek')"
+          [attr.aria-valuetext]="timeText() + ' / ' + durationText()"
+          (input)="seek($event)"
+        />
+        <span class="t" aria-hidden="true">{{ durationText() }}</span>
+      </div>
+      }
+
+      <div class="controls">
+        @if (flags.on('audio.shuffle')) {
+        <button type="button" class="btn icon" [class.is-on]="shuffle()" [attr.aria-pressed]="shuffle()" [attr.aria-label]="i18n.t('creta.shuffle')" (click)="shuffle.set(!shuffle())">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+        </button>
+        }
+        <button type="button" class="btn icon" [attr.aria-label]="i18n.t('creta.prev')" (click)="prev()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
+        </button>
+        <button type="button" class="btn pri icon big" [attr.aria-label]="playing() ? i18n.t('creta.pause') : i18n.t('creta.play')" (click)="toggle()">
+          @if (playing()) {
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+          } @else {
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>
+          }
+        </button>
+        <button type="button" class="btn icon" [attr.aria-label]="i18n.t('creta.next')" (click)="next()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
+        </button>
+        @if (flags.on('audio.repeat')) {
+        <button type="button" class="btn icon rep" [class.is-on]="repeat() !== 'off'" [attr.aria-pressed]="repeat() !== 'off'" [attr.aria-label]="i18n.t('creta.repeat') + ': ' + repeat()" (click)="cycleRepeat()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          @if (repeat() === 'one') {
+            <span class="one" aria-hidden="true">1</span>
+          }
+        </button>
+        }
+      </div>
+
+      @if (flags.on('audio.volume')) {
+      <div class="vol">
+        <button type="button" class="btn sm icon" [attr.aria-pressed]="muted()" [attr.aria-label]="i18n.t('creta.mute')" (click)="muted.set(!muted())">
+          @if (muted() || volume() === 0) {
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4zM23 9l-6 6M17 9l6 6"/></svg>
+          } @else {
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
+          }
+        </button>
+        <input type="range" min="0" max="1" step="0.02" [value]="muted() ? 0 : volume()" [attr.aria-label]="i18n.t('creta.volume')" (input)="setVolume($event)" />
+      </div>
+      }
+    } @else if (loaded()) {
+      <div class="empty inset">
+        <p class="empty-h">{{ i18n.t('creta.empty') }}</p>
+        <p>{{ tt('empty2') }}</p>
+      </div>
+    }
+  </section>
+
+  @if (flags.on('audio.playlist')) {
+  <section class="card list" aria-labelledby="pl-h">
+    <div class="list-head">
+      <h2 id="pl-h">{{ i18n.t('creta.playlist') }}</h2>
+    </div>
+
+    @if (pendingDelete(); as d) {
+      <form class="setup inset" (submit)="$event.preventDefault(); remove(d, pw.value)">
+        <p>{{ i18n.t('creta.edit.confirm', { name: d.title }) }}</p>
+        <label>{{ i18n.t('creta.edit.password') }}<input #pw type="password" autocomplete="off" autofocus /></label>
+        <div class="setup-actions">
+          <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t('creta.edit.delete') }}</button>
+          <button type="button" class="btn" (click)="pendingDelete.set(null)">{{ i18n.t('creta.edit.cancel') }}</button>
+        </div>
+      </form>
+    }
+
+    @if (status(); as st) {
+      <p class="status" [class.bad]="st.error" [attr.role]="st.error ? 'alert' : 'status'">{{ st.text }}</p>
+    }
+
+    @if (tracks().length) {
+      <ol>
+        @for (t of tracks(); track t.id; let i = $index) {
+          <li class="item">
+            <button type="button" class="row" [class.on]="i === index()" [attr.aria-current]="i === index() ? 'true' : null" (click)="choose(i)">
+              <span class="n" aria-hidden="true">{{ i + 1 }}</span>
+              <span class="tt">
+                <b>{{ t.title }}</b>
+                @if (t.artist) {
+                  <small>{{ t.artist }}</small>
+                }
+              </span>
+              @if (i === index() && playing()) {
+                <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+              }
+            </button>
+            @if (flags.on('audio.edit')) {
+            <button type="button" class="btn icon sm del" [disabled]="busy()" [attr.aria-label]="i18n.t('creta.edit.delete') + ': ' + t.title" [attr.title]="i18n.t('creta.edit.delete')" (click)="askDelete(t)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg>
+            </button>
+            }
+          </li>
+        }
+      </ol>
+    } @else if (loaded()) {
+      <p class="note">{{ i18n.t('creta.edit.none') }}</p>
+    }
+  </section>
+  }
+</div>
