@@ -1,8 +1,0 @@
-<div class="stage inset">
-  <canvas #cv aria-hidden="true"></canvas>
-</div>
-<div class="picks" role="group" [attr.aria-label]="i18n.t('dance.label')">
-  @for (o of options; track o) {
-    <button type="button" class="btn sm" [class.is-on]="choice() === o" [attr.aria-pressed]="choice() === o" (click)="pick(o)">{{ i18n.t(label(o)) }}</button>
-  }
-</div>
