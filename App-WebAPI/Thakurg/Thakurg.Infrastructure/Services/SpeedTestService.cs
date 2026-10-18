@@ -44,23 +44,20 @@ public class SpeedTestService : ISpeedTestService
         return total;
     }
 
-    public async Task<SpeedTestInfoDto> GetInfoAsync(string? remoteIp, string? forwardedFor, CancellationToken cancellationToken)
+    public async Task<SpeedTestInfoDto> GetInfoAsync(string? remoteIp, CancellationToken cancellationToken)
     {
         var serverName = await _settingsRepository.GetSettingValueAsync("SpeedTest.ServerName", cancellationToken);
 
-        return new SpeedTestInfoDto { Ip = ResolveIp(remoteIp, forwardedFor), ServerName = serverName ?? string.Empty };
+        return new SpeedTestInfoDto { Ip = ResolveIp(remoteIp), ServerName = serverName ?? string.Empty };
     }
 
     #endregion
 
     #region Private Methods
 
-    private static string ResolveIp(string? remoteIp, string? forwardedFor)
+    private static string ResolveIp(string? remoteIp)
     {
-        var candidate = forwardedFor?.Split(',')[0].Trim();
-        var text = string.IsNullOrEmpty(candidate) ? remoteIp : candidate;
-
-        if (!IPAddress.TryParse(text, out var address))
+        if (!IPAddress.TryParse(remoteIp, out var address))
             return string.Empty;
 
         return address.IsIPv4MappedToIPv6 ? address.MapToIPv4().ToString() : address.ToString();

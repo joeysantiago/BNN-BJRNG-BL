@@ -1,6 +1,7 @@
 using Thakurg.Contracts.Configurations;
 using Thakurg.Infrastructure;
 using Thakurg.Infrastructure.Middleware;
+using Thakurg.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,8 @@ var connectionName = providerOptions.UseAzureSqlServer ? "AzureSQLConnection" : 
 var commonConnection = builder.Configuration.GetConnectionString(connectionName) ?? throw new InvalidOperationException($"{connectionName} is not configured.");
 
 builder.Services.AddThakurgServices(builder.Configuration);
-builder.Services.AddThakurgRateLimiting();
+builder.Services.AddThakurgProxy(builder.Configuration);
+builder.Services.AddThakurgRateLimiting(builder.Configuration);
 builder.Services.AddCommonDbContext(commonConnection);
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
@@ -29,6 +31,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseThakurgProxy();
 app.UseCors("ThakurgCorsPolicy");
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseRateLimiter();

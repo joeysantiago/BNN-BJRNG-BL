@@ -1,6 +1,3 @@
-using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,8 +6,6 @@ using Thakurg.Application.Repositories;
 using Thakurg.Application.Services;
 using Thakurg.Application.Storage;
 using Thakurg.Contracts.Configurations;
-using Thakurg.Contracts.Messages;
-using Thakurg.Contracts.Wrappers;
 using Thakurg.Infrastructure.Common;
 using Thakurg.Infrastructure.Persistence;
 using Thakurg.Infrastructure.Repositories;
@@ -22,25 +17,7 @@ namespace Thakurg.Infrastructure;
 
 public static class DependencyInjection
 {
-    public const string SensitivePolicy = "sensitive";
-
     #region Public Methods
-
-    public static IServiceCollection AddThakurgRateLimiting(this IServiceCollection services)
-    {
-        services.AddRateLimiter(options =>
-        {
-            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-            options.AddPolicy(SensitivePolicy, context => RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "unknown", _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1) }));
-            options.OnRejected = async (context, cancellationToken) =>
-            {
-                var message = await context.HttpContext.RequestServices.GetRequiredService<IMessageService>().GetAsync(MessageCodes.TooManyRequests);
-                await context.HttpContext.Response.WriteAsJsonAsync(ApiResponse<object?>.FailureResponse(message), cancellationToken);
-            };
-        });
-
-        return services;
-    }
 
     public static IServiceCollection AddCommonDbContext(this IServiceCollection services, string connectionString)
     {

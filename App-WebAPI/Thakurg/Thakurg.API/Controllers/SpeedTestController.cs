@@ -43,7 +43,7 @@ public class SpeedTestController : ControllerBase
     [HttpGet("info")]
     public async Task<ActionResult<ApiResponse<SpeedTestInfoDto>>> Info(CancellationToken cancellationToken)
     {
-        var info = await _speedTestService.GetInfoAsync(HttpContext.Connection.RemoteIpAddress?.ToString(), Request.Headers["X-Forwarded-For"].ToString(), cancellationToken);
+        var info = await _speedTestService.GetInfoAsync(HttpContext.Connection.RemoteIpAddress?.ToString(), cancellationToken);
 
         return Ok(ApiResponse<SpeedTestInfoDto>.SuccessResponse(info));
     }

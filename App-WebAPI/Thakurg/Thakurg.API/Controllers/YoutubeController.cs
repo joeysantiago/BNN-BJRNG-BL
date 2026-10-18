@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Thakurg.API.Results;
 using Thakurg.Application.Services;
 using Thakurg.Contracts.Wrappers;
@@ -8,6 +9,7 @@ namespace Thakurg.API.Controllers;
 
 [ApiController]
 [Route("api/youtube")]
+[EnableRateLimiting("stream")]
 public class YoutubeController : ControllerBase
 {
     private readonly IYoutubeService _youtubeService;
