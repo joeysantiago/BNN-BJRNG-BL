@@ -2,7 +2,7 @@
 
 Follow these rules whenever writing or modifying code in this repo. They are consolidated from `.claude/commands/*`. Scope tags: **WebAPI** = `App-WebAPI` (backend, C#), **WebUI** = `App-WebUI` (Angular/TypeScript).
 
-**Repo layout:** `App-Database` (DatabaseInitializer), `App-WebAPI` (`Thakurg` solution), `App-WebUI` (Angular app — run `npm` / `ng` commands and find `scripts/`, `public/`, `src/` there), `App-Data` (git-ignored runtime files; audio lives here per player folder, served by the API in packets), `App-Prototype`, `document`. Paths in the rules below that start with `src/`, `scripts/` or `public/` are relative to `App-WebUI`.
+**Repo layout:** `App-Database` (DatabaseInitializer), `App-WebAPI` (`Thakurg` solution), `App-WebUI` (Angular app — run `npm` / `ng` commands and find `scripts/`, `public/`, `src/` there), `App-Data` (git-ignored runtime files; audio lives here per player folder, served by the API in packets), `App-Prototype`, `App-Document` (the rule documents). Paths in the rules below that start with `src/`, `scripts/` or `public/` are relative to `App-WebUI`.
 
 **Global exclusions:** skip `*.spec.ts` for UI ordering/import rules; skip auto-generated code (`bin`, `obj`, `Migrations`).
 **Global principle:** formatting/refactor rules are *pure* changes — never alter names, types, logic, values or behaviour. Build / type-check afterwards (`ng build` for UI, build the API projects for backend).
@@ -33,7 +33,7 @@ if (response)
 - Only > 4 parameters AND > 250 chars wraps: 4–5 parameters per line (never one per line), each line ≤ 250.
 - Calls follow the same limit only if the args contain no lambdas/function bodies, initializers, comments or nested multi-line expressions.
 - HTML templates keep their own 250 limit (`html-single-line.md`).
-- Details: `document/signature-single-line.md`, `document/page-break.md`.
+- Details: `App-Document/signature-single-line.md`, `App-Document/page-break.md`.
 - After changing signatures, re-check method ordering (§5).
 
 ```
@@ -46,7 +46,7 @@ public async Task<ActionResult<ApiResponse<object>>> ChangePassword([FromBody] C
 - One block, no blank lines inside, one blank line after.
 - Side-effect imports (`import 'x';`) keep original order and stay at the top.
 - Pure reorder — never rename, merge, remove or reflow. Leave the file alone if comments inside the block make the reorder unclear.
-- Details: `document/import-sort-by-length.md`.
+- Details: `App-Document/import-sort-by-length.md`.
 
 ```
 import { A } from 'a';
@@ -59,7 +59,7 @@ import { Aaa, Bbb } from 'aaa';
 - Public (no modifier / `public`, incl. Angular lifecycle hooks and template handlers) → Public Methods. `private` / `protected` / `#private` → Private Methods. Omit a region if empty.
 - Within each region sort by character count of the first signature line (trimmed indentation; decorators and comments not counted; wrapped signatures count only the first physical line) — shortest first. Ties: fewer parameters first, then keep existing order.
 - Decorators, JSDoc and comments move with their method. Arrow-function properties stay with properties. Module-level functions, interfaces, types, enums untouched.
-- Details: `document/method-ordering-regions-ui.md`.
+- Details: `App-Document/method-ordering-regions-ui.md`.
 
 ```
 add(): number                          // shortest first
@@ -75,7 +75,7 @@ addAll(num: number, num2: number)      // longest last
 - Model files contain only models — no decorators, injected dependencies or logic.
 - No blank lines between properties in WebUI models.
 - Relocation only — don't change property names, types or order.
-- Details: `document/model-separation.md`.
+- Details: `App-Document/model-separation.md`.
 
 ## 7. Messages — single source (WebAPI Thakurg and WebUI)
 - No message text typed in code. API texts live in the `Messages` table (`Code`, `Texts` = one JSON object with `en`/`hi`/`ar`); UI texts live in the `Translations` table (one row per page: `PageCode`, `Eng`, `Hin`, `Arab` = JSON key → text), served by `GET api/translations/{lang}`.
@@ -83,7 +83,7 @@ addAll(num: number, num2: number)      // longest last
 - **UI:** every visible text comes from `i18n.t('key', params)` (placeholders `{name}`); API messages arrive translated in the response and are shown as-is.
 - Every new API code = a constant in `Thakurg.Contracts/Messages/MessageCodes*.cs` **plus** a row in `INSERT/Common/001_Messages.sql` (all languages). Every new UI key = an entry in the page's row of `INSERT/Common/009_Translations.sql` (`Eng`, `Hin`, `Arab`).
 - Keep English wording/behaviour identical.
-- Details: `document/messages-single-source.md`.
+- Details: `App-Document/messages-single-source.md`.
 
 ## 8. SEO and indexing — REQUIRED on every page (mobile and web)
 The target is 100% SEO coverage and fully indexable pages on mobile and desktop. Every new or changed page/route/section must meet all of this before it is considered done:
@@ -96,12 +96,12 @@ The target is 100% SEO coverage and fully indexable pages on mobile and desktop.
 - **Verify before finishing:** run `npm run build` (postbuild fails if a page is missing), open the built HTML for the page and confirm title, description, canonical, h1 and content are present with JS disabled, and check the mobile layout. State plainly anything that could not be verified (for example live indexing in Google Search Console) — do not claim "100% indexed" without proof.
 
 ## 9. WebAPI C# layout, layering and SQL (App-WebAPI + App-Database)
-- **Usings:** one block, `System.*` first then ordinal alphabetical, no unused usings, one blank line before `namespace` (`document/sort-usings.md`).
-- **Declarations:** all fields and properties at the top of the type, one block sorted by declaration length (shortest first, ties alphabetical; a property named `Id` always first), then constructors (`document/declaration-order-by-length.md`). The same rule for TypeScript is §10.
-- **Methods:** `#region Public Methods` then `#region Private Methods`; inside each, sorted by first-signature-line length, shortest first (`document/method-ordering-regions.md`).
-- **Layering:** Controller → Service → Repository, each behind an interface registered `AddScoped<IX, X>()` in `Thakurg.Infrastructure/DependencyInjection.cs`; no `DbContext` outside repositories (`document/controller-service-repository.md`).
-- **Constructors:** at most 6 parameters; group extras into a bundle (`document/constructor-injection-limit.md`).
-- **SQL:** CREATE scripts use the aligned column grid (`document/sql-table-format.md`); one re-runnable INSERT script per table, numbered in dependency order (`document/sql-seed-data.md`). Every master table carries `IsActive`, `IsSoftDeleted`, `IsDeleted`, `CreatedBy`, `CreatedOn`, `ModifiedBy`, `ModifiedOn`, and the API reads only active, non-deleted rows.
+- **Usings:** one block, `System.*` first then ordinal alphabetical, no unused usings, one blank line before `namespace` (`App-Document/sort-usings.md`).
+- **Declarations:** all fields and properties at the top of the type, one block sorted by declaration length (shortest first, ties alphabetical; a property named `Id` always first), then constructors (`App-Document/declaration-order-by-length.md`). The same rule for TypeScript is §10.
+- **Methods:** `#region Public Methods` then `#region Private Methods`; inside each, sorted by first-signature-line length, shortest first (`App-Document/method-ordering-regions.md`).
+- **Layering:** Controller → Service → Repository, each behind an interface registered `AddScoped<IX, X>()` in `Thakurg.Infrastructure/DependencyInjection.cs`; no `DbContext` outside repositories (`App-Document/controller-service-repository.md`).
+- **Constructors:** at most 6 parameters; group extras into a bundle (`App-Document/constructor-injection-limit.md`).
+- **SQL:** CREATE scripts use the aligned column grid (`App-Document/sql-table-format.md`); one re-runnable INSERT script per table, numbered in dependency order (`App-Document/sql-seed-data.md`). Every master table carries `IsActive`, `IsSoftDeleted`, `IsDeleted`, `CreatedBy`, `CreatedOn`, `ModifiedBy`, `ModifiedOn`, and the API reads only active, non-deleted rows.
 
 ## 10. Declaration ordering by length (WebUI TypeScript; skip `*.spec.ts`)
 - **Model members:** the members of every `interface` / `type X = { … }` form one block sorted by the character count of the whole member written on one line — shortest first. No blank lines between members.
@@ -111,7 +111,7 @@ The target is 100% SEO coverage and fully indexable pages on mobile and desktop.
 - Length = the full declaration on one line (multi-line ones joined with single spaces); decorators, JSDoc and comments are not counted and travel with their declaration. Ties: alphabetical, ordinal.
 - A field whose initializer reads another field during construction (`PLAYERS[this.id]`, not inside `computed`/`effect`/arrow bodies) must stay after it; if length order would break that, leave the class as is and tell the user.
 - Enums, unions, interfaces with index/call signatures, object literals and constructor parameter properties are not reordered. Pure reorder.
-- Details: `document/declaration-order-by-length-ui.md`.
+- Details: `App-Document/declaration-order-by-length-ui.md`.
 
 ```ts
 interface ApiResponse<T> {

@@ -1,6 +1,6 @@
 Put method/function/constructor declarations on one single line when they fit within 250 characters, in the specified scope.
 
-Rule (full details in document/signature-single-line.md and document/page-break.md):
+Rule (full details in App-Document/signature-single-line.md and App-Document/page-break.md):
 - Name, all parameters and return type stay on ONE line whenever the line (indentation included) is 250 characters or fewer — any number of parameters.
 - Do not break after the opening `(` and do not move `): ReturnType {` to its own line.
 - A declaration with 4 or fewer parameters stays on one line even beyond 250 characters.

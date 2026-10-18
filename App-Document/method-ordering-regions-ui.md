@@ -1,6 +1,6 @@
 # Method Ordering and Regions (App-WebUI)
 
-Applies to every TypeScript **class** in `App-WebUI` (components, services, guards-as-classes, utilities, anything declared with `class`) except `*.spec.ts` files. It is the UI counterpart of `document/method-ordering-regions.md` (App-WebAPI) and follows the same idea.
+Applies to every TypeScript **class** in `App-WebUI` (components, services, guards-as-classes, utilities, anything declared with `class`) except `*.spec.ts` files. It is the UI counterpart of `App-Document/method-ordering-regions.md` (App-WebAPI) and follows the same idea.
 
 ## Rule
 

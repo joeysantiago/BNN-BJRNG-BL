@@ -23,7 +23,7 @@ MusicController  ->  IMusicService  ->  IMusicRepository
 - Repositories inject the `DbContext` through its interface (`ICommonDbContext`).
 - Naming is `<Entity>Controller` → `I<Entity>Service` / `<Entity>Service` → `I<Entity>Repository` / `<Entity>Repository`. One service and one repository per controller/feature; they may be shared when a feature spans controllers (for example `ISettingsRepository` serves the settings and speed-test services).
 - Features with no database (for example the YouTube lookups and the speed-test data stream) have a service but no repository; the service talks to its external library or stream helper through an interface.
-- Constructors still obey `document/constructor-injection-limit.md` (max 6 parameters, use bundles).
+- Constructors still obey `App-Document/constructor-injection-limit.md` (max 6 parameters, use bundles).
 
 ## Interfaces and dependency injection (mandatory)
 
@@ -51,7 +51,7 @@ Interfaces live in the `Thakurg.Application` project, implementations in the `Th
 | `<Entity>Service` | `Thakurg.Infrastructure/Services/<Entity>Service.cs` (namespace `Thakurg.Infrastructure.Services`) |
 | `<Entity>Repository` | `Thakurg.Infrastructure/Repositories/<Entity>Repository.cs` (namespace `Thakurg.Infrastructure.Repositories`) |
 
-Request/response DTOs and options stay in `Thakurg.Contracts`, entities in `Thakurg.Domain` (see `document/format-model.md`). Register every service and repository as `AddScoped<IX, X>()` in `Thakurg.Infrastructure/DependencyInjection.cs` (`AddThakurgServices`), next to the existing registrations.
+Request/response DTOs and options stay in `Thakurg.Contracts`, entities in `Thakurg.Domain` (see `App-Document/format-model.md`). Register every service and repository as `AddScoped<IX, X>()` in `Thakurg.Infrastructure/DependencyInjection.cs` (`AddThakurgServices`), next to the existing registrations.
 
 ## Example
 

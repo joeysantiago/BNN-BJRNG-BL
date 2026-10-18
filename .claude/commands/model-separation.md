@@ -16,4 +16,4 @@ Rules:
 - Do not change property names, types, or order — relocation only.
 - Verify with an Angular build (`ng build`) after moving.
 
-See `document/model-separation.md` for the full standard.
+See `App-Document/model-separation.md` for the full standard.
