@@ -1,0 +1,8 @@
+.page {
+  padding-block: 24px 0;
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 600;
+}

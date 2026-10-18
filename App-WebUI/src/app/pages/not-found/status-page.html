@@ -1,0 +1,8 @@
+<div class="wrap page">
+  <section class="card box">
+    <p class="code inset" aria-hidden="true">{{ c.code }}</p>
+    <h1>{{ i18n.t(c.h) }}</h1>
+    <p class="msg">{{ i18n.t(c.p) }}</p>
+    <a class="btn pri lg" [routerLink]="i18n.info().home">{{ i18n.t(c.cta) }}</a>
+  </section>
+</div>

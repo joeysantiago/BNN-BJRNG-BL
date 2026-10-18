@@ -28,7 +28,8 @@
     <section class="card grp" [attr.aria-labelledby]="'cfg-' + g.id">
       <div class="sechead">
         <h2 [id]="'cfg-' + g.id">{{ g.label }}</h2>
-        <button type="button" class="btn pri" [disabled]="!pendingIn(g.id) || saving() !== null" [attr.title]="pendingIn(g.id) ? null : i18n.t('cfg.save.nothing')" [attr.aria-describedby]="'cfg-' + g.id" (click)="save(g.id)">{{ saveLabel(g.id) }}</button>
+        <button type="button" class="btn pri" [disabled]="!pendingIn(g.id) || saving() !== null" [attr.title]="pendingIn(g.id) ? null : i18n.t('cfg.save.nothing')" [attr.aria-describedby]="'cfg-' + g.id"
+          (click)="save(g.id)">{{ saveLabel(g.id) }}</button>
       </div>
       <p class="help">{{ g.help }}</p>
       @if (noticeFor(g.id); as n) {
@@ -57,7 +58,8 @@
   <section class="card grp" aria-labelledby="cfg-conn">
     <div class="sechead">
       <h2 id="cfg-conn">{{ i18n.t('cfg.conn.h') }}</h2>
-      <button type="button" class="btn pri" [disabled]="!pendingIn('connection') || saving() !== null" [attr.title]="pendingIn('connection') ? null : i18n.t('cfg.save.nothing')" aria-describedby="cfg-conn" (click)="save('connection')">{{ saveLabel('connection') }}</button>
+      <button type="button" class="btn pri" [disabled]="!pendingIn('connection') || saving() !== null" [attr.title]="pendingIn('connection') ? null : i18n.t('cfg.save.nothing')" aria-describedby="cfg-conn"
+        (click)="save('connection')">{{ saveLabel('connection') }}</button>
     </div>
     @if (noticeFor('connection'); as n) {
       <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
@@ -85,7 +87,8 @@
   <section class="card grp" aria-labelledby="cfg-svc">
     <div class="sechead">
       <h2 id="cfg-svc">{{ i18n.t('cfg.svc.h') }}</h2>
-      <button type="button" class="btn pri" [disabled]="!pendingIn('services') || saving() !== null" [attr.title]="pendingIn('services') ? null : i18n.t('cfg.save.nothing')" aria-describedby="cfg-svc" (click)="save('services')">{{ saveLabel('services') }}</button>
+      <button type="button" class="btn pri" [disabled]="!pendingIn('services') || saving() !== null" [attr.title]="pendingIn('services') ? null : i18n.t('cfg.save.nothing')" aria-describedby="cfg-svc"
+        (click)="save('services')">{{ saveLabel('services') }}</button>
     </div>
     @if (noticeFor('services'); as n) {
       <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>

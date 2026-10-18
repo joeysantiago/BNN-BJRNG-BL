@@ -1,0 +1,19 @@
+<footer class="foot">
+  <div class="wrap foot-in">
+    <nav class="links" [attr.aria-label]="i18n.t('nav.pages')">
+      @if (cfg.on('site.footer')) {
+        @if (cfg.on('page.about')) {
+          <a routerLink="/about/">{{ i18n.page('about') }}</a>
+        }
+        @if (cfg.on('page.privacy')) {
+          <a routerLink="/privacy/">{{ i18n.page('privacy') }}</a>
+        }
+        @if (cfg.on('page.terms')) {
+          <a routerLink="/terms/">{{ i18n.page('terms') }}</a>
+        }
+      }
+      <a routerLink="/master/">{{ i18n.t('cfg.link') }}</a>
+    </nav>
+    <p>&copy; {{ year }} {{ site }}. {{ i18n.t('ft.rights') }}</p>
+  </div>
+</footer>

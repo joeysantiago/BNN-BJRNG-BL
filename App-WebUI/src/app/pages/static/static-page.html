@@ -1,0 +1,14 @@
+<div class="wrap page">
+  <article class="card prose">
+    <h1>{{ i18n.t(heading) }}</h1>
+    @for (k of paragraphs; track k) {
+      <p>{{ i18n.t(k) }}</p>
+    }
+    @if (kind === 'about') {
+      <h2>{{ i18n.t('about.h2.tools') }}</h2>
+      <ul>
+        <li><a [routerLink]="i18n.info().home">{{ i18n.t('about.l.speed') }}</a></li>
+      </ul>
+    }
+  </article>
+</div>

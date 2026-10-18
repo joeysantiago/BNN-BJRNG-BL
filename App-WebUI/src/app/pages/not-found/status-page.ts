@@ -14,43 +14,8 @@ const COPY = {
 @Component({
   selector: 'app-status-page',
   imports: [RouterLink],
-  template: `
-    <div class="wrap page">
-      <section class="card box">
-        <p class="code inset" aria-hidden="true">{{ c.code }}</p>
-        <h1>{{ i18n.t(c.h) }}</h1>
-        <p class="msg">{{ i18n.t(c.p) }}</p>
-        <a class="btn pri lg" [routerLink]="i18n.info().home">{{ i18n.t(c.cta) }}</a>
-      </section>
-    </div>
-  `,
-  styles: `
-    .page {
-      padding-block: 32px 0;
-    }
-    .box {
-      max-width: 560px;
-      margin-inline: auto;
-      text-align: center;
-    }
-    .code {
-      display: inline-grid;
-      place-items: center;
-      min-width: 120px;
-      padding: 16px 28px;
-      margin: 0 0 20px;
-      font: 800 3rem/1 var(--inset-font);
-    }
-    h1 {
-      font-family: var(--font-display);
-      font-size: clamp(1.7rem, 5vw, 2.4rem);
-      font-weight: 600;
-    }
-    .msg {
-      color: var(--muted);
-      margin-bottom: 24px;
-    }
-  `,
+  templateUrl: './status-page.html',
+  styleUrl: './status-page.scss',
 })
 
 export class StatusPage {

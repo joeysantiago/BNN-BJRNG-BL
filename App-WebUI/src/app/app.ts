@@ -12,24 +12,8 @@ import { Component, afterNextRender, computed, effect, inject } from '@angular/c
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, SiteHeader, SiteFooter],
-  template: `
-    @if (!bare()) {
-      <a class="skip" href="#main" (click)="skip($event)">{{ i18n.t('a11y.skip') }}</a>
-      <app-site-header />
-    }
-    <main id="main" tabindex="-1" [class.bare]="bare()">
-      <router-outlet />
-    </main>
-    @if (!bare()) {
-      <app-site-footer />
-    }
-  `,
-  styles: `
-    main {
-      display: block;
-      outline: none;
-    }
-  `,
+  templateUrl: './app.html',
+  styleUrl: './app.scss',
 })
 
 export class App {

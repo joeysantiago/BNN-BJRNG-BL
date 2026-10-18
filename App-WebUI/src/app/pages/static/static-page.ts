@@ -8,32 +8,8 @@ import { TranslationKey } from '../../core/models/i18n.model';
 @Component({
   selector: 'app-static-page',
   imports: [RouterLink],
-  template: `
-    <div class="wrap page">
-      <article class="card prose">
-        <h1>{{ i18n.t(heading) }}</h1>
-        @for (k of paragraphs; track k) {
-          <p>{{ i18n.t(k) }}</p>
-        }
-        @if (kind === 'about') {
-          <h2>{{ i18n.t('about.h2.tools') }}</h2>
-          <ul>
-            <li><a [routerLink]="i18n.info().home">{{ i18n.t('about.l.speed') }}</a></li>
-          </ul>
-        }
-      </article>
-    </div>
-  `,
-  styles: `
-    .page {
-      padding-block: 24px 0;
-    }
-    h1 {
-      font-family: var(--font-display);
-      font-size: clamp(1.8rem, 5vw, 2.6rem);
-      font-weight: 600;
-    }
-  `,
+  templateUrl: './static-page.html',
+  styleUrl: './static-page.scss',
 })
 
 export class StaticPage {
