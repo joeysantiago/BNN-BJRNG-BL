@@ -24,6 +24,12 @@ public class YoutubeController : ControllerBase
 
     #region Public Methods
 
+    [HttpGet("download-info")]
+    public ActionResult<ApiResponse<YoutubeDownloadInfoDto>> DownloadInfo()
+    {
+        return Ok(ApiResponse<YoutubeDownloadInfoDto>.SuccessResponse(_youtubeService.GetDownloadInfo()));
+    }
+
     [HttpGet("stream/{videoId}")]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public async Task<IActionResult> Stream(string videoId, CancellationToken cancellationToken)
@@ -37,7 +43,7 @@ public class YoutubeController : ControllerBase
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public async Task<IActionResult> Download(string videoId, CancellationToken cancellationToken)
     {
-        var file = await _youtubeService.OpenMp3Async(videoId, cancellationToken);
+        var file = await _youtubeService.OpenDownloadAsync(videoId, cancellationToken);
 
         return File(file.Content, file.ContentType, file.FileName);
     }

@@ -5,7 +5,9 @@ namespace Thakurg.Application.Services;
 
 public interface IYoutubeService
 {
-    Task<FileStreamDto> OpenMp3Async(string videoId, CancellationToken cancellationToken);
+    YoutubeDownloadInfoDto GetDownloadInfo();
+
+    Task<FileStreamDto> OpenDownloadAsync(string videoId, CancellationToken cancellationToken);
 
     Task<YoutubeVideoDto> GetVideoAsync(string videoId, CancellationToken cancellationToken);
 

@@ -42,7 +42,7 @@ export const FEATURES: FeatureInfo[] = [
   { id: 'yt.volume', group: 'youtube', label: 'Volume', help: 'Mute button and volume slider.' },
   { id: 'yt.queue', group: 'youtube', label: 'Queue', help: 'Add to queue and the queue list.' },
   { id: 'yt.playlists', group: 'youtube', label: 'Playlists', help: 'Saved playlists and "add to playlist" buttons.' },
-  { id: 'yt.download', group: 'youtube', label: 'Download', help: 'The 320 kbps MP3 download buttons.' },
+  { id: 'yt.download', group: 'youtube', label: 'Download', help: 'The audio download buttons (MP3 where the server can convert, otherwise the original audio).' },
 
   { id: 'audio.doodle', group: 'audio', label: 'Dance doodle', help: 'The animated figure.' },
   { id: 'audio.seek', group: 'audio', label: 'Seek bar', help: 'Position slider.' },

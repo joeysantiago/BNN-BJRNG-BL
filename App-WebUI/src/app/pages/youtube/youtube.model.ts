@@ -14,6 +14,11 @@ export interface YtInput {
   video?: string;
 }
 
+export interface YtDownloadInfo {
+  /** What the server hands out: MP3 where it can convert, otherwise the original audio (M4A). */
+  format: 'mp3' | 'm4a';
+}
+
 export interface YtPlaylist {
   id: string;
   name: string;

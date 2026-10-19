@@ -29,6 +29,7 @@ public static class DependencyInjection
 
     public static IServiceCollection AddThakurgServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddOptions<HostingOptions>().Bind(configuration.GetSection(HostingOptions.SectionName)).Validate(o => o.HostedOn is HostingOptions.Local or HostingOptions.Azure, "Hosting:HostedOn must be Local or Azure.").ValidateOnStart();
         services.Configure<StreamingOptions>(configuration.GetSection(StreamingOptions.SectionName));
         services.Configure<SpeedTestOptions>(configuration.GetSection(SpeedTestOptions.SectionName));
         services.Configure<YoutubeOptions>(configuration.GetSection(YoutubeOptions.SectionName));

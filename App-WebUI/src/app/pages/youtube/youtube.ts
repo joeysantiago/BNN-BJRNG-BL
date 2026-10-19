@@ -6,8 +6,8 @@ import { isPlatformBrowser } from '@angular/common';
 import { I18nService } from '../../core/i18n.service';
 import { SettingsService } from '../../core/settings.service';
 import type { TranslationKey } from '../../core/models/i18n.model';
-import { YT_ENDED, YT_PAUSED, YT_PLAYING, YtInput, YtMessage, YtPlayer, YtPlayerApi, YtPlaylist, YtVideo, YtWindow } from './youtube.model';
 import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { YT_ENDED, YT_PAUSED, YT_PLAYING, YtDownloadInfo, YtInput, YtMessage, YtPlayer, YtPlayerApi, YtPlaylist, YtVideo, YtWindow } from './youtube.model';
 
 const ID = /^[\w-]{11}$/;
 const VIDEO_STORE = 'thakurg-yt-video';
@@ -86,6 +86,8 @@ export class Youtube implements OnDestroy {
   protected readonly showTip = signal(false);
   protected readonly shuffle = signal(false);
   protected readonly downloading = signal('');
+  protected readonly downloadFormat = signal<YtDownloadInfo['format']>('mp3');
+  protected readonly downloadText = computed(() => this.i18n.t(this.downloadFormat() === 'mp3' ? 'yt.download' : 'yt.download.audio'));
   protected readonly quality = signal('auto');
   protected readonly showVideo = signal(true);
   private readonly playerReady = signal(false);
@@ -215,6 +217,7 @@ export class Youtube implements OnDestroy {
 
     afterNextRender(() => {
       this.setupMediaSession();
+      void this.loadDownloadInfo();
       document.addEventListener('visibilitychange', this.onVisible);
     });
   }
@@ -773,11 +776,20 @@ export class Youtube implements OnDestroy {
     }
   }
 
+  /** Asks the server which download it offers; keeps MP3 if it cannot be reached. */
+  private async loadDownloadInfo(): Promise<void> {
+    try {
+      this.downloadFormat.set((await this.api.get<YtDownloadInfo>('/youtube/download-info')).format);
+    } catch {
+      this.downloadFormat.set('mp3');
+    }
+  }
+
   private playlist(list: string): Promise<YtVideo[]> {
     return this.api.get<YtVideo[]>(`/youtube/playlist/${encodeURIComponent(list)}`);
   }
 
-  /** Downloads the song as a 320 kbps MP3 made by our server and saves it on this device, phone or computer. */
+  /** Downloads the song (a 320 kbps MP3 made by our server, or the original audio where the server cannot convert) and saves it on this device, phone or computer. */
   protected async download(v: YtVideo): Promise<void> {
     if (!this.cfg.on('yt.download'))
       return;
@@ -787,7 +799,7 @@ export class Youtube implements OnDestroy {
     }
     this.message.set('');
     const link = this.api.url(`/youtube/download/${v.id}`);
-    const name = `${v.title.replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 80) || v.id}.mp3`;
+    const name = `${v.title.replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 80) || v.id}.${this.downloadFormat()}`;
     this.downloading.set(v.id);
     try {
       const res = await fetch(link);

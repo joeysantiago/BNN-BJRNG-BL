@@ -151,7 +151,7 @@
             </button>
             }
             @if (cfg.on('yt.download')) {
-            <button type="button" class="btn icon sm" [attr.aria-label]="i18n.t('yt.download') + ': ' + v.title" [attr.title]="i18n.t('yt.download')" [disabled]="downloading() === v.id" (click)="download(v)">
+            <button type="button" class="btn icon sm" [attr.aria-label]="downloadText() + ': ' + v.title" [attr.title]="downloadText()" [disabled]="downloading() === v.id" (click)="download(v)">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>
             </button>
             }
@@ -188,7 +188,7 @@
             </button>
             }
             @if (cfg.on('yt.download')) {
-            <button type="button" class="btn icon sm" [attr.aria-label]="i18n.t('yt.download') + ': ' + v.title" [attr.title]="i18n.t('yt.download')" [disabled]="downloading() === v.id" (click)="download(v)">
+            <button type="button" class="btn icon sm" [attr.aria-label]="downloadText() + ': ' + v.title" [attr.title]="downloadText()" [disabled]="downloading() === v.id" (click)="download(v)">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>
             </button>
             }
