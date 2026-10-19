@@ -14,10 +14,16 @@ const STREAMS = 5;
 const UPLOAD_BYTES = 4 * 1024 * 1024;
 const CHUNK_MIN = 128 * 1024;
 const CHUNK_MAX = UPLOAD_BYTES;
-const MAX_LOG = Math.log10(1001);
+/** Share of the full circle the scale covers, leaving a gap between the last and first stop. */
+const SWEEP = 0.92;
 
-/** Share of the gauge arc (0 to 1) for a speed in Mbps. The scale is logarithmic, 0 to 1 Gbps. */
-export const gaugeFraction = (mbps: number): number => Math.min(1, Math.log10(1 + Math.max(0, mbps)) / MAX_LOG);
+/** Share of the gauge arc (0 to 1) for a speed in Mbps. Piecewise linear between the evenly spaced stops (the settings' gauge stops), up to the last one. */
+export const gaugeFraction = (mbps: number, stops: number[]): number => {
+  const v = Math.min(stops[stops.length - 1], Math.max(0, mbps));
+  const next = stops.findIndex((s) => s > v);
+  const i = next < 0 ? stops.length - 2 : next - 1;
+  return (SWEEP * (i + (v - stops[i]) / (stops[i + 1] - stops[i]))) / (stops.length - 1);
+};
 
 const median = (values: number[]): number | null => {
   if (values.length < 3)

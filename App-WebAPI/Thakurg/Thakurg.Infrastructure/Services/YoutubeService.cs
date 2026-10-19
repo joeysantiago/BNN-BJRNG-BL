@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -24,16 +25,19 @@ public class YoutubeService : IYoutubeService
 
     private readonly YoutubeOptions _options;
 
+    private readonly IYoutubeDataApi _dataApi;
+
     private readonly StreamingOptions _streaming;
 
     private static readonly Regex VideoIdPattern = new(@"^[\w-]{11}$", RegexOptions.Compiled);
 
     private static readonly Regex ListIdPattern = new(@"^[\w-]{10,64}$", RegexOptions.Compiled);
 
-    public YoutubeService(IMemoryCache cache, YoutubeClient youtube, IOptions<YoutubeOptions> options, IOptions<StreamingOptions> streaming)
+    public YoutubeService(IMemoryCache cache, YoutubeClient youtube, IOptions<YoutubeOptions> options, IOptions<StreamingOptions> streaming, IYoutubeDataApi dataApi)
     {
         _cache = cache;
         _youtube = youtube;
+        _dataApi = dataApi;
         _options = options.Value;
         _streaming = streaming.Value;
     }
@@ -54,6 +58,11 @@ public class YoutubeService : IYoutubeService
         if (!VideoIdPattern.IsMatch(videoId))
             throw new BusinessException(MessageCodes.YoutubeVideoIdInvalid, 400);
 
+        var viaApi = await TryApiAsync(() => _dataApi.GetVideoAsync(videoId, cancellationToken), cancellationToken);
+
+        if (viaApi is not null)
+            return viaApi;
+
         var video = await GuardAsync(() => _youtube.Videos.GetAsync(videoId, cancellationToken).AsTask());
 
         return ToDto(videoId, video.Title, video.Author.ChannelTitle, video.Duration);
@@ -66,6 +75,11 @@ public class YoutubeService : IYoutubeService
         if (text.Length == 0)
             throw new BusinessException(MessageCodes.YoutubeQueryRequired, 400);
 
+        var found = await TryApiAsync(() => _dataApi.SearchAsync(text[..Math.Min(text.Length, 200)], _options.MaxResults, cancellationToken), cancellationToken);
+
+        if (found is not null)
+            return found;
+
         var results = await GuardAsync(async () => await _youtube.Search.GetVideosAsync(text[..Math.Min(text.Length, 200)], cancellationToken).CollectAsync(_options.MaxResults));
 
         return results.Select(v => ToDto(v.Id.Value, v.Title, v.Author.ChannelTitle, v.Duration)).ToList();
@@ -75,6 +89,11 @@ public class YoutubeService : IYoutubeService
     {
         if (!ListIdPattern.IsMatch(listId))
             throw new BusinessException(MessageCodes.YoutubePlaylistIdInvalid, 400);
+
+        var viaApi = await TryApiAsync(() => _dataApi.GetPlaylistAsync(listId, 200, cancellationToken), cancellationToken);
+
+        if (viaApi is not null)
+            return viaApi;
 
         var items = await GuardAsync(async () => await _youtube.Playlists.GetVideosAsync(listId, cancellationToken).CollectAsync(200));
 
@@ -160,6 +179,19 @@ public class YoutubeService : IYoutubeService
         _cache.Set(videoId, best, TimeSpan.FromMinutes(_options.StreamCacheMinutes));
 
         return best;
+    }
+
+    /// <summary>Asks the official API (when a key is stored). Any failure, such as a used-up quota, returns null so the caller falls back to the other source.</summary>
+    private static async Task<T?> TryApiAsync<T>(Func<Task<T?>> call, CancellationToken cancellationToken) where T : class
+    {
+        try
+        {
+            return await call();
+        }
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or KeyNotFoundException or InvalidOperationException or FormatException || (ex is OperationCanceledException && !cancellationToken.IsCancellationRequested))
+        {
+            return null;
+        }
     }
 
     #endregion

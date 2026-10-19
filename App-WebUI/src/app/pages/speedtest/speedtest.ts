@@ -12,7 +12,7 @@ import { ShareService, fmtSpeed, speedUnitKey } from '../../core/share.service';
 import { PHASE_MS, SpeedEngine, gaugeFraction } from '../../core/speed-engine.service';
 import { Component, OnDestroy, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 
-const TICKS = [0, 5, 25, 100, 500];
+const tickLabel = (mbps: number): string => (mbps >= 1000 ? `${mbps / 1000}G` : String(mbps));
 const range = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
 
 @Component({
@@ -91,8 +91,9 @@ export class Speedtest implements OnDestroy {
   protected readonly fixKeys = range(6).map((i) => `info.fix.${i}` as TranslationKey);
 
   /** Ring fill, as a share of the full circle (pathLength is 100). */
-  protected readonly dash = computed(() => (gaugeFraction(this.engine.gauge()) * 100).toFixed(2));
-  protected readonly arcVisible = computed(() => gaugeFraction(this.engine.gauge()) * 100 > 0.2);
+  private readonly stops = computed(() => this.cfg.settings().speed.gaugeStops);
+  protected readonly arcVisible = computed(() => gaugeFraction(this.engine.gauge(), this.stops()) * 100 > 0.2);
+  protected readonly dash = computed(() => (gaugeFraction(this.engine.gauge(), this.stops()) * 100).toFixed(2));
 
   /** Fine tick marks inside the ring, every fifth one longer. Decoration only. */
   protected readonly minorTicks = Array.from({ length: 60 }, (_, i) => {
@@ -103,14 +104,14 @@ export class Speedtest implements OnDestroy {
 
   /** The glowing dot at the leading end of the ring. */
   protected readonly tip = computed(() => {
-    const a = ((-90 + 360 * gaugeFraction(this.engine.gauge())) * Math.PI) / 180;
+    const a = ((-90 + 360 * gaugeFraction(this.engine.gauge(), this.stops())) * Math.PI) / 180;
     return { x: +(120 + 94 * Math.cos(a)).toFixed(1), y: +(120 + 94 * Math.sin(a)).toFixed(1) };
   });
 
-  protected readonly ticks = TICKS.map((m) => {
-    const a = ((-90 + 360 * gaugeFraction(m)) * Math.PI) / 180;
-    return { label: String(m), x: +(120 + 111 * Math.cos(a)).toFixed(1), y: +(120 + 111 * Math.sin(a) + 3.5).toFixed(1) };
-  });
+  protected readonly ticks = computed(() => this.stops().map((m) => {
+    const a = ((-90 + 360 * gaugeFraction(m, this.stops())) * Math.PI) / 180;
+    return { label: tickLabel(m), x: +(120 + 111 * Math.cos(a)).toFixed(1), y: +(120 + 111 * Math.sin(a) + 3.5).toFixed(1) };
+  }));
 
   protected readonly status = computed(() => {
     switch (this.engine.phase()) {

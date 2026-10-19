@@ -24,7 +24,7 @@
           [style.opacity]="arcVisible() ? 1 : 0" />
         <circle class="g-tip" r="8" [attr.cx]="tip().x" [attr.cy]="tip().y" [style.opacity]="arcVisible() ? 1 : 0" />
         <g aria-hidden="true">
-          @for (t of ticks; track t.label) {
+          @for (t of ticks(); track t.label) {
             <text class="g-tick" [attr.x]="t.x" [attr.y]="t.y" text-anchor="middle">{{ t.label }}</text>
           }
         </g>

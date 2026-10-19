@@ -1,195 +1,239 @@
 <div class="wrap page">
-  <section class="card head" aria-labelledby="cfg-h1">
-    <h1 id="cfg-h1">{{ i18n.t('cfg.h1') }}</h1>
-    <p class="lead">{{ i18n.t('cfg.lead') }}</p>
-    <p class="note">{{ i18n.t('cfg.note') }}</p>
-  </section>
+  @if (!unlocked()) {
+    <section class="card head" aria-labelledby="cfg-lock-h">
+      <h1 id="cfg-lock-h">{{ i18n.t(keyIsSet() === false ? 'cfg.lock.new.h1' : 'cfg.lock.h1') }}</h1>
+      <p class="lead">{{ i18n.t(keyIsSet() === false ? 'cfg.lock.new.lead' : 'cfg.lock.lead') }}</p>
+      @if (keyIsSet() === false) {
+        <form class="setup inset" [attr.aria-busy]="busy()" (submit)="create($event, npw, ncf)">
+          <label class="stack">
+            <span>{{ i18n.t('cfg.lock.new.pw') }}</span>
+            <input #npw type="password" name="new-master-key" autocomplete="new-password" [disabled]="busy()" />
+          </label>
+          <label class="stack">
+            <span>{{ i18n.t('cfg.lock.new.confirm') }}</span>
+            <input #ncf type="password" name="confirm-master-key" autocomplete="new-password" [disabled]="busy()" />
+          </label>
+          <div class="setup-actions">
+            <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t('cfg.lock.new.btn') }}</button>
+          </div>
+        </form>
+      } @else if (keyIsSet()) {
+        <form class="setup inset" [attr.aria-busy]="busy()" (submit)="unlock($event, pw)">
+          <label class="stack">
+            <span>{{ i18n.t('cfg.save.master') }}</span>
+            <input #pw type="password" name="master-key" autocomplete="off" [disabled]="busy()" />
+          </label>
+          <div class="setup-actions">
+            <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t(busy() ? 'cfg.lock.checking' : 'cfg.lock.btn') }}</button>
+          </div>
+        </form>
+      }
+      @if (lockNotice(); as n) {
+        <p class="status" [class.bad]="n.error" role="alert">{{ n.text }}</p>
+      }
+    </section>
+  } @else {
+    <section class="card head" aria-labelledby="cfg-h1">
+      <h1 id="cfg-h1">{{ i18n.t('cfg.h1') }}</h1>
+      <p class="lead">{{ i18n.t('cfg.lead') }}</p>
+      <p class="note">{{ i18n.t('cfg.note') }}</p>
+    </section>
 
-  <section class="card topbar" aria-labelledby="cfg-save-h">
-    <h2 id="cfg-save-h" class="sr-only">{{ i18n.t('cfg.save.all') }}</h2>
-    <label class="stack">
-      <span>{{ i18n.t('cfg.save.master') }}</span>
-      <input type="password" name="master-key" autocomplete="off" [value]="masterKey()" (input)="key($event)" />
-      <small class="help">{{ i18n.t('cfg.save.master.help') }}</small>
-    </label>
-    <div class="bar">
-      <p class="status" role="status">{{ count() ? i18n.t('cfg.changed', { n: count() }) : i18n.t('cfg.nochange') }}</p>
-      <div class="acts">
-        <button type="button" class="btn" [disabled]="!count() || saving() !== null" (click)="reset()">{{ i18n.t('cfg.reset') }}</button>
-        <button type="button" class="btn pri" [disabled]="!count() || saving() !== null" [attr.title]="count() ? null : i18n.t('cfg.save.nothing')" (click)="save('all')">{{ saveLabel('all') }}</button>
+    <section class="card topbar" aria-labelledby="cfg-save-h">
+      <h2 id="cfg-save-h" class="sr-only">{{ i18n.t('cfg.save.all') }}</h2>
+      <label class="stack">
+        <span>{{ i18n.t('cfg.save.master') }}</span>
+        <input type="password" name="master-key" autocomplete="off" [value]="masterKey()" (input)="key($event)" />
+        <small class="help">{{ i18n.t('cfg.save.master.help') }}</small>
+      </label>
+      <div class="bar">
+        <p class="status" role="status">{{ count() ? i18n.t('cfg.changed', { n: count() }) : i18n.t('cfg.nochange') }}</p>
+        <div class="acts">
+          <button type="button" class="btn" [disabled]="!count() || saving() !== null" (click)="reset()">{{ i18n.t('cfg.reset') }}</button>
+          <button type="button" class="btn pri" [disabled]="!count() || saving() !== null" [attr.title]="count() ? null : i18n.t('cfg.save.nothing')" (click)="save('all')">{{ saveLabel('all') }}</button>
+        </div>
       </div>
-    </div>
-    @if (noticeFor('all'); as n) {
-      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+      @if (noticeFor('all'); as n) {
+        <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+      }
+    </section>
+
+    @for (g of groups; track g.id) {
+      <section class="card grp" [attr.aria-labelledby]="'cfg-' + g.id">
+        <div class="sechead">
+          <h2 [id]="'cfg-' + g.id">{{ g.label }}</h2>
+          <button type="button" class="btn pri" [disabled]="!pendingIn(g.id) || saving() !== null" [attr.title]="pendingIn(g.id) ? null : i18n.t('cfg.save.nothing')" [attr.aria-describedby]="'cfg-' + g.id"
+            (click)="save(g.id)">{{ saveLabel(g.id) }}</button>
+        </div>
+        <p class="help">{{ g.help }}</p>
+        @if (noticeFor(g.id); as n) {
+          <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+        }
+        <ul class="rows">
+          @for (f of g.items; track f.id) {
+            <li class="inset" [class.diff]="settings().features[f.id] !== defaults.features[f.id]">
+              <label>
+                <input type="checkbox" role="switch" [checked]="settings().features[f.id]" (change)="feature(f.id, $event)" />
+                <span class="txt">
+                  <b>{{ f.label }}</b>
+                  <small>{{ f.help }}</small>
+                </span>
+                <span class="pill" [class.on]="settings().features[f.id]">{{ state(settings().features[f.id]) }}</span>
+              </label>
+              @if (settings().features[f.id] !== defaults.features[f.id]) {
+                <small class="was">{{ i18n.t('cfg.default', { value: state(defaults.features[f.id]) }) }}</small>
+              }
+            </li>
+          }
+        </ul>
+        @if (g.id === 'speed') {
+          <div class="inset">
+            <label class="stack">
+              <span>{{ i18n.t('cfg.gauge') }}</span>
+              <input type="text" inputmode="numeric" autocomplete="off" [value]="settings().speed.gaugeStops.join(', ')" [attr.aria-invalid]="gaugeBad()" (change)="gauge($event)" />
+            </label>
+            <small class="{{ gaugeBad() ? 'was bad' : 'was' }}">{{ i18n.t(gaugeBad() ? 'cfg.gauge.bad' : 'cfg.gauge.help') }}</small>
+          </div>
+        }
+      </section>
     }
-  </section>
 
-  @for (g of groups; track g.id) {
-    <section class="card grp" [attr.aria-labelledby]="'cfg-' + g.id">
+    <section class="card grp" aria-labelledby="cfg-conn">
       <div class="sechead">
-        <h2 [id]="'cfg-' + g.id">{{ g.label }}</h2>
-        <button type="button" class="btn pri" [disabled]="!pendingIn(g.id) || saving() !== null" [attr.title]="pendingIn(g.id) ? null : i18n.t('cfg.save.nothing')" [attr.aria-describedby]="'cfg-' + g.id"
-          (click)="save(g.id)">{{ saveLabel(g.id) }}</button>
+        <h2 id="cfg-conn">{{ i18n.t('cfg.conn.h') }}</h2>
+        <button type="button" class="btn pri" [disabled]="!pendingIn('connection') || saving() !== null" [attr.title]="pendingIn('connection') ? null : i18n.t('cfg.save.nothing')" aria-describedby="cfg-conn"
+          (click)="save('connection')">{{ saveLabel('connection') }}</button>
       </div>
-      <p class="help">{{ g.help }}</p>
-      @if (noticeFor(g.id); as n) {
+      @if (noticeFor('connection'); as n) {
         <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
       }
       <ul class="rows">
-        @for (f of g.items; track f.id) {
-          <li class="inset" [class.diff]="settings().features[f.id] !== defaults.features[f.id]">
+        <li class="inset">
+          <label>
+            <input type="checkbox" role="switch" [checked]="settings().connection.enabled" (change)="cfg.setConnectionEnabled(checked($event))" />
+            <span class="txt"><b>{{ i18n.t('cfg.conn.all') }}</b></span>
+            <span class="pill" [class.on]="settings().connection.enabled">{{ state(settings().connection.enabled) }}</span>
+          </label>
+        </li>
+        @for (id of fields(); track id) {
+          <li class="inset">
             <label>
-              <input type="checkbox" role="switch" [checked]="settings().features[f.id]" (change)="feature(f.id, $event)" />
-              <span class="txt">
-                <b>{{ f.label }}</b>
-                <small>{{ f.help }}</small>
-              </span>
-              <span class="pill" [class.on]="settings().features[f.id]">{{ state(settings().features[f.id]) }}</span>
+              <input type="checkbox" role="switch" [checked]="settings().connection.fields[id]" (change)="cfg.setConnectionField(id, checked($event))" />
+              <span class="txt"><b>{{ i18n.t(label(id)) }}</b></span>
+              <span class="pill" [class.on]="settings().connection.fields[id]">{{ state(settings().connection.fields[id]) }}</span>
             </label>
-            @if (settings().features[f.id] !== defaults.features[f.id]) {
-              <small class="was">{{ i18n.t('cfg.default', { value: state(defaults.features[f.id]) }) }}</small>
-            }
           </li>
         }
       </ul>
     </section>
-  }
 
-  <section class="card grp" aria-labelledby="cfg-conn">
-    <div class="sechead">
-      <h2 id="cfg-conn">{{ i18n.t('cfg.conn.h') }}</h2>
-      <button type="button" class="btn pri" [disabled]="!pendingIn('connection') || saving() !== null" [attr.title]="pendingIn('connection') ? null : i18n.t('cfg.save.nothing')" aria-describedby="cfg-conn"
-        (click)="save('connection')">{{ saveLabel('connection') }}</button>
-    </div>
-    @if (noticeFor('connection'); as n) {
-      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
-    }
-    <ul class="rows">
-      <li class="inset">
-        <label>
-          <input type="checkbox" role="switch" [checked]="settings().connection.enabled" (change)="cfg.setConnectionEnabled(checked($event))" />
-          <span class="txt"><b>{{ i18n.t('cfg.conn.all') }}</b></span>
-          <span class="pill" [class.on]="settings().connection.enabled">{{ state(settings().connection.enabled) }}</span>
-        </label>
-      </li>
-      @for (id of fields(); track id) {
+    <section class="card grp" aria-labelledby="cfg-svc">
+      <div class="sechead">
+        <h2 id="cfg-svc">{{ i18n.t('cfg.svc.h') }}</h2>
+        <button type="button" class="btn pri" [disabled]="!pendingIn('services') || saving() !== null" [attr.title]="pendingIn('services') ? null : i18n.t('cfg.save.nothing')" aria-describedby="cfg-svc"
+          (click)="save('services')">{{ saveLabel('services') }}</button>
+      </div>
+      @if (noticeFor('services'); as n) {
+        <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+      }
+      <ul class="rows">
         <li class="inset">
           <label>
-            <input type="checkbox" role="switch" [checked]="settings().connection.fields[id]" (change)="cfg.setConnectionField(id, checked($event))" />
-            <span class="txt"><b>{{ i18n.t(label(id)) }}</b></span>
-            <span class="pill" [class.on]="settings().connection.fields[id]">{{ state(settings().connection.fields[id]) }}</span>
+            <input type="checkbox" role="switch" [checked]="settings().services.enabled" (change)="cfg.setServicesEnabled(checked($event))" />
+            <span class="txt"><b>{{ i18n.t('cfg.svc.all') }}</b></span>
+            <span class="pill" [class.on]="settings().services.enabled">{{ state(settings().services.enabled) }}</span>
           </label>
         </li>
-      }
-    </ul>
-  </section>
-
-  <section class="card grp" aria-labelledby="cfg-svc">
-    <div class="sechead">
-      <h2 id="cfg-svc">{{ i18n.t('cfg.svc.h') }}</h2>
-      <button type="button" class="btn pri" [disabled]="!pendingIn('services') || saving() !== null" [attr.title]="pendingIn('services') ? null : i18n.t('cfg.save.nothing')" aria-describedby="cfg-svc"
-        (click)="save('services')">{{ saveLabel('services') }}</button>
-    </div>
-    @if (noticeFor('services'); as n) {
-      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
-    }
-    <ul class="rows">
-      <li class="inset">
-        <label>
-          <input type="checkbox" role="switch" [checked]="settings().services.enabled" (change)="cfg.setServicesEnabled(checked($event))" />
-          <span class="txt"><b>{{ i18n.t('cfg.svc.all') }}</b></span>
-          <span class="pill" [class.on]="settings().services.enabled">{{ state(settings().services.enabled) }}</span>
-        </label>
-      </li>
-      <li class="inset">
-        <label class="stack">
-          <span>{{ i18n.t('cfg.svc.refresh') }}</span>
-          <input type="number" min="0" step="10" [value]="settings().services.refreshSeconds" (change)="secs($event)" />
-        </label>
-      </li>
-      @for (s of settings().services.items; track s.id) {
         <li class="inset">
-          <label>
-            <input type="checkbox" role="switch" [checked]="s.enabled" (change)="cfg.setServiceEnabled(s.id, checked($event))" />
-            <span class="txt"><b>{{ s.name }}</b></span>
-            <span class="pill" [class.on]="s.enabled">{{ state(s.enabled) }}</span>
+          <label class="stack">
+            <span>{{ i18n.t('cfg.svc.refresh') }}</span>
+            <input type="number" min="0" step="10" [value]="settings().services.refreshSeconds" (change)="secs($event)" />
           </label>
         </li>
-      }
-    </ul>
-  </section>
-
-  <section class="card grp" aria-labelledby="cfg-pw">
-    <h2 id="cfg-pw">{{ i18n.t('cfg.pw.h') }}</h2>
-    <p class="help">{{ i18n.t('cfg.pw.help') }}</p>
-    <label class="stack">
-      <span>{{ i18n.t('cfg.pw.player') }}</span>
-      <select (change)="pick($event)">
-        @for (p of players; track p) {
-          <option [value]="p" [selected]="p === player()">{{ i18n.page(p) }}</option>
+        @for (s of settings().services.items; track s.id) {
+          <li class="inset">
+            <label>
+              <input type="checkbox" role="switch" [checked]="s.enabled" (change)="cfg.setServiceEnabled(s.id, checked($event))" />
+              <span class="txt"><b>{{ s.name }}</b></span>
+              <span class="pill" [class.on]="s.enabled">{{ state(s.enabled) }}</span>
+            </label>
+          </li>
         }
-      </select>
-    </label>
+      </ul>
+    </section>
 
-    <form class="pw" (submit)="change($event)" autocomplete="off">
-      <h3>{{ i18n.t('cfg.pw.change.h') }}</h3>
-      <div class="fields">
-        <label class="stack">
-          <span>{{ i18n.t('cfg.pw.current') }}</span>
-          <input type="password" name="secret" required autocomplete="current-password" />
-        </label>
-        <label class="stack">
-          <span>{{ i18n.t('cfg.pw.new') }}</span>
-          <input type="password" name="next" required minlength="6" maxlength="64" pattern="[!-~]{6,64}" autocomplete="new-password" />
-        </label>
-        <label class="stack">
-          <span>{{ i18n.t('cfg.pw.confirm') }}</span>
-          <input type="password" name="confirm" required minlength="6" maxlength="64" pattern="[!-~]{6,64}" autocomplete="new-password" />
-        </label>
-      </div>
-      <div class="bar">
-        <p class="help">{{ i18n.t('cfg.pw.rule') }}</p>
-        <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t('cfg.pw.change.btn') }}</button>
-      </div>
-    </form>
+    <section class="card grp" aria-labelledby="cfg-pw">
+      <h2 id="cfg-pw">{{ i18n.t('cfg.pw.h') }}</h2>
+      <p class="help">{{ i18n.t('cfg.pw.help') }}</p>
+      <label class="stack">
+        <span>{{ i18n.t('cfg.pw.player') }}</span>
+        <select (change)="pick($event)">
+          @for (p of players; track p) {
+            <option [value]="p" [selected]="p === player()">{{ i18n.page(p) }}</option>
+          }
+        </select>
+      </label>
 
-    <form class="pw" (submit)="resetPassword($event)" autocomplete="off">
-      <h3>{{ i18n.t('cfg.pw.reset.h') }}</h3>
-      <div class="fields">
-        <label class="stack">
-          <span>{{ i18n.t('cfg.pw.master') }}</span>
-          <input type="password" name="secret" required autocomplete="off" />
-        </label>
-        <label class="stack">
-          <span>{{ i18n.t('cfg.pw.new') }}</span>
-          <input type="password" name="next" required minlength="6" maxlength="64" pattern="[!-~]{6,64}" autocomplete="new-password" />
-        </label>
-        <label class="stack">
-          <span>{{ i18n.t('cfg.pw.confirm') }}</span>
-          <input type="password" name="confirm" required minlength="6" maxlength="64" pattern="[!-~]{6,64}" autocomplete="new-password" />
-        </label>
-      </div>
-      <div class="bar">
-        <p class="help">{{ i18n.t('cfg.pw.rule') }}</p>
-        <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t('cfg.pw.reset.btn') }}</button>
-      </div>
-    </form>
+      <form class="pw" (submit)="change($event)" autocomplete="off">
+        <h3>{{ i18n.t('cfg.pw.change.h') }}</h3>
+        <div class="fields">
+          <label class="stack">
+            <span>{{ i18n.t('cfg.pw.current') }}</span>
+            <input type="password" name="secret" required autocomplete="current-password" />
+          </label>
+          <label class="stack">
+            <span>{{ i18n.t('cfg.pw.new') }}</span>
+            <input type="password" name="next" required minlength="6" maxlength="64" pattern="[!-~]{6,64}" autocomplete="new-password" />
+          </label>
+          <label class="stack">
+            <span>{{ i18n.t('cfg.pw.confirm') }}</span>
+            <input type="password" name="confirm" required minlength="6" maxlength="64" pattern="[!-~]{6,64}" autocomplete="new-password" />
+          </label>
+        </div>
+        <div class="bar">
+          <p class="help">{{ i18n.t('cfg.pw.rule') }}</p>
+          <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t('cfg.pw.change.btn') }}</button>
+        </div>
+      </form>
 
-    @if (notice(); as n) {
-      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
-    }
-  </section>
+      <form class="pw" (submit)="resetPassword($event)" autocomplete="off">
+        <h3>{{ i18n.t('cfg.pw.reset.h') }}</h3>
+        <div class="fields">
+          <label class="stack">
+            <span>{{ i18n.t('cfg.pw.master') }}</span>
+            <input type="password" name="secret" required autocomplete="off" />
+          </label>
+          <label class="stack">
+            <span>{{ i18n.t('cfg.pw.new') }}</span>
+            <input type="password" name="next" required minlength="6" maxlength="64" pattern="[!-~]{6,64}" autocomplete="new-password" />
+          </label>
+          <label class="stack">
+            <span>{{ i18n.t('cfg.pw.confirm') }}</span>
+            <input type="password" name="confirm" required minlength="6" maxlength="64" pattern="[!-~]{6,64}" autocomplete="new-password" />
+          </label>
+        </div>
+        <div class="bar">
+          <p class="help">{{ i18n.t('cfg.pw.rule') }}</p>
+          <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t('cfg.pw.reset.btn') }}</button>
+        </div>
+      </form>
 
-  <section class="card grp" aria-labelledby="cfg-json">
-    <h2 id="cfg-json">{{ i18n.t('cfg.json.h') }}</h2>
-    <p class="help">{{ i18n.t('cfg.json.help') }}</p>
-    <label class="sr-only" for="cfg-json-box">{{ i18n.t('cfg.json.h') }}</label>
-    <textarea #box id="cfg-json-box" rows="10" spellcheck="false" [value]="json()"></textarea>
-    <div class="bar">
-      @if (importMessage(); as m) {
-        <p class="status" [class.bad]="m === 'bad'" [attr.role]="m === 'bad' ? 'alert' : 'status'">{{ i18n.t(m === 'ok' ? 'cfg.json.ok' : 'cfg.json.bad') }}</p>
+      @if (notice(); as n) {
+        <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
       }
-      <button type="button" class="btn pri" (click)="importJson(box.value)">{{ i18n.t('cfg.json.import') }}</button>
-    </div>
-  </section>
+    </section>
+
+    <section class="card grp" aria-labelledby="cfg-json">
+      <h2 id="cfg-json">{{ i18n.t('cfg.json.h') }}</h2>
+      <p class="help">{{ i18n.t('cfg.json.help') }}</p>
+      <label class="sr-only" for="cfg-json-box">{{ i18n.t('cfg.json.h') }}</label>
+      <textarea #box id="cfg-json-box" rows="10" spellcheck="false" [value]="json()"></textarea>
+      <div class="bar">
+        @if (importMessage(); as m) {
+          <p class="status" [class.bad]="m === 'bad'" [attr.role]="m === 'bad' ? 'alert' : 'status'">{{ i18n.t(m === 'ok' ? 'cfg.json.ok' : 'cfg.json.bad') }}</p>
+        }
+        <button type="button" class="btn pri" (click)="importJson(box.value)">{{ i18n.t('cfg.json.import') }}</button>
+      </div>
+    </section>
+  }
 </div>

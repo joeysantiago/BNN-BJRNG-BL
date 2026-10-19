@@ -12,11 +12,14 @@ namespace Thakurg.API.Controllers;
 [EnableRateLimiting("stream")]
 public class YoutubeController : ControllerBase
 {
+    private readonly IYoutubeKeyService _keyService;
+
     private readonly IYoutubeService _youtubeService;
 
-    public YoutubeController(IYoutubeService youtubeService)
+    public YoutubeController(IYoutubeService youtubeService, IYoutubeKeyService keyService)
     {
         _youtubeService = youtubeService;
+        _keyService = keyService;
     }
 
     #region Public Methods
@@ -37,6 +40,12 @@ public class YoutubeController : ControllerBase
         var file = await _youtubeService.OpenMp3Async(videoId, cancellationToken);
 
         return File(file.Content, file.ContentType, file.FileName);
+    }
+
+    [HttpGet("key")]
+    public async Task<ActionResult<ApiResponse<YoutubeKeyStatusDto>>> KeyStatus(CancellationToken cancellationToken)
+    {
+        return Ok(ApiResponse<YoutubeKeyStatusDto>.SuccessResponse(await _keyService.GetStatusAsync(cancellationToken)));
     }
 
     [HttpGet("info/{videoId}")]
@@ -61,6 +70,15 @@ public class YoutubeController : ControllerBase
         var videos = await _youtubeService.SearchAsync(q, cancellationToken);
 
         return Ok(ApiResponse<List<YoutubeVideoDto>>.SuccessResponse(videos));
+    }
+
+    [HttpPost("key")]
+    [EnableRateLimiting("sensitive")]
+    public async Task<ActionResult<ApiResponse<bool>>> SaveKey([FromBody] YoutubeKeyRequestDto request, [FromHeader(Name = "X-Master-Key")] string? masterKey, CancellationToken cancellationToken)
+    {
+        var message = await _keyService.SaveAsync(request.ApiKey, masterKey, cancellationToken);
+
+        return Ok(ApiResponse<bool>.SuccessResponse(true, message));
     }
 
     #endregion

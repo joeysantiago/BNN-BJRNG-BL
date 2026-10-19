@@ -117,7 +117,16 @@ public class MusicService : IMusicService
             if (cover is not null)
                 await _fileStore.SaveAsync(musicPlayer.FolderName, cover.FileName, cover.Content, cancellationToken);
 
-            added.Add(new MusicTrack { PlayerId = musicPlayer.Id, Title = TitleOf(audio.FileName), FileName = audio.FileName, CoverFileName = cover?.FileName, SortOrder = ++order, CreatedOn = DateTime.UtcNow });
+            var tags = ReadTags(musicPlayer, audio.FileName);
+            var coverFileName = cover?.FileName;
+
+            if (coverFileName is null && tags.Cover is not null)
+            {
+                coverFileName = $"{Path.GetFileNameWithoutExtension(audio.FileName)}.cover{tags.CoverExtension}";
+                await _fileStore.SaveAsync(musicPlayer.FolderName, coverFileName, new MemoryStream(tags.Cover), cancellationToken);
+            }
+
+            added.Add(new MusicTrack { PlayerId = musicPlayer.Id, Title = tags.Title ?? TitleOf(audio.FileName), Artist = tags.Artist, FileName = audio.FileName, CoverFileName = coverFileName, SortOrder = ++order, CreatedOn = DateTime.UtcNow });
         }
 
         await _musicRepository.AddTracksAsync(added, cancellationToken);
@@ -162,6 +171,13 @@ public class MusicService : IMusicService
         ContentTypes.TryGetContentType(fileName, out var contentType);
 
         return new FileStreamDto { Content = content, ContentType = contentType ?? "application/octet-stream" };
+    }
+
+    private MusicTags.Info ReadTags(MusicPlayer player, string fileName)
+    {
+        using var content = _fileStore.Open(player.FolderName, fileName);
+
+        return content is null ? new MusicTags.Info(null, null, null, null) : MusicTags.Read(content, fileName);
     }
 
     private static MusicTracksDto ToDto(MusicPlayer player, List<MusicTrack> tracks)

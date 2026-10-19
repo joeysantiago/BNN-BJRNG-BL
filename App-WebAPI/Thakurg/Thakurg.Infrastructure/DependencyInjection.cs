@@ -39,6 +39,7 @@ public static class DependencyInjection
         services.AddSingleton<YoutubeClient>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IMusicFileStore, MusicFileStore>();
+        services.AddHttpClient<IYoutubeDataApi, YoutubeDataApi>(client => client.Timeout = TimeSpan.FromSeconds(15));
 
         services.AddScoped<IMusicRepository, MusicRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
@@ -51,6 +52,7 @@ public static class DependencyInjection
         services.AddScoped<ISettingsService, SettingsService>();
         services.AddScoped<ISpeedTestService, SpeedTestService>();
         services.AddScoped<IMasterKeyService, MasterKeyService>();
+        services.AddScoped<IYoutubeKeyService, YoutubeKeyService>();
         services.AddScoped<IMusicAccessService, MusicAccessService>();
         services.AddScoped<ITranslationService, TranslationService>();
 

@@ -4,6 +4,10 @@ public static partial class MessageCodes
 {
     public const string YoutubeNoAudio = "YOUTUBE_NO_AUDIO";
 
+    public const string YoutubeKeySaved = "YOUTUBE_KEY_SAVED";
+
+    public const string YoutubeKeyRejected = "YOUTUBE_KEY_REJECTED";
+
     public const string YoutubeLookupFailed = "YOUTUBE_LOOKUP_FAILED";
 
     public const string YoutubeFfmpegMissing = "YOUTUBE_FFMPEG_MISSING";

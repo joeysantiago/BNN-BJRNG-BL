@@ -24,6 +24,11 @@ BEGIN
         ('TRANSLATION_LANGUAGE_INVALID', N'{"en":"This language is not supported.","hi":"यह भाषा समर्थित नहीं है।","ar":"هذه اللغة غير مدعومة."}'),
         ('TOO_MANY_REQUESTS', N'{"en":"Too many attempts. Please wait a minute and try again.","hi":"बहुत अधिक प्रयास। कृपया एक मिनट प्रतीक्षा करें और फिर प्रयास करें।","ar":"محاولات كثيرة جدًا. يرجى الانتظار دقيقة ثم المحاولة مرة أخرى."}'),
         ('YOUTUBE_FFMPEG_MISSING', N'{"en":"MP3 conversion is not available on this server.","hi":"इस सर्वर पर MP3 रूपांतरण उपलब्ध नहीं है।","ar":"تحويل MP3 غير متاح على هذا الخادم."}'),
+        ('MASTER_KEY_CREATED', N'{"en":"The master key was saved.","hi":"मास्टर कुंजी सहेज ली गई।","ar":"تم حفظ المفتاح الرئيسي."}'),
+        ('MASTER_KEY_MISMATCH', N'{"en":"The two passwords do not match.","hi":"दोनों पासवर्ड मेल नहीं खाते।","ar":"كلمتا المرور غير متطابقتين."}'),
+        ('MASTER_KEY_ALREADY_SET', N'{"en":"The master key is already set.","hi":"मास्टर कुंजी पहले से सेट है।","ar":"المفتاح الرئيسي مضبوط مسبقًا."}'),
+        ('YOUTUBE_KEY_SAVED', N'{"en":"The YouTube API key was saved.","hi":"YouTube API कुंजी सहेज ली गई।","ar":"تم حفظ مفتاح YouTube API."}'),
+        ('YOUTUBE_KEY_REJECTED', N'{"en":"YouTube did not accept this API key. Check the key and that the YouTube Data API v3 is enabled for it.","hi":"YouTube ने यह API कुंजी स्वीकार नहीं की। कुंजी जाँचें और देखें कि उसके लिए YouTube Data API v3 चालू है।","ar":"لم يقبل YouTube مفتاح API هذا. تحقق من المفتاح ومن تفعيل YouTube Data API v3 له."}'),
         ('SETTINGS_SAVED', N'{"en":"Settings saved.","hi":"सेटिंग्स सहेजी गईं।","ar":"تم حفظ الإعدادات."}'),
         ('SETTINGS_INVALID', N'{"en":"Some of the settings are not valid.","hi":"कुछ सेटिंग्स मान्य नहीं हैं।","ar":"بعض الإعدادات غير صالحة."}');
 END

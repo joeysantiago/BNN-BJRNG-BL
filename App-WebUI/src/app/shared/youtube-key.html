@@ -1,0 +1,17 @@
+@if (needed()) {
+  <section class="card key" aria-labelledby="ytk-h">
+    <h2 id="ytk-h">{{ i18n.t('yt.key.h') }}</h2>
+    <p class="note">{{ i18n.t('yt.key.lead') }}</p>
+    <form class="setup inset" [attr.aria-busy]="busy()" (submit)="save($event, apiKey, master)">
+      <label>{{ i18n.t('yt.key.label') }}<input #apiKey type="password" name="youtube-api-key" autocomplete="off" spellcheck="false" [disabled]="busy()" /></label>
+      <label>{{ i18n.t('yt.key.master') }}<input #master type="password" name="master-key" autocomplete="off" [disabled]="busy()" /></label>
+      <div class="setup-actions">
+        <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t(busy() ? 'yt.key.saving' : 'yt.key.save') }}</button>
+        <button type="button" class="btn" [disabled]="busy()" (click)="skip()">{{ i18n.t('yt.key.skip') }}</button>
+      </div>
+    </form>
+    @if (error(); as e) {
+      <p class="status bad" role="alert">{{ e }}</p>
+    }
+  </section>
+}

@@ -27,6 +27,30 @@ public class SettingsController : ControllerBase
         return Ok(ApiResponse<AppSettingsDto>.SuccessResponse(settings));
     }
 
+    [HttpGet("master-key")]
+    public async Task<ActionResult<ApiResponse<MasterKeyStatusDto>>> MasterKeyStatus(CancellationToken cancellationToken)
+    {
+        return Ok(ApiResponse<MasterKeyStatusDto>.SuccessResponse(new MasterKeyStatusDto { IsSet = await _settingsService.IsMasterKeySetAsync(cancellationToken) }));
+    }
+
+    [HttpPost("master-key")]
+    [EnableRateLimiting("sensitive")]
+    public async Task<ActionResult<ApiResponse<bool>>> CreateMasterKey([FromBody] MasterKeyCreateDto request, CancellationToken cancellationToken)
+    {
+        var message = await _settingsService.CreateMasterKeyAsync(request.Password, request.Confirm, cancellationToken);
+
+        return Ok(ApiResponse<bool>.SuccessResponse(true, message));
+    }
+
+    [HttpPost("unlock")]
+    [EnableRateLimiting("sensitive")]
+    public async Task<ActionResult<ApiResponse<bool>>> Unlock([FromHeader(Name = "X-Master-Key")] string? masterKey, CancellationToken cancellationToken)
+    {
+        await _settingsService.UnlockAsync(masterKey, cancellationToken);
+
+        return Ok(ApiResponse<bool>.SuccessResponse(true));
+    }
+
     [HttpPut]
     [EnableRateLimiting("sensitive")]
     public async Task<ActionResult<ApiResponse<AppSettingsDto>>> Save([FromBody] SettingsUpdateDto request, [FromHeader(Name = "X-Master-Key")] string? masterKey, CancellationToken cancellationToken)

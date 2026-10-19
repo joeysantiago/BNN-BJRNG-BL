@@ -7,6 +7,11 @@ import { AppSettings, ConnectionField, FeatureFlags, FeatureId, SettingsOverride
 const LOAD_TIMEOUT = 5000;
 const SAVE_TIMEOUT = 15000;
 
+/** Same rule as the API: 2 to 20 whole numbers, the first 0, each larger than the one before, at most 100000. */
+export const validStops = (v: unknown): v is number[] => Array.isArray(v) && v.length >= 2 && v.length <= 20 && v.every((n) => Number.isInteger(n)) && v[0] === 0 && v[v.length - 1] <= 100000 && v.every((n, i) => i === 0 || n > v[i - 1]);
+
+const sameStops = (a: number[], b: number[]): boolean => a.length === b.length && a.every((n, i) => n === b[i]);
+
 /**
  * The settings in use. The master tables (served by GET /settings) hold the saved values. Edits made on the /master page are drafts: they are
  * layered on top so the site previews them at once, live in memory only (a reload discards them) and are written back with `save`.
@@ -24,6 +29,7 @@ export class SettingsService {
     return {
       ...d,
       features: { ...d.features, ...o.features },
+      speed: { gaugeStops: o.speed?.gaugeStops ?? d.speed.gaugeStops },
       connection: { enabled: o.connection?.enabled ?? d.connection.enabled, fields: { ...d.connection.fields, ...o.connection?.fields } },
       services: {
         enabled: o.services?.enabled ?? d.services.enabled,
@@ -58,6 +64,18 @@ export class SettingsService {
     }
   }
 
+  /** Set the speeds (Mbps) printed on the speed test gauge. Invalid lists are ignored. */
+  setGaugeStops(stops: number[]): void {
+    if (!validStops(stops))
+      return;
+    this.change((o) => {
+      if (sameStops(stops, this.defaults.speed.gaugeStops))
+        delete o.speed;
+      else
+        o.speed = { gaugeStops: stops };
+    });
+  }
+
   /** Replace all unsaved edits, for example with settings pasted into the /master page. */
   import(next: SettingsOverrides): void {
     this.overrides.set(this.clean(next));
@@ -84,7 +102,8 @@ export class SettingsService {
       Object.keys(o.services?.items ?? {}).length +
       (o.connection?.enabled === undefined ? 0 : 1) +
       (o.services?.enabled === undefined ? 0 : 1) +
-      (o.services?.refreshSeconds === undefined ? 0 : 1)
+      (o.services?.refreshSeconds === undefined ? 0 : 1) +
+      (o.speed?.gaugeStops === undefined ? 0 : 1)
     );
   }
 
@@ -127,6 +146,7 @@ export class SettingsService {
       pageNames: { ...f.pageNames, ...data.pageNames },
       connection: { enabled: data.connection?.enabled ?? f.connection.enabled, fields: { ...f.connection.fields, ...data.connection?.fields } },
       services: { ...f.services, ...data.services, items: data.services?.items ?? f.services.items },
+      speed: { gaugeStops: validStops(data.speed?.gaugeStops) ? data.speed!.gaugeStops : f.speed.gaugeStops },
     };
   }
 
@@ -168,6 +188,8 @@ export class SettingsService {
       services.items = items;
     if (Object.keys(services).length)
       out.services = services;
+    if (validStops(o.speed?.gaugeStops) && !sameStops(o.speed!.gaugeStops!, d.speed.gaugeStops))
+      out.speed = { gaugeStops: o.speed!.gaugeStops };
     return out;
   }
 
@@ -191,6 +213,8 @@ export class SettingsService {
       out.connection = o.connection;
     if (o.services && wants('services'))
       out.services = o.services;
+    if (o.speed && wants('speed'))
+      out.speed = o.speed;
     return out;
   }
 

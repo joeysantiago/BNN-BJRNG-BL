@@ -2,9 +2,10 @@ import { ApiService } from '../../core/api.service';
 import { SeoService } from '../../core/seo.service';
 import { I18nService } from '../../core/i18n.service';
 import { TranslationKey } from '../../core/models/i18n.model';
-import { SettingsService } from '../../core/settings.service';
 import { FEATURES, FEATURE_GROUPS } from '../../core/features';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { KeyStatus } from '../../core/models/key-status.model';
+import { SettingsService, validStops } from '../../core/settings.service';
+import { Component, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 import { ConfigGroup, PasswordKind, PasswordNotice, PasswordPlayer, SaveNotice, SaveTarget } from './config.model';
 import { ConnectionField, FeatureId, SettingsOverrides, SettingsSection } from '../../core/models/app-settings.model';
 
@@ -28,6 +29,10 @@ export class Config {
   protected readonly player = signal<PasswordPlayer>('creta');
   protected readonly notice = signal<PasswordNotice | null>(null);
   protected readonly busy = signal(false);
+  protected readonly gaugeBad = signal(false);
+  protected readonly unlocked = signal(false);
+  protected readonly keyIsSet = signal<boolean | null>(null);
+  protected readonly lockNotice = signal<PasswordNotice | null>(null);
 
   /** The master key typed for saving. Lives in this signal only: never stored, never logged. */
   protected readonly masterKey = signal('');
@@ -57,6 +62,8 @@ export class Config {
         noindex: true,
       });
     });
+
+    afterNextRender(() => void this.loadKeyState());
   }
 
   // #region Private Methods
@@ -76,6 +83,14 @@ export class Config {
   protected pick(ev: Event): void {
     this.player.set((ev.target as HTMLSelectElement).value as PasswordPlayer);
     this.notice.set(null);
+  }
+
+  /** Applies the typed gauge speeds (Mbps, separated by commas or spaces); a list the API would refuse is not applied. */
+  protected gauge(ev: Event): void {
+    const stops = (ev.target as HTMLInputElement).value.split(/[\s,]+/).filter(Boolean).map(Number);
+    this.gaugeBad.set(!validStops(stops));
+    if (!this.gaugeBad())
+      this.cfg.setGaugeStops(stops);
   }
 
   protected state(on: boolean): string {
@@ -105,6 +120,14 @@ export class Config {
 
   protected change(ev: Event): Promise<void> {
     return this.submit(ev, 'change');
+  }
+
+  private async loadKeyState(): Promise<void> {
+    try {
+      this.keyIsSet.set((await this.api.get<KeyStatus>('/settings/master-key')).isSet);
+    } catch (e) {
+      this.lockNotice.set({ text: this.failureText(e), error: true });
+    }
   }
 
   protected saveLabel(target: SaveTarget): string {
@@ -177,6 +200,49 @@ export class Config {
       form.reset();
     } catch (e) {
       this.notice.set({ text: this.failureText(e), error: true });
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  /** Asks the API whether the typed master key is right. Only then does the page open; the key stays in memory and is reused by the Save buttons. */
+  protected async unlock(ev: Event, input: HTMLInputElement): Promise<void> {
+    ev.preventDefault();
+    const key = input.value.trim();
+    if (!key || this.busy())
+      return;
+    this.busy.set(true);
+    this.lockNotice.set(null);
+    try {
+      await this.api.message('POST', '/settings/unlock', { headers: { 'X-Master-Key': key } });
+      this.masterKey.set(key);
+      this.unlocked.set(true);
+    } catch (e) {
+      const denied = (e as { status?: number }).status === 401;
+      this.lockNotice.set({ text: denied ? this.i18n.t('cfg.lock.denied') : this.failureText(e), error: true });
+      input.value = '';
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  /** First visit: saves the chosen master key in the database (the API refuses once one exists), then opens the page. */
+  protected async create(ev: Event, pw: HTMLInputElement, confirm: HTMLInputElement): Promise<void> {
+    ev.preventDefault();
+    if (this.busy())
+      return;
+    if (pw.value !== confirm.value)
+      return this.lockNotice.set({ text: this.i18n.t('cfg.pw.mismatch'), error: true });
+    if (!/^[\x21-\x7e]{6,64}$/.test(pw.value))
+      return this.lockNotice.set({ text: this.i18n.t('cfg.pw.rule'), error: true });
+    this.busy.set(true);
+    this.lockNotice.set(null);
+    try {
+      await this.api.message('POST', '/settings/master-key', this.api.json({ password: pw.value, confirm: confirm.value }));
+      this.masterKey.set(pw.value);
+      this.unlocked.set(true);
+    } catch (e) {
+      this.lockNotice.set({ text: this.failureText(e), error: true });
     } finally {
       this.busy.set(false);
     }

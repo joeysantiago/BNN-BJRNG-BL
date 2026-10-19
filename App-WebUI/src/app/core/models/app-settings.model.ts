@@ -32,6 +32,7 @@ export type FeatureFlags = Record<FeatureId, boolean>;
 /** Unsaved edits made on the /master page. Kept in memory only (never in browser storage); only what differs from the settings loaded from the API. */
 export interface SettingsOverrides {
   features?: Partial<FeatureFlags>;
+  speed?: { gaugeStops?: number[] };
   connection?: { enabled?: boolean; fields?: Partial<Record<ConnectionField, boolean>> };
   services?: { enabled?: boolean; refreshSeconds?: number; items?: Record<string, boolean> };
 }
@@ -54,6 +55,10 @@ export interface ServiceConfig {
 export interface AppSettings {
   /** Turn single features on or off. A page that is off shows "page not found"; a feature that is off disappears from its page. */
   features: FeatureFlags;
+  speed: {
+    /** Speeds in Mbps printed on the speed test gauge, evenly spaced around the ring. The first is 0 and each is larger than the one before. */
+    gaugeStops: number[];
+  };
   /** Page names per language, used in the menu, footer and section headings. */
   pageNames: Record<PageId, PageName>;
   connection: {
