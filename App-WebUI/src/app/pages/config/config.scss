@@ -28,7 +28,8 @@ h2 {
   margin: 0;
   font-weight: 600;
 }
-.status.bad {
+.status.bad,
+.was.bad {
   color: var(--bad, #c0392b);
 }
 .rows {
@@ -83,6 +84,21 @@ h2 {
   display: grid;
   gap: 6px;
 }
+.setup {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  margin-block-start: 16px;
+}
+.setup label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.setup-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 .fields {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
@@ -90,6 +106,7 @@ h2 {
   margin-block-start: 12px;
 }
 select,
+input[type='text'],
 input[type='number'],
 input[type='password'],
 input[type='url'],

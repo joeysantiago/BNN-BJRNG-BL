@@ -87,7 +87,7 @@
           }
         </ul>
         @if (g.id === 'speed') {
-          <div class="inset">
+          <div class="setup inset">
             <label class="stack">
               <span>{{ i18n.t('cfg.gauge') }}</span>
               <input type="text" inputmode="numeric" autocomplete="off" [value]="settings().speed.gaugeStops.join(', ')" [attr.aria-invalid]="gaugeBad()" (change)="gauge($event)" />
@@ -162,6 +162,26 @@
       </ul>
     </section>
 
+    <section class="card grp" aria-labelledby="cfg-yt">
+      <h2 id="cfg-yt">{{ i18n.t('cfg.yt.h') }}</h2>
+      <p class="help">{{ i18n.t('cfg.yt.lead') }}</p>
+      @if (ytKeySet() !== null) {
+        <p class="status" role="status">{{ i18n.t(ytKeySet() ? 'cfg.yt.set' : 'cfg.yt.notset') }}</p>
+      }
+      <form class="setup inset" [attr.aria-busy]="busy()" (submit)="saveYoutube($event, ytKey)">
+        <label class="stack">
+          <span>{{ i18n.t('cfg.yt.label') }}</span>
+          <input #ytKey type="password" name="youtube-api-key" autocomplete="off" spellcheck="false" [disabled]="busy()" />
+        </label>
+        <div class="setup-actions">
+          <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t(busy() ? 'cfg.yt.saving' : 'cfg.yt.save') }}</button>
+        </div>
+      </form>
+      @if (ytNotice(); as n) {
+        <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+      }
+    </section>
+
     <section class="card grp" aria-labelledby="cfg-pw">
       <h2 id="cfg-pw">{{ i18n.t('cfg.pw.h') }}</h2>
       <p class="help">{{ i18n.t('cfg.pw.help') }}</p>
@@ -175,7 +195,7 @@
       </label>
 
       <form class="pw" (submit)="change($event)" autocomplete="off">
-        <h3>{{ i18n.t('cfg.pw.change.h') }}</h3>
+        <h3>{{ i18n.t('cfg.pw.change.h', { name: i18n.page(player()) }) }}</h3>
         <div class="fields">
           <label class="stack">
             <span>{{ i18n.t('cfg.pw.current') }}</span>
@@ -197,12 +217,8 @@
       </form>
 
       <form class="pw" (submit)="resetPassword($event)" autocomplete="off">
-        <h3>{{ i18n.t('cfg.pw.reset.h') }}</h3>
+        <h3>{{ i18n.t('cfg.pw.reset.h', { name: i18n.page(player()) }) }}</h3>
         <div class="fields">
-          <label class="stack">
-            <span>{{ i18n.t('cfg.pw.master') }}</span>
-            <input type="password" name="secret" required autocomplete="off" />
-          </label>
           <label class="stack">
             <span>{{ i18n.t('cfg.pw.new') }}</span>
             <input type="password" name="next" required minlength="6" maxlength="64" pattern="[!-~]{6,64}" autocomplete="new-password" />

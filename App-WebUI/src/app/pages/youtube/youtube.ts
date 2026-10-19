@@ -4,7 +4,6 @@ import { ApiService } from '../../core/api.service';
 import { SeoService } from '../../core/seo.service';
 import { isPlatformBrowser } from '@angular/common';
 import { I18nService } from '../../core/i18n.service';
-import { YoutubeKey } from '../../shared/youtube-key';
 import { SettingsService } from '../../core/settings.service';
 import type { TranslationKey } from '../../core/models/i18n.model';
 import { YT_ENDED, YT_PAUSED, YT_PLAYING, YtInput, YtMessage, YtPlayer, YtPlayerApi, YtPlaylist, YtVideo, YtWindow } from './youtube.model';
@@ -60,7 +59,6 @@ const parseInput = (text: string): YtInput => {
  */
 @Component({
   selector: 'app-youtube',
-  imports: [YoutubeKey],
   templateUrl: './youtube.html',
   styleUrl: './youtube.scss',
 })

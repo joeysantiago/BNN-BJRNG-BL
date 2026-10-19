@@ -32,6 +32,8 @@ export class Config {
   protected readonly gaugeBad = signal(false);
   protected readonly unlocked = signal(false);
   protected readonly keyIsSet = signal<boolean | null>(null);
+  protected readonly ytKeySet = signal<boolean | null>(null);
+  protected readonly ytNotice = signal<PasswordNotice | null>(null);
   protected readonly lockNotice = signal<PasswordNotice | null>(null);
 
   /** The master key typed for saving. Lives in this signal only: never stored, never logged. */
@@ -125,6 +127,7 @@ export class Config {
   private async loadKeyState(): Promise<void> {
     try {
       this.keyIsSet.set((await this.api.get<KeyStatus>('/settings/master-key')).isSet);
+      this.ytKeySet.set((await this.api.get<KeyStatus>('/youtube/key')).isSet);
     } catch (e) {
       this.lockNotice.set({ text: this.failureText(e), error: true });
     }
@@ -176,12 +179,12 @@ export class Config {
     return n?.section === target ? n : null;
   }
 
-  /** Sends the new password. Change proves the current password (X-Edit-Password); reset proves the master key (X-Master-Key). Nothing is stored in the browser. */
+  /** Sends the new password. Change proves the current player password (X-Edit-Password); reset sends the admin password this page was opened with (X-Master-Key), so it is not typed again. Nothing is stored in the browser. */
   private async submit(ev: Event, kind: PasswordKind): Promise<void> {
     ev.preventDefault();
     const form = ev.target as HTMLFormElement;
     const data = new FormData(form);
-    const secret = String(data.get('secret') ?? '');
+    const secret = kind === 'reset' ? this.masterKey() : String(data.get('secret') ?? '');
     const next = String(data.get('next') ?? '');
     if (next !== String(data.get('confirm') ?? '')) {
       this.notice.set({ text: this.i18n.t('cfg.pw.mismatch'), error: true });
@@ -221,6 +224,26 @@ export class Config {
       const denied = (e as { status?: number }).status === 401;
       this.lockNotice.set({ text: denied ? this.i18n.t('cfg.lock.denied') : this.failureText(e), error: true });
       input.value = '';
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  /** Sends the YouTube API key. The API checks the master key (the one just used to open this page) and the key with Google, then stores it in the database. */
+  protected async saveYoutube(ev: Event, input: HTMLInputElement): Promise<void> {
+    ev.preventDefault();
+    const key = input.value.trim();
+    if (!key || this.busy())
+      return;
+    this.busy.set(true);
+    this.ytNotice.set(null);
+    try {
+      const text = await this.api.message('POST', '/youtube/key', this.api.json({ apiKey: key }, { 'X-Master-Key': this.masterKey() }), 30000);
+      this.ytKeySet.set(true);
+      this.ytNotice.set({ text, error: false });
+      input.value = '';
+    } catch (e) {
+      this.ytNotice.set({ text: this.failureText(e), error: true });
     } finally {
       this.busy.set(false);
     }
