@@ -176,14 +176,6 @@ export class Portfolio {
       });
     });
     afterNextRender(() => this.start());
-    this.destroyRef.onDestroy(() => {
-      this.stop.abort();
-      this.io?.disconnect();
-      clearTimeout(this.typeTimer);
-      clearTimeout(this.sparkTimer);
-      cancelAnimationFrame(this.frameId);
-      cancelAnimationFrame(this.countId);
-    });
   }
 
   // #region Private Methods
@@ -232,6 +224,15 @@ export class Portfolio {
     const win = this.doc.defaultView!;
     this.reduce = win.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const fine = win.matchMedia('(pointer: fine)').matches;
+    // Registered here, not in the constructor: prerendering also destroys the page, and the server has no animation frames.
+    this.destroyRef.onDestroy(() => {
+      this.stop.abort();
+      this.io?.disconnect();
+      clearTimeout(this.typeTimer);
+      clearTimeout(this.sparkTimer);
+      cancelAnimationFrame(this.frameId);
+      cancelAnimationFrame(this.countId);
+    });
     if (!this.reduce)
       this.statText.set(STATS.map(() => '0'));
     this.animate.set(true);
