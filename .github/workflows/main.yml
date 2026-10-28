@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -20,21 +20,24 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        # The Angular app lives in App-WebUI.
+        working-directory: App-WebUI
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: App-WebUI/package-lock.json
       - run: npm ci
-      # Regenerates public/audio/playlist.json from the audio files in the repo.
-      - run: node scripts/build-playlist.mjs
-      # Builds the site, prerenders every page, and creates 404.html (see scripts/postbuild.mjs).
-      - run: npx ng build --base-href /
-      - run: node scripts/postbuild.mjs
+      # prebuild regenerates public/audio/playlist.json, then ng build prerenders every page and
+      # scripts/postbuild.mjs creates 404.html, CNAME, robots.txt and sitemap.xml (see package.json).
+      - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/thakurg/browser
+          path: App-WebUI/dist/thakurg/browser
 
   deploy:
     needs: build
