@@ -12,7 +12,7 @@ export type FeatureGroup = 'site' | 'pages' | 'speed' | 'youtube' | 'audio';
 
 export type FeatureId =
   | 'site.install' | 'site.theme' | 'site.language' | 'site.nav' | 'site.footer'
-  | 'page.speed' | 'page.youtube' | 'page.creta' | 'page.nexon' | 'page.hr' | 'page.about' | 'page.privacy' | 'page.terms'
+  | 'page.speed' | 'page.youtube' | 'page.creta' | 'page.nexon' | 'page.hr' | 'page.kunal' | 'page.about' | 'page.privacy' | 'page.terms'
   | 'speed.clock' | 'speed.progress' | 'speed.loaded' | 'speed.share' | 'speed.save' | 'speed.image' | 'speed.history' | 'speed.info'
   | 'yt.search' | 'yt.play' | 'yt.video' | 'yt.seek' | 'yt.shuffle' | 'yt.repeat' | 'yt.volume' | 'yt.queue' | 'yt.playlists' | 'yt.download'
   | 'audio.doodle' | 'audio.seek' | 'audio.shuffle' | 'audio.repeat' | 'audio.volume' | 'audio.playlist' | 'audio.edit';

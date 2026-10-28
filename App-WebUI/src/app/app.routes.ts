@@ -19,6 +19,10 @@ export const routes: Routes = [
   { path: 'Creta', redirectTo: 'creta' },
   { path: 'audio', redirectTo: 'creta' },
 
+  { path: 'kunal', loadComponent: () => import('./pages/portfolio/portfolio').then((m) => m.Portfolio) },
+  { path: 'Kunal', redirectTo: 'kunal' },
+  { path: 'portfolio', redirectTo: 'kunal' },
+
   { path: 'youtube', loadComponent: () => import('./pages/youtube/youtube').then((m) => m.Youtube) },
 
   { path: 'about', loadComponent: staticPage, data: { kind: 'about' } },

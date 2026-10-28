@@ -350,6 +350,8 @@ export const EN = {
   'cfg.json.ok': 'Imported.',
   'cfg.json.bad': 'That is not valid settings JSON.',
   'seo.cfg.title': 'Settings: turn site features on or off',
+  'seo.kunal.title': 'Kunal Kumar | Full Stack .NET Developer',
+  'seo.kunal.desc': 'Kunal Kumar, Full Stack .NET Developer with 7+ years of experience in C#, .NET 10, ASP.NET Core, Angular, SQL Server and Azure. MCA, NIT Raipur.',
   'seo.cfg.desc': 'Switch pages, players, downloads and other features of thakurg.com on or off and see the site update.',
 } as const;
 

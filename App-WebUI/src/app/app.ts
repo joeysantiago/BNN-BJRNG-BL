@@ -45,8 +45,8 @@ export class App {
     { initialValue: this.router.url },
   );
 
-  /** The Atrium HR app is full screen and brings its own navigation, so the site header and footer are hidden there. */
-  protected readonly bare = computed(() => /^\/HR(\/|$|[?#])/.test(this.url()));
+  /** The Atrium HR app and the portfolio are full screen and bring their own navigation, so the site header and footer are hidden there. */
+  protected readonly bare = computed(() => /^\/(HR|kunal)(\/|$|[?#])/.test(this.url()));
 
   constructor() {
     // A page that is switched off in appSettings.ts or on the /config page shows "page not found".
@@ -66,7 +66,7 @@ export class App {
       if (path === '/') {
         // First visit to the home page after choosing Hindi or Arabic: open that language.
         if (stored !== 'en') void this.router.navigateByUrl(this.i18n.languages.find((l) => l.code === stored)!.home, { replaceUrl: true });
-      } else if (!/^\/(hi|ar|HR)$/.test(path)) {
+      } else if (!/^\/(hi|ar|HR|kunal)$/.test(path)) {
         // Other pages follow the saved choice. The speed test pages take their language from the URL.
         this.i18n.set(stored, false);
       }

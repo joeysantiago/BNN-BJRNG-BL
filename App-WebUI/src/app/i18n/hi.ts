@@ -341,5 +341,7 @@ export const HI: Translations = {
   'cfg.json.ok': 'इम्पोर्ट हो गया।',
   'cfg.json.bad': 'यह सही सेटिंग्स JSON नहीं है।',
   'seo.cfg.title': 'सेटिंग्स: साइट की सुविधाएँ चालू या बंद करें',
+  'seo.kunal.title': 'कुणाल कुमार | फुल स्टैक .NET डेवलपर',
+  'seo.kunal.desc': 'कुणाल कुमार, फुल स्टैक .NET डेवलपर, C#, .NET 10, ASP.NET Core, Angular, SQL Server और Azure में 7+ वर्षों का अनुभव। MCA, NIT रायपुर।',
   'seo.cfg.desc': 'thakurg.com के पेज, प्लेयर, डाउनलोड और अन्य सुविधाएँ चालू या बंद करें और साइट को बदलते देखें।',
 };

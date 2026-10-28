@@ -23,6 +23,7 @@ export const APP_SETTINGS: AppSettings = {
     'page.creta': true,
     'page.nexon': true,
     'page.hr': true,
+    'page.kunal': true,
     'page.about': true,
     'page.privacy': true,
     'page.terms': true,
