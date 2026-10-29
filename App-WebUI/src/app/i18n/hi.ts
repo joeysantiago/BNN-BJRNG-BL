@@ -342,6 +342,8 @@ export const HI: Translations = {
   'cfg.json.bad': 'यह सही सेटिंग्स JSON नहीं है।',
   'seo.cfg.title': 'सेटिंग्स: साइट की सुविधाएँ चालू या बंद करें',
   'seo.kunal.title': 'कुणाल कुमार | फुल स्टैक .NET डेवलपर',
-  'seo.kunal.desc': 'कुणाल कुमार, फुल स्टैक .NET डेवलपर, C#, .NET 10, ASP.NET Core, Angular, SQL Server और Azure में 7+ वर्षों का अनुभव। MCA, NIT रायपुर।',
+  'seo.kunal.desc': 'कुणाल कुमार, पुरस्कार विजेता फुल स्टैक .NET डेवलपर, C#, .NET 10, ASP.NET Core, Angular, SQL Server और Azure में 7+ वर्षों का अनुभव। Eurofins और 20 लाख+ उपयोगकर्ताओं के लिए काम। MCA, NIT रायपुर।',
+  'seo.preetik.title': 'प्रीति कुमारी | पोर्टफोलियो',
+  'seo.preetik.desc': 'प्रीति कुमारी का पोर्टफोलियो: प्रोफ़ाइल, कौशल, अनुभव और संपर्क विवरण।',
   'seo.cfg.desc': 'thakurg.com के पेज, प्लेयर, डाउनलोड और अन्य सुविधाएँ चालू या बंद करें और साइट को बदलते देखें।',
 };

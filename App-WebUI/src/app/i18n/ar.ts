@@ -342,6 +342,8 @@ export const AR: Translations = {
   'cfg.json.bad': 'هذا ليس JSON إعدادات صالحًا.',
   'seo.cfg.title': 'الإعدادات: تشغيل ميزات الموقع أو إيقافها',
   'seo.kunal.title': 'كونال كومار | مطوّر .NET متكامل',
-  'seo.kunal.desc': 'كونال كومار، مطوّر .NET متكامل بخبرة تزيد على 7 سنوات في C# و.NET 10 وASP.NET Core وAngular وSQL Server وAzure. ماجستير تطبيقات الحاسوب من NIT رايبور.',
+  'seo.kunal.desc': 'كونال كومار، مطوّر .NET متكامل حائز على جوائز بخبرة تزيد على 7 سنوات في C# و.NET 10 وASP.NET Core وAngular وSQL Server وAzure. عمل لصالح Eurofins ولأكثر من مليوني مستخدم. ماجستير تطبيقات الحاسوب من NIT رايبور.',
+  'seo.preetik.title': 'بريتي كوماري | ملف الأعمال',
+  'seo.preetik.desc': 'ملف أعمال بريتي كوماري: نبذة شخصية والمهارات والخبرات وبيانات التواصل.',
   'seo.cfg.desc': 'شغّل أو أوقف صفحات thakurg.com ومشغلاتها وتنزيلاتها وميزاتها الأخرى وشاهد الموقع يتغير.',
 };

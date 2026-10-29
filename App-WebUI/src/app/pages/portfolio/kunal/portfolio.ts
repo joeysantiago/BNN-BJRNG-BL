@@ -1,7 +1,7 @@
-import { SITE_URL } from '../../core/site';
 import { DOCUMENT } from '@angular/common';
-import { SeoService } from '../../core/seo.service';
-import { I18nService } from '../../core/i18n.service';
+import { SITE_URL } from '../../../core/site';
+import { SeoService } from '../../../core/seo.service';
+import { I18nService } from '../../../core/i18n.service';
 import { Dot, FilterOption, Project, ProjectFilter, Spark, Stat } from './portfolio.model';
 import { Component, DestroyRef, ElementRef, afterNextRender, effect, inject, signal, viewChild } from '@angular/core';
 
@@ -9,14 +9,14 @@ const MIN_V = 4;
 const MAX_V = 20;
 const COLORS = ['#FFB020', '#7B5CFF', '#2DD4BF'];
 const FONTS = 'https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap';
-const ROLES = ['Full Stack .NET Developer', 'C# and ASP.NET Core Engineer', 'Angular Developer', 'Microservices Builder', 'SQL Performance Tuner'];
+const ROLES = ['Full Stack .NET Developer', 'award-winning C# Engineer', 'Angular 4 to 20+ Specialist', 'Microservices Builder', 'SQL Performance Tuner', 'builder for 2M+ users'];
 const MARQUEE = ['.NET 10', 'C#', 'ASP.NET Core', 'Angular 20', 'EF Core', 'SQL Server 2022', 'Microsoft Azure', 'Azure Functions', 'Microservices', 'TypeScript', 'Azure DevOps', 'Power BI', 'Claude Code'];
 
 const STATS: Stat[] = [
   { end: 7, suffix: '+', label: 'years of experience' },
   { end: 5, suffix: '', label: 'companies' },
-  { end: 6, suffix: '', label: 'Eurofins labs served worldwide' },
-  { end: 2, suffix: 'M+', label: 'LMS users reached' },
+  { end: 6, suffix: '', label: 'Eurofins labs running my code' },
+  { end: 2, suffix: 'M+', label: 'users on platforms I built for' },
 ];
 
 const FILTERS: FilterOption[] = [
@@ -37,7 +37,7 @@ const PROJECTS: Project[] = [
     big: true,
     when: 'Current project',
     stack: ['.NET 10', 'C#', 'EF Core', 'Angular 20+', 'Microservices', 'Claude Code'],
-    text: "A core module of Eurofins' lab system, used in 6 lab centers worldwide where new medicines are tested before human trials. I build .NET 10 microservices and Angular 20+ screens for sample registration, test assignment, result entry and reporting. This work earned me an Outstanding Performance award.",
+    text: "Mission-critical software for Eurofins, one of the world's largest testing groups. CoreLabs runs in 6 lab centers worldwide where new medicines are tested before they ever reach human trials, so every result has to be right. I build the .NET 10 microservices and Angular 20+ screens behind sample registration, test assignment, result entry and reporting, the core path of the lab's day. The quality of this work earned me the Outstanding Performance award.",
   },
   {
     id: 'es',
@@ -49,7 +49,7 @@ const PROJECTS: Project[] = [
     big: true,
     when: 'Built from scratch',
     stack: ['ASP.NET Core 8', 'C#', 'Angular 18', 'Azure'],
-    text: 'An admin uploads a document, assigns signers and places signature fields. Signers get an email, log in and sign in a set order, and the admin receives the finished document. I started it from scratch, then colleagues joined to finish it. It replaced manual paperwork with a secure approval flow.',
+    text: 'A complete e-signature product, taken from an empty repository to production. An admin uploads a document, assigns signers and places signature fields; signers are emailed, sign in a set order through hierarchical approvals, and the admin receives the completed document. I designed and built the foundation alone, then brought colleagues in to finish it. It replaced slow manual paperwork with a secure, traceable approval flow.',
   },
   {
     id: 'o3',
@@ -58,7 +58,7 @@ const PROJECTS: Project[] = [
     v: 14,
     tags: ['enterprise', 'azure', 'data'],
     stack: ['ASP.NET Core 6+', 'C#', 'Angular 14+', 'Azure'],
-    text: 'Started on payroll: salary calculations, holidays and leaves. Then built the recruitment system that tracks candidates from referrals, job portals, LinkedIn and Naukri, and moves hired candidates into the employee portal automatically.',
+    text: 'Two business-critical HR systems where accuracy is non-negotiable. I built the payroll logic for salary calculations, holidays and leaves, then the recruitment system that tracks candidates from referrals, job portals, LinkedIn and Naukri and moves every hire into the employee portal automatically, removing manual data entry for HR.',
   },
   {
     id: 'lms',
@@ -68,7 +68,7 @@ const PROJECTS: Project[] = [
     v: 4,
     tags: ['enterprise', 'azure'],
     stack: ['ASP.NET', 'C#', 'Angular 4+', 'TypeScript', 'jQuery', 'Cordova', 'Azure'],
-    text: "GCube's (now Tenneo) learning platform for corporate training on web, mobile and iOS. As part of the core product team I built features for user tracking and delivering custom e-learning courses.",
+    text: "GCube's (now Tenneo) corporate learning platform, trusted by more than 2 million users on web, mobile and iOS. As a member of the core product team I shipped features for learner tracking and custom e-learning course delivery, at a scale where every release reaches millions. My work here earned two company awards.",
   },
   {
     id: 'sp',
@@ -78,7 +78,7 @@ const PROJECTS: Project[] = [
     label: 'SQL Server',
     tags: ['data'],
     stack: ['SQL Server 2022', 'Stored procedures', 'SSMS 2022'],
-    text: 'Reworked existing stored procedures at MetaDesign Solutions so queries ran faster and the application felt more responsive.',
+    text: 'Tracked down slow queries at MetaDesign Solutions and reworked the stored procedures behind them in SSMS 2022, so data came back faster and the whole application felt noticeably more responsive to its users.',
   },
   {
     id: 'mfo',
@@ -88,7 +88,7 @@ const PROJECTS: Project[] = [
     label: 'ASP.NET MVC',
     tags: ['data'],
     stack: ['ASP.NET MVC', 'C#', 'Angular', 'SQL Server'],
-    text: 'An application that moves accounting work into digital form and automates routine processes. I handled end-to-end maintenance and built new features.',
+    text: 'A digital accounting application that takes bookkeeping off paper and automates routine financial processes. I owned it end to end: keeping production stable, fixing issues fast and shipping new features. It is where my habit of precise, reliable delivery began.',
   },
 ];
 
@@ -169,6 +169,7 @@ export class Portfolio {
               url: `${SITE_URL}/kunal/`,
               sameAs: ['https://www.linkedin.com/in/imkkumar/'],
               alumniOf: { '@type': 'CollegeOrUniversity', name: 'National Institute of Technology Raipur' },
+              award: ['Outstanding Performance, Programmers.ai', 'Certificate of Excellence, GCube WebWide', 'A New Kid on the Block, GCube WebWide'],
               knowsAbout: ['C#', '.NET', 'ASP.NET Core', 'Angular', 'SQL Server', 'Microsoft Azure', 'Microservices'],
             },
           },

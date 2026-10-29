@@ -351,7 +351,9 @@ export const EN = {
   'cfg.json.bad': 'That is not valid settings JSON.',
   'seo.cfg.title': 'Settings: turn site features on or off',
   'seo.kunal.title': 'Kunal Kumar | Full Stack .NET Developer',
-  'seo.kunal.desc': 'Kunal Kumar, Full Stack .NET Developer with 7+ years of experience in C#, .NET 10, ASP.NET Core, Angular, SQL Server and Azure. MCA, NIT Raipur.',
+  'seo.kunal.desc': 'Kunal Kumar, award-winning Full Stack .NET Developer with 7+ years in C#, .NET 10, ASP.NET Core, Angular, SQL Server and Azure. Built for Eurofins and 2M+ users. MCA, NIT Raipur.',
+  'seo.preetik.title': 'Preeti Kumari | Portfolio',
+  'seo.preetik.desc': 'Portfolio of Preeti Kumari: profile, skills, experience and contact details.',
   'seo.cfg.desc': 'Switch pages, players, downloads and other features of thakurg.com on or off and see the site update.',
 } as const;
 

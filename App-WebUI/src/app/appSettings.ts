@@ -24,6 +24,7 @@ export const APP_SETTINGS: AppSettings = {
     'page.nexon': true,
     'page.hr': true,
     'page.kunal': true,
+    'page.preetik': true,
     'page.about': true,
     'page.privacy': true,
     'page.terms': true,

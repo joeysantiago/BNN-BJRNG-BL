@@ -1012,6 +1012,11 @@ h2 {
   font-size: 0.75rem;
   color: var(--lime);
 }
+.sk p {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: -0.4rem 0 1rem;
+}
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -1104,6 +1109,11 @@ h2 {
   font-family: var(--mono);
   font-size: 0.85rem;
   color: var(--cyan);
+}
+.edu p {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0.7rem 0 0;
 }
 
 /* contact */
