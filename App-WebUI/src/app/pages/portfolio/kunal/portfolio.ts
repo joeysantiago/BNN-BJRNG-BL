@@ -9,7 +9,7 @@ const MIN_V = 4;
 const MAX_V = 20;
 const COLORS = ['#FFB020', '#7B5CFF', '#2DD4BF'];
 const FONTS = 'https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap';
-const ROLES = ['Full Stack .NET Developer', 'award-winning C# Engineer', 'Angular 4 to 20+ Specialist', 'Microservices Builder', 'SQL Performance Tuner', 'builder for 2M+ users'];
+const ROLES = ['Full Stack .NET Developer', 'C# and API engineer', 'Angular developer since v4', 'microservices builder', 'SQL Server tuner', 'product builder, repo to release'];
 const MARQUEE = ['.NET 10', 'C#', 'ASP.NET Core', 'Angular 20', 'EF Core', 'SQL Server 2022', 'Microsoft Azure', 'Azure Functions', 'Microservices', 'TypeScript', 'Azure DevOps', 'Power BI', 'Claude Code'];
 
 const STATS: Stat[] = [
@@ -37,7 +37,8 @@ const PROJECTS: Project[] = [
     big: true,
     when: 'Current project',
     stack: ['.NET 10', 'C#', 'EF Core', 'Angular 20+', 'Microservices', 'Claude Code'],
-    text: "Mission-critical software for Eurofins, one of the world's largest testing groups. CoreLabs runs in 6 lab centers worldwide where new medicines are tested before they ever reach human trials, so every result has to be right. I build the .NET 10 microservices and Angular 20+ screens behind sample registration, test assignment, result entry and reporting, the core path of the lab's day. The quality of this work earned me the Outstanding Performance award.",
+    text: "Eurofins tests new medicines in its labs before they reach human trials, and CoreLabs is the system six of those lab centers run on. I work on the path a sample follows through the lab: it is registered, tests are assigned, results are entered and a report comes out. I build on both sides of that path: the .NET 10 microservices and EF Core data access underneath, and the Angular 20+ modules lab staff work in. A wrong value here can affect a drug study, so validation and data integrity get as much attention as the screens.",
+    step: 'Today: Angular 20+ on .NET 10, the newest releases of both and sixteen major Angular versions on from where I started.',
   },
   {
     id: 'es',
@@ -49,7 +50,8 @@ const PROJECTS: Project[] = [
     big: true,
     when: 'Built from scratch',
     stack: ['ASP.NET Core 8', 'C#', 'Angular 18', 'Azure'],
-    text: 'A complete e-signature product, taken from an empty repository to production. An admin uploads a document, assigns signers and places signature fields; signers are emailed, sign in a set order through hierarchical approvals, and the admin receives the completed document. I designed and built the foundation alone, then brought colleagues in to finish it. It replaced slow manual paperwork with a secure, traceable approval flow.',
+    text: 'Started from an empty repository, with every early design decision mine. An admin uploads a document, drops signature fields onto it and chooses who signs. Signers get an email and sign in a fixed order through a hierarchy of approvals, and the completed document goes back to the admin. Behind that flow sit role-based access, signing state tracked on the server and email notifications. Once the foundation was solid I brought colleagues onto the codebase to finish it. Paper sign-offs became a flow where every signature can be traced.',
+    step: 'Angular 18 with an ASP.NET Core 8 API on Azure. Here I set up the project structure and the client-server contract myself instead of fitting into an existing codebase.',
   },
   {
     id: 'o3',
@@ -58,17 +60,19 @@ const PROJECTS: Project[] = [
     v: 14,
     tags: ['enterprise', 'azure', 'data'],
     stack: ['ASP.NET Core 6+', 'C#', 'Angular 14+', 'Azure'],
-    text: 'Two business-critical HR systems where accuracy is non-negotiable. I built the payroll logic for salary calculations, holidays and leaves, then the recruitment system that tracks candidates from referrals, job portals, LinkedIn and Naukri and moves every hire into the employee portal automatically, removing manual data entry for HR.',
+    text: "Two connected pieces of one HR suite. In payroll I wrote the business rules for salary calculation, holidays and leave, where a mistake ends up on someone's payslip. The Recruitment Management System gathers candidates from referrals, job portals, LinkedIn and Naukri into one pipeline. When a candidate is hired, it creates their record in the employee portal automatically, so HR no longer types the same details in twice.",
+    step: 'Angular 14 and ASP.NET Core 6 marked my move into HR software, with rule-heavy screens for payroll and recruitment.',
   },
   {
     id: 'lms',
     name: 'Learning Management System',
     short: 'LMS',
-    kind: 'Corporate e-learning for 2M+ users',
+    kind: 'Corporate e-learning platform',
     v: 4,
     tags: ['enterprise', 'azure'],
     stack: ['ASP.NET', 'C#', 'Angular 4+', 'TypeScript', 'jQuery', 'Cordova', 'Azure'],
-    text: "GCube's (now Tenneo) corporate learning platform, trusted by more than 2 million users on web, mobile and iOS. As a member of the core product team I shipped features for learner tracking and custom e-learning course delivery, at a scale where every release reaches millions. My work here earned two company awards.",
+    text: "GCube's corporate learning platform, now Tenneo, used by more than 2 million learners on the web and through mobile and iOS apps. On the core product team I built learner tracking, which records each learner's progress, and the delivery of custom e-learning courses. The work spanned the ASP.NET backend, the Angular and jQuery front end and the Cordova build that took the web app to phones.",
+    step: 'Angular 4: my starting point on the framework. Angular screens ran next to jQuery pages, and Cordova packaged the same web code for mobile and iOS.',
   },
   {
     id: 'sp',
@@ -78,7 +82,7 @@ const PROJECTS: Project[] = [
     label: 'SQL Server',
     tags: ['data'],
     stack: ['SQL Server 2022', 'Stored procedures', 'SSMS 2022'],
-    text: 'Tracked down slow queries at MetaDesign Solutions and reworked the stored procedures behind them in SSMS 2022, so data came back faster and the whole application felt noticeably more responsive to its users.',
+    text: "A live application at MetaDesign Solutions was slow, and the cause sat in the database rather than the UI. I profiled the stored procedures behind its slowest queries in SSMS 2022 and reworked them, so the screens waiting on that data respond faster.",
   },
   {
     id: 'mfo',
@@ -88,7 +92,7 @@ const PROJECTS: Project[] = [
     label: 'ASP.NET MVC',
     tags: ['data'],
     stack: ['ASP.NET MVC', 'C#', 'Angular', 'SQL Server'],
-    text: 'A digital accounting application that takes bookkeeping off paper and automates routine financial processes. I owned it end to end: keeping production stable, fixing issues fast and shipping new features. It is where my habit of precise, reliable delivery began.',
+    text: 'Moves bookkeeping off paper and automates routine accounting work. I was responsible for it in production, so a bug report could lead into the SQL Server data, the ASP.NET MVC controllers or the Angular screens. Fixing problems at that depth, and then adding features on top, taught me how every layer of a web application fits together.',
   },
 ];
 

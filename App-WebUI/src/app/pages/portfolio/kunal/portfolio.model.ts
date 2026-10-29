@@ -6,6 +6,7 @@ export interface Project {
   name: string;
   text: string;
   big?: boolean;
+  step?: string;
   when?: string;
   label?: string;
   short?: string;
