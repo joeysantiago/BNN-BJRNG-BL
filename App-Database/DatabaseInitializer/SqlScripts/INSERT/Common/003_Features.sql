@@ -39,6 +39,7 @@ BEGIN
         ('audio.repeat', 1, 35),
         ('audio.volume', 1, 36),
         ('audio.playlist', 1, 37),
-        ('audio.edit', 1, 38);
+        ('audio.edit', 1, 38),
+        ('page.khata', 1, 39);
 END
 GO
