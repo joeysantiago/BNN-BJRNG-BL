@@ -9,7 +9,11 @@ public interface ICommonDbContext
 
     DbSet<Message> Messages { get; }
 
+    DbSet<KhataOtp> KhataOtps { get; }
+
     DbSet<PageName> PageNames { get; }
+
+    DbSet<KhataUser> KhataUsers { get; }
 
     DbSet<AppSetting> AppSettings { get; }
 
@@ -19,9 +23,17 @@ public interface ICommonDbContext
 
     DbSet<MusicPlayer> MusicPlayers { get; }
 
+    DbSet<KhataSession> KhataSessions { get; }
+
+    DbSet<KhataAuditLog> KhataAuditLogs { get; }
+
+    DbSet<KhataPinProof> KhataPinProofs { get; }
+
     DbSet<PageTranslation> Translations { get; }
 
     DbSet<ConnectionField> ConnectionFields { get; }
+
+    DbSet<KhataPinAttempt> KhataPinAttempts { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
