@@ -822,7 +822,7 @@ Every table also has the standard columns from CLAUDE.md §9: `IsActive`, `IsSof
 - **Ordering columns** are named `SortOrder` (repo convention), not `Sort`.
 - **`KhataUsers`** already has all later-phase columns (UPI, daily summary, deletion), so no ALTER scripts are needed later.
 - **Ids:** every primary key is `INT IDENTITY(1,1)` and every foreign key is `INT` (`App-Document/sql-int-id.md`). The only GUID is `KhataIdempotencyKeys.IdempotencyKey`, because it is a random value from the browser, not an Id.
-- **Fresh database:** no ALTER or migration scripts until production (`App-Document/sql-fresh-database.md`). The foreign keys between tables that point at each other sit inside the block of the table created second: `KhataUsers.LastBookId` in 012, and `KhataUsers.UpiQrStoredFileId` in 024. The new seed rows are part of the existing `VALUES` lists.
+- **Fresh database:** no ALTER or migration scripts until production (`App-Document/sql-fresh-database.md`). Foreign keys are declared inside `CREATE TABLE`. ALTER is used only for the two circular ones, inside the block of the table created second: `KhataUsers.LastBookId` in 012, and `KhataUsers.UpiQrStoredFileId` in 024. The new seed rows are part of the existing `VALUES` lists.
 - **`KhataAuditLog`** has no foreign keys on purpose, so audit rows outlive deleted users, books and contacts (P7).
 
 **Seed (INSERT) scripts:**
