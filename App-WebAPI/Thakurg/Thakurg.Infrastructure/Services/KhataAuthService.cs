@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.Extensions.Options;
 using Thakurg.Application.Repositories;
 using Thakurg.Application.Services;
@@ -9,6 +8,7 @@ using Thakurg.Contracts.Exceptions;
 using Thakurg.Contracts.Khata;
 using Thakurg.Contracts.Messages;
 using Thakurg.Domain.Entities;
+using Thakurg.Infrastructure.Common;
 
 namespace Thakurg.Infrastructure.Services;
 
@@ -29,8 +29,6 @@ public class KhataAuthService : IKhataAuthService
     private readonly IKhataTokenService _tokenService;
 
     private readonly IKhataAuthRepository _authRepository;
-
-    private static readonly Regex EmailPattern = new(@"^[^@\s]{1,64}@[^@\s]+\.[^@\s]{2,}$", RegexOptions.Compiled);
 
     public KhataAuthService(IOptions<KhataOptions> options, IKhataOtpSender otpSender, IKhataTokenService tokenService, IKhataAuditService auditService, IMessageService messageService, IKhataAuthRepository authRepository)
     {
@@ -148,32 +146,12 @@ public class KhataAuthService : IKhataAuthService
         return CryptographicOperations.FixedTimeEquals(Encoding.ASCII.GetBytes(stored), Encoding.ASCII.GetBytes(computed));
     }
 
-    // Email is lower-cased. A mobile number becomes E.164; a 10-digit number (or 0 + 10 digits) is taken as Indian (+91).
     private static (string Identifier, KhataOtpChannel Channel) Normalize(string? value)
     {
-        var text = (value ?? string.Empty).Trim();
-        if (text.Contains('@'))
-        {
-            var email = text.ToLowerInvariant();
-            if (email.Length > 256 || !EmailPattern.IsMatch(email))
-                throw new BusinessException(MessageCodes.KhataIdentifierInvalid, 400);
-
-            return (email, KhataOtpChannel.Email);
-        }
-
-        var digits = new string(text.Where(char.IsAsciiDigit).ToArray());
-        var mobile = text.StartsWith('+') ? "+" + digits : digits.Length switch
-        {
-            10 => "+91" + digits,
-            11 when digits[0] == '0' => "+91" + digits[1..],
-            12 when digits.StartsWith("91") => "+" + digits,
-            _ => string.Empty
-        };
-
-        if (mobile.Length is < 9 or > 16 || text.Any(c => !char.IsAsciiDigit(c) && c is not ('+' or ' ' or '-' or '(' or ')')))
+        if (!KhataIdentifier.TryNormalize(value, out var identifier, out var channel))
             throw new BusinessException(MessageCodes.KhataIdentifierInvalid, 400);
 
-        return (mobile, KhataOtpChannel.Sms);
+        return (identifier, channel);
     }
 
     private async Task<KhataUser> RequireUserAsync(int userId, CancellationToken cancellationToken)
