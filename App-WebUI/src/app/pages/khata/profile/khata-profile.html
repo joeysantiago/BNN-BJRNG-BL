@@ -1,0 +1,31 @@
+<section class="k-page" aria-labelledby="profile-h1">
+  <h1 id="profile-h1" class="k-title">{{ i18n.t('khata.p.title') }}</h1>
+
+  <div class="k-card k-form">
+    <label>{{ i18n.t('khata.p.language') }}
+      <select (change)="setLang($any($event.target).value)">
+        @for (l of i18n.languages; track l.code) {
+          <option [value]="l.code" [selected]="l.code === i18n.lang()">{{ l.native }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <form class="k-card k-form" (submit)="$event.preventDefault(); changePin(newPin, againPin)">
+    <h2 class="sub">{{ i18n.t('khata.p.changePin') }}</h2>
+    <label>{{ i18n.t('khata.p.newPin') }}<input #newPin type="password" inputmode="numeric" autocomplete="new-password" maxlength="6" [disabled]="busy()" /></label>
+    <label>{{ i18n.t('khata.p.confirmPin') }}<input #againPin type="password" inputmode="numeric" autocomplete="new-password" maxlength="6" [disabled]="busy()" /></label>
+    <button type="submit" class="k-btn pri" [disabled]="busy()">{{ i18n.t('khata.p.changePin') }}</button>
+    @if (info()) {
+      <p class="k-ok" role="status">{{ info() }}</p>
+    }
+    @if (error()) {
+      <p class="k-error" role="alert">{{ error() }}</p>
+    }
+  </form>
+
+  <div class="k-row">
+    <button type="button" class="k-btn" (click)="session.lock()">{{ i18n.t('khata.app.lock') }}</button>
+    <button type="button" class="k-btn danger" (click)="session.logout()">{{ i18n.t('khata.pin.logout') }}</button>
+  </div>
+</section>

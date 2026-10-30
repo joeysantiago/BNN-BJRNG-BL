@@ -1,0 +1,60 @@
+<section class="k-page" aria-labelledby="book-h1">
+  @if (data(); as d) {
+    <h1 id="book-h1" class="k-title">{{ d.book.name }}</h1>
+    <div class="k-totals">
+      <p class="k-total"><span>{{ i18n.t('khata.c.willGet') }}</span><b class="k-amount k-get">{{ money(d.book.youWillGetMinor) }}</b></p>
+      <p class="k-total"><span>{{ i18n.t('khata.c.willGive') }}</span><b class="k-amount k-give">{{ money(d.book.youWillGiveMinor) }}</b></p>
+    </div>
+
+    <div class="k-row">
+      <label class="search"><span class="sr-only">{{ i18n.t('khata.c.search') }}</span><input type="search" [placeholder]="i18n.t('khata.c.search')" [value]="query()" (input)="query.set($any($event.target).value)" /></label>
+      <button type="button" class="k-btn pri" [attr.aria-expanded]="adding()" (click)="adding.set(!adding())">{{ i18n.t('khata.c.add') }}</button>
+    </div>
+
+    @if (adding()) {
+      <form class="k-card k-form" (submit)="$event.preventDefault(); add(name.value, mobile.value, email.value, type.value)">
+        <h2 class="sub">{{ i18n.t('khata.c.add') }}</h2>
+        <label>{{ i18n.t('khata.c.name') }}<input #name type="text" maxlength="100" required autocomplete="off" [disabled]="busy()" /></label>
+        <label>{{ i18n.t('khata.c.mobile') }}<input #mobile type="tel" inputmode="tel" autocomplete="off" [disabled]="busy()" /></label>
+        <label>{{ i18n.t('khata.c.email') }}<input #email type="email" autocomplete="off" [disabled]="busy()" /></label>
+        <label>{{ i18n.t('khata.c.type') }}
+          <select #type [disabled]="busy()">
+            <option value="1">{{ i18n.t('khata.c.customer') }}</option>
+            <option value="2">{{ i18n.t('khata.c.supplier') }}</option>
+          </select>
+        </label>
+        <div class="k-row end">
+          <button type="button" class="k-btn" (click)="adding.set(false)">{{ i18n.t('khata.cancel') }}</button>
+          <button type="submit" class="k-btn pri" [disabled]="busy()">{{ i18n.t('khata.save') }}</button>
+        </div>
+      </form>
+    }
+
+    @if (visible().length) {
+      <ul class="k-list">
+        @for (c of visible(); track c.id) {
+          <li>
+            <a class="k-item" [routerLink]="['/khata/app/b', d.book.id, 'contact', c.id]">
+              <span>
+                <b>{{ c.name }}</b>
+                <small>{{ c.lastEntryOn ? i18n.t('khata.c.lastEntry', { date: formatDate(c.lastEntryOn) }) : i18n.t('khata.c.noEntries') }}</small>
+              </span>
+              <span class="bal">
+                <b class="k-amount" [class.k-get]="c.balanceMinor > 0" [class.k-give]="c.balanceMinor < 0">{{ money(c.balanceMinor) }}</b>
+                <small>{{ i18n.t(c.balanceMinor > 0 ? 'khata.c.youGet' : c.balanceMinor < 0 ? 'khata.c.youGive' : 'khata.c.settled') }}</small>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="k-muted">{{ i18n.t(query() ? 'khata.c.noMatch' : 'khata.c.none') }}</p>
+    }
+  } @else if (!error()) {
+    <h1 id="book-h1" class="k-title">{{ i18n.t('khata.app.name') }}</h1>
+    <p class="k-muted" role="status">{{ i18n.t('khata.loading') }}</p>
+  }
+  @if (error()) {
+    <p class="k-error" role="alert">{{ error() }}</p>
+  }
+</section>

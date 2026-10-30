@@ -1,0 +1,13 @@
+<div class="dots" role="status" [attr.aria-label]="i18n.t('khata.pin.entered', { n: value().length })">
+  @for (slot of slots(); track slot) {
+    <span [class.on]="slot < value().length"></span>
+  }
+</div>
+<div class="pad" role="group" [attr.aria-label]="i18n.t('khata.pin.keypad')">
+  @for (digit of digits; track digit) {
+    <button type="button" class="key" [disabled]="disabled()" (click)="press(digit)">{{ digit }}</button>
+  }
+  <span aria-hidden="true"></span>
+  <button type="button" class="key" [disabled]="disabled()" (click)="press('0')">0</button>
+  <button type="button" class="key back" [disabled]="disabled()" [attr.aria-label]="i18n.t('khata.pin.backspace')" (click)="back()">⌫</button>
+</div>

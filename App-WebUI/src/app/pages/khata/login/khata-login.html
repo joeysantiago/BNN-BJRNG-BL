@@ -1,0 +1,29 @@
+<div class="khata">
+  <section class="k-page login" aria-labelledby="login-h1">
+    <a class="brand" routerLink="/khata/">{{ i18n.t('khata.app.name') }}</a>
+    <div class="k-card k-form">
+      <h1 id="login-h1" class="k-title">{{ i18n.t('khata.login.title') }}</h1>
+      @if (!codeSent()) {
+        <p class="k-lead">{{ i18n.t('khata.login.lead') }}</p>
+        <form class="k-form" (submit)="$event.preventDefault(); send(id.value)">
+          <label>{{ i18n.t('khata.login.id') }}<input #id type="text" inputmode="email" autocomplete="username" required [value]="identifier()" [disabled]="busy()" [attr.aria-describedby]="'id-hint'" /></label>
+          <p id="id-hint" class="k-muted">{{ i18n.t('khata.login.idHint') }}</p>
+          <button type="submit" class="k-btn pri" [disabled]="busy() || wait() > 0">{{ i18n.t('khata.login.send') }}</button>
+        </form>
+      } @else {
+        <p class="k-lead">{{ info() }}</p>
+        <form class="k-form" (submit)="$event.preventDefault(); verify(code.value)">
+          <label>{{ i18n.t('khata.login.code') }}<input #code type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required [disabled]="busy()" /></label>
+          <button type="submit" class="k-btn pri" [disabled]="busy()">{{ i18n.t('khata.login.verify') }}</button>
+          <div class="k-row">
+            <button type="button" class="k-btn link" [disabled]="busy() || wait() > 0" (click)="send(identifier())">{{ wait() > 0 ? i18n.t('khata.login.resendIn', { s: wait() }) : i18n.t('khata.login.resend') }}</button>
+            <button type="button" class="k-btn link" (click)="change()">{{ i18n.t('khata.login.change') }}</button>
+          </div>
+        </form>
+      }
+      @if (error()) {
+        <p class="k-error" role="alert">{{ error() }}</p>
+      }
+    </div>
+  </section>
+</div>

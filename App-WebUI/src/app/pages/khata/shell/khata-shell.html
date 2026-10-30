@@ -1,0 +1,25 @@
+<div class="khata" [attr.dir]="i18n.dir()">
+  <header class="bar">
+    <a class="brand" routerLink="/khata/app">{{ i18n.t('khata.app.name') }}</a>
+    @if (state.books().length) {
+      <label class="switch">
+        <span class="sr-only">{{ i18n.t('khata.app.book') }}</span>
+        <select [value]="bookId() || ''" (change)="switchBook($any($event.target).value)">
+          @if (!bookId()) {
+            <option value="" disabled>{{ i18n.t('khata.app.chooseBook') }}</option>
+          }
+          @for (book of state.books(); track book.id) {
+            <option [value]="book.id" [selected]="book.id === bookId()">{{ book.name }} · {{ book.currency.symbol }}</option>
+          }
+          <option value="books">{{ i18n.t('khata.app.manageBooks') }}</option>
+        </select>
+      </label>
+    }
+    <nav class="actions" [attr.aria-label]="i18n.t('khata.app.menu')">
+      <button type="button" class="k-btn link" (click)="lock()">{{ i18n.t('khata.app.lock') }}</button>
+      <a class="k-btn link" routerLink="/khata/app/profile">{{ i18n.t('khata.app.profile') }}</a>
+    </nav>
+  </header>
+  <router-outlet />
+  <app-khata-pin-sheet />
+</div>

@@ -1,0 +1,18 @@
+<div class="khata">
+  <section class="k-page pin" aria-labelledby="pin-h1">
+    <p class="brand">{{ i18n.t('khata.app.name') }}</p>
+    <h1 id="pin-h1" class="k-title">{{ title() }}</h1>
+    <p class="k-lead">{{ i18n.t(mode === 'unlock' ? 'khata.pin.unlockLead' : 'khata.pin.setLead', { min: minPin }) }}</p>
+    <app-khata-keypad [(value)]="pin" [max]="6" [disabled]="busy()" (enter)="submit()" />
+    @if (error()) {
+      <p class="k-error" role="alert">{{ error() }}</p>
+    }
+    <button type="button" class="k-btn pri wide" [disabled]="busy() || pin().length < minPin" (click)="submit()">{{ i18n.t(mode === 'set' && !first() ? 'khata.pin.next' : 'khata.pin.ok') }}</button>
+    @if (mode === 'unlock') {
+      <div class="k-row">
+        <button type="button" class="k-btn link" (click)="forgot()">{{ i18n.t('khata.pin.forgot') }}</button>
+        <button type="button" class="k-btn link" (click)="logout()">{{ i18n.t('khata.pin.logout') }}</button>
+      </div>
+    }
+  </section>
+</div>

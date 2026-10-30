@@ -1,0 +1,14 @@
+<dialog #dialog class="sheet" aria-labelledby="sheet-h" (cancel)="$event.preventDefault(); cancel()">
+  @if (prompt.request(); as request) {
+    <h2 id="sheet-h">{{ request.title }}</h2>
+    <p class="k-muted">{{ i18n.t('khata.pin.sheetLead') }}</p>
+    <app-khata-keypad [(value)]="pin" [max]="6" [disabled]="busy()" (enter)="confirm()" />
+    @if (error()) {
+      <p class="k-error" role="alert">{{ error() }}</p>
+    }
+    <div class="k-row end">
+      <button type="button" class="k-btn" (click)="cancel()">{{ i18n.t('khata.cancel') }}</button>
+      <button type="button" class="k-btn pri" [disabled]="busy() || pin().length < minPin" (click)="confirm()">{{ i18n.t('khata.pin.ok') }}</button>
+    </div>
+  }
+</dialog>
