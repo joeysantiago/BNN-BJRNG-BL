@@ -16,7 +16,7 @@ Supported languages are English (`en`), Hindi (`hi`) and Arabic (`ar`, right-to-
 - **Codes** are `UPPER_SNAKE_CASE` constants kept in one place: `Thakurg.Contracts/Messages/MessageCodes*.cs` (partial static class `MessageCodes`, one file per area: general, `.Music`, `.YouTube`).
 - **UI keys** are flat dotted keys (`st.start`, `creta.add.h1`, `seo.home.title`, `cfg.pw.rule`); the row of the page that uses them holds them. Common header/footer texts live in the `common` row.
 - **Adding an API message** = add the code constant **and** a row in `INSERT/Common/001_Messages.sql` with the text in **every** language (`en`, `hi`, `ar`).
-- **Adding a UI text** = add the key to the right page row in `INSERT/Common/009_Translations.sql` in **all three** columns (`Eng`, `Hin`, `Arab`), and use `i18n.t('key')` in the component. For an existing database, update the row there too (the seed script only fills an empty table).
+- **Adding a UI text** = add the key to the right page row in `INSERT/Common/007_Translations.sql` in **all three** columns (`Eng`, `Hin`, `Arab`), and use `i18n.t('key')` in the component. For an existing database, update the row there too (the seed script only fills an empty table).
 - **Placeholders:** use `{0}`, `{1}` (API) or `{name}` (UI) in the text and pass values as arguments — never concatenate/interpolate text in code.
 
 ## API

@@ -16,4 +16,4 @@ Example:
 Wrong:  `Id UNIQUEIDENTIFIER NOT NULL`, `Id BIGINT IDENTITY(1,1) NOT NULL`, `BookId UNIQUEIDENTIFIER NOT NULL`
 Right:  `Id INT IDENTITY(1,1) NOT NULL`, `BookId INT NOT NULL`
 
-Reference: App-Database\DatabaseInitializer\SqlScripts\CREATE\Common\008_MusicTracks.sql
+Reference: App-Database\DatabaseInitializer\SqlScripts\CREATE\Music\002_MusicTracks.sql

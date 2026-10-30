@@ -81,7 +81,7 @@ addAll(num: number, num2: number)      // longest last
 - No message text typed in code. API texts live in the `Messages` table (`Code`, `Texts` = one JSON object with `en`/`hi`/`ar`); UI texts live in the `Translations` table (one row per page: `PageCode`, `Eng`, `Hin`, `Arab` = JSON key → text), served by `GET api/translations/{lang}`.
 - **API:** `throw new BusinessException(MessageCodes.X, status, args)`; success text via `await _messageService.GetAsync(MessageCodes.X)`, returned by the controller in `SuccessResponse`. No sentences in controllers/services. Use placeholders `{0}`, `{1}` — no string interpolation.
 - **UI:** every visible text comes from `i18n.t('key', params)` (placeholders `{name}`); API messages arrive translated in the response and are shown as-is.
-- Every new API code = a constant in `Thakurg.Contracts/Messages/MessageCodes*.cs` **plus** a row in `INSERT/Common/001_Messages.sql` (all languages). Every new UI key = an entry in the page's row of `INSERT/Common/009_Translations.sql` (`Eng`, `Hin`, `Arab`).
+- Every new API code = a constant in `Thakurg.Contracts/Messages/MessageCodes*.cs` **plus** a row in `INSERT/Common/001_Messages.sql` (all languages). Every new UI key = an entry in the page's row of `INSERT/Common/007_Translations.sql` (`Eng`, `Hin`, `Arab`).
 - Keep English wording/behaviour identical.
 - Details: `App-Document/messages-single-source.md`.
 
@@ -103,6 +103,7 @@ The target is 100% SEO coverage and fully indexable pages on mobile and desktop.
 - **Constructors:** at most 6 parameters; group extras into a bundle (`App-Document/constructor-injection-limit.md`).
 - **SQL:** CREATE scripts use the aligned column grid (`App-Document/sql-table-format.md`); one re-runnable INSERT script per table, numbered in dependency order (`App-Document/sql-seed-data.md`). Every master table carries `IsActive`, `IsSoftDeleted`, `IsDeleted`, `CreatedBy`, `CreatedOn`, `ModifiedBy`, `ModifiedOn`, and the API reads only active, non-deleted rows.
 - **Fresh database until production:** the database is recreated every time, so changes go straight into the CREATE / INSERT scripts. Never write ALTER or migration scripts, and never append extra guarded seed batches. Foreign keys go inside `CREATE TABLE`; ALTER is used only for a circular foreign key (`App-Document/sql-fresh-database.md`).
+- **One script folder per app:** `SqlScripts/CREATE/<App>/` and `SqlScripts/INSERT/<App>/` (`Common`, `Music`, `SnapKhata`). Numbering restarts at `001` per folder. Each app has its own `<App>DatabaseSeeder`, and the initializer asks before running each app (`--Apps=...` / `--Apps=All` when there is no console). An app's rows in `Common` tables stay in Common's INSERT files (`App-Document/sql-app-folders.md`).
 - **Ids are INT:** every primary key is `Id INT IDENTITY(1,1)` and every foreign key is `INT`. Never `BIGINT` or `UNIQUEIDENTIFIER` for Ids. Random or external values (idempotency keys, hashes, Google Ids) and money (`BIGINT` minor units) aren't Ids (`App-Document/sql-int-id.md`).
 
 ## 10. Declaration ordering by length (WebUI TypeScript; skip `*.spec.ts`)
@@ -132,5 +133,5 @@ interface ApiResponse<T> {
 4. Models in `*.model.ts`; WebAPI model properties blank-line separated, WebUI not.
 5. No hardcoded message text; message codes / translation keys + seed rows added.
 6. SEO/indexing rules in §8 met on mobile and web (prerendered, metadata, sitemap, JSON-LD, hreflang).
-7. WebAPI C# follows §9 (usings, declaration and method order, layering, constructor limit); SQL scripts follow the table and seed rules, INT Ids, and no ALTER/migration scripts before production.
+7. WebAPI C# follows §9 (usings, declaration and method order, layering, constructor limit); SQL scripts follow the table and seed rules, sit in their app's folder, use INT Ids, and have no ALTER/migration scripts before production.
 8. Build / type-check passes (`ng build` for UI, build the API and database projects).

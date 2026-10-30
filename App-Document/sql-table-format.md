@@ -41,4 +41,4 @@ CREATE TABLE Sample
     CONSTRAINT PK_Sample PRIMARY KEY CLUSTERED (Id)
 );
 
-Reference: App-Database\DatabaseInitializer\SqlScripts\CREATE\Common\008_MusicTracks.sql
+Reference: App-Database\DatabaseInitializer\SqlScripts\CREATE\Music\002_MusicTracks.sql

@@ -293,7 +293,7 @@ SnapKhata reuses this setup and adds **two layers**:
 | S2 | **Edit conflict check:** `KhataTransactions` and `KhataContacts` get a `RowVersion` column. Edits send the version they started from, and if someone else changed the row meanwhile, the API returns 409 "This entry was changed by Ramesh — reload". | Two people can edit a shared ledger at the same time. |
 | S3 | **Balance in the same SQL transaction:** saving, editing or deleting an entry updates `KhataContacts.BalanceMinor` inside the same SQL transaction. A nightly check recalculates the balances and logs any difference. | The cached balance can never drift from the entries. |
 | S4 | **Audit log (`KhataAuditLog`):** logins, PIN set/change/reset, permission and notification switches, share accept/decline/leave, book/contact deletes, Drive connect/disconnect/move, exports and rate-limit rejections. | Shows who did what in a shared ledger, and helps with support and disputes. |
-| S5 | **Feature switch in `/master`:** a `khata` row in `003_Features.sql` and `004_PageNames.sql`, so SnapKhata can be turned off like the other pages. Off → `/khata` shows the existing "disabled" page and the API returns 404. | Uses the site's existing settings system. |
+| S5 | **Feature switch in `/master`:** a `page.khata` row in `Common/003_Features.sql` and `khata` rows in `Common/004_PageNames.sql`, so SnapKhata can be turned off like the other pages. Off → `/khata` shows the existing "disabled" page and the API returns 404. | Uses the site's existing settings system. |
 | S6 | **Check uploads on the server:** check the file signature (magic bytes: JPEG/PNG/WebP/HEIC only), not just the extension or content type. Enforce the size limits, and remove EXIF/location if the browser didn't. | A renamed `.exe` or a huge file can't get into the user's Drive. |
 | S7 | **No private data in logs:** mask mobile numbers and emails (`+91 98•••••210`, `ra•••@gmail.com`). Never log OTPs (except in the console in Development), PINs, tokens or amounts with names. | Logs are often shared when debugging. |
 | S8 | **Time zone:** store every timestamp in UTC and `EntryDate` as the user's local date. `KhataUsers.TimeZone` defaults to `Asia/Kolkata`. | "Today" and day totals stay correct for Indian and Gulf users. |
@@ -793,21 +793,22 @@ Delete book → PIN sheet → DELETE /api/khata/books/{id} + X-Khata-Pin-Proof �
 
 Every table also has the standard columns from CLAUDE.md §9: `IsActive`, `IsSoftDeleted`, `IsDeleted`, `CreatedBy`, `CreatedOn`, `ModifiedBy`, `ModifiedOn`. CREATE scripts use the aligned grid (`sql-table-format.md`) and run through `DatabaseInitializer`.
 
-**Script files** continue the existing numbering in `App-Database/DatabaseInitializer/SqlScripts/CREATE/Common/` (after `009_Translations.sql`), in dependency order:
+**Script files** live in SnapKhata's own folder, `App-Database/DatabaseInitializer/SqlScripts/CREATE/SnapKhata/` (`App-Document/sql-app-folders.md`). They are numbered from `001` in dependency order, and run by `SnapKhataDatabaseSeeder` only after "Create the SnapKhata app database objects?" is answered `y` (or `--Apps=SnapKhata` / `--Apps=All`):
 
 ```
-010_KhataUsers.sql                020_KhataNotificationPrefs.sql
-011_KhataCurrencies.sql           021_KhataTransactions.sql
-012_KhataBooks.sql *              022_KhataTransactionHistory.sql
-013_KhataGoogleConnections.sql    023_KhataAttachments.sql
-014_KhataOAuthStates.sql          024_KhataStoredFiles.sql
-015_KhataSessions.sql             025_KhataStorageMigrations.sql
-016_KhataOtps.sql                 026_KhataPushSubscriptions.sql
-017_KhataPinProofs.sql            027_KhataNotificationLog.sql
-018_KhataPinAttempts.sql          028_KhataIdempotencyKeys.sql
-019_KhataContacts.sql             029_KhataAuditLog.sql
+001_KhataUsers.sql                011_KhataNotificationPrefs.sql
+002_KhataCurrencies.sql           012_KhataTransactions.sql
+003_KhataBooks.sql *              013_KhataTransactionHistory.sql
+004_KhataGoogleConnections.sql    014_KhataAttachments.sql
+005_KhataOAuthStates.sql          015_KhataStoredFiles.sql *
+006_KhataSessions.sql             016_KhataStorageMigrations.sql
+007_KhataOtps.sql                 017_KhataPushSubscriptions.sql
+008_KhataPinProofs.sql            018_KhataNotificationLog.sql
+009_KhataPinAttempts.sql          019_KhataIdempotencyKeys.sql
+010_KhataContacts.sql             020_KhataAuditLog.sql
 
-* 012 also adds the FK KhataUsers.LastBookId → KhataBooks (the two tables point at each other).
+* 003 also adds KhataUsers.LastBookId → KhataBooks, and 015 adds KhataUsers.UpiQrStoredFileId → KhataStoredFiles
+  (circular references: KhataUsers is created first).
 ```
 
 **As built (step 1, 30-10-2026),** where the scripts differ in detail from the tables below:
@@ -822,12 +823,15 @@ Every table also has the standard columns from CLAUDE.md §9: `IsActive`, `IsSof
 - **Ordering columns** are named `SortOrder` (repo convention), not `Sort`.
 - **`KhataUsers`** already has all later-phase columns (UPI, daily summary, deletion), so no ALTER scripts are needed later.
 - **Ids:** every primary key is `INT IDENTITY(1,1)` and every foreign key is `INT` (`App-Document/sql-int-id.md`). The only GUID is `KhataIdempotencyKeys.IdempotencyKey`, because it is a random value from the browser, not an Id.
-- **Fresh database:** no ALTER or migration scripts until production (`App-Document/sql-fresh-database.md`). Foreign keys are declared inside `CREATE TABLE`. ALTER is used only for the two circular ones, inside the block of the table created second: `KhataUsers.LastBookId` in 012, and `KhataUsers.UpiQrStoredFileId` in 024. The new seed rows are part of the existing `VALUES` lists.
+- **Fresh database:** no ALTER or migration scripts until production (`App-Document/sql-fresh-database.md`). Foreign keys are declared inside `CREATE TABLE`. ALTER is used only for the two circular ones, inside the block of the table created second: `KhataUsers.LastBookId` in 003, and `KhataUsers.UpiQrStoredFileId` in 015. The new seed rows are part of the existing `VALUES` lists.
 - **`KhataAuditLog`** has no foreign keys on purpose, so audit rows outlive deleted users, books and contacts (P7).
 
 **Seed (INSERT) scripts:**
-- `INSERT/Common/011_KhataCurrencies.sql`: the built-in money types.
-- New rows in the existing `001_Messages.sql` (all `Khata*` message codes in en/hi/ar), `003_Features.sql` and `004_PageNames.sql` (feature switch S5), and `009_Translations.sql` (the `khata` page row).
+- `INSERT/SnapKhata/002_KhataCurrencies.sql`: the built-in money types. It has the same number as its CREATE script.
+- SnapKhata's rows in the **Common** tables go into Common's existing files (`sql-app-folders.md`):
+  - `INSERT/Common/001_Messages.sql`: all `Khata*` message codes in en/hi/ar
+  - `003_Features.sql` and `004_PageNames.sql`: the feature switch, S5
+  - `007_Translations.sql`: the `khata` page row
 - The other Khata tables hold user data only, so they need no seed script.
 
 **KhataUsers**
@@ -989,9 +993,9 @@ PIN-proof purposes added by P1–P9 and the import: 9 `ChangePaymentDetails`, 10
 
 **KhataImportProfiles**: Id, UserId, SourceApp, Name, HeaderSignature (hash of the header row, used to pick the profile automatically), MappingJson (column → field, date format, sign convention).
 
-The import CREATE scripts are `033_KhataImportProfiles.sql`, `034_KhataImportJobs.sql`, `035_KhataImportFiles.sql` and `036_KhataImportRows.sql`.
+The import CREATE scripts are `SnapKhata/024_KhataImportProfiles.sql`, `025_KhataImportJobs.sql`, `026_KhataImportFiles.sql` and `027_KhataImportRows.sql`. `KhataTransactions.ImportJobId` points forward to a table created later, so its foreign key is added inside the `KhataImportJobs` block, like the circular ones.
 
-Extra indexes for P2/P5: `KhataContacts(BookId, DueDate)`, `KhataContacts(BookId, Name)`, `KhataTransactions(ContactId, EntryDate, CreatedOn)`. The extra CREATE scripts are `030_KhataReminders.sql`, `031_KhataExports.sql` and `032_KhataRestoreJobs.sql`.
+Extra indexes for P2/P5: `KhataContacts(BookId, DueDate)`, `KhataContacts(BookId, Name)`, `KhataTransactions(ContactId, EntryDate, CreatedOn)`. The extra CREATE scripts are `SnapKhata/021_KhataReminders.sql`, `022_KhataExports.sql` and `023_KhataRestoreJobs.sql`.
 
 **KhataNotificationLog**: Id, UserId/ContactId, Channel, Template, Status, ProviderMessageId, Error.
 
@@ -1073,8 +1077,8 @@ Indexes: `KhataBooks(OwnerUserId)`, `KhataCurrencies(OwnerUserId, Code)` unique,
 - Every edit sends `rowVersion` and gets 409 on a conflict (S2).
 
 Following CLAUDE.md:
-- Every response text uses a `MessageCodes.Khata*` constant and a row in `001_Messages.sql` (en/hi/ar).
-- Every UI text uses i18n keys in a new `khata` row of `009_Translations.sql`.
+- Every response text uses a `MessageCodes.Khata*` constant and a row in `INSERT/Common/001_Messages.sql` (en/hi/ar).
+- Every UI text uses i18n keys in a new `khata` row of `INSERT/Common/007_Translations.sql`.
 - Use `BusinessException` for errors, and keep to the Controller → Service → Repository layers, ≤ 6 constructor parameters, and regions.
 - NuGet packages: `Google.Apis.Drive.v3` and `Google.Apis.Auth`, plus `Microsoft.AspNetCore.Authentication.JwtBearer`.
 
