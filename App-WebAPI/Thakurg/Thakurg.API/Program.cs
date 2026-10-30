@@ -20,13 +20,14 @@ var commonConnection = builder.Configuration.GetConnectionString(connectionName)
 builder.Services.AddThakurgServices(builder.Configuration);
 builder.Services.AddThakurgProxy(builder.Configuration);
 builder.Services.AddThakurgRateLimiting(builder.Configuration);
+builder.Services.AddKhataAuthentication(builder.Configuration, builder.Environment);
 builder.Services.AddCommonDbContext(commonConnection);
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ThakurgCorsPolicy",
-        policy => policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod().WithExposedHeaders("Content-Range", "Content-Length", "Accept-Ranges", "Content-Disposition"));
+        policy => policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithExposedHeaders("Content-Range", "Content-Length", "Accept-Ranges", "Content-Disposition"));
 });
 
 var app = builder.Build();
@@ -34,7 +35,9 @@ var app = builder.Build();
 app.UseThakurgProxy();
 app.UseCors("ThakurgCorsPolicy");
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseAuthentication();
 app.UseRateLimiter();
+app.UseAuthorization();
 
 if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("QA"))
 {

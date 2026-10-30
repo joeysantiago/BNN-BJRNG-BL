@@ -10,7 +10,11 @@ public class CommonDbContext : DbContext, ICommonDbContext
 
     public DbSet<Message> Messages => Set<Message>();
 
+    public DbSet<KhataOtp> KhataOtps => Set<KhataOtp>();
+
     public DbSet<PageName> PageNames => Set<PageName>();
+
+    public DbSet<KhataUser> KhataUsers => Set<KhataUser>();
 
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
 
@@ -20,9 +24,17 @@ public class CommonDbContext : DbContext, ICommonDbContext
 
     public DbSet<ServiceItem> ServiceItems => Set<ServiceItem>();
 
+    public DbSet<KhataSession> KhataSessions => Set<KhataSession>();
+
+    public DbSet<KhataAuditLog> KhataAuditLogs => Set<KhataAuditLog>();
+
+    public DbSet<KhataPinProof> KhataPinProofs => Set<KhataPinProof>();
+
     public DbSet<PageTranslation> Translations => Set<PageTranslation>();
 
     public DbSet<ConnectionField> ConnectionFields => Set<ConnectionField>();
+
+    public DbSet<KhataPinAttempt> KhataPinAttempts => Set<KhataPinAttempt>();
 
     public CommonDbContext(DbContextOptions<CommonDbContext> options) : base(options)
     {
@@ -41,6 +53,12 @@ public class CommonDbContext : DbContext, ICommonDbContext
         modelBuilder.Entity<MusicPlayer>().ToTable("MusicPlayers");
         modelBuilder.Entity<ConnectionField>().ToTable("ConnectionFields");
         modelBuilder.Entity<PageTranslation>().ToTable("Translations");
+        modelBuilder.Entity<KhataOtp>().ToTable("KhataOtps");
+        modelBuilder.Entity<KhataUser>().ToTable("KhataUsers");
+        modelBuilder.Entity<KhataSession>().ToTable("KhataSessions");
+        modelBuilder.Entity<KhataAuditLog>().ToTable("KhataAuditLog");
+        modelBuilder.Entity<KhataPinProof>().ToTable("KhataPinProofs");
+        modelBuilder.Entity<KhataPinAttempt>().ToTable("KhataPinAttempts");
     }
 
     #endregion

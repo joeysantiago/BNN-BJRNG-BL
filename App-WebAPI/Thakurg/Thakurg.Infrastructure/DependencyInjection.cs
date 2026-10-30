@@ -40,20 +40,26 @@ public static class DependencyInjection
         services.AddSingleton<YoutubeClient>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IMusicFileStore, MusicFileStore>();
+        services.AddSingleton<IKhataOtpSender, DevKhataOtpSender>();
+        services.AddSingleton<IKhataTokenService, KhataTokenService>();
         services.AddHttpClient<IYoutubeDataApi, YoutubeDataApi>(client => client.Timeout = TimeSpan.FromSeconds(15));
 
         services.AddScoped<IMusicRepository, MusicRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
+        services.AddScoped<IKhataAuthRepository, KhataAuthRepository>();
         services.AddScoped<ITranslationRepository, TranslationRepository>();
 
         services.AddScoped<IMusicService, MusicService>();
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<IYoutubeService, YoutubeService>();
         services.AddScoped<ISettingsService, SettingsService>();
+        services.AddScoped<IKhataPinService, KhataPinService>();
         services.AddScoped<ISpeedTestService, SpeedTestService>();
         services.AddScoped<IMasterKeyService, MasterKeyService>();
+        services.AddScoped<IKhataAuthService, KhataAuthService>();
         services.AddScoped<IYoutubeKeyService, YoutubeKeyService>();
+        services.AddScoped<IKhataAuditService, KhataAuditService>();
         services.AddScoped<IMusicAccessService, MusicAccessService>();
         services.AddScoped<ITranslationService, TranslationService>();
 
