@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using DatabaseInitializer.Providers;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
@@ -9,15 +8,12 @@ public sealed class SqlScriptRunner : ISqlScriptRunner
 {
     private readonly ILogger<SqlScriptRunner> _logger;
 
-    private readonly IDatabaseProvisioner _provisioner;
-
     private static readonly string[] StageFolders = { "CREATE", "INSERT" };
 
     private static readonly Regex BatchSeparator = new(@"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    public SqlScriptRunner(IDatabaseProvisioner provisioner, ILogger<SqlScriptRunner> logger)
+    public SqlScriptRunner(ILogger<SqlScriptRunner> logger)
     {
-        _provisioner = provisioner;
         _logger = logger;
     }
 
@@ -25,8 +21,6 @@ public sealed class SqlScriptRunner : ISqlScriptRunner
 
     public async Task RunAsync(string database, string connectionString, string scriptsRootPath, CancellationToken cancellationToken)
     {
-        await _provisioner.EnsureDatabaseReadyAsync(connectionString, cancellationToken);
-
         foreach (var stage in StageFolders)
         {
             var stageFolder = Path.Combine(scriptsRootPath, stage, database);

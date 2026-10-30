@@ -22,7 +22,12 @@ else
     builder.Services.AddSingleton<IDatabaseProvisioner>(sp => sp.GetRequiredService<ILocalSqlServer>());
 
 builder.Services.AddSingleton<ISqlScriptRunner, SqlScriptRunner>();
+builder.Services.AddSingleton<ISeederConfirmation, ConsoleSeederConfirmation>();
+
+// One seeder per app folder in SqlScripts/CREATE and SqlScripts/INSERT. Registration order is the order the apps are asked about and run.
 builder.Services.AddSingleton<IDatabaseSeeder, CommonDatabaseSeeder>();
+builder.Services.AddSingleton<IDatabaseSeeder, MusicDatabaseSeeder>();
+builder.Services.AddSingleton<IDatabaseSeeder, SnapKhataDatabaseSeeder>();
 builder.Services.AddSingleton<IDatabaseSeedingOrchestrator, DatabaseSeedingOrchestrator>();
 
 using var host = builder.Build();

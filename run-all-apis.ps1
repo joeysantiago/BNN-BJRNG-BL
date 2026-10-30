@@ -6,9 +6,10 @@
     Run this from the repository root (or just double-click run-bro.bat)
     instead of starting each project individually in its own terminal.
 
-    First asks whether to run App-Database\DatabaseInitializer. That project's own
-    drop-and-rebuild prompt needs no services already connected to the database, so it runs in
-    the foreground, before any app is started - not as a background job like the apps below.
+    First asks whether to run App-Database\DatabaseInitializer. That project then asks, per app
+    (Common, Music, SnapKhata), whether to create its database objects, and once whether to drop
+    and rebuild the database. Those prompts need the console and no services already connected to
+    the database, so it runs in the foreground, before any app is started - not as a background job like the apps below.
 
     Each app is started as a background job. The script waits for an app's
     port to come up (i.e. it has finished building and is actually listening)
