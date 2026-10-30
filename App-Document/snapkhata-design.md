@@ -1005,6 +1005,24 @@ Indexes: `KhataBooks(OwnerUserId)`, `KhataCurrencies(OwnerUserId, Code)` unique,
 
 ## 7. API endpoints (`Thakurg.API`)
 
+**As built (step 2: login, sessions, PIN, 31-10-2026),** where it differs from the plan below:
+- **Code:**
+  - Controller: `KhataAuthController` (`api/khata/auth`).
+  - Services: `IKhataAuthService` (OTP, login, refresh, renew, logout), `IKhataPinService` (set, unlock, proof, change, `ConsumeProofAsync` for later endpoints), `IKhataTokenService`, `IKhataAuditService`, and `IKhataOtpSender` with `DevKhataOtpSender`.
+  - Repository: `IKhataAuthRepository`.
+  - Setup: `KhataSecurityExtensions.AddKhataAuthentication`.
+- **Change PIN** is `PUT /api/khata/auth/pin` (body `{ pin }` = the new PIN, header `X-Khata-Pin-Proof` from a `ChangePin` proof), not `/pin/change`.
+- **New: `POST /api/khata/auth/renew`.** It needs an unlocked token and returns a fresh unlocked token, so the app stays unlocked while in use. `refresh` (every app open) always returns a **locked** token.
+- **Secrets:** `Khata:Jwt:Secret` and `Khata:Otp:HmacSecret` are never in `appsettings`.
+  - In **Development**, random secrets are made at startup when none are configured, so local runs need no setup; access tokens then end when the API restarts, and refresh cookies keep working.
+  - Every other environment refuses to start until both are set (user-secrets / App Settings, ≥ 32 characters).
+- **Refresh cookie:** `khata_rt`, HttpOnly, Secure, path `/api/khata/auth`, `SameSite=None` (`Khata:RefreshCookie:SameSite`), because the UI on `localhost:4200` calls the API on `localhost:7001`. CORS now allows credentials for the configured origins.
+- **Session check:** every authenticated request checks that its `KhataSessions` row is still active, so logout, a PIN reset and the 10th wrong PIN cut off access tokens at once.
+- **Statuses:** wrong OTP/PIN → 400; PIN locked → 423; PIN cleared after 10 tries or session ended → 401; locked token on an unlocked-only endpoint, or a missing/used proof → 403; OTP too soon or over the daily limit → 429. Every response uses `ApiResponse` with a message from `Messages`.
+- **Mobile numbers:** 10 digits (or `0` + 10) become `+91…`. Numbers that start with `+` are kept as typed (E.164).
+- **Rate limits** in this step: `khata-otp-send`, `khata-otp-verify` (sliding window, per IP), `khata-refresh` (per IP), `khata-pin` (per user). Every rejection on `/api/khata` is written to `KhataAuditLog` as `RateLimited`.
+- **Tested** end to end against a temporary database: 33 checks (OTP, wrong and reused codes, weak PINs, set, proof, change, reused proof, renew, refresh rotation, lockout, logout, mobile normalisation, rate limit, audit rows, no plain OTPs or PINs stored).
+
 | Method | Route | Purpose |
 |---|---|---|
 | POST | `/api/khata/auth/otp/send` | Send email or SMS OTP |
