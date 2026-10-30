@@ -13,7 +13,10 @@
       } @else {
         <p class="k-lead">{{ info() }}</p>
         <form class="k-form" (submit)="$event.preventDefault(); verify(code.value)">
-          <label>{{ i18n.t('khata.login.code') }}<input #code type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required [disabled]="busy()" /></label>
+          <label>{{ i18n.t('khata.login.code') }}<input #code type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required [value]="devCode() ?? ''" [disabled]="busy()" /></label>
+          @if (devCode()) {
+            <p class="k-muted dev" role="note">{{ i18n.t('khata.login.devCode') }}</p>
+          }
           <button type="submit" class="k-btn pri" [disabled]="busy()">{{ i18n.t('khata.login.verify') }}</button>
           <div class="k-row">
             <button type="button" class="k-btn link" [disabled]="busy() || wait() > 0" (click)="send(identifier())">{{ wait() > 0 ? i18n.t('khata.login.resendIn', { s: wait() }) : i18n.t('khata.login.resend') }}</button>

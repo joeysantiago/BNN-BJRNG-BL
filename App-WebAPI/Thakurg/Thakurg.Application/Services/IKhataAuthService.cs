@@ -1,4 +1,5 @@
 using Thakurg.Contracts.Khata;
+using Thakurg.Contracts.Wrappers;
 
 namespace Thakurg.Application.Services;
 
@@ -8,9 +9,9 @@ public interface IKhataAuthService
 
     Task<KhataAuthResultDto> RenewAsync(KhataCallerDto caller, CancellationToken cancellationToken);
 
-    Task<string> SendOtpAsync(OtpSendRequestDto request, KhataCallerDto caller, CancellationToken cancellationToken);
-
     Task<KhataSignInDto> RefreshAsync(string? refreshToken, KhataCallerDto caller, CancellationToken cancellationToken);
 
     Task<KhataSignInDto> VerifyOtpAsync(OtpVerifyRequestDto request, KhataCallerDto caller, CancellationToken cancellationToken);
+
+    Task<ServiceResultDto<OtpSendResultDto>> SendOtpAsync(OtpSendRequestDto request, KhataCallerDto caller, CancellationToken cancellationToken);
 }

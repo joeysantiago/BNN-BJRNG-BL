@@ -60,15 +60,6 @@ public class KhataAuthController : ControllerBase
         return Ok(ApiResponse<KhataAuthResultDto>.SuccessResponse(signIn.Auth));
     }
 
-    [HttpPost("otp/send")]
-    [EnableRateLimiting(SecurityExtensions.KhataOtpSendPolicy)]
-    public async Task<ActionResult<ApiResponse<object?>>> SendOtp([FromBody] OtpSendRequestDto request, CancellationToken cancellationToken)
-    {
-        var message = await _authService.SendOtpAsync(request, HttpContext.KhataCaller(), cancellationToken);
-
-        return Ok(ApiResponse<object?>.SuccessResponse(null, message));
-    }
-
     [HttpPost("pin")]
     [Authorize(Policy = KhataPolicies.Session)]
     [EnableRateLimiting(SecurityExtensions.KhataPinPolicy)]
@@ -77,6 +68,15 @@ public class KhataAuthController : ControllerBase
         var result = await _pinService.SetAsync(HttpContext.KhataCaller(), request.Pin, cancellationToken);
 
         return Ok(ApiResponse<KhataAuthResultDto>.SuccessResponse(result));
+    }
+
+    [HttpPost("otp/send")]
+    [EnableRateLimiting(SecurityExtensions.KhataOtpSendPolicy)]
+    public async Task<ActionResult<ApiResponse<OtpSendResultDto>>> SendOtp([FromBody] OtpSendRequestDto request, CancellationToken cancellationToken)
+    {
+        var result = await _authService.SendOtpAsync(request, HttpContext.KhataCaller(), cancellationToken);
+
+        return Ok(ApiResponse<OtpSendResultDto>.SuccessResponse(result.Data, result.Message));
     }
 
     [HttpPost("pin/unlock")]

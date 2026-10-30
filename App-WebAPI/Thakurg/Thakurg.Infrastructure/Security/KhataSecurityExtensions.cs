@@ -25,7 +25,7 @@ public static class KhataSecurityExtensions
     // SnapKhata login: JWT bearer tokens checked against an active KhataSessions row. Policies: Session = logged in, Unlocked = PIN entered too.
     public static IServiceCollection AddKhataAuthentication(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
-        services.AddOptions<KhataOptions>().Bind(configuration.GetSection(KhataOptions.SectionName)).PostConfigure(options => UseDevelopmentSecrets(options, environment)).Validate(IsValid, "Khata:Jwt:Secret and Khata:Otp:HmacSecret must each be at least 32 characters (set them with dotnet user-secrets), Khata:Otp:Sender must be Dev, and every Khata:Limits value must be above 0.").ValidateOnStart();
+        services.AddOptions<KhataOptions>().Bind(configuration.GetSection(KhataOptions.SectionName)).PostConfigure(options => UseDevelopmentSecrets(options, environment)).Validate(IsValid, "Khata:Jwt:Secret and Khata:Otp:HmacSecret must each be at least 32 characters (set them with dotnet user-secrets), Khata:Otp:Sender must be Dev, and every Khata:Limits value must be above 0.").Validate(options => !options.Otp.ReturnCodeInResponse || environment.IsDevelopment(), "Khata:Otp:ReturnCodeInResponse may only be true in the Development environment.").ValidateOnStart();
         services.AddAuthentication(KhataPolicies.Scheme).AddJwtBearer(KhataPolicies.Scheme, _ => { });
         services.AddOptions<JwtBearerOptions>(KhataPolicies.Scheme).Configure<IOptions<KhataOptions>>((bearer, khata) => ConfigureBearer(bearer, khata.Value));
         services.AddAuthorizationBuilder()

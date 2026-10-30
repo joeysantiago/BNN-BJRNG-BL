@@ -29,6 +29,9 @@ export class KhataLogin {
   private readonly destroyRef = inject(DestroyRef);
   private readonly session = inject(KhataSessionService);
 
+  /** Development only: the code the API returned, filled into the code field. */
+  protected readonly devCode = signal<string | null>(null);
+
   constructor() {
     effect(() => this.seo.set({ title: this.i18n.t('khata.login.title'), description: this.i18n.t('seo.khata.desc'), path: '/khata/', image: 'default', lang: this.i18n.lang(), noindex: true }));
     this.destroyRef.onDestroy(() => clearInterval(this.timer));
@@ -38,6 +41,7 @@ export class KhataLogin {
 
   change(): void {
     this.codeSent.set(false);
+    this.devCode.set(null);
     this.error.set('');
     this.info.set('');
   }
@@ -46,7 +50,9 @@ export class KhataLogin {
     if (this.busy() || this.wait() > 0 || !value.trim())
       return;
     await this.run(async () => {
-      this.info.set(await this.session.sendOtp(value.trim()));
+      const sent = await this.session.sendOtp(value.trim());
+      this.info.set(sent.message);
+      this.devCode.set(sent.devCode);
       this.identifier.set(value.trim());
       this.codeSent.set(true);
       this.startWait();

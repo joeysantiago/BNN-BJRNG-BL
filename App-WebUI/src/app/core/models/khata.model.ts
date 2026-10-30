@@ -25,6 +25,16 @@ export interface KhataAuthResult {
   expiresInSeconds: number;
 }
 
+/** What "Send code" returns. devCode is only filled in by an API running in Development (Khata:Otp:ReturnCodeInResponse). */
+export interface KhataOtpSent {
+  message: string;
+  devCode: string | null;
+}
+
+export interface KhataOtpSendResult {
+  devCode?: string | null;
+}
+
 export interface KhataPinProof {
   proof: string;
   expiresInSeconds: number;

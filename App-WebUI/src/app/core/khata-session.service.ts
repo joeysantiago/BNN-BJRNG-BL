@@ -3,7 +3,7 @@ import { ApiService } from './api.service';
 import { I18nService } from './i18n.service';
 import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
-import { KhataAuthResult, KhataPinProof, KhataPinPurpose, KhataTabMessage } from './models/khata.model';
+import { KhataAuthResult, KhataOtpSendResult, KhataOtpSent, KhataPinProof, KhataPinPurpose, KhataTabMessage } from './models/khata.model';
 
 const CHANNEL = 'snapkhata';
 const HELLO_WAIT_MS = 300;
@@ -73,8 +73,9 @@ export class KhataSessionService {
     this.apply(await this.auth('/khata/auth/pin', { pin }), true);
   }
 
-  async sendOtp(identifier: string): Promise<string> {
-    return this.api.message('POST', '/khata/auth/otp/send', this.init({ identifier }));
+  async sendOtp(identifier: string): Promise<KhataOtpSent> {
+    const res = await this.api.sendFull<KhataOtpSendResult>('POST', '/khata/auth/otp/send', this.init({ identifier }), 30000);
+    return { message: res.message ?? '', devCode: res.data?.devCode ?? null };
   }
 
   async changePin(newPin: string, proof: string): Promise<string> {

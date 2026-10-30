@@ -6,14 +6,14 @@ import { ThemeService } from '../core/theme.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { InstallService } from '../core/install.service';
 import { SettingsService } from '../core/settings.service';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { Component, ElementRef, HostListener, computed, inject, signal, viewChild } from '@angular/core';
 
 const SPEED_PATHS = new Set(['/', '/hi', '/ar']);
 
 @Component({
   selector: 'app-site-header',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink],
   templateUrl: './site-header.html',
   styleUrl: './site-header.scss',
 })

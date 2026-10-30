@@ -7,6 +7,7 @@ using Thakurg.Contracts.Configurations;
 using Thakurg.Contracts.Exceptions;
 using Thakurg.Contracts.Khata;
 using Thakurg.Contracts.Messages;
+using Thakurg.Contracts.Wrappers;
 using Thakurg.Domain.Entities;
 using Thakurg.Infrastructure.Common;
 
@@ -65,29 +66,6 @@ public class KhataAuthService : IKhataAuthService
         return _tokenService.CreateResult(user, caller.SessionId, true);
     }
 
-    public async Task<string> SendOtpAsync(OtpSendRequestDto request, KhataCallerDto caller, CancellationToken cancellationToken)
-    {
-        var (identifier, channel) = Normalize(request.Identifier);
-        var now = DateTime.UtcNow;
-        var lastSentOn = await _authRepository.GetLastOtpOnAsync(identifier, cancellationToken);
-        var wait = lastSentOn is null ? 0 : _options.Otp.CooldownSeconds - (int)(now - lastSentOn.Value).TotalSeconds;
-        if (wait > 0)
-            throw new BusinessException(MessageCodes.KhataOtpTooSoon, 429, wait);
-
-        var lastTenMinutes = await _authRepository.CountOtpsSinceAsync(identifier, now.AddMinutes(-10), cancellationToken);
-        var lastDay = await _authRepository.CountOtpsSinceAsync(identifier, now.AddDays(-1), cancellationToken);
-        if (lastTenMinutes >= _options.Otp.PerTenMinutes || lastDay >= _options.Otp.PerDay)
-            throw new BusinessException(MessageCodes.KhataOtpLimit, 429);
-
-        var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
-        var otp = new KhataOtp { Identifier = identifier, Channel = (byte)channel, CodeHash = _tokenService.HashOtp(identifier, code), ExpiresOn = now.AddMinutes(_options.Otp.ExpiryMinutes), RequestIp = caller.Ip };
-        await _authRepository.AddOtpAsync(otp, cancellationToken);
-        await _otpSender.SendAsync(channel, identifier, code, cancellationToken);
-        await _auditService.WriteAsync(KhataAuditActions.OtpSent, null, caller, new { Channel = channel.ToString() }, cancellationToken);
-
-        return await _messageService.GetAsync(MessageCodes.KhataOtpSent, _options.Otp.ExpiryMinutes);
-    }
-
     // Every app open starts here: the refresh token is rotated, and the new access token is always locked (PIN needed).
     public async Task<KhataSignInDto> RefreshAsync(string? refreshToken, KhataCallerDto caller, CancellationToken cancellationToken)
     {
@@ -130,6 +108,32 @@ public class KhataAuthService : IKhataAuthService
         await _auditService.WriteAsync(KhataAuditActions.LoggedIn, user.Id, caller, new { Channel = channel.ToString() }, cancellationToken);
 
         return signIn;
+    }
+
+    public async Task<ServiceResultDto<OtpSendResultDto>> SendOtpAsync(OtpSendRequestDto request, KhataCallerDto caller, CancellationToken cancellationToken)
+    {
+        var (identifier, channel) = Normalize(request.Identifier);
+        var now = DateTime.UtcNow;
+        var lastSentOn = await _authRepository.GetLastOtpOnAsync(identifier, cancellationToken);
+        var wait = lastSentOn is null ? 0 : _options.Otp.CooldownSeconds - (int)(now - lastSentOn.Value).TotalSeconds;
+        if (wait > 0)
+            throw new BusinessException(MessageCodes.KhataOtpTooSoon, 429, wait);
+
+        var lastTenMinutes = await _authRepository.CountOtpsSinceAsync(identifier, now.AddMinutes(-10), cancellationToken);
+        var lastDay = await _authRepository.CountOtpsSinceAsync(identifier, now.AddDays(-1), cancellationToken);
+        if (lastTenMinutes >= _options.Otp.PerTenMinutes || lastDay >= _options.Otp.PerDay)
+            throw new BusinessException(MessageCodes.KhataOtpLimit, 429);
+
+        var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
+        var otp = new KhataOtp { Identifier = identifier, Channel = (byte)channel, CodeHash = _tokenService.HashOtp(identifier, code), ExpiresOn = now.AddMinutes(_options.Otp.ExpiryMinutes), RequestIp = caller.Ip };
+        await _authRepository.AddOtpAsync(otp, cancellationToken);
+        await _otpSender.SendAsync(channel, identifier, code, cancellationToken);
+        await _auditService.WriteAsync(KhataAuditActions.OtpSent, null, caller, new { Channel = channel.ToString() }, cancellationToken);
+
+        // Development only (enforced at startup): the code also comes back in the response, so the login screen can fill it in.
+        var result = new OtpSendResultDto { DevCode = _options.Otp.ReturnCodeInResponse ? code : null };
+
+        return new ServiceResultDto<OtpSendResultDto> { Data = result, Message = await _messageService.GetAsync(MessageCodes.KhataOtpSent, _options.Otp.ExpiryMinutes) };
     }
 
     #endregion

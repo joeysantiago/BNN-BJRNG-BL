@@ -12,6 +12,8 @@ public class KhataOtpOptions
 
     public int CooldownSeconds { get; set; }
 
+    public bool ReturnCodeInResponse { get; set; }
+
     public string Sender { get; set; } = string.Empty;
 
     public string HmacSecret { get; set; } = string.Empty;
