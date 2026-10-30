@@ -15,6 +15,8 @@ public class CommonDbContext : DbContext, ICommonDbContext
 
     public DbSet<PageName> PageNames => Set<PageName>();
 
+    public DbSet<KhataBook> KhataBooks => Set<KhataBook>();
+
     public DbSet<KhataUser> KhataUsers => Set<KhataUser>();
 
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
@@ -25,17 +27,27 @@ public class CommonDbContext : DbContext, ICommonDbContext
 
     public DbSet<ServiceItem> ServiceItems => Set<ServiceItem>();
 
+    public DbSet<KhataContact> KhataContacts => Set<KhataContact>();
+
     public DbSet<KhataSession> KhataSessions => Set<KhataSession>();
 
     public DbSet<KhataAuditLog> KhataAuditLogs => Set<KhataAuditLog>();
 
     public DbSet<KhataPinProof> KhataPinProofs => Set<KhataPinProof>();
 
+    public DbSet<KhataCurrency> KhataCurrencies => Set<KhataCurrency>();
+
     public DbSet<PageTranslation> Translations => Set<PageTranslation>();
 
     public DbSet<ConnectionField> ConnectionFields => Set<ConnectionField>();
 
     public DbSet<KhataPinAttempt> KhataPinAttempts => Set<KhataPinAttempt>();
+
+    public DbSet<KhataTransaction> KhataTransactions => Set<KhataTransaction>();
+
+    public DbSet<KhataIdempotencyKey> KhataIdempotencyKeys => Set<KhataIdempotencyKey>();
+
+    public DbSet<KhataTransactionHistory> KhataTransactionHistory => Set<KhataTransactionHistory>();
 
     public CommonDbContext(DbContextOptions<CommonDbContext> options) : base(options)
     {
@@ -90,6 +102,12 @@ public class CommonDbContext : DbContext, ICommonDbContext
         modelBuilder.Entity<KhataAuditLog>().ToTable("KhataAuditLog");
         modelBuilder.Entity<KhataPinProof>().ToTable("KhataPinProofs");
         modelBuilder.Entity<KhataPinAttempt>().ToTable("KhataPinAttempts");
+        modelBuilder.Entity<KhataBook>().ToTable("KhataBooks");
+        modelBuilder.Entity<KhataCurrency>().ToTable("KhataCurrencies");
+        modelBuilder.Entity<KhataTransactionHistory>().ToTable("KhataTransactionHistory");
+        modelBuilder.Entity<KhataIdempotencyKey>().ToTable("KhataIdempotencyKeys");
+        modelBuilder.Entity<KhataContact>().ToTable("KhataContacts").Property(c => c.RowVersion).IsRowVersion();
+        modelBuilder.Entity<KhataTransaction>().ToTable("KhataTransactions").Property(t => t.RowVersion).IsRowVersion();
     }
 
     #endregion

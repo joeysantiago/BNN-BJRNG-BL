@@ -22,6 +22,10 @@ public static class SecurityExtensions
 
     public const string SensitivePolicy = "sensitive";
 
+    public const string KhataReadPolicy = "khata-read";
+
+    public const string KhataWritePolicy = "khata-write";
+
     public const string KhataRefreshPolicy = "khata-refresh";
 
     public const string KhataOtpSendPolicy = "khata-otp-send";
@@ -77,6 +81,8 @@ public static class SecurityExtensions
             options.AddPolicy(KhataOtpVerifyPolicy, context => RateLimitPartition.GetSlidingWindowLimiter(ClientKey(context), _ => SlidingWindow(limits.Khata.OtpVerify)));
             options.AddPolicy(KhataRefreshPolicy, context => RateLimitPartition.GetFixedWindowLimiter(ClientKey(context), _ => FixedWindow(limits.Khata.Refresh.Permit, TimeSpan.FromSeconds(limits.Khata.Refresh.WindowSeconds))));
             options.AddPolicy(KhataPinPolicy, context => RateLimitPartition.GetFixedWindowLimiter(UserOrClientKey(context), _ => FixedWindow(limits.Khata.Pin.Permit, TimeSpan.FromSeconds(limits.Khata.Pin.WindowSeconds))));
+            options.AddPolicy(KhataReadPolicy, context => RateLimitPartition.GetTokenBucketLimiter(UserOrClientKey(context), _ => TokenBucket(limits.Khata.Read)));
+            options.AddPolicy(KhataWritePolicy, context => RateLimitPartition.GetTokenBucketLimiter(UserOrClientKey(context), _ => TokenBucket(limits.Khata.Write)));
             options.OnRejected = async (context, cancellationToken) =>
             {
                 if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
@@ -106,6 +112,12 @@ public static class SecurityExtensions
     private static string UserOrClientKey(HttpContext context)
     {
         return context.User.FindFirst(KhataClaimTypes.Subject)?.Value is { } userId ? "user:" + userId : ClientKey(context);
+    }
+
+    // Steady rate of Permit per WindowSeconds (one token every WindowSeconds / Permit), with short bursts of up to Burst requests.
+    private static TokenBucketRateLimiterOptions TokenBucket(RateLimitRule rule)
+    {
+        return new TokenBucketRateLimiterOptions { TokenLimit = rule.Burst, TokensPerPeriod = 1, ReplenishmentPeriod = TimeSpan.FromSeconds((double)rule.WindowSeconds / rule.Permit), AutoReplenishment = true };
     }
 
     private static SlidingWindowRateLimiterOptions SlidingWindow(RateLimitRule rule)

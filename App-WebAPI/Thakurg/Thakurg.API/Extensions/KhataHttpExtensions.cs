@@ -6,13 +6,11 @@ namespace Thakurg.API.Extensions;
 // HTTP plumbing for SnapKhata controllers: who is calling (from the token and headers) and the HttpOnly refresh-token cookie.
 public static class KhataHttpExtensions
 {
-    private const string DeviceHeader = "X-Khata-Device";
-
     #region Public Methods
 
     public static KhataCallerDto KhataCaller(this HttpContext context)
     {
-        return new KhataCallerDto { UserId = ClaimAsInt(context, KhataClaimTypes.Subject), SessionId = ClaimAsInt(context, KhataClaimTypes.Session), Ip = context.Connection.RemoteIpAddress?.ToString(), UserAgent = context.Request.Headers.UserAgent.ToString(), DeviceId = context.Request.Headers[DeviceHeader].ToString() };
+        return new KhataCallerDto { UserId = ClaimAsInt(context, KhataClaimTypes.Subject), SessionId = ClaimAsInt(context, KhataClaimTypes.Session), Ip = context.Connection.RemoteIpAddress?.ToString(), UserAgent = context.Request.Headers.UserAgent.ToString(), DeviceId = context.Request.Headers[KhataHeaders.Device].ToString() };
     }
 
     public static void DeleteKhataRefreshCookie(this HttpResponse response, KhataCookieOptions cookie)

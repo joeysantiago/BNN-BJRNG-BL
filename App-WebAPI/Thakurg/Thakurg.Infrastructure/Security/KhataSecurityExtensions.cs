@@ -25,7 +25,7 @@ public static class KhataSecurityExtensions
     // SnapKhata login: JWT bearer tokens checked against an active KhataSessions row. Policies: Session = logged in, Unlocked = PIN entered too.
     public static IServiceCollection AddKhataAuthentication(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
-        services.AddOptions<KhataOptions>().Bind(configuration.GetSection(KhataOptions.SectionName)).PostConfigure(options => UseDevelopmentSecrets(options, environment)).Validate(HasSecrets, "Khata:Jwt:Secret and Khata:Otp:HmacSecret must each be at least 32 characters (set them with dotnet user-secrets), and Khata:Otp:Sender must be Dev.").ValidateOnStart();
+        services.AddOptions<KhataOptions>().Bind(configuration.GetSection(KhataOptions.SectionName)).PostConfigure(options => UseDevelopmentSecrets(options, environment)).Validate(IsValid, "Khata:Jwt:Secret and Khata:Otp:HmacSecret must each be at least 32 characters (set them with dotnet user-secrets), Khata:Otp:Sender must be Dev, and every Khata:Limits value must be above 0.").ValidateOnStart();
         services.AddAuthentication(KhataPolicies.Scheme).AddJwtBearer(KhataPolicies.Scheme, _ => { });
         services.AddOptions<JwtBearerOptions>(KhataPolicies.Scheme).Configure<IOptions<KhataOptions>>((bearer, khata) => ConfigureBearer(bearer, khata.Value));
         services.AddAuthorizationBuilder()
@@ -39,9 +39,9 @@ public static class KhataSecurityExtensions
 
     #region Private Methods
 
-    private static bool HasSecrets(KhataOptions options)
+    private static bool IsValid(KhataOptions options)
     {
-        return options.Jwt.Secret.Length >= MinimumSecretLength && options.Otp.HmacSecret.Length >= MinimumSecretLength && options.Otp.Sender == "Dev";
+        return options.Jwt.Secret.Length >= MinimumSecretLength && options.Otp.HmacSecret.Length >= MinimumSecretLength && options.Otp.Sender == "Dev" && options.Limits is { MaxBooks: > 0, MaxCustomCurrencies: > 0, MaxContactsPerBook: > 0, MaxAmountMinor: > 0, PageSize: > 0, IdempotencyHours: > 0 } && options.Limits.MaxPageSize >= options.Limits.PageSize;
     }
 
     // A logout, a PIN reset or a 10th wrong PIN revokes the session, so its access tokens stop working at once, not only when they expire.

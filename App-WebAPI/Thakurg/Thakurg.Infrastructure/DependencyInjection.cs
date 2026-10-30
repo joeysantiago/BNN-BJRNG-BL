@@ -48,7 +48,11 @@ public static class DependencyInjection
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<IKhataAuthRepository, KhataAuthRepository>();
+        services.AddScoped<IKhataBookRepository, KhataBookRepository>();
         services.AddScoped<ITranslationRepository, TranslationRepository>();
+        services.AddScoped<IKhataContactRepository, KhataContactRepository>();
+        services.AddScoped<IKhataIdempotencyRepository, KhataIdempotencyRepository>();
+        services.AddScoped<IKhataTransactionRepository, KhataTransactionRepository>();
 
         services.AddScoped<IMusicService, MusicService>();
         services.AddScoped<IMessageService, MessageService>();
@@ -58,10 +62,16 @@ public static class DependencyInjection
         services.AddScoped<ISpeedTestService, SpeedTestService>();
         services.AddScoped<IMasterKeyService, MasterKeyService>();
         services.AddScoped<IKhataAuthService, KhataAuthService>();
+        services.AddScoped<IKhataBookService, KhataBookService>();
         services.AddScoped<IYoutubeKeyService, YoutubeKeyService>();
         services.AddScoped<IKhataAuditService, KhataAuditService>();
         services.AddScoped<IMusicAccessService, MusicAccessService>();
         services.AddScoped<ITranslationService, TranslationService>();
+        services.AddScoped<IKhataContactService, KhataContactService>();
+        services.AddScoped<IKhataCommonServices, KhataCommonServices>();
+        services.AddScoped<IKhataCurrencyService, KhataCurrencyService>();
+        services.AddScoped<IKhataIdempotencyService, KhataIdempotencyService>();
+        services.AddScoped<IKhataTransactionService, KhataTransactionService>();
 
         return services;
     }

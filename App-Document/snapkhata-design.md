@@ -1005,6 +1005,28 @@ Indexes: `KhataBooks(OwnerUserId)`, `KhataCurrencies(OwnerUserId, Code)` unique,
 
 ## 7. API endpoints (`Thakurg.API`)
 
+**As built (step 3: ledger API, 31-10-2026):**
+- **Controllers:** `KhataCurrenciesController`, `KhataBooksController`, `KhataContactsController` and `KhataTransactionsController`. All need an unlocked token, and use `khata-read` (GET) or `khata-write`, both token buckets per user.
+- **Services, each behind an interface:** `KhataCurrencyService`, `KhataBookService`, `KhataContactService`, `KhataTransactionService` and `KhataIdempotencyService`. They share the bundle `IKhataCommonServices` (messages, PIN, audit, idempotency) to stay within the 6-parameter limit.
+- **Repositories:** `KhataBookRepository` (money types and books), `KhataContactRepository`, `KhataTransactionRepository` and `KhataIdempotencyRepository`.
+- **Endpoints as built:**
+  - `GET/POST /currencies`, `PUT/DELETE /currencies/{id}`
+  - `GET/POST /books`, `PUT /books/{id}`, `PUT /books/{id}/open` (remembers the last book), `DELETE /books/{id}`
+  - `GET/POST /books/{bookId}/contacts`, `PUT /contacts/{id}`, `PUT /contacts/{id}/permissions`, `DELETE /contacts/{id}`
+  - `GET /contacts/{id}/transactions?page=&pageSize=`, `POST /contacts/{id}/transactions`, `PUT/DELETE /transactions/{id}`, `GET /transactions/{id}/history`
+- **Amounts** are sent and returned as `amountMinor` (whole smallest units). The UI converts with the book currency's `decimals`.
+- **PIN proof** (header `X-Khata-Pin-Proof`) is required for:
+  - edit and delete of an entry (bound to that entry)
+  - delete contact
+  - turning **on** "can add entries" (turning it off needs no PIN)
+  - delete book
+- **Edit-conflict check:** edits send `rowVersion`. A stale one gets 409 "changed by someone else", and neither the entry nor the balance changes.
+- **Idempotency:** creates of books, contacts and entries accept `X-Idempotency-Key`. A repeat returns the first result; the same key with a different body gets 422.
+- **Balance:** each entry, its history row and the contact balance are saved in one SQL transaction.
+- **Not in this step:** contacts who are **linked users** (sharing, phase 4), so for now only the owner adds and changes entries. Photos (phase 2), search and running balance (P5), and due dates (P2) come later.
+- **Limits** in `Khata:Limits`: 20 books, 20 custom money types, 5,000 contacts per book, the largest amount, page size 50 (max 200), idempotency keys kept 24 h.
+- **Tested** end to end against a temporary database: 44 checks. These cover money types, books with idempotency, contacts with +91 normalisation, entries with balance, edit with proof and conflict, history, soft delete, money-type lock, permission switch, and contact and book delete. A SQL check found 0 contacts whose balance differs from their entries. The step 2 login test still passes (33).
+
 **As built (step 2: login, sessions, PIN, 31-10-2026),** where it differs from the plan below:
 - **Code:**
   - Controller: `KhataAuthController` (`api/khata/auth`).
