@@ -1041,6 +1041,11 @@ Indexes: `KhataBooks(OwnerUserId)`, `KhataCurrencies(OwnerUserId, Code)` unique,
 - **Refresh cookie:** `khata_rt`, HttpOnly, Secure, path `/api/khata/auth`, `SameSite=None` (`Khata:RefreshCookie:SameSite`), because the UI on `localhost:4200` calls the API on `localhost:7001`. CORS now allows credentials for the configured origins.
 - **Session check:** every authenticated request checks that its `KhataSessions` row is still active, so logout, a PIN reset and the 10th wrong PIN cut off access tokens at once.
 - **Statuses:** wrong OTP/PIN → 400; PIN locked → 423; PIN cleared after 10 tries or session ended → 401; locked token on an unlocked-only endpoint, or a missing/used proof → 403; OTP too soon or over the daily limit → 429. Every response uses `ApiResponse` with a message from `Messages`.
+- **Development OTP autofill:**
+  - `POST /khata/auth/otp/send` returns `data.devCode` (the code itself) **only** when `Khata:Otp:ReturnCodeInResponse` is `true`. It is `false` in `appsettings.json` and `true` in `appsettings.Development.json`.
+  - The API refuses to start if it is `true` outside the Development environment.
+  - The login screen fills the code into the field and shows "Development mode: the code was filled in for you." (`khata.login.devCode`).
+  - The code is still written to the API console as before. Nothing is ever emailed or texted while `Otp:Sender` is `Dev`.
 - **No defaults in models** (`App-Document/model-no-default-values.md`): a new user's `Language`, `TimeZone` and `DailySummaryTime` come from `Khata:NewUser` in `appsettings.json`, and every option value lives there too. `IsActive` / `CreatedOn` of new rows are stamped in `CommonDbContext.SaveChangesAsync`.
 - **Mobile numbers:** 10 digits (or `0` + 10) become `+91…`. Numbers that start with `+` are kept as typed (E.164).
 - **Rate limits** in this step: `khata-otp-send`, `khata-otp-verify` (sliding window, per IP), `khata-refresh` (per IP), `khata-pin` (per user). Every rejection on `/api/khata` is written to `KhataAuditLog` as `RateLimited`.
