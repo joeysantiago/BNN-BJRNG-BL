@@ -11,4 +11,6 @@ public class RateLimitOptions
     public int GlobalPermitLimit { get; set; } = 600;
 
     public int SensitivePermitLimit { get; set; } = 10;
+
+    public KhataRateLimitOptions Khata { get; set; } = new();
 }
