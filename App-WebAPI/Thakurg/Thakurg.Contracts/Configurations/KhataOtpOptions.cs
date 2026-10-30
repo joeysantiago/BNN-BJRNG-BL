@@ -2,17 +2,17 @@ namespace Thakurg.Contracts.Configurations;
 
 public class KhataOtpOptions
 {
-    public int PerDay { get; set; } = 10;
+    public int PerDay { get; set; }
 
-    public int MaxAttempts { get; set; } = 5;
+    public int MaxAttempts { get; set; }
 
-    public int ExpiryMinutes { get; set; } = 5;
+    public int ExpiryMinutes { get; set; }
 
-    public int PerTenMinutes { get; set; } = 3;
+    public int PerTenMinutes { get; set; }
 
-    public string Sender { get; set; } = "Dev";
+    public int CooldownSeconds { get; set; }
 
-    public int CooldownSeconds { get; set; } = 45;
+    public string Sender { get; set; } = string.Empty;
 
     public string HmacSecret { get; set; } = string.Empty;
 }

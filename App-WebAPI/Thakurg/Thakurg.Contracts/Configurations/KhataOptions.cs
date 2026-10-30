@@ -10,5 +10,7 @@ public class KhataOptions
 
     public KhataPinOptions Pin { get; set; } = new();
 
+    public KhataNewUserOptions NewUser { get; set; } = new();
+
     public KhataCookieOptions RefreshCookie { get; set; } = new();
 }

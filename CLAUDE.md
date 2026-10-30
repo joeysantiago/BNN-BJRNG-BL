@@ -25,6 +25,11 @@ if (response)
 - No blank lines inside method bodies.
 - Don't change order, types or values. Comments stay attached to their property.
 - **WebUI models do NOT get blank lines** — properties stay on consecutive lines.
+- **No hard-coded default values in models** (entities, DTOs, option classes; WebAPI, App-Database and WebUI).
+  - Not allowed: `= "Asia/Kolkata"`, `= 15`, `= new(21, 0)`, `= [".jpg"]`, `= DateTime.UtcNow`.
+  - Allowed (null-safety only): `= string.Empty`, `= new()`, `= []`.
+  - Where values go: settings into `appsettings.json`; a new entity's starting values are set by the service that creates it, from options; `IsActive` / `CreatedOn` are stamped in `CommonDbContext.SaveChanges`.
+  - A missing config section fails at startup, never `?? new XOptions()` (`App-Document/model-no-default-values.md`).
 
 ## 3. Method / function signatures on one line (WebAPI + WebUI)
 - Name, all parameters and return type stay on ONE line when the line (indentation included) is ≤ 250 characters, any number of parameters.
@@ -130,7 +135,7 @@ interface ApiResponse<T> {
 1. Single-statement `if` braces removed (no else, one statement).
 2. Signatures on one line (≤ 250 chars; wrap rules only for > 4 params).
 3. UI imports sorted by length; class fields/properties and model members sorted by length (§10); class methods in Public/Private regions sorted by signature length.
-4. Models in `*.model.ts`; WebAPI model properties blank-line separated, WebUI not.
+4. Models in `*.model.ts`; WebAPI model properties blank-line separated, WebUI not; no hard-coded default values in any model (values in `appsettings.json` or set by the creating service).
 5. No hardcoded message text; message codes / translation keys + seed rows added.
 6. SEO/indexing rules in §8 met on mobile and web (prerendered, metadata, sitemap, JSON-LD, hreflang).
 7. WebAPI C# follows §9 (usings, declaration and method order, layering, constructor limit); SQL scripts follow the table and seed rules, sit in their app's folder, use INT Ids, and have no ALTER/migration scripts before production.

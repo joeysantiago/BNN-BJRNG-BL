@@ -2,13 +2,13 @@ namespace Thakurg.Contracts.Configurations;
 
 public class YoutubeOptions
 {
-    public int MaxResults { get; set; } = 20;
+    public int MaxResults { get; set; }
+
+    public int StreamCacheMinutes { get; set; }
 
     public const string SectionName = "YouTube";
 
-    public int StreamCacheMinutes { get; set; } = 20;
-
-    public string FfmpegPath { get; set; } = "ffmpeg";
+    public string FfmpegPath { get; set; } = string.Empty;
 
     public string AzureFfmpegPath { get; set; } = string.Empty;
-}
+}

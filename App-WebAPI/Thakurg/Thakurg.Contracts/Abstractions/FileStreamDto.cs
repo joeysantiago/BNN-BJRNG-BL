@@ -16,5 +16,5 @@ public class FileStreamDto
 
     public Stream Content { get; set; } = Stream.Null;
 
-    public string ContentType { get; set; } = "application/octet-stream";
+    public string ContentType { get; set; } = string.Empty;
 }

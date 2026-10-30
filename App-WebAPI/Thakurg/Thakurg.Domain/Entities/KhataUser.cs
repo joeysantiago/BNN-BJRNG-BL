@@ -40,13 +40,13 @@ public class KhataUser : BaseEntity
 
     public int? UpiQrStoredFileId { get; set; }
 
-    public string Language { get; set; } = "en";
-
     public DateTime? PinLockedUntil { get; set; }
 
     public bool DailySummaryEnabled { get; set; }
 
     public DateTime? EmailVerifiedOn { get; set; }
+
+    public TimeOnly DailySummaryTime { get; set; }
 
     public bool? DeletionDeleteFiles { get; set; }
 
@@ -58,9 +58,9 @@ public class KhataUser : BaseEntity
 
     public DateTime? DeletionScheduledOn { get; set; }
 
-    public string TimeZone { get; set; } = "Asia/Kolkata";
+    public string Language { get; set; } = string.Empty;
+
+    public string TimeZone { get; set; } = string.Empty;
 
     public string DisplayName { get; set; } = string.Empty;
-
-    public TimeOnly DailySummaryTime { get; set; } = new(21, 0);
 }

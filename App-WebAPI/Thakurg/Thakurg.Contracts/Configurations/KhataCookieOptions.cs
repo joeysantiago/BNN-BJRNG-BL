@@ -2,9 +2,9 @@ namespace Thakurg.Contracts.Configurations;
 
 public class KhataCookieOptions
 {
-    public string Name { get; set; } = "khata_rt";
+    public string Name { get; set; } = string.Empty;
 
-    public string SameSite { get; set; } = "None";
+    public string Path { get; set; } = string.Empty;
 
-    public string Path { get; set; } = "/api/khata/auth";
+    public string SameSite { get; set; } = string.Empty;
 }

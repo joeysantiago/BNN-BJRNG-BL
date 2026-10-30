@@ -3,7 +3,6 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -39,7 +38,7 @@ public static class SecurityExtensions
 
     public static IServiceCollection AddThakurgProxy(this IServiceCollection services, IConfiguration configuration)
     {
-        var proxy = configuration.GetSection(ProxyOptions.SectionName).Get<ProxyOptions>() ?? new ProxyOptions();
+        var proxy = configuration.GetSection(ProxyOptions.SectionName).Get<ProxyOptions>() ?? throw new InvalidOperationException($"{ProxyOptions.SectionName} is not configured in appsettings.json.");
 
         services.Configure<ProxyOptions>(configuration.GetSection(ProxyOptions.SectionName));
         services.Configure<ForwardedHeadersOptions>(options =>
@@ -65,7 +64,7 @@ public static class SecurityExtensions
 
     public static IServiceCollection AddThakurgRateLimiting(this IServiceCollection services, IConfiguration configuration)
     {
-        var limits = configuration.GetSection(RateLimitOptions.SectionName).Get<RateLimitOptions>() ?? new RateLimitOptions();
+        var limits = configuration.GetSection(RateLimitOptions.SectionName).Get<RateLimitOptions>() ?? throw new InvalidOperationException($"{RateLimitOptions.SectionName} is not configured in appsettings.json.");
         var window = TimeSpan.FromSeconds(limits.WindowSeconds);
 
         services.AddRateLimiter(options =>

@@ -198,7 +198,7 @@ public class KhataAuthService : IKhataAuthService
         var user = await _authRepository.FindUserAsync(email, mobile, cancellationToken);
         if (user is null)
         {
-            user = new KhataUser { Email = email, Mobile = mobile };
+            user = new KhataUser { Email = email, Mobile = mobile, Language = _options.NewUser.Language, TimeZone = _options.NewUser.TimeZone, DailySummaryTime = _options.NewUser.DailySummaryTime };
             await _authRepository.AddUserAsync(user, cancellationToken);
         }
 

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Thakurg.Application.Common;
+using Thakurg.Domain.Common;
 using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Persistence;
@@ -40,7 +41,37 @@ public class CommonDbContext : DbContext, ICommonDbContext
     {
     }
 
+    #region Public Methods
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        StampNewRows();
+
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        StampNewRows();
+
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    #endregion
+
     #region Private Methods
+
+    // Models carry no default values (App-Document/model-no-default-values.md): a new row is made active and stamped with its creation time here.
+    private void StampNewRows()
+    {
+        var now = DateTime.UtcNow;
+
+        foreach (var entry in ChangeTracker.Entries<BaseEntity>().Where(e => e.State == EntityState.Added))
+        {
+            entry.Entity.IsActive = true;
+            entry.Entity.CreatedOn = now;
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
