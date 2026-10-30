@@ -4,6 +4,10 @@ public class KhataRateLimitOptions
 {
     public RateLimitRule Pin { get; set; } = new();
 
+    public RateLimitRule Read { get; set; } = new();
+
+    public RateLimitRule Write { get; set; } = new();
+
     public RateLimitRule OtpSend { get; set; } = new();
 
     public RateLimitRule Refresh { get; set; } = new();
