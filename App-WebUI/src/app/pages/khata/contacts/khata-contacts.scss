@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.search {
+  flex: 1 1 180px;
+}
+
+.search input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--k-line);
+  background: var(--k-surface);
+  color: var(--k-text);
+  font: 16px var(--font-body);
+  box-sizing: border-box;
+}
+
+.sub {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.bal {
+  text-align: end;
+}
+
+.k-total {
+  margin: 0;
+}

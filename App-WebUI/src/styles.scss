@@ -429,3 +429,254 @@ p {
     scroll-behavior: auto !important;
   }
 }
+
+/* =========================================================
+   SnapKhata app (/khata/app, /khata/login, PIN screens)
+   Its own look, independent of the site skins: every screen
+   sits inside an element with class "khata". Green = money you
+   will get, red = money you will give. Logical properties
+   (inline-start/end) keep the layout right in Arabic (RTL).
+   ========================================================= */
+.khata {
+  --k-bg: #f3f7f4;
+  --k-surface: #ffffff;
+  --k-text: #14251b;
+  --k-muted: #4d6156;
+  --k-line: #d5e2d9;
+  --k-brand: #0b7a45;
+  --k-brand-ink: #ffffff;
+  --k-brand-soft: #e3f3ea;
+  --k-get: #0b7a45;
+  --k-give: #b3261e;
+  --k-warn-bg: #fff4d6;
+  --k-radius: 16px;
+  color-scheme: light;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--k-bg);
+  color: var(--k-text);
+  font: 16px/1.5 var(--font-body);
+}
+
+@media (prefers-color-scheme: dark) {
+  .khata {
+    --k-bg: #0f1713;
+    --k-surface: #17231c;
+    --k-text: #e7f1ea;
+    --k-muted: #a9bdb0;
+    --k-line: #2a3b31;
+    --k-brand: #3ccf86;
+    --k-brand-ink: #062414;
+    --k-brand-soft: #1c3427;
+    --k-get: #5fe0a0;
+    --k-give: #ff9a8f;
+    --k-warn-bg: #3a3214;
+    color-scheme: dark;
+  }
+}
+
+.khata a {
+  color: var(--k-brand);
+}
+
+.khata h1,
+.khata h2 {
+  text-shadow: none;
+}
+
+.khata .k-page {
+  width: min(720px, 100% - 32px);
+  margin-inline: auto;
+  padding-block: 20px 40px;
+  display: grid;
+  gap: 16px;
+}
+
+.khata .k-card {
+  background: var(--k-surface);
+  border: 1px solid var(--k-line);
+  border-radius: var(--k-radius);
+  padding: 16px;
+}
+
+.khata .k-title {
+  font-size: clamp(1.3rem, 4.5vw, 1.7rem);
+  margin: 0;
+}
+
+.khata .k-lead,
+.khata .k-muted {
+  color: var(--k-muted);
+  margin: 0;
+}
+
+.khata .k-btn {
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--k-line);
+  background: var(--k-surface);
+  color: var(--k-text);
+  font: 700 15px/1.2 var(--font-body);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.khata .k-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.khata .k-btn.pri {
+  background: var(--k-brand);
+  border-color: var(--k-brand);
+  color: var(--k-brand-ink);
+}
+
+.khata .k-btn.gave {
+  background: var(--k-give);
+  border-color: var(--k-give);
+  color: #ffffff;
+}
+
+.khata .k-btn.got {
+  background: var(--k-get);
+  border-color: var(--k-get);
+  color: var(--k-brand-ink);
+}
+
+.khata .k-btn.link {
+  background: none;
+  border-color: transparent;
+  color: var(--k-brand);
+  padding-inline: 8px;
+}
+
+.khata .k-btn.danger {
+  color: var(--k-give);
+}
+
+.khata .k-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.khata .k-row.end {
+  justify-content: flex-end;
+}
+
+.khata .k-form {
+  display: grid;
+  gap: 12px;
+}
+
+.khata .k-form label {
+  display: grid;
+  gap: 4px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.khata .k-form input,
+.khata .k-form select,
+.khata .k-form textarea {
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--k-line);
+  background: var(--k-bg);
+  color: var(--k-text);
+  font: 16px var(--font-body);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.khata .k-error {
+  color: var(--k-give);
+  font-weight: 700;
+  margin: 0;
+}
+
+.khata .k-ok {
+  color: var(--k-get);
+  font-weight: 700;
+  margin: 0;
+}
+
+.khata .k-get {
+  color: var(--k-get);
+}
+
+.khata .k-give {
+  color: var(--k-give);
+}
+
+.khata .k-amount {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.khata .k-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.khata .k-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--k-surface);
+  border: 1px solid var(--k-line);
+  color: var(--k-text);
+  text-decoration: none;
+  text-align: start;
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+}
+
+.khata .k-item small {
+  display: block;
+  color: var(--k-muted);
+  font-weight: 400;
+}
+
+.khata .k-totals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.khata .k-total {
+  background: var(--k-surface);
+  border: 1px solid var(--k-line);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.khata .k-total span {
+  display: block;
+  font-size: 13px;
+  color: var(--k-muted);
+}
+
+.khata .k-banner {
+  background: var(--k-warn-bg);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 0;
+}

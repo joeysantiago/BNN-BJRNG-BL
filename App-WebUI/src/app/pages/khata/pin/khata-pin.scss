@@ -1,0 +1,20 @@
+:host {
+  display: block;
+}
+
+.pin {
+  justify-items: center;
+  text-align: center;
+  padding-block-start: 48px;
+}
+
+.brand {
+  margin: 0;
+  font-weight: 800;
+  color: var(--k-brand);
+  letter-spacing: 0.04em;
+}
+
+.wide {
+  width: min(280px, 100%);
+}

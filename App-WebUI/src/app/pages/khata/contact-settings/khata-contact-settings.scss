@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+.back {
+  justify-self: start;
+}
+
+.toggle {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.toggle input {
+  width: 22px !important;
+  min-height: 22px !important;
+}

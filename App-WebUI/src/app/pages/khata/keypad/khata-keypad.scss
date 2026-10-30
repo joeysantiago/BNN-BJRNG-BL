@@ -1,0 +1,48 @@
+:host {
+  display: grid;
+  gap: 18px;
+  justify-items: center;
+}
+
+.dots {
+  display: flex;
+  gap: 14px;
+  min-height: 18px;
+}
+
+.dots span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--k-brand);
+}
+
+.dots span.on {
+  background: var(--k-brand);
+}
+
+.pad {
+  display: grid;
+  grid-template-columns: repeat(3, 72px);
+  gap: 12px;
+  direction: ltr;
+}
+
+.key {
+  min-height: 56px;
+  border-radius: 50%;
+  aspect-ratio: 1;
+  border: 1px solid var(--k-line);
+  background: var(--k-surface);
+  color: var(--k-text);
+  font: 700 22px var(--font-body);
+  cursor: pointer;
+}
+
+.key:disabled {
+  opacity: 0.5;
+}
+
+.key.back {
+  font-size: 20px;
+}

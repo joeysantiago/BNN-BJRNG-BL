@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.login {
+  width: min(440px, 100% - 32px);
+  padding-block-start: 40px;
+}
+
+.brand {
+  font-weight: 800;
+  font-size: 20px;
+  text-decoration: none;
+  text-align: center;
+}

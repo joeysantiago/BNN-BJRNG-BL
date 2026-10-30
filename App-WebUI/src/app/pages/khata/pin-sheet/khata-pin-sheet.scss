@@ -1,0 +1,22 @@
+.sheet {
+  width: min(380px, 100% - 32px);
+  border: 1px solid var(--k-line);
+  border-radius: var(--k-radius);
+  background: var(--k-surface);
+  color: var(--k-text);
+  padding: 20px;
+  text-align: center;
+}
+
+.sheet::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.sheet h2 {
+  font-size: 1.2rem;
+  margin: 0 0 6px;
+}
+
+.sheet app-khata-keypad {
+  margin-block: 16px;
+}
