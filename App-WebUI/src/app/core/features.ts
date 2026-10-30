@@ -23,6 +23,7 @@ export const FEATURES: FeatureInfo[] = [
   { id: 'page.about', group: 'pages', label: 'About', help: '/about' },
   { id: 'page.privacy', group: 'pages', label: 'Privacy', help: '/privacy' },
   { id: 'page.terms', group: 'pages', label: 'Terms', help: '/terms' },
+  { id: 'page.khata', group: 'pages', label: 'SnapKhata', help: '/khata and the whole SnapKhata app' },
 
   { id: 'speed.clock', group: 'speed', label: 'Clock and elapsed time', help: 'The two chips under the gauge.' },
   { id: 'speed.progress', group: 'speed', label: 'Progress bar', help: 'Whole-test progress.' },
@@ -66,10 +67,11 @@ const PAGE_FEATURES: Record<string, FeatureId> = {
   '/about': 'page.about',
   '/privacy': 'page.privacy',
   '/terms': 'page.terms',
+  '/khata': 'page.khata',
 };
 
-/** The switch that controls the page at this address, or null for pages that cannot be switched off (config, errors). */
+/** The switch that controls the page at this address, or null for pages that cannot be switched off (config, errors). Every SnapKhata screen follows page.khata. */
 export function pageFeature(url: string): FeatureId | null {
   const path = url.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
-  return PAGE_FEATURES[path] ?? null;
+  return PAGE_FEATURES[path] ?? (path.startsWith('/khata/') ? 'page.khata' : null);
 }

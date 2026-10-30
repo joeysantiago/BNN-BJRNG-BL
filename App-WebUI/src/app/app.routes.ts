@@ -1,7 +1,9 @@
 import { Routes } from '@angular/router';
 import { Speedtest } from './pages/speedtest/speedtest';
+import { khataSessionGuard, khataUnlockedGuard } from './core/khata.guards';
 
 const status = () => import('./pages/not-found/status-page').then((m) => m.StatusPage);
+const khataPin = () => import('./pages/khata/pin/khata-pin').then((m) => m.KhataPin);
 const staticPage = () => import('./pages/static/static-page').then((m) => m.StaticPage);
 
 export const routes: Routes = [
@@ -22,6 +24,26 @@ export const routes: Routes = [
   { path: 'audio', redirectTo: 'creta' },
 
   { path: 'youtube', loadComponent: () => import('./pages/youtube/youtube').then((m) => m.Youtube) },
+
+  // SnapKhata: /khata is the public page; the app itself needs a login and the PIN (guards), and every fresh start asks for the PIN again.
+  { path: 'khata', loadComponent: () => import('./pages/khata/landing/khata-landing').then((m) => m.KhataLanding) },
+  { path: 'khata/login', loadComponent: () => import('./pages/khata/login/khata-login').then((m) => m.KhataLogin) },
+  { path: 'khata/set-pin', loadComponent: khataPin, canActivate: [khataSessionGuard], data: { mode: 'set' } },
+  { path: 'khata/unlock', loadComponent: khataPin, canActivate: [khataSessionGuard], data: { mode: 'unlock' } },
+  {
+    path: 'khata/app',
+    loadComponent: () => import('./pages/khata/shell/khata-shell').then((m) => m.KhataShell),
+    canActivate: [khataUnlockedGuard],
+    canActivateChild: [khataUnlockedGuard],
+    children: [
+      { path: '', loadComponent: () => import('./pages/khata/home/khata-home').then((m) => m.KhataHome) },
+      { path: 'books', loadComponent: () => import('./pages/khata/books/khata-books').then((m) => m.KhataBooks) },
+      { path: 'profile', loadComponent: () => import('./pages/khata/profile/khata-profile').then((m) => m.KhataProfile) },
+      { path: 'b/:bookId', loadComponent: () => import('./pages/khata/contacts/khata-contacts').then((m) => m.KhataContacts) },
+      { path: 'b/:bookId/contact/:contactId', loadComponent: () => import('./pages/khata/ledger/khata-ledger').then((m) => m.KhataLedger) },
+      { path: 'b/:bookId/contact/:contactId/settings', loadComponent: () => import('./pages/khata/contact-settings/khata-contact-settings').then((m) => m.KhataContactSettings) },
+    ],
+  },
 
   { path: 'about', loadComponent: staticPage, data: { kind: 'about' } },
   { path: 'privacy', loadComponent: staticPage, data: { kind: 'privacy' } },

@@ -1167,6 +1167,44 @@ dotnet user-secrets set "Khata:WebPush:VapidPrivateKey" "<generated>"
 
 ## 8. Screen mockups (mobile first, 320 px+)
 
+**As built (step 4: UI, 31-10-2026):**
+- **Screens** in `App-WebUI/src/app/pages/khata/`, one folder each with `.ts`/`.html`/`.scss`:
+  - `landing` (`/khata`: public, prerendered, in the sitemap; WebApplication and FAQPage JSON-LD)
+  - `login` (`/khata/login`)
+  - `pin` (`/khata/set-pin` and `/khata/unlock`)
+  - `shell` (`/khata/app`: own top bar with the book switcher, Lock and Profile; the site header and footer are hidden)
+  - `home` (opens the last book, or "Create your first book")
+  - `contacts` (`b/:bookId`)
+  - `ledger` (`b/:bookId/contact/:contactId`)
+  - `contact-settings`
+  - `books` (books and your own money types)
+  - `profile` (language, change PIN, lock, log out)
+  - shared `keypad` and `pin-sheet`
+- **Services** in `core/`:
+  - `khata-session.service.ts`:
+    - the access token lives in memory only, so every fresh start (new tab, reload, installed app) asks for the PIN
+    - the refresh cookie is sent with `credentials: 'include'`
+    - one refresh at a time, also across tabs (Web Locks)
+    - the unlocked token is renewed while the app is in use
+    - the app locks after 5 minutes hidden
+    - unlock, lock and logout are shared between tabs (`BroadcastChannel`)
+    - Lock remembers the screen and returns to it after the PIN
+  - `khata-api.service.ts` (ledger calls; creates send an `X-Idempotency-Key` made when the form opened), `khata-pin-prompt.service.ts` (PIN sheet that returns a single-use proof), `khata-state.service.ts` (books and money types for the switcher), and `khata.guards.ts`.
+  - Models are in `core/models/khata.model.ts`; money and date helpers in `core/khata-format.ts`. Amounts are parsed digit by digit into `amountMinor` (no floating point), and dates show as `DD-MM-YYYY`.
+- **Edit and delete** ask for the PIN when Save or Delete is pressed, not when the form opens, so the 2-minute proof is always fresh.
+- **Texts:** a `khata` row in `INSERT/Common/007_Translations.sql` with 138 keys in en/hi/ar. Every key the code uses has a text, and every text is used. Arabic flips the layout (logical CSS properties).
+- **Wiring:**
+  - `page.khata` in `/master` switches off `/khata` and every SnapKhata screen (`features.ts`)
+  - `PageId` / `FeatureId` include `khata`
+  - `/khata` is prerendered (`app.routes.server.ts`, `scripts/postbuild.mjs`) and listed in the sitemap
+- **Look:** the app styles are one section of `src/styles.scss` under `.khata`: green and red amounts, light and dark, every button at least 44 px.
+- **Fixed on the way (existing app code):** `app.ts` read `location.pathname`, which with hash routing is always `/`. So any reload with Hindi or Arabic chosen jumped to the speed-test home (also on `/#/creta` etc.). It now reads the route from the hash.
+- **Share image:** `/khata` uses `og/default.png` until a SnapKhata card is added to `scripts/generate-images.mjs` (that script redraws every image).
+- **Tested:**
+  - the prerendered `/khata` HTML (without JS: title, description, canonical, one `h1`, JSON-LD, FAQ, no raw keys)
+  - 23 browser checks in headless Chrome against a temporary database: login with OTP, set PIN twice, first book (My Khata, INR), contact, "You gave ₹1,500.00", edit to ₹2,000.00 through the PIN sheet ("Edited"), delete through the PIN sheet ("Deleted", balance settled), Lock → PIN → same ledger, reload → PIN asked again → same ledger, Arabic right to left, 320 px without sideways scroll, every control at least 44 px, no JavaScript errors
+  - Not tested: a real phone, Safari, and the visual look by eye (no screenshots were reviewed).
+
 **A. `/khata` landing (public)**
 ```
 ┌────────────────────────────────┐
