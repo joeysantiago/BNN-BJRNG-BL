@@ -112,7 +112,7 @@ public class KhataAuthController : ControllerBase
     [HttpPut("pin")]
     [Authorize(Policy = KhataPolicies.Unlocked)]
     [EnableRateLimiting(SecurityExtensions.KhataPinPolicy)]
-    public async Task<ActionResult<ApiResponse<object?>>> ChangePin([FromBody] PinRequestDto request, [FromHeader(Name = "X-Khata-Pin-Proof")] string? proof, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<object?>>> ChangePin([FromBody] PinRequestDto request, [FromHeader(Name = KhataHeaders.PinProof)] string? proof, CancellationToken cancellationToken)
     {
         var message = await _pinService.ChangeAsync(HttpContext.KhataCaller(), request.Pin, proof, cancellationToken);
 
