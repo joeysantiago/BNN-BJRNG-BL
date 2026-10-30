@@ -30,6 +30,21 @@ BEGIN
         ('YOUTUBE_KEY_SAVED', N'{"en":"The YouTube API key was saved.","hi":"YouTube API कुंजी सहेज ली गई।","ar":"تم حفظ مفتاح YouTube API."}'),
         ('YOUTUBE_KEY_REJECTED', N'{"en":"YouTube did not accept this API key. Check the key and that the YouTube Data API v3 is enabled for it.","hi":"YouTube ने यह API कुंजी स्वीकार नहीं की। कुंजी जाँचें और देखें कि उसके लिए YouTube Data API v3 चालू है।","ar":"لم يقبل YouTube مفتاح API هذا. تحقق من المفتاح ومن تفعيل YouTube Data API v3 له."}'),
         ('SETTINGS_SAVED', N'{"en":"Settings saved.","hi":"सेटिंग्स सहेजी गईं।","ar":"تم حفظ الإعدادات."}'),
-        ('SETTINGS_INVALID', N'{"en":"Some of the settings are not valid.","hi":"कुछ सेटिंग्स मान्य नहीं हैं।","ar":"بعض الإعدادات غير صالحة."}');
+        ('SETTINGS_INVALID', N'{"en":"Some of the settings are not valid.","hi":"कुछ सेटिंग्स मान्य नहीं हैं।","ar":"بعض الإعدادات غير صالحة."}'),
+        ('KHATA_OTP_SENT', N'{"en":"If the details are correct, a code has been sent. It is valid for {0} minutes.","hi":"यदि विवरण सही हैं, तो एक कोड भेज दिया गया है। यह {0} मिनट तक मान्य है।","ar":"إذا كانت البيانات صحيحة، فقد تم إرسال رمز. وهو صالح لمدة {0} دقائق."}'),
+        ('KHATA_IDENTIFIER_INVALID', N'{"en":"Enter a valid email address or mobile number.","hi":"मान्य ईमेल पता या मोबाइल नंबर दर्ज करें।","ar":"أدخل بريدًا إلكترونيًا أو رقم جوال صالحًا."}'),
+        ('KHATA_OTP_TOO_SOON', N'{"en":"Please wait {0} seconds before asking for a new code.","hi":"नया कोड मांगने से पहले कृपया {0} सेकंड प्रतीक्षा करें।","ar":"يرجى الانتظار {0} ثانية قبل طلب رمز جديد."}'),
+        ('KHATA_OTP_LIMIT', N'{"en":"Too many codes were requested. Please try again later.","hi":"बहुत अधिक कोड मांगे गए। कृपया बाद में फिर से प्रयास करें।","ar":"تم طلب رموز كثيرة جدًا. يرجى المحاولة لاحقًا."}'),
+        ('KHATA_OTP_INVALID', N'{"en":"The code is not correct or has expired.","hi":"कोड सही नहीं है या उसकी समय-सीमा समाप्त हो गई है।","ar":"الرمز غير صحيح أو انتهت صلاحيته."}'),
+        ('KHATA_SESSION_INVALID', N'{"en":"Your session has ended. Please log in again.","hi":"आपका सत्र समाप्त हो गया है। कृपया फिर से लॉग इन करें।","ar":"انتهت جلستك. يرجى تسجيل الدخول مرة أخرى."}'),
+        ('KHATA_LOGGED_OUT', N'{"en":"You have been logged out.","hi":"आप लॉग आउट हो गए हैं।","ar":"تم تسجيل خروجك."}'),
+        ('KHATA_PIN_WEAK', N'{"en":"Choose a PIN of {0} to {1} digits that is not easy to guess.","hi":"{0} से {1} अंकों का ऐसा पिन चुनें जिसका अनुमान लगाना आसान न हो।","ar":"اختر رمز PIN من {0} إلى {1} أرقام لا يسهل تخمينه."}'),
+        ('KHATA_PIN_ALREADY_SET', N'{"en":"A PIN is already set. Use Change PIN, or log in again if you forgot it.","hi":"पिन पहले से सेट है। पिन बदलें का उपयोग करें, या भूल जाने पर फिर से लॉग इन करें।","ar":"تم تعيين رمز PIN بالفعل. استخدم تغيير رمز PIN، أو سجّل الدخول مرة أخرى إذا نسيته."}'),
+        ('KHATA_PIN_NOT_SET', N'{"en":"Set your PIN first.","hi":"पहले अपना पिन सेट करें।","ar":"عيّن رمز PIN أولاً."}'),
+        ('KHATA_PIN_INVALID', N'{"en":"Wrong PIN. Tries left: {0}.","hi":"गलत पिन। {0} प्रयास शेष हैं।","ar":"رمز PIN خاطئ. المحاولات المتبقية: {0}."}'),
+        ('KHATA_PIN_LOCKED', N'{"en":"Too many wrong tries. Try again in {0} minutes.","hi":"बहुत अधिक गलत प्रयास। {0} मिनट बाद फिर से प्रयास करें।","ar":"محاولات خاطئة كثيرة جدًا. حاول مرة أخرى بعد {0} دقيقة."}'),
+        ('KHATA_PIN_RESET', N'{"en":"Too many wrong tries. Log in again and set a new PIN.","hi":"बहुत अधिक गलत प्रयास। फिर से लॉग इन करें और नया पिन सेट करें।","ar":"محاولات خاطئة كثيرة جدًا. سجّل الدخول مرة أخرى وعيّن رمز PIN جديدًا."}'),
+        ('KHATA_PIN_REQUIRED', N'{"en":"Enter your PIN to continue.","hi":"जारी रखने के लिए अपना पिन दर्ज करें।","ar":"أدخل رمز PIN للمتابعة."}'),
+        ('KHATA_PIN_CHANGED', N'{"en":"Your PIN has been changed.","hi":"आपका पिन बदल दिया गया है।","ar":"تم تغيير رمز PIN الخاص بك."}');
 END
 GO
