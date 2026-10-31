@@ -1,0 +1,213 @@
+/* Settings (/master). Moved from thakurg.html as it was. */
+/* src/app/pages/config/config.scss */
+.sc-cfg .page {
+  display: grid;
+  gap: 20px;
+  padding-block: 24px 0;
+}
+
+.sc-cfg h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 600;
+}
+
+.sc-cfg h2 {
+  margin-block-end: 6px;
+}
+
+.sc-cfg .lead,
+.sc-cfg .note,
+.sc-cfg .help {
+  color: var(--muted);
+}
+
+.sc-cfg .bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-start: 16px;
+}
+
+.sc-cfg .status {
+  margin: 0;
+  font-weight: 600;
+}
+
+.sc-cfg .status.bad,
+.sc-cfg .was.bad {
+  color: var(--bad, #c0392b);
+}
+
+.sc-cfg .rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sc-cfg .rows li {
+  padding: 10px 14px;
+}
+
+.sc-cfg .rows label:not(.stack) {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.sc-cfg .rows input[type=checkbox] {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent, currentColor);
+}
+
+.sc-cfg .txt {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.sc-cfg .txt small,
+.sc-cfg .was {
+  color: var(--muted);
+}
+
+.sc-cfg .pill {
+  flex: none;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.sc-cfg .pill.on {
+  color: var(--text);
+}
+
+.sc-cfg .diff {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: -2px;
+}
+
+.sc-cfg .stack {
+  display: grid;
+  gap: 6px;
+}
+
+.sc-cfg .setup {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  margin-block-start: 16px;
+}
+
+.sc-cfg .setup label {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.sc-cfg .setup-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sc-cfg .fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 14px;
+  margin-block-start: 12px;
+}
+
+.sc-cfg select,
+.sc-cfg input[type=text],
+.sc-cfg input[type=number],
+.sc-cfg input[type=password],
+.sc-cfg input[type=url],
+.sc-cfg textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line, rgba(128, 128, 128, 0.4));
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.sc-cfg textarea {
+  direction: ltr;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.sc-cfg .pw {
+  margin-block-start: 20px;
+  padding-block-start: 16px;
+  border-block-start: 1px solid var(--line, rgba(128, 128, 128, 0.4));
+}
+
+.sc-cfg .pw h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.sc-cfg .pw .help {
+  margin: 0;
+}
+
+.sc-cfg .pw ~ .status {
+  margin-block-start: 16px;
+}
+
+.sc-cfg .sechead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sc-cfg .sechead h2 {
+  margin: 0;
+  min-width: 0;
+}
+
+.sc-cfg .topbar {
+  display: grid;
+  gap: 12px;
+}
+
+.sc-cfg .topbar .bar {
+  margin-block-start: 0;
+}
+
+.sc-cfg .acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.sc-cfg .status:empty {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  /* stays in view while you scroll through the sections; the site header is about 70px tall */
+  .sc-cfg .topbar {
+    position: sticky;
+    inset-block-start: 76px;
+    z-index: 5;
+  }
+}

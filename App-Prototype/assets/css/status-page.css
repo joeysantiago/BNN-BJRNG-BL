@@ -1,0 +1,31 @@
+/* 404, error and offline pages. Moved from thakurg.html as it was. */
+/* src/app/pages/not-found/status-page.scss */
+.sc-status .page {
+  padding-block: 32px 0;
+}
+
+.sc-status .box {
+  max-width: 560px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.sc-status .code {
+  display: inline-grid;
+  place-items: center;
+  min-width: 120px;
+  padding: 16px 28px;
+  margin: 0 0 20px;
+  font: 800 3rem/1 var(--inset-font);
+}
+
+.sc-status h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 5vw, 2.4rem);
+  font-weight: 600;
+}
+
+.sc-status .msg {
+  color: var(--muted);
+  margin-bottom: 24px;
+}

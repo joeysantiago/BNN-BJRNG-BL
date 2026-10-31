@@ -1,0 +1,4 @@
+/* Currencies (SnapKhata). Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+'use strict';
+
+const CURRENCIES = [{"code":"INR","symbol":"₹","name":"Indian rupee","decimals":2},{"code":"AED","symbol":"د.إ","name":"UAE dirham","decimals":2},{"code":"SAR","symbol":"﷼","name":"Saudi riyal","decimals":2},{"code":"USD","symbol":"$","name":"US dollar","decimals":2},{"code":"EUR","symbol":"€","name":"Euro","decimals":2},{"code":"GBP","symbol":"£","name":"British pound","decimals":2},{"code":"KWD","symbol":"د.ك","name":"Kuwaiti dinar","decimals":3},{"code":"OMR","symbol":"ر.ع.","name":"Omani rial","decimals":3},{"code":"BHD","symbol":".د.ب","name":"Bahraini dinar","decimals":3},{"code":"QAR","symbol":"ر.ق","name":"Qatari riyal","decimals":2},{"code":"NPR","symbol":"रु","name":"Nepalese rupee","decimals":2},{"code":"PKR","symbol":"₨","name":"Pakistani rupee","decimals":2},{"code":"BDT","symbol":"৳","name":"Bangladeshi taka","decimals":2}];
