@@ -1,0 +1,466 @@
+/* YouTube page. Moved from thakurg.html as it was. */
+/* src/app/pages/youtube/youtube.scss */
+.sc-yt {
+  display: block;
+}
+
+.sc-yt .page {
+  display: grid;
+  gap: 24px;
+  align-content: start;
+  padding-block: 24px 0;
+  max-width: 760px;
+  /* The player appears after the playlist loads. Reserving the height keeps the footer from jumping. */
+  min-height: calc(100dvh - 200px);
+}
+
+.sc-yt h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 5vw, 2.5rem);
+  font-weight: 600;
+  text-align: center;
+}
+
+.sc-yt .lead {
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.sc-yt .now {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
+.sc-yt .art {
+  display: grid;
+  place-items: center;
+  width: clamp(112px, 30vw, 176px);
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  color: var(--inset-muted);
+}
+
+.sc-yt .art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sc-yt .label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.sc-yt .title {
+  margin: 4px 0 2px;
+  font-size: clamp(1.15rem, 3.4vw, 1.6rem);
+  overflow-wrap: anywhere;
+}
+
+.sc-yt .artist {
+  margin: 0;
+  color: var(--muted);
+}
+
+.sc-yt .err {
+  margin: 12px 0 0;
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* Sliders */
+.sc-yt input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sc-yt input[type=range]::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--inset-bg);
+  box-shadow: var(--inset-shadow);
+  border: var(--inset-border);
+}
+
+.sc-yt input[type=range]::-moz-range-track {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--inset-bg);
+  box-shadow: var(--inset-shadow);
+  border: var(--inset-border);
+}
+
+.sc-yt input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: var(--pri-bg);
+  border: var(--pri-border);
+  box-shadow: var(--pri-shadow);
+}
+
+.sc-yt input[type=range]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--pri-bg);
+  border: var(--pri-border);
+  box-shadow: var(--pri-shadow);
+}
+
+.sc-yt .seek {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-block: 22px 8px;
+}
+
+.sc-yt .t {
+  font: 700 14px var(--font-mono);
+  color: var(--muted);
+  min-width: 3.2ch;
+}
+
+.sc-yt .controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 2.5vw, 18px);
+  margin-block: 12px;
+}
+
+.sc-yt .btn.big {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  padding: 0;
+}
+
+.sc-yt .rep {
+  position: relative;
+}
+
+.sc-yt .one {
+  position: absolute;
+  inset-block-end: 4px;
+  inset-inline-end: 6px;
+  font: 800 10px var(--font-body);
+}
+
+.sc-yt .vol {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 320px;
+  margin: 12px auto 0;
+}
+
+.sc-yt .empty {
+  padding: 24px;
+  text-align: center;
+}
+
+.sc-yt .empty-h {
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.sc-yt .empty p:last-child {
+  margin: 0;
+  color: var(--inset-muted);
+}
+
+/* Playlist */
+.sc-yt .list h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+}
+
+.sc-yt .list ol,
+.sc-yt .list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.sc-yt .row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 14px;
+  border: var(--btn-border);
+  border-radius: 16px;
+  background: var(--btn-bg);
+  color: var(--btn-color);
+  box-shadow: var(--btn-shadow);
+  font: 600 15px var(--font-body);
+  text-align: start;
+  cursor: pointer;
+  text-shadow: var(--card-text-shadow);
+}
+
+.sc-yt .row:hover {
+  box-shadow: var(--btn-hover-shadow);
+}
+
+.sc-yt .row.on {
+  box-shadow: var(--btn-active-shadow);
+}
+
+.sc-yt .n {
+  flex: none;
+  min-width: 2ch;
+  font: 800 14px var(--font-mono);
+  opacity: 0.75;
+}
+
+.sc-yt .tt {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+}
+
+.sc-yt .tt b {
+  overflow-wrap: anywhere;
+}
+
+.sc-yt .tt small {
+  opacity: 0.8;
+}
+
+.sc-yt .eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+}
+
+.sc-yt .eq i {
+  display: block;
+  width: 4px;
+  height: 100%;
+  border-radius: 2px;
+  background: currentColor;
+  transform-origin: bottom;
+  animation: eq 0.9s ease-in-out infinite;
+}
+
+.sc-yt .eq i:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.sc-yt .eq i:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes eq {
+  0%, 100% {
+    transform: scaleY(0.25);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+/* Playlist editing */
+.sc-yt .list-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.sc-yt .list-head h2 {
+  flex: 1;
+  margin: 0;
+}
+
+.sc-yt .item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sc-yt .item .row {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+
+.sc-yt .del {
+  flex: none;
+}
+
+.sc-yt .note {
+  margin: 20px 0 0;
+  font-size: 13px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.sc-yt .find {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sc-yt .find input {
+  flex: 1 1 220px;
+  min-height: 48px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  color: inherit;
+  font: 500 16px var(--font-body);
+}
+
+.sc-yt .find .btn {
+  min-height: 48px;
+}
+
+/* Space between the search box and whatever panel follows it (empty state, key box, player). */
+.sc-yt .player > .find {
+  margin-bottom: 24px;
+}
+
+/* The player is always 16:9 and never smaller than YouTube asks for. It is hidden until a video is chosen. */
+.sc-yt .video {
+  display: none;
+  width: min(480px, 100%);
+  margin: 20px auto 0;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  border-radius: var(--inset-radius);
+  background: #000;
+  box-shadow: var(--inset-shadow);
+}
+
+.sc-yt .video.on {
+  display: block;
+}
+
+/* Video off: stays in the page so audio keeps playing, but takes no space. */
+.sc-yt .video.off {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  clip-path: inset(50%);
+  pointer-events: none;
+}
+
+.sc-yt .tip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  font-size: 14px;
+}
+
+.sc-yt .tip span {
+  flex: 1 1 220px;
+}
+
+.sc-yt .pl-save,
+.sc-yt .pl-new {
+  margin-top: 14px;
+}
+
+.sc-yt .pl-target {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  font-weight: 700;
+}
+
+.sc-yt .pl summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px 14px;
+  border: var(--btn-border);
+  border-radius: 16px;
+  background: var(--btn-bg);
+  color: var(--btn-color);
+  box-shadow: var(--btn-shadow);
+  cursor: pointer;
+}
+
+.sc-yt .pl summary b {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.sc-yt .pl-edit {
+  margin: 12px 0;
+}
+
+.sc-yt .pl ol {
+  margin: 0 0 8px;
+}
+
+.sc-yt .vopts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px auto 0;
+}
+
+.sc-yt .vopts .btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sc-yt .video:fullscreen {
+  width: 100%;
+  margin: 0;
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+
+.sc-yt .host,
+.sc-yt .host :is(iframe, div) {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.sc-yt .row img {
+  flex: none;
+  width: 64px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+@media (max-width: 460px) {
+  .sc-yt .now {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+}

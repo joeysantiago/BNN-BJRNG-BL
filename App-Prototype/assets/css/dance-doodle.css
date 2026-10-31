@@ -1,0 +1,26 @@
+/* Dance doodle (players). Moved from thakurg.html as it was. */
+/* src/app/shared/dance-doodle.scss */
+.sc-doodle {
+  display: block;
+  margin-block: 20px;
+}
+
+/* The ratio is reserved before the canvas is drawn, so the page does not jump. */
+.sc-doodle .stage {
+  overflow: hidden;
+  aspect-ratio: 800/340;
+}
+
+.sc-doodle canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sc-doodle .picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-block-start: 12px;
+}

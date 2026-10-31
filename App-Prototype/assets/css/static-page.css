@@ -1,0 +1,11 @@
+/* About, privacy and terms. Moved from thakurg.html as it was. */
+/* src/app/pages/static/static-page.scss */
+.sc-static .page {
+  padding-block: 24px 0;
+}
+
+.sc-static h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 600;
+}

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-mode="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<meta name="theme-color" content="#ffffff" />
+<meta name="description" content="Master dashboard of the thakurg.com prototype: every feature page in one place, with one language and one theme setting." />
+<title>thakurg.com prototype</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Crect width=%2224%22 height=%2224%22 rx=%226%22 fill=%22%236a46f0%22/%3E%3Cpath d=%22M12 14l4-4M5.3 18a8 8 0 1 1 13.4 0%22 fill=%22none%22 stroke=%22white%22 stroke-width=%222.2%22 stroke-linecap=%22round%22/%3E%3C/svg%3E" />
+<script>
+  // Paint the saved mode, language direction and sidebar state before the first frame, so nothing flashes.
+  (function () {
+    try {
+      var m = localStorage.getItem('thakurg-proto-mode') || 'system';
+      var dark = m === 'dark' || (m === 'system' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+      var l = localStorage.getItem('thakurg-proto-lang') || 'en';
+      var r = document.documentElement;
+      r.setAttribute('data-mode', dark ? 'dark' : 'light');
+      r.lang = /^(en|hi|ar)$/.test(l) ? l : 'en';
+      r.dir = l === 'ar' ? 'rtl' : 'ltr';
+      if (localStorage.getItem('thakurg-proto-sidebar') === 'collapsed')
+        r.classList.add('rail');
+    } catch (e) {}
+  })();
+</script>
+<link rel="stylesheet" href="assets/css/fonts.css" />
+<link rel="stylesheet" href="assets/css/dashboard.css" />
+</head>
+<body>
+<a class="skip" href="#content-frame" data-act="skip">Skip to content</a>
+<div class="dash">
+  <header class="dash-head">
+    <button type="button" class="icon-btn menu-btn" id="menu-btn" aria-controls="dash-side" aria-expanded="false"></button>
+    <a class="dash-brand" href="#/" id="brand">
+      <span class="dash-mark" aria-hidden="true"></span>
+      <span class="dash-name"><b>thakurg.com</b><small id="brand-sub"></small></span>
+    </a>
+    <p class="dash-crumb" id="crumb" aria-live="polite"></p>
+    <div class="dash-tools">
+      <label class="field-select" id="lang-wrap"><span class="sr" id="lang-label"></span><span class="fs-ic" aria-hidden="true" id="lang-ic"></span><select id="lang-select" aria-labelledby="lang-label"></select></label>
+      <div class="theme-menu" id="theme-menu">
+        <button type="button" class="field-select theme-btn" id="theme-btn" aria-haspopup="true" aria-expanded="false" aria-controls="theme-pop"></button>
+        <div class="theme-pop" id="theme-pop" hidden></div>
+      </div>
+      <a class="icon-btn" id="standalone" target="_blank" rel="noopener"></a>
+    </div>
+  </header>
+  <aside class="dash-side" id="dash-side">
+    <nav id="dash-nav"></nav>
+    <button type="button" class="collapse-btn" id="collapse-btn"></button>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+  <main class="dash-main">
+    <div class="frame-load" id="frame-load" aria-hidden="true"></div>
+    <iframe id="content-frame" class="content-frame" title="Feature page" tabindex="-1"></iframe>
+  </main>
+</div>
+<script src="assets/js/routes.js"></script>
+<script src="assets/js/bridge.js"></script>
+<script src="assets/js/dashboard.js"></script>
+</body>
+</html>

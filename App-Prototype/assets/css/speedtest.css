@@ -1,0 +1,537 @@
+/* Speed test page. Moved from thakurg.html as it was. */
+/* src/app/pages/speedtest/speedtest.scss */
+.sc-speed {
+  display: block;
+}
+
+.sc-speed .page {
+  display: grid;
+  gap: 24px;
+  padding-block: 24px 0;
+}
+
+.sc-speed .hero {
+  text-align: center;
+}
+
+.sc-speed h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 5.5vw, 2.8rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  max-width: 20ch;
+  margin-inline: auto;
+}
+
+.sc-speed h1 em {
+  font-style: italic;
+  color: var(--accent-ink);
+}
+
+.sc-speed .lead {
+  max-width: 56ch;
+  margin: 0 auto 24px;
+  color: var(--muted);
+  font-size: clamp(1rem, 2.6vw, 1.125rem);
+}
+
+/* ---------- Dial ---------- */
+/* A segmented 240° ring on the card itself (no box): bars light up with the speed, the leading bar glows,
+   a small marker keeps the peak of the current phase, and the reading sits in the centre. */
+.sc-speed .dial {
+  position: relative;
+  width: min(400px, 100%);
+  margin: 0 auto 8px;
+  container-type: inline-size;
+}
+
+/* A soft glow in the middle of the ring. It pulses while a test is running. 50cqi = the ring centre. */
+.sc-speed .dial::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 50cqi;
+  width: 64cqi;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--gauge-a) 28%, transparent), transparent 75%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.sc-speed .dial.live::before {
+  animation: glow 1.8s ease-in-out infinite;
+}
+
+@keyframes glow {
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+.sc-speed .dial svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sc-speed .g-inner {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.2;
+  stroke-dasharray: 0.1 6;
+  stroke-linecap: round;
+  opacity: 0.45;
+}
+
+.sc-speed .g-seg line {
+  stroke: var(--track);
+  stroke-width: 4.2;
+  stroke-linecap: round;
+  transition: stroke 0.25s, stroke-width 0.25s;
+}
+
+.sc-speed .g-seg line.on {
+  stroke: color-mix(in srgb, var(--gauge-b) calc(var(--k) * 100%), var(--gauge-a));
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--gauge-a) 60%, transparent));
+}
+
+.sc-speed .g-seg line.head {
+  stroke-width: 6.5;
+  filter: drop-shadow(0 0 6px var(--gauge-b)) drop-shadow(0 0 12px var(--gauge-a));
+}
+
+.sc-speed .g-label {
+  font: 700 10px var(--font-body);
+  fill: var(--muted);
+  opacity: 0.7;
+  transition: fill 0.25s, opacity 0.25s;
+}
+
+.sc-speed .g-label.on {
+  fill: var(--text);
+  opacity: 1;
+}
+
+.sc-speed .g-peak {
+  fill: var(--text);
+  transition: opacity 0.2s;
+}
+
+.sc-speed .read {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 50cqi;
+  translate: 0 -50%;
+  display: grid;
+  justify-items: center;
+  line-height: 1;
+}
+
+.sc-speed .val {
+  font: 800 16cqi var(--font-body);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.sc-speed .unit {
+  margin-block-start: 2.2cqi;
+  font: 700 4.4cqi var(--font-body);
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+/* ---------- One-screen layout ---------- */
+/* A smaller title and lead, and on wide screens the meter on the left with the status, button and results on the right,
+   so the whole test fits on one screen without scrolling. */
+.sc-speed .page {
+  padding-block: 16px 0;
+}
+
+.sc-speed .hero {
+  padding-block: clamp(16px, 2.5vw, 28px);
+}
+
+.sc-speed h1 {
+  max-width: none;
+  margin-block-end: 0.3em;
+  font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+}
+
+.sc-speed .lead {
+  margin-block-end: 12px;
+  font-size: clamp(0.95rem, 1.6vw, 1.05rem);
+}
+
+@media (min-width: 960px) {
+  .sc-speed .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: center;
+  }
+
+  .sc-speed .dial {
+    width: min(360px, 100%);
+  }
+
+  .sc-speed .hero-side .status {
+    margin-block-start: 0;
+  }
+
+  .sc-speed .hero-side .res {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: none;
+    margin-block-start: 20px;
+  }
+
+  .sc-speed .hero-side .loaded,
+  .sc-speed .hero-side .share-panel {
+    max-width: none;
+  }
+
+  .sc-speed .hero-side .actions {
+    margin-block-start: 16px;
+  }
+}
+
+.sc-speed .result-img {
+  display: block;
+  width: min(560px, 100%);
+  height: auto;
+  margin: 0 auto 8px;
+  border-radius: var(--radius, 16px);
+}
+
+.sc-speed .status {
+  min-height: 1.6em;
+  margin: 12px 0 14px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.sc-speed .status.bad {
+  color: var(--danger);
+}
+
+/* ---------- Clock, test timer and progress ---------- */
+.sc-speed .live {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-block-start: 16px;
+}
+
+.sc-speed .chip {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 40px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+}
+
+.sc-speed .chip .k {
+  color: var(--inset-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sc-speed .chip .v {
+  min-width: 5.2ch;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-speed .prog {
+  width: min(420px, 100%);
+  height: 8px;
+  margin: 14px auto 0;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--track);
+}
+
+.sc-speed .prog i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--gauge-a), var(--gauge-b));
+  transition: width 0.25s linear;
+}
+
+/* ---------- Latency under load ---------- */
+.sc-speed .loaded {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  align-items: baseline;
+  justify-content: center;
+  max-width: 560px;
+  margin: 12px auto 0;
+  padding: 12px 16px;
+  text-align: start;
+}
+
+.sc-speed .loaded .k {
+  color: var(--inset-muted);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sc-speed .loaded b {
+  font: 800 1.5rem var(--inset-font);
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-speed .loaded small {
+  margin-inline-start: 4px;
+  color: var(--inset-muted);
+  font-size: 0.85rem;
+}
+
+.sc-speed .loaded .hint {
+  flex-basis: 100%;
+  color: var(--inset-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.sc-speed .loaded.bad b {
+  color: var(--danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-speed .dial.live::before {
+    animation: none;
+  }
+  .sc-speed .prog i {
+    transition: none;
+  }
+}
+.sc-speed .go {
+  min-width: min(260px, 100%);
+}
+
+.sc-speed .go.stop {
+  filter: saturate(0.7);
+}
+
+/* ---------- Results ---------- */
+.sc-speed .res {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 28px auto 0;
+  max-width: 560px;
+}
+
+.sc-speed .cell {
+  padding: 14px 12px;
+  text-align: start;
+  transition: transform 0.3s var(--ease);
+}
+
+.sc-speed .cell.on {
+  transform: translateY(-2px);
+  outline: 2px solid var(--gauge-a);
+  outline-offset: 2px;
+}
+
+.sc-speed .cell dt {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--inset-muted);
+}
+
+.sc-speed .cell dd {
+  margin: 4px 0 0;
+  font: 800 1.8rem/1.1 var(--inset-font);
+  font-variant-numeric: tabular-nums;
+  color: var(--inset-text);
+}
+
+.sc-speed .cell dd small {
+  margin-inline-start: 5px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--inset-muted);
+}
+
+@media (min-width: 700px) {
+  .sc-speed .res {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    max-width: none;
+  }
+}
+/* ---------- Share and save ---------- */
+.sc-speed .actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.sc-speed .share-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 16px auto 0;
+  padding: 14px;
+  max-width: 560px;
+}
+
+.sc-speed .share-panel .btn {
+  color: var(--btn-color);
+}
+
+.sc-speed .share-h {
+  font-weight: 700;
+  color: var(--inset-text);
+  margin-inline-end: 4px;
+}
+
+.sc-speed .note {
+  max-width: 62ch;
+  margin: 24px auto 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ---------- History ---------- */
+.sc-speed .hist-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.sc-speed .hist-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+}
+
+.sc-speed .hist-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.sc-speed .hist-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.sc-speed .hist-list time {
+  font-weight: 800;
+}
+
+.sc-speed .hist-list p {
+  margin: 2px 0 0;
+  color: var(--inset-muted);
+  font-size: 14px;
+}
+
+.sc-speed .empty {
+  color: var(--muted);
+}
+
+.sc-speed .hist .note {
+  margin-inline: 0;
+  max-width: none;
+}
+
+/* ---------- Article ---------- */
+.sc-speed .info details {
+  margin-bottom: 10px;
+  padding: 4px 16px;
+  border-radius: 16px;
+  box-shadow: var(--btn-shadow);
+  background: var(--btn-bg);
+  border: var(--btn-border);
+}
+
+.sc-speed .info summary {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--btn-color);
+  text-shadow: var(--card-text-shadow);
+}
+
+.sc-speed .info details[open] {
+  box-shadow: var(--btn-active-shadow);
+}
+
+.sc-speed .info details p {
+  margin: 0 0 12px;
+  color: var(--btn-color);
+}
+
+/* ---------- No internet screen ---------- */
+.sc-speed .offline {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: start center;
+  overflow-y: auto;
+  padding: max(16px, env(safe-area-inset-top)) 16px 16px;
+  background: rgba(10, 5, 14, 0.7);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.sc-speed .offline-inner {
+  width: min(440px, 100%);
+  text-align: center;
+}
+
+.sc-speed .offline-ic {
+  display: inline-grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  color: var(--danger);
+  background: var(--inset-bg);
+  box-shadow: var(--inset-shadow);
+}
+
+.sc-speed .offline-inner h2 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+}
+
+.sc-speed .offline-inner p {
+  color: var(--muted);
+}
+
+.sc-speed .offline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}

@@ -1,0 +1,3759 @@
+/* SnapKhata (landing page and the redesigned app). Moved from thakurg.html as it was. */
+/* SnapKhata landing page (/khata): full screen in the app design system, light and dark, like the SnapTracker home screen. */
+.sc-kland {
+  display: block;
+}
+
+.khata.k-land {
+  --kl-max: 1160px;
+  overflow-x: hidden;
+}
+
+.khata.k-land .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.khata.k-land .kl-in {
+  width: min(var(--kl-max), 100% - 32px);
+  margin-inline: auto;
+}
+
+/* ---------- Top bar ---------- */
+.khata.k-land .kl-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--k-bg) 72%, transparent);
+  -webkit-backdrop-filter: var(--k-glass);
+  backdrop-filter: var(--k-glass);
+  border-block-end: 1px solid var(--k-line);
+}
+
+.khata.k-land .kl-top .kl-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 60px;
+}
+
+.khata.k-land .kl-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.khata.k-land .kl-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding-inline: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--k-line);
+  background: var(--k-surface);
+  color: var(--k-muted);
+}
+
+.khata.k-land .kl-lang select {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--k-text);
+  font: 700 14px var(--k-font);
+  cursor: pointer;
+  outline: none;
+  min-height: 38px;
+}
+
+.khata.k-land .kl-lang select option {
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+}
+
+.khata.k-land .kl-lang:focus-within {
+  box-shadow: var(--k-focus);
+}
+
+/* ---------- Hero ---------- */
+.khata.k-land .kl-hero {
+  padding-block: 28px 8px;
+}
+
+.khata.k-land .kl-hero-in {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 32px;
+  align-items: center;
+  padding: 36px 24px;
+  border-radius: var(--k-r-xl);
+  background: var(--k-brand-grad);
+  color: #fff;
+  box-shadow: var(--k-shadow-lg);
+}
+
+@media (min-width: 900px) {
+  .khata.k-land .kl-hero-in {
+    grid-template-columns: 1.15fr 1fr;
+    padding: 56px;
+    min-height: 460px;
+  }
+}
+
+.khata.k-land .blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.32), transparent 65%);
+}
+
+.khata.k-land .kl-hero .b1 {
+  width: 420px;
+  height: 420px;
+  inset-block-start: -160px;
+  inset-inline-end: -120px;
+}
+
+.khata.k-land .kl-hero .b2 {
+  width: 360px;
+  height: 360px;
+  inset-block-end: -200px;
+  inset-inline-start: -120px;
+  opacity: 0.7;
+}
+
+.khata.k-land .kl-copy,
+.khata.k-land .kl-visual {
+  position: relative;
+  z-index: 1;
+}
+
+.khata.k-land h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.1rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+.khata.k-land .kl-lead {
+  margin: 16px 0 0;
+  max-width: 560px;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  opacity: 0.92;
+}
+
+.khata.k-land .kl-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.khata.k-land .kl-open {
+  gap: 8px;
+  background: #fff;
+  color: #1b1530;
+  border-color: transparent;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+}
+
+.khata.k-land .kl-open:hover {
+  transform: translateY(-1px);
+}
+
+.khata.k-land .kl-ghost {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.khata.k-land .kl-ghost:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.khata.k-land .kl-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 22px 0 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.khata.k-land .kl-trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Mock ledger card with two floating entries */
+.khata.k-land .kl-visual {
+  display: grid;
+  justify-items: center;
+  padding-block: 64px;
+}
+
+.khata.k-land .kl-mock {
+  width: min(380px, 100%);
+  padding: 20px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  transform: rotate(-2deg);
+}
+
+.khata.k-land .kl-mock small {
+  font-size: 12.5px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.khata.k-land .kl-mock b {
+  display: block;
+  margin-top: 2px;
+  font-size: 34px;
+  letter-spacing: -0.02em;
+}
+
+.khata.k-land .kl-mock .rows {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.khata.k-land .kl-mock .rows div {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.khata.k-land .kl-float {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+  font-size: 13px;
+}
+
+.khata.k-land .kl-float small {
+  display: block;
+  color: var(--k-muted);
+  font-weight: 650;
+}
+
+.khata.k-land .kl-float b {
+  font-size: 14px;
+}
+
+.khata.k-land .kl-float .ic {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+}
+
+.khata.k-land .kl-float.gave {
+  inset-block-start: 0;
+  inset-inline-start: 0;
+}
+
+.khata.k-land .kl-float.gave .ic {
+  background: var(--k-give-soft);
+  color: var(--k-give);
+}
+
+.khata.k-land .kl-float.got {
+  inset-block-end: 0;
+  inset-inline-end: 0;
+}
+
+.khata.k-land .kl-float.got .ic {
+  background: var(--k-get-soft);
+  color: var(--k-get);
+}
+
+/* ---------- Sections ---------- */
+.khata.k-land .kl-sec {
+  padding-block: 40px 0;
+}
+
+.khata.k-land .kl-sec h2 {
+  margin: 0 0 18px;
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.khata.k-land .kl-card {
+  border-radius: var(--k-r-lg);
+  background: var(--k-surface);
+  border: 1px solid var(--k-line);
+  -webkit-backdrop-filter: var(--k-glass);
+  backdrop-filter: var(--k-glass);
+  box-shadow: var(--k-shadow);
+}
+
+.khata.k-land .kl-feats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+}
+
+@media (min-width: 900px) {
+  .khata.k-land .kl-feats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.khata.k-land .kl-feats .kl-card {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  padding: 20px;
+  transition: transform 0.2s var(--k-ease), border-color 0.2s;
+}
+
+.khata.k-land .kl-feats .kl-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--k-line-strong);
+}
+
+.khata.k-land .kl-feats p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.khata.k-land .kl-ic {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--k-brand-soft);
+  color: var(--k-brand);
+}
+
+.khata.k-land .kl-why .kl-ic {
+  background: var(--k-brand-grad);
+  color: #fff;
+}
+
+.khata.k-land .kl-faq {
+  display: grid;
+  gap: 10px;
+}
+
+.khata.k-land .kl-faq details {
+  padding: 0 20px;
+}
+
+.khata.k-land .kl-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.khata.k-land .kl-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.khata.k-land .kl-faq summary svg {
+  flex: none;
+  color: var(--k-muted);
+  transition: transform 0.2s var(--k-ease);
+}
+
+.khata.k-land .kl-faq details[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.khata.k-land .kl-faq details p {
+  margin: 0 0 18px;
+  color: var(--k-muted);
+  line-height: 1.6;
+}
+
+/* Closing call to action */
+.khata.k-land .kl-band {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 32px;
+  border-radius: var(--k-r-xl);
+  background: var(--k-brand-grad);
+  color: #fff;
+  box-shadow: var(--k-shadow-lg);
+}
+
+.khata.k-land .kl-band .b1 {
+  width: 360px;
+  height: 360px;
+  inset-block-start: -180px;
+  inset-inline-end: 10%;
+}
+
+.khata.k-land .kl-band > div {
+  position: relative;
+  max-width: 620px;
+}
+
+.khata.k-land .kl-band h2 {
+  margin: 0 0 6px;
+}
+
+.khata.k-land .kl-band p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.khata.k-land .kl-band .kl-open {
+  position: relative;
+}
+
+/* Footer */
+.khata.k-land .kl-foot {
+  padding-block: 40px 28px;
+}
+
+.khata.k-land .kl-foot .kl-in {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px 18px;
+  text-align: center;
+  color: var(--k-muted);
+  font-size: 13px;
+}
+
+.khata.k-land .kl-foot nav {
+  display: flex;
+  gap: 2px;
+}
+
+.khata.k-land .kl-foot a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 8px;
+  color: var(--k-text);
+  font-weight: 650;
+  font-size: 14px;
+}
+
+.khata.k-land .kl-foot p {
+  margin: 0;
+}
+
+@media (max-width: 520px) {
+  .khata.k-land .kl-login {
+    display: none;
+  }
+
+  .khata.k-land .kl-hero-in {
+    padding: 28px 20px;
+  }
+
+  .khata.k-land .kl-visual {
+    padding-block: 8px;
+  }
+
+  .khata.k-land .kl-float {
+    position: static;
+    width: min(380px, 100%);
+    margin-top: 10px;
+  }
+
+  .khata.k-land .kl-mock {
+    transform: none;
+  }
+
+  .khata.k-land .kl-band {
+    padding: 24px 20px;
+  }
+}
+
+/* SnapKhata app (redesign) */
+/* SnapKhata app design system: every colour is a token on .khata, Light and Dark are two sets of the same tokens. */
+.khata {
+  --k-font: 'Manrope Variable', 'Noto Sans Devanagari Variable', 'Noto Sans Arabic Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --k-r-sm: 10px;
+  --k-r: 16px;
+  --k-r-lg: 24px;
+  --k-r-xl: 32px;
+  --k-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --k-rail: 264px;
+  --k-tabs: 68px;
+  color-scheme: light;
+  --k-bg: #eef1f7;
+  --k-bg-image: radial-gradient(700px 480px at 6% -4%, rgba(247, 200, 226, 0.55), transparent 62%), radial-gradient(640px 460px at 102% 6%, rgba(255, 221, 186, 0.55), transparent 60%), radial-gradient(900px 640px at 60% 112%, rgba(190, 210, 255, 0.6), transparent 62%);
+  --k-surface: rgba(255, 255, 255, 0.78);
+  --k-surface-solid: #ffffff;
+  --k-surface-2: #f4f6fb;
+  --k-surface-3: #e8ecf4;
+  --k-glass: blur(18px) saturate(160%);
+  --k-line: rgba(15, 23, 42, 0.08);
+  --k-line-strong: rgba(15, 23, 42, 0.16);
+  --k-text: #0f172a;
+  --k-muted: #556074;
+  --k-faint: #7a8498;
+  --k-brand: #2f5bea;
+  --k-brand-2: #6a5cff;
+  --k-brand-soft: rgba(47, 91, 234, 0.1);
+  --k-on-brand: #ffffff;
+  --k-brand-grad: linear-gradient(135deg, #3a66f5 0%, #5b5cf6 100%);
+  --k-hero: linear-gradient(140deg, #ffffff 0%, #f1f4ff 55%, #fbefff 100%);
+  --k-get: #0a7a4f;
+  --k-get-soft: rgba(10, 122, 79, 0.1);
+  --k-give: #c4302b;
+  --k-give-soft: rgba(196, 48, 43, 0.09);
+  --k-warn: #9a5b00;
+  --k-warn-soft: rgba(214, 140, 0, 0.13);
+  --k-chart-get: #087a55;
+  --k-chart-give: #f2705a;
+  --k-grid: rgba(15, 23, 42, 0.07);
+  --k-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --k-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 28px rgba(31, 45, 90, 0.08);
+  --k-shadow-lg: 0 2px 6px rgba(16, 24, 40, 0.06), 0 24px 56px rgba(31, 45, 90, 0.16);
+  --k-neu: 6px 6px 14px rgba(163, 177, 198, 0.45), -6px -6px 14px rgba(255, 255, 255, 0.9);
+  --k-neu-in: inset 3px 3px 7px rgba(163, 177, 198, 0.45), inset -3px -3px 7px rgba(255, 255, 255, 0.9);
+  --k-focus: 0 0 0 4px rgba(47, 91, 234, 0.22);
+  --k-skeleton: linear-gradient(90deg, rgba(15, 23, 42, 0.06) 0%, rgba(15, 23, 42, 0.12) 50%, rgba(15, 23, 42, 0.06) 100%);
+  --k-overlay: rgba(15, 23, 42, 0.45);
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--k-bg);
+  background-image: var(--k-bg-image);
+  background-attachment: fixed;
+  color: var(--k-text);
+  font: 15px/1.55 var(--k-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+.khata[data-kt=dark] {
+  color-scheme: dark;
+  --k-bg: #0e0b19;
+  --k-bg-image: radial-gradient(620px 460px at 0% 0%, rgba(176, 52, 150, 0.32), transparent 64%), radial-gradient(560px 460px at 100% 4%, rgba(255, 128, 64, 0.22), transparent 62%), radial-gradient(900px 640px at 55% 115%, rgba(78, 60, 200, 0.34), transparent 62%);
+  --k-surface: rgba(255, 255, 255, 0.06);
+  --k-surface-solid: #1a1628;
+  --k-surface-2: rgba(255, 255, 255, 0.045);
+  --k-surface-3: rgba(255, 255, 255, 0.09);
+  --k-glass: blur(22px) saturate(150%);
+  --k-line: rgba(255, 255, 255, 0.1);
+  --k-line-strong: rgba(255, 255, 255, 0.2);
+  --k-text: #f4f1fb;
+  --k-muted: #b2abc9;
+  --k-faint: #8e87a8;
+  --k-brand: #ff8a4c;
+  --k-brand-2: #ff5f8f;
+  --k-brand-soft: rgba(255, 138, 76, 0.14);
+  --k-on-brand: #1d0d04;
+  --k-brand-grad: linear-gradient(135deg, #ffa25a 0%, #ff6a88 100%);
+  --k-hero: linear-gradient(140deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%);
+  --k-get: #5fe0a5;
+  --k-get-soft: rgba(95, 224, 165, 0.13);
+  --k-give: #ff8c84;
+  --k-give-soft: rgba(255, 140, 132, 0.13);
+  --k-warn: #ffcf6b;
+  --k-warn-soft: rgba(255, 207, 107, 0.14);
+  --k-chart-get: #2aae7d;
+  --k-chart-give: #de4b43;
+  --k-grid: rgba(255, 255, 255, 0.08);
+  --k-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --k-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 14px 36px rgba(0, 0, 0, 0.36);
+  --k-shadow-lg: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 28px 64px rgba(0, 0, 0, 0.55);
+  --k-neu: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 8px 22px rgba(0, 0, 0, 0.35);
+  --k-neu-in: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+  --k-focus: 0 0 0 4px rgba(255, 138, 76, 0.28);
+  --k-skeleton: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.11) 50%, rgba(255, 255, 255, 0.05) 100%);
+  --k-overlay: rgba(4, 2, 10, 0.66);
+}
+
+/* Theme switch: the attribute changes on the live page, so these transitions run. */
+.khata.k-theming,
+.khata.k-theming * {
+  transition: background-color 0.4s var(--k-ease), color 0.4s var(--k-ease), border-color 0.4s var(--k-ease), box-shadow 0.4s var(--k-ease), fill 0.4s var(--k-ease) !important;
+}
+
+.khata *,
+.khata *::before,
+.khata *::after {
+  box-sizing: border-box;
+}
+
+.khata a {
+  color: var(--k-brand);
+}
+
+.khata h1,
+.khata h2,
+.khata h3 {
+  text-shadow: none;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.khata :focus-visible {
+  outline: none;
+  box-shadow: var(--k-focus);
+  border-radius: var(--k-r-sm);
+}
+
+.khata .k-ico {
+  flex: none;
+  display: block;
+}
+
+/* Arrows that point along the reading direction turn round in Arabic. */
+.khata[dir=rtl] .k-flip {
+  transform: scaleX(-1);
+}
+
+.khata .k-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+.khata .k-get {
+  color: var(--k-get);
+}
+
+.khata .k-give {
+  color: var(--k-give);
+}
+
+.khata .k-muted {
+  color: var(--k-muted);
+  margin: 0;
+}
+
+.khata .k-faint {
+  color: var(--k-faint);
+}
+
+/* ---------- Buttons ---------- */
+.khata .k-btn {
+  --b-bg: var(--k-surface-solid);
+  --b-fg: var(--k-text);
+  --b-bd: var(--k-line-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--b-bd);
+  background: var(--b-bg);
+  color: var(--b-fg);
+  font: 700 14.5px/1.2 var(--k-font);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: var(--k-shadow-sm);
+  transition: transform 0.18s var(--k-ease), box-shadow 0.25s var(--k-ease), background-color 0.25s, filter 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.khata[data-kt=dark] .k-btn {
+  --b-bg: rgba(255, 255, 255, 0.07);
+}
+
+.khata .k-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--k-shadow);
+}
+
+.khata .k-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.khata .k-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.khata .k-btn.pri {
+  --b-bg: var(--k-brand-grad);
+  --b-fg: var(--k-on-brand);
+  --b-bd: transparent;
+  background: var(--k-brand-grad);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--k-brand) 35%, transparent);
+}
+
+.khata .k-btn.pri:hover {
+  filter: brightness(1.05);
+}
+
+.khata .k-btn.gave {
+  --b-bg: var(--k-give);
+  --b-fg: #ffffff;
+  --b-bd: transparent;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--k-give) 30%, transparent);
+}
+
+.khata .k-btn.got {
+  --b-bg: var(--k-get);
+  --b-fg: #ffffff;
+  --b-bd: transparent;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--k-get) 30%, transparent);
+}
+
+.khata[data-kt=dark] .k-btn.gave,
+.khata[data-kt=dark] .k-btn.got {
+  --b-fg: #0e0b19;
+}
+
+.khata .k-btn.ghost {
+  --b-bg: transparent;
+  --b-bd: transparent;
+  box-shadow: none;
+}
+
+.khata .k-btn.ghost:hover {
+  --b-bg: var(--k-surface-3);
+}
+
+.khata .k-btn.danger {
+  --b-fg: var(--k-give);
+  --b-bd: color-mix(in srgb, var(--k-give) 35%, transparent);
+}
+
+.khata .k-btn.sm {
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 11px;
+  font-size: 13.5px;
+}
+
+.khata .k-btn.lg {
+  min-height: 54px;
+  padding: 14px 24px;
+  border-radius: 16px;
+  font-size: 16px;
+}
+
+.khata .k-btn.icon {
+  min-width: 44px;
+  padding: 0;
+}
+
+.khata .k-btn.wide {
+  width: 100%;
+}
+
+.khata .k-btn.is-busy {
+  pointer-events: none;
+}
+
+.khata .k-spin {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2.5px solid currentColor;
+  border-inline-end-color: transparent;
+  animation: k-spin 0.7s linear infinite;
+}
+
+@keyframes k-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Cards, chips, badges ---------- */
+.khata .k-card {
+  background: var(--k-surface);
+  -webkit-backdrop-filter: var(--k-glass);
+  backdrop-filter: var(--k-glass);
+  border: 1px solid var(--k-line);
+  border-radius: var(--k-r-lg);
+  box-shadow: var(--k-shadow);
+  padding: 20px;
+}
+
+.khata .k-card.lift {
+  transition: transform 0.25s var(--k-ease), box-shadow 0.25s var(--k-ease);
+}
+
+.khata .k-card.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--k-shadow-lg);
+}
+
+.khata .k-card-h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.khata .k-card-h h2 {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.khata .k-card-h p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--k-muted);
+}
+
+.khata .k-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
+  white-space: nowrap;
+  background: var(--k-surface-3);
+  color: var(--k-muted);
+}
+
+.khata .k-badge.get {
+  background: var(--k-get-soft);
+  color: var(--k-get);
+}
+
+.khata .k-badge.give {
+  background: var(--k-give-soft);
+  color: var(--k-give);
+}
+
+.khata .k-badge.warn {
+  background: var(--k-warn-soft);
+  color: var(--k-warn);
+}
+
+.khata .k-badge.brand {
+  background: var(--k-brand-soft);
+  color: var(--k-brand);
+}
+
+.khata .k-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.khata .k-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px;
+  margin: -2px;
+}
+
+.khata .k-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.khata .k-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--k-line-strong);
+  background: var(--k-surface);
+  color: var(--k-muted);
+  font: 700 13.5px/1 var(--k-font);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.khata .k-chip:hover {
+  color: var(--k-text);
+}
+
+.khata .k-chip:active {
+  transform: scale(0.96);
+}
+
+.khata .k-chip[aria-pressed=true] {
+  background: var(--k-text);
+  border-color: var(--k-text);
+  color: var(--k-bg);
+}
+
+.khata .k-chip .n {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.khata .k-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  padding: 4px;
+  gap: 4px;
+  border-radius: 14px;
+  background: var(--k-surface-3);
+  box-shadow: var(--k-neu-in);
+}
+
+.khata .k-seg button {
+  min-height: 38px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--k-muted);
+  font: 700 13.5px/1 var(--k-font);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.khata .k-seg button[aria-pressed=true] {
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  box-shadow: var(--k-shadow-sm), var(--k-shadow);
+}
+
+/* ---------- Form fields ---------- */
+.khata .k-form {
+  display: grid;
+  gap: 14px;
+}
+
+.khata .k-field {
+  position: relative;
+  display: block;
+}
+
+.khata .k-field > .lbl {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-input,
+.khata .k-field input,
+.khata .k-field select,
+.khata .k-field textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: 500 15.5px/1.3 var(--k-font);
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.khata[data-kt=dark] .k-field input,
+.khata[data-kt=dark] .k-field select,
+.khata[data-kt=dark] .k-field textarea,
+.khata[data-kt=dark] .k-input {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.khata .k-field textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.khata .k-field input:hover,
+.khata .k-field select:hover,
+.khata .k-field textarea:hover {
+  border-color: color-mix(in srgb, var(--k-brand) 40%, var(--k-line-strong));
+}
+
+.khata .k-field input:focus,
+.khata .k-field select:focus,
+.khata .k-field textarea:focus,
+.khata .k-input:focus {
+  outline: none;
+  border-color: var(--k-brand);
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-field [aria-invalid=true] {
+  border-color: var(--k-give);
+}
+
+.khata .k-field.ico input {
+  padding-inline-start: 46px;
+}
+
+.khata .k-field.ico > .k-ico {
+  position: absolute;
+  inset-inline-start: 15px;
+  bottom: 14px;
+  color: var(--k-faint);
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+.khata .k-field.ico:focus-within > .k-ico {
+  color: var(--k-brand);
+}
+
+/* Floating label: the label sits inside the field and moves up when it has focus or a value. */
+.khata .k-float {
+  position: relative;
+  display: block;
+}
+
+.khata .k-float input {
+  width: 100%;
+  min-height: 58px;
+  padding: 24px 16px 8px 48px;
+  border-radius: 16px;
+  border: 1.5px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: 600 16px/1.2 var(--k-font);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+[dir=rtl] .khata .k-float input,
+.khata[dir=rtl] .k-float input {
+  padding: 24px 48px 8px 16px;
+}
+
+.khata[data-kt=dark] .k-float input {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.khata .k-float input:focus {
+  outline: none;
+  border-color: var(--k-brand);
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-float .fl {
+  position: absolute;
+  inset-inline-start: 48px;
+  top: 19px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--k-faint);
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform 0.2s var(--k-ease), color 0.2s, top 0.2s var(--k-ease);
+}
+
+.khata[dir=rtl] .k-float .fl {
+  transform-origin: right top;
+}
+
+.khata .k-float input:focus + .fl,
+.khata .k-float input:not(:placeholder-shown) + .fl {
+  top: 9px;
+  transform: scale(0.78);
+  color: var(--k-brand);
+}
+
+.khata .k-float > .k-ico {
+  position: absolute;
+  inset-inline-start: 16px;
+  top: 19px;
+  color: var(--k-faint);
+  transition: color 0.2s;
+}
+
+.khata .k-float:focus-within > .k-ico {
+  color: var(--k-brand);
+}
+
+.khata .k-float.bad input {
+  border-color: var(--k-give);
+  animation: k-shake 0.4s;
+}
+
+.khata .k-pw {
+  position: relative;
+}
+
+.khata .k-pw input {
+  padding-inline-end: 52px;
+}
+
+.khata .k-pw .eye {
+  position: absolute;
+  inset-inline-end: 4px;
+  bottom: 2px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: var(--k-muted);
+  border-radius: 12px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.khata .k-hint {
+  margin: 6px 2px 0;
+  font-size: 12.5px;
+  color: var(--k-muted);
+}
+
+.khata .k-err {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--k-give-soft);
+  color: var(--k-give);
+  font-weight: 700;
+  font-size: 14px;
+  animation: k-pop 0.3s var(--k-ease);
+}
+
+.khata .k-okmsg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--k-get-soft);
+  color: var(--k-get);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.khata .k-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 30px;
+  flex: none;
+}
+
+.khata .k-switch input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.khata .k-switch span {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--k-surface-3);
+  box-shadow: var(--k-neu-in);
+  transition: background-color 0.25s;
+}
+
+.khata .k-switch span::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s var(--k-ease);
+}
+
+.khata .k-switch input:checked + span {
+  background: var(--k-brand);
+}
+
+.khata .k-switch input:checked + span::after {
+  transform: translateX(20px);
+}
+
+.khata[dir=rtl] .k-switch input:checked + span::after {
+  transform: translateX(-20px);
+}
+
+.khata .k-switch input:focus-visible + span {
+  box-shadow: var(--k-focus);
+}
+
+/* ---------- Motion ---------- */
+@keyframes k-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes k-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes k-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes k-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-6px);
+  }
+  40%, 80% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes k-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes k-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.khata .k-enter .k-stagger > * {
+  animation: k-up 0.5s var(--k-ease) both;
+}
+
+.khata .k-enter .k-stagger > *:nth-child(2) { animation-delay: 0.05s; }
+.khata .k-enter .k-stagger > *:nth-child(3) { animation-delay: 0.1s; }
+.khata .k-enter .k-stagger > *:nth-child(4) { animation-delay: 0.15s; }
+.khata .k-enter .k-stagger > *:nth-child(5) { animation-delay: 0.2s; }
+.khata .k-enter .k-stagger > *:nth-child(6) { animation-delay: 0.25s; }
+.khata .k-enter .k-stagger > *:nth-child(n+7) { animation-delay: 0.3s; }
+
+.khata .k-sk {
+  border-radius: 12px;
+  background: var(--k-skeleton);
+  background-size: 200% 100%;
+  animation: k-shimmer 1.3s linear infinite;
+}
+
+/* ---------- App shell ---------- */
+.khata .k-app {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.khata .k-rail {
+  display: none;
+}
+
+.khata .k-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  padding-top: max(10px, env(safe-area-inset-top));
+  background: color-mix(in srgb, var(--k-bg) 72%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  border-bottom: 1px solid var(--k-line);
+}
+
+.khata .k-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--k-text);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: -0.02em;
+}
+
+.khata .k-logo .mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: var(--k-brand-grad);
+  color: var(--k-on-brand);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--k-brand) 35%, transparent);
+}
+
+.khata .k-top .k-logo span:last-child {
+  display: none;
+}
+
+.khata .k-bookpick {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.khata .k-bookpick select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 34px 8px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: 700 14.5px/1.2 var(--k-font);
+  appearance: none;
+  -webkit-appearance: none;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.khata[data-kt=dark] .k-bookpick select {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.khata .k-bookpick select option {
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.khata .k-bookpick > .k-ico {
+  position: absolute;
+  inset-inline-end: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--k-muted);
+}
+
+.khata .k-top-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.khata .k-content {
+  width: min(1120px, 100%);
+  margin-inline: auto;
+  padding: 18px 16px calc(var(--k-tabs) + 32px + env(safe-area-inset-bottom));
+}
+
+.khata .k-page {
+  display: grid;
+  gap: 16px;
+}
+
+/* Grid children may shrink below their content (long names, select options), so nothing pushes the page sideways. */
+.khata .k-page,
+.khata .k-dash,
+.khata .k-set,
+.khata .k-entry,
+.khata .k-form,
+.khata .k-party,
+.khata .k-toolbar,
+.khata .k-list,
+.khata .k-amountbox,
+.khata .k-hbars,
+.khata .k-auth-card {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.khata .k-mainwrap {
+  min-width: 0;
+}
+
+.khata .k-head > div {
+  min-width: 0;
+}
+
+.khata .k-tabs {
+  position: fixed;
+  inset-inline: 10px;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  z-index: 30;
+  height: var(--k-tabs);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  padding: 6px;
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--k-surface-solid) 82%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--k-line);
+  box-shadow: var(--k-shadow-lg);
+}
+
+.khata .k-tab {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-height: 52px;
+  padding: 6px 2px;
+  border-radius: 16px;
+  color: var(--k-faint);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 700;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.khata .k-tab[aria-current=page] {
+  color: var(--k-brand);
+  background: var(--k-brand-soft);
+}
+
+.khata .k-fab {
+  justify-self: center;
+  width: 56px;
+  height: 56px;
+  margin-top: -26px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: var(--k-brand-grad);
+  color: var(--k-on-brand);
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--k-brand) 45%, transparent);
+  border: 4px solid var(--k-bg);
+  text-decoration: none;
+  transition: transform 0.2s var(--k-ease);
+}
+
+.khata .k-fab:hover {
+  transform: translateY(-2px) rotate(90deg);
+}
+
+@media (min-width: 1024px) {
+  .khata .k-app {
+    display: grid;
+    grid-template-columns: var(--k-rail) minmax(0, 1fr);
+  }
+
+  .khata .k-rail {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 22px 16px;
+    border-inline-end: 1px solid var(--k-line);
+    background: color-mix(in srgb, var(--k-surface-solid) 55%, transparent);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+  }
+
+  .khata .k-rail .k-logo {
+    padding-inline: 6px;
+  }
+
+  .khata .k-rail .k-bookpick {
+    flex: none;
+  }
+
+  .khata .k-rail nav {
+    display: grid;
+    gap: 4px;
+  }
+
+  .khata .k-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 46px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    color: var(--k-muted);
+    text-decoration: none;
+    font-weight: 700;
+    transition: background-color 0.2s, color 0.2s, transform 0.2s var(--k-ease);
+  }
+
+  .khata .k-nav:hover {
+    color: var(--k-text);
+    background: var(--k-surface-3);
+    transform: translateX(2px);
+  }
+
+  .khata[dir=rtl] .k-nav:hover {
+    transform: translateX(-2px);
+  }
+
+  .khata .k-nav[aria-current=page] {
+    color: var(--k-text);
+    background: var(--k-surface-solid);
+    box-shadow: var(--k-shadow);
+  }
+
+  .khata .k-nav[aria-current=page] .k-ico {
+    color: var(--k-brand);
+  }
+
+  .khata .k-rail .grow {
+    flex: 1;
+  }
+
+  .khata .k-rail .k-new {
+    width: 100%;
+  }
+
+  .khata .k-rail .foot {
+    display: grid;
+    gap: 10px;
+  }
+
+  .khata .k-top {
+    padding-inline: 32px;
+  }
+
+  .khata .k-top .k-logo,
+  .khata .k-top .k-bookpick,
+  .khata .k-tabs {
+    display: none;
+  }
+
+  .khata .k-top .crumb {
+    flex: 1;
+    display: block;
+  }
+
+  .khata .k-content {
+    padding: 28px 32px 48px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .khata .k-top .crumb {
+    display: none;
+  }
+}
+
+.khata .k-top .crumb {
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 16px;
+  background: var(--k-surface);
+  border: 1px solid var(--k-line);
+  color: var(--k-text);
+  text-decoration: none;
+}
+
+.khata .k-who small {
+  display: block;
+  color: var(--k-muted);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-who b {
+  font-size: 14px;
+}
+
+.khata .k-who > span:last-child {
+  min-width: 0;
+}
+
+/* ---------- Page heads ---------- */
+.khata .k-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.khata .k-head h1 {
+  font-size: clamp(1.45rem, 4.4vw, 1.95rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.khata .k-head p {
+  margin: 4px 0 0;
+  color: var(--k-muted);
+}
+
+.khata .k-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  color: var(--k-muted);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.khata .k-back:hover {
+  color: var(--k-text);
+}
+
+.khata[dir=rtl] .k-back .k-ico,
+.khata[dir=rtl] .k-row-link .chev {
+  transform: scaleX(-1);
+}
+
+/* ---------- Avatars ---------- */
+.khata .k-av {
+  --av: var(--k-brand);
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--av);
+  background: color-mix(in srgb, var(--av) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--av) 22%, transparent);
+}
+
+.khata .k-av.lg {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  font-size: 22px;
+}
+
+.khata .k-av.a1 { --av: #4f6bed; }
+.khata .k-av.a2 { --av: #c2410c; }
+.khata .k-av.a3 { --av: #0f8a6b; }
+.khata .k-av.a4 { --av: #a21caf; }
+.khata .k-av.a5 { --av: #0369a1; }
+.khata .k-av.a6 { --av: #b45309; }
+.khata[data-kt=dark] .k-av.a1 { --av: #9fb0ff; }
+.khata[data-kt=dark] .k-av.a2 { --av: #ffab7a; }
+.khata[data-kt=dark] .k-av.a3 { --av: #6fe3c0; }
+.khata[data-kt=dark] .k-av.a4 { --av: #f0a2ff; }
+.khata[data-kt=dark] .k-av.a5 { --av: #8fd3ff; }
+.khata[data-kt=dark] .k-av.a6 { --av: #ffd27a; }
+
+/* ---------- Dashboard ---------- */
+.khata .k-dash {
+  display: grid;
+  gap: 16px;
+}
+
+.khata .k-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  border-radius: var(--k-r-xl);
+  background: var(--k-hero);
+  border: 1px solid var(--k-line);
+  box-shadow: var(--k-shadow-lg);
+}
+
+.khata .k-hero::before,
+.khata .k-hero::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(2px);
+}
+
+.khata .k-hero::before {
+  width: 220px;
+  height: 220px;
+  inset-inline-end: -60px;
+  top: -80px;
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--k-brand-2) 45%, transparent), transparent 70%);
+  animation: k-float 9s ease-in-out infinite;
+}
+
+.khata .k-hero::after {
+  width: 160px;
+  height: 160px;
+  inset-inline-end: 90px;
+  bottom: -90px;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--k-brand) 40%, transparent), transparent 70%);
+  animation: k-float 11s ease-in-out infinite reverse;
+}
+
+.khata .k-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.khata .k-hero .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-hero .big {
+  display: block;
+  margin: 6px 0 4px;
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.khata .k-hero .split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.khata .k-hero .pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--k-surface-solid) 70%, transparent);
+  border: 1px solid var(--k-line);
+  min-width: 0;
+}
+
+.khata .k-hero .pill b {
+  display: block;
+  font-size: clamp(13.5px, 3.9vw, 15.5px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.khata .k-hero .pill small {
+  display: block;
+  font-size: 12px;
+  color: var(--k-muted);
+  font-weight: 700;
+}
+
+.khata .k-ib {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+}
+
+.khata .k-ib.get {
+  background: var(--k-get-soft);
+  color: var(--k-get);
+}
+
+.khata .k-ib.give {
+  background: var(--k-give-soft);
+  color: var(--k-give);
+}
+
+.khata .k-ib.brand {
+  background: var(--k-brand-soft);
+  color: var(--k-brand);
+}
+
+.khata .k-ib.warn {
+  background: var(--k-warn-soft);
+  color: var(--k-warn);
+}
+
+.khata .k-quick {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.khata .k-qa {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 14px 6px;
+  border-radius: 20px;
+  background: var(--k-surface);
+  border: 1px solid var(--k-line);
+  box-shadow: var(--k-neu);
+  color: var(--k-text);
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-align: center;
+  transition: transform 0.2s var(--k-ease), box-shadow 0.2s;
+}
+
+.khata .k-qa:hover {
+  transform: translateY(-3px);
+}
+
+.khata .k-qa:active {
+  box-shadow: var(--k-neu-in);
+  transform: none;
+}
+
+.khata .k-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.khata .k-stat {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+
+.khata .k-stat .top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.khata .k-stat .lbl {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-stat .val {
+  font-size: clamp(1.05rem, 4vw, 1.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.khata .k-delta.up {
+  color: var(--k-get);
+}
+
+.khata .k-delta.down {
+  color: var(--k-give);
+}
+
+.khata .k-delta.flat {
+  color: var(--k-muted);
+}
+
+.khata .k-grid2 {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 720px) {
+  .khata .k-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .khata .k-hero .split {
+    max-width: 520px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .khata .k-dash-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .khata .k-quick {
+    grid-template-columns: repeat(2, 1fr);
+    align-content: stretch;
+  }
+
+  .khata .k-qa {
+    align-content: center;
+  }
+
+  .khata .k-grid2 {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
+}
+
+/* ---------- Charts ---------- */
+.khata .k-chart {
+  position: relative;
+}
+
+.khata .k-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.khata .k-chart .gl {
+  stroke: var(--k-grid);
+  stroke-width: 1;
+}
+
+.khata .k-chart .ax {
+  fill: var(--k-faint);
+  font: 600 11px var(--k-font);
+}
+
+.khata .k-chart .b-get {
+  fill: var(--k-chart-get);
+}
+
+.khata .k-chart .b-give {
+  fill: var(--k-chart-give);
+}
+
+.khata .k-chart .hit {
+  fill: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.khata .k-chart .hit:hover,
+.khata .k-chart .hit:focus {
+  fill: var(--k-grid);
+}
+
+.khata .k-chart .bars rect,
+.khata .k-chart .bars path {
+  transform-box: fill-box;
+  transform-origin: bottom;
+}
+
+.khata .k-enter .k-chart .bars path {
+  animation: k-grow 0.7s var(--k-ease) both;
+}
+
+@keyframes k-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.khata .k-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.khata .k-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.khata .k-legend b {
+  color: var(--k-text);
+}
+
+.khata .k-tip {
+  position: absolute;
+  z-index: 5;
+  min-width: 150px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--k-surface-solid);
+  border: 1px solid var(--k-line-strong);
+  box-shadow: var(--k-shadow-lg);
+  font-size: 12.5px;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 10px));
+  animation: k-fade 0.15s;
+  white-space: nowrap;
+}
+
+.khata .k-tip b {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.khata .k-tip span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--k-muted);
+}
+
+.khata .k-tip span em {
+  font-style: normal;
+  margin-inline-start: auto;
+  padding-inline-start: 12px;
+  color: var(--k-text);
+  font-weight: 800;
+}
+
+.khata .k-tip i {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.khata .k-hbars {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.khata .k-hbars a {
+  display: grid;
+  gap: 6px;
+  color: var(--k-text);
+  text-decoration: none;
+  border-radius: 12px;
+  padding: 4px;
+  margin: -4px;
+}
+
+.khata .k-hbars a:hover {
+  background: var(--k-surface-3);
+}
+
+.khata .k-hbars .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.khata .k-hbars .row span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-hbars .track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--k-surface-3);
+  overflow: hidden;
+}
+
+.khata .k-hbars .fill {
+  height: 100%;
+  border-radius: 999px;
+  transform-origin: left;
+}
+
+.khata[dir=rtl] .k-hbars .fill {
+  transform-origin: right;
+}
+
+.khata .k-enter .k-hbars .fill {
+  animation: k-grow-x 0.8s var(--k-ease) both;
+}
+
+@keyframes k-grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.khata .k-hbars .fill.get {
+  background: var(--k-chart-get);
+}
+
+.khata .k-hbars .fill.give {
+  background: var(--k-chart-give);
+}
+
+.khata .k-table {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.khata .k-table summary {
+  cursor: pointer;
+  color: var(--k-muted);
+  font-weight: 700;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+}
+
+.khata .k-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
+}
+
+.khata .k-table th,
+.khata .k-table td {
+  padding: 7px 8px;
+  text-align: end;
+  border-bottom: 1px solid var(--k-line);
+}
+
+.khata .k-table th:first-child,
+.khata .k-table td:first-child {
+  text-align: start;
+}
+
+/* ---------- Lists (parties, transactions) ---------- */
+.khata .k-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.khata .k-row-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 68px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--k-surface);
+  border: 1px solid var(--k-line);
+  color: var(--k-text);
+  text-decoration: none;
+  text-align: start;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.2s var(--k-ease), box-shadow 0.2s, border-color 0.2s;
+}
+
+.khata .k-row-link:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--k-shadow);
+  border-color: var(--k-line-strong);
+}
+
+.khata .k-row-link:active {
+  transform: scale(0.99);
+}
+
+.khata .k-row-link .mid {
+  flex: 1;
+  min-width: 0;
+}
+
+.khata .k-row-link .mid b {
+  display: block;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-row-link .mid small {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  color: var(--k-muted);
+  font-size: 12.5px;
+}
+
+.khata .k-row-link .end {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  text-align: end;
+}
+
+.khata .k-row-link .amt {
+  font-size: 15.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.khata .k-row-link .chev {
+  color: var(--k-faint);
+}
+
+.khata .k-row-link.gone {
+  opacity: 0.6;
+}
+
+.khata .k-row-link.gone .amt {
+  text-decoration: line-through;
+}
+
+.khata .k-tx-ico {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+}
+
+.khata .k-tx-ico.give {
+  background: var(--k-give-soft);
+  color: var(--k-give);
+}
+
+.khata .k-tx-ico.get {
+  background: var(--k-get-soft);
+  color: var(--k-get);
+}
+
+.khata .k-group {
+  margin: 8px 4px 2px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--k-faint);
+}
+
+.khata .k-toolbar {
+  display: grid;
+  gap: 10px;
+}
+
+.khata .k-toolbar .line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.khata .k-search {
+  position: relative;
+  flex: 1 1 240px;
+}
+
+.khata .k-search input {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px 10px 44px;
+  border-radius: 16px;
+  border: 1.5px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: 600 15px var(--k-font);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.khata[dir=rtl] .k-search input {
+  padding: 10px 44px 10px 14px;
+}
+
+.khata[data-kt=dark] .k-search input {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.khata .k-search input:focus {
+  outline: none;
+  border-color: var(--k-brand);
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-search > .k-ico {
+  position: absolute;
+  inset-inline-start: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--k-faint);
+  pointer-events: none;
+}
+
+.khata .k-sort {
+  position: relative;
+}
+
+.khata .k-sort select {
+  min-height: 48px;
+  padding: 10px 36px 10px 40px;
+  border-radius: 16px;
+  border: 1.5px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: 700 14px var(--k-font);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.khata[data-kt=dark] .k-sort select {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.khata .k-sort select option {
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.khata .k-sort > .k-ico {
+  position: absolute;
+  inset-inline-start: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--k-muted);
+  pointer-events: none;
+}
+
+.khata .k-sumbar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.khata .k-sumbar > div {
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--k-surface);
+  border: 1px solid var(--k-line);
+  min-width: 0;
+}
+
+.khata .k-sumbar small {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-sumbar b {
+  display: block;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.khata .k-dates label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-dates input {
+  min-height: 42px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1.5px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: 600 14px var(--k-font);
+}
+
+.khata[data-kt=dark] .k-dates input {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ---------- Empty and not-found states ---------- */
+.khata .k-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 34px 20px;
+  text-align: center;
+}
+
+.khata .k-empty svg.art {
+  width: 140px;
+  height: 110px;
+}
+
+.khata .k-empty h2,
+.khata .k-empty h3 {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.khata .k-empty p {
+  margin: 0;
+  max-width: 360px;
+  color: var(--k-muted);
+}
+
+/* ---------- Party (ledger) header ---------- */
+.khata .k-party {
+  display: grid;
+  gap: 16px;
+}
+
+.khata .k-party .who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.khata .k-party .who h1 {
+  font-size: clamp(1.3rem, 4.6vw, 1.7rem);
+  font-weight: 800;
+}
+
+.khata .k-party .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.khata .k-party .bal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--k-surface-2);
+  border: 1px solid var(--k-line);
+}
+
+.khata .k-party .bal b {
+  display: block;
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.khata .k-party .tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.khata .k-sticky {
+  position: sticky;
+  bottom: calc(var(--k-tabs) + 20px + env(safe-area-inset-bottom));
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--k-surface-solid) 80%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--k-line);
+  box-shadow: var(--k-shadow-lg);
+}
+
+@media (min-width: 1024px) {
+  .khata .k-sticky {
+    bottom: 20px;
+  }
+}
+
+/* ---------- Entry form ---------- */
+.khata .k-entry {
+  --tone: var(--k-give);
+  --tone-soft: var(--k-give-soft);
+  display: grid;
+  gap: 16px;
+}
+
+.khata .k-entry:has(input[name=type][value='2']:checked) {
+  --tone: var(--k-get);
+  --tone-soft: var(--k-get-soft);
+}
+
+.khata .k-typeseg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 18px;
+  background: var(--k-surface-3);
+  box-shadow: var(--k-neu-in);
+}
+
+.khata .k-typeseg label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  border-radius: 14px;
+  font-weight: 800;
+  color: var(--k-muted);
+  cursor: pointer;
+  transition: background-color 0.25s, color 0.25s, box-shadow 0.25s;
+}
+
+.khata .k-typeseg input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.khata .k-typeseg label:has(input:focus-visible) {
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-typeseg label.gave:has(input:checked) {
+  background: var(--k-give);
+  color: #ffffff;
+}
+
+.khata .k-typeseg label.got:has(input:checked) {
+  background: var(--k-get);
+  color: #ffffff;
+}
+
+.khata[data-kt=dark] .k-typeseg label:has(input:checked) {
+  color: #0e0b19;
+}
+
+.khata .k-amountbox {
+  display: grid;
+  gap: 4px;
+  padding: 18px;
+  border-radius: 22px;
+  background: var(--tone-soft);
+  border: 1.5px solid color-mix(in srgb, var(--tone) 28%, transparent);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.khata .k-amountbox .lbl {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--tone);
+}
+
+.khata .k-amountbox .in {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.khata .k-amountbox .sym {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--tone);
+}
+
+.khata .k-amountbox input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--k-text);
+  font: 800 clamp(30px, 9vw, 40px)/1.15 var(--k-font);
+  letter-spacing: -0.03em;
+  padding: 4px 0;
+}
+
+.khata .k-amountbox input:focus {
+  outline: none;
+}
+
+.khata .k-amountbox:focus-within {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tone) 18%, transparent);
+}
+
+.khata .k-two {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+@media (min-width: 640px) {
+  .khata .k-two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.khata .k-formcard {
+  width: min(720px, 100%);
+}
+
+.khata .k-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ---------- Photos ---------- */
+.khata .k-drop {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 18px;
+  border-radius: 20px;
+  border: 2px dashed var(--k-line-strong);
+  background: var(--k-surface-2);
+  text-align: center;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.khata .k-drop.over {
+  border-color: var(--k-brand);
+  background: var(--k-brand-soft);
+}
+
+.khata .k-drop .btns {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.khata .k-drop p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--k-muted);
+}
+
+.khata .k-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.khata .k-thumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.khata .k-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--k-surface-3);
+  border: 1px solid var(--k-line);
+  animation: k-pop 0.3s var(--k-ease);
+}
+
+.khata .k-thumb > button.open {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.khata .k-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s var(--k-ease), opacity 0.3s;
+}
+
+.khata .k-thumb img:not([src]),
+.khata .k-thumb img[src=''] {
+  opacity: 0;
+}
+
+.khata .k-thumb:has(img:not([src])) {
+  background: var(--k-skeleton);
+  background-size: 200% 100%;
+  animation: k-shimmer 1.3s linear infinite;
+}
+
+.khata .k-thumb:hover img {
+  transform: scale(1.05);
+}
+
+.khata .k-thumb .tools {
+  position: absolute;
+  inset-inline-end: 6px;
+  top: 6px;
+  display: flex;
+  gap: 4px;
+}
+
+.khata .k-thumb .tools button {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.62);
+  color: #ffffff;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.khata .k-thumb .tools button:hover {
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.khata .k-thumb .size {
+  position: absolute;
+  inset-inline-start: 6px;
+  bottom: 6px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.62);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.khata .k-thumb .new {
+  position: absolute;
+  inset-inline-start: 6px;
+  top: 6px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: var(--k-brand);
+  color: var(--k-on-brand);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* ---------- Transaction details ---------- */
+.khata .k-detail-amt {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 26px 18px;
+  text-align: center;
+}
+
+.khata .k-detail-amt .big {
+  font-size: clamp(2.2rem, 9vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+
+.khata .k-dl {
+  display: grid;
+  margin: 0;
+}
+
+.khata .k-dl > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--k-line);
+}
+
+.khata .k-dl > div:last-child {
+  border-bottom: 0;
+}
+
+.khata .k-dl dt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--k-muted);
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+.khata .k-dl dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+
+.khata .k-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+
+.khata .k-timeline li {
+  position: relative;
+  padding: 0 0 18px 26px;
+}
+
+.khata[dir=rtl] .k-timeline li {
+  padding: 0 26px 18px 0;
+}
+
+.khata .k-timeline li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 5px;
+  top: 6px;
+  bottom: -6px;
+  width: 2px;
+  background: var(--k-line-strong);
+}
+
+.khata .k-timeline li:last-child::before {
+  display: none;
+}
+
+.khata .k-timeline li::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--k-surface-solid);
+  border: 3px solid var(--k-brand);
+}
+
+.khata .k-timeline li.del::after {
+  border-color: var(--k-give);
+}
+
+.khata .k-timeline b {
+  display: block;
+  font-size: 14px;
+}
+
+.khata .k-timeline small {
+  color: var(--k-muted);
+  font-size: 12.5px;
+}
+
+/* ---------- Dialogs: PIN sheet, lightbox, toast ---------- */
+.khata .k-sheet {
+  width: min(400px, 100% - 24px);
+  max-height: calc(100dvh - 24px);
+  padding: 22px;
+  border-radius: 28px;
+  border: 1px solid var(--k-line);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  box-shadow: var(--k-shadow-lg);
+  animation: k-pop 0.25s var(--k-ease);
+}
+
+.khata .k-sheet::backdrop {
+  background: var(--k-overlay);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.khata .k-sheet h2 {
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.khata .k-sheet .k-muted {
+  text-align: center;
+  margin: 6px 0 4px;
+}
+
+.khata .k-viewer {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(6, 4, 12, 0.94);
+  color: #ffffff;
+}
+
+.khata .k-viewer::backdrop {
+  background: rgba(6, 4, 12, 0.94);
+}
+
+.khata .k-viewer .stage {
+  position: absolute;
+  inset: 64px 0 64px;
+  display: grid;
+  place-items: center;
+  padding: 0 12px;
+}
+
+.khata .k-viewer .stage img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  animation: k-pop 0.3s var(--k-ease);
+  touch-action: pan-y;
+}
+
+.khata .k-viewer .bar {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  padding-top: max(10px, env(safe-area-inset-top));
+}
+
+.khata .k-viewer .bar span {
+  font-weight: 700;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.khata .k-viewer .nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.khata .k-viewer .nav.prev {
+  inset-inline-start: 10px;
+}
+
+.khata .k-viewer .nav.next {
+  inset-inline-end: 10px;
+}
+
+.khata .k-viewer .k-btn {
+  --b-bg: rgba(255, 255, 255, 0.12);
+  --b-fg: #ffffff;
+  --b-bd: rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.khata[dir=rtl] .k-viewer .nav .k-ico {
+  transform: scaleX(-1);
+}
+
+.khata .k-viewer .dots {
+  position: absolute;
+  inset-inline: 0;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.khata .k-viewer .dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.khata .k-viewer .dots i.on {
+  background: #ffffff;
+  width: 22px;
+  border-radius: 6px;
+}
+
+.khata .k-toast {
+  position: fixed;
+  z-index: 60;
+  inset-inline: 0;
+  bottom: calc(var(--k-tabs) + 26px + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.khata .k-toast div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--k-text);
+  color: var(--k-bg);
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: var(--k-shadow-lg);
+  animation: k-up 0.35s var(--k-ease);
+}
+
+@media (min-width: 1024px) {
+  .khata .k-toast {
+    bottom: 28px;
+  }
+}
+
+/* ---------- PIN keypad (neumorphic keys) ---------- */
+.khata .k-dots {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.khata .k-dots span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--k-surface-3);
+  box-shadow: var(--k-neu-in);
+  transition: background-color 0.2s, transform 0.2s var(--k-ease);
+}
+
+.khata .k-dots span.on {
+  background: var(--k-brand);
+  transform: scale(1.15);
+  box-shadow: 0 0 0 4px var(--k-brand-soft);
+}
+
+.khata .k-dots.bad span {
+  animation: k-shake 0.4s;
+}
+
+.khata .k-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: min(300px, 100%);
+  margin-inline: auto;
+}
+
+.khata .k-key {
+  min-height: 60px;
+  border-radius: 20px;
+  border: 1px solid var(--k-line);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: 700 22px/1 var(--k-font);
+  cursor: pointer;
+  box-shadow: var(--k-neu);
+  transition: transform 0.12s, box-shadow 0.12s;
+  display: grid;
+  place-items: center;
+}
+
+.khata[data-kt=dark] .k-key {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.khata .k-key:active {
+  transform: scale(0.95);
+  box-shadow: var(--k-neu-in);
+}
+
+.khata .k-key.back {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--k-muted);
+}
+
+/* ---------- Auth (login, OTP, PIN) ---------- */
+.khata .k-auth {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+}
+
+.khata .k-auth-art {
+  display: none;
+}
+
+.khata .k-auth-main {
+  position: relative;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 18px;
+  padding: 24px 16px 40px;
+  padding-top: max(24px, env(safe-area-inset-top));
+}
+
+.khata .k-auth-top {
+  width: min(440px, 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.khata .k-auth-card {
+  width: min(440px, 100%);
+  padding: 28px 22px;
+  border-radius: 30px;
+  background: var(--k-surface);
+  -webkit-backdrop-filter: var(--k-glass);
+  backdrop-filter: var(--k-glass);
+  border: 1px solid var(--k-line);
+  box-shadow: var(--k-shadow-lg);
+  display: grid;
+  gap: 18px;
+}
+
+.khata .k-enter .k-auth-card {
+  animation: k-up 0.55s var(--k-ease) both;
+}
+
+.khata .k-auth-card h1 {
+  font-size: clamp(1.45rem, 5vw, 1.8rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.khata .k-auth-card .lead {
+  margin: 6px 0 0;
+  color: var(--k-muted);
+}
+
+.khata .k-auth-card .ill {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: var(--k-brand-soft);
+  color: var(--k-brand);
+  box-shadow: var(--k-neu);
+}
+
+.khata .k-steps {
+  display: flex;
+  gap: 6px;
+}
+
+.khata .k-steps i {
+  height: 4px;
+  flex: 1;
+  border-radius: 4px;
+  background: var(--k-surface-3);
+}
+
+.khata .k-steps i.on {
+  background: var(--k-brand-grad);
+}
+
+.khata .k-trust {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.khata .k-otp {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(6px, 2vw, 10px);
+  direction: ltr;
+}
+
+.khata .k-otp input {
+  width: 100%;
+  aspect-ratio: 0.86;
+  max-height: 64px;
+  min-height: 48px;
+  padding: 0;
+  border-radius: 16px;
+  border: 1.5px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  text-align: center;
+  font: 800 clamp(20px, 6vw, 26px)/1 var(--k-font);
+  caret-color: var(--k-brand);
+  box-shadow: var(--k-neu-in);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s var(--k-ease), background-color 0.2s;
+}
+
+.khata[data-kt=dark] .k-otp input {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.khata .k-otp input:focus {
+  outline: none;
+  border-color: var(--k-brand);
+  box-shadow: var(--k-focus);
+  transform: translateY(-2px);
+}
+
+.khata .k-otp input.filled {
+  border-color: color-mix(in srgb, var(--k-brand) 55%, var(--k-line-strong));
+  background: var(--k-brand-soft);
+}
+
+.khata .k-otp.bad input {
+  border-color: var(--k-give);
+  background: var(--k-give-soft);
+  animation: k-shake 0.4s;
+}
+
+.khata .k-otp.ok input {
+  border-color: var(--k-get);
+  background: var(--k-get-soft);
+}
+
+.khata .k-otp-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.khata .k-ring {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--k-muted);
+  font-weight: 700;
+}
+
+.khata .k-ring svg circle.fg {
+  stroke: var(--k-brand);
+  transition: stroke-dashoffset 1s linear;
+}
+
+.khata .k-ring svg circle.bg {
+  stroke: var(--k-surface-3);
+}
+
+.khata .k-success {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  text-align: center;
+  animation: k-pop 0.35s var(--k-ease);
+}
+
+.khata .k-success .ok {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--k-get-soft);
+  color: var(--k-get);
+}
+
+.khata .k-success path {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: k-draw 0.5s 0.1s var(--k-ease) forwards;
+}
+
+@keyframes k-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.khata .k-dev {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--k-warn-soft);
+  color: var(--k-warn);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (min-width: 960px) {
+  .khata .k-auth {
+    grid-template-columns: 1.05fr 1fr;
+  }
+
+  .khata .k-auth-art {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+    margin: 16px;
+    padding: 40px;
+    border-radius: 36px;
+    background: var(--k-brand-grad);
+    color: #ffffff;
+    box-shadow: var(--k-shadow-lg);
+  }
+
+  .khata .k-auth-art .k-logo {
+    color: #ffffff;
+  }
+
+  .khata .k-auth-art .k-logo .mark {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+  }
+
+  .khata .k-auth-art h2 {
+    font-size: clamp(1.9rem, 3vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.12;
+    max-width: 460px;
+  }
+
+  .khata .k-auth-art p {
+    margin: 12px 0 0;
+    max-width: 420px;
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 16px;
+  }
+
+  .khata .k-auth-art ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+
+  .khata .k-auth-art li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+  }
+
+  .khata .k-auth-art li span {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .khata .k-auth-art .blob {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .khata .k-auth-art .b1 {
+    width: 340px;
+    height: 340px;
+    inset-inline-end: -120px;
+    top: -100px;
+    background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 70%);
+    animation: k-float 10s ease-in-out infinite;
+  }
+
+  .khata .k-auth-art .b2 {
+    width: 220px;
+    height: 220px;
+    inset-inline-start: -70px;
+    bottom: 120px;
+    background: radial-gradient(circle at 50% 50%, rgba(255, 210, 160, 0.5), rgba(255, 255, 255, 0) 70%);
+    animation: k-float 12s ease-in-out infinite reverse;
+  }
+
+  .khata .k-mock {
+    position: relative;
+    z-index: 1;
+    width: min(340px, 100%);
+    padding: 20px;
+    border-radius: 26px;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 24px 60px rgba(20, 10, 60, 0.3);
+    animation: k-float 8s ease-in-out infinite;
+  }
+
+  .khata .k-mock small {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 700;
+  }
+
+  .khata .k-mock b {
+    display: block;
+    font-size: 30px;
+    letter-spacing: -0.03em;
+  }
+
+  .khata .k-mock .rows {
+    display: grid;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .khata .k-mock .rows div {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.14);
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .khata .k-auth-art > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* ---------- Settings / profile ---------- */
+.khata .k-set {
+  display: grid;
+  gap: 16px;
+  width: min(760px, 100%);
+}
+
+.khata .k-set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--k-line);
+}
+
+.khata .k-set-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.khata .k-set-row .t {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.khata .k-set-row .t b {
+  display: block;
+}
+
+.khata .k-set-row .t small {
+  display: block;
+  color: var(--k-muted);
+  font-size: 12.5px;
+}
+
+.khata .k-themes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.khata .k-theme {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 18px;
+  border: 2px solid var(--k-line);
+  background: var(--k-surface-2);
+  color: var(--k-text);
+  font: 700 13.5px var(--k-font);
+  cursor: pointer;
+  text-align: start;
+  transition: border-color 0.2s, transform 0.2s var(--k-ease);
+}
+
+.khata .k-theme:hover {
+  transform: translateY(-2px);
+}
+
+.khata .k-theme[aria-pressed=true] {
+  border-color: var(--k-brand);
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-theme .pv {
+  height: 64px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 5px;
+  padding: 6px;
+}
+
+.khata .k-theme .pv i {
+  border-radius: 6px;
+}
+
+.khata .k-theme .pv.light {
+  background: #eef1f7;
+}
+
+.khata .k-theme .pv.light i {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.khata .k-theme .pv.light i:last-child {
+  background: linear-gradient(135deg, #3a66f5, #5b5cf6);
+}
+
+.khata .k-theme .pv.dark {
+  background: #0e0b19;
+}
+
+.khata .k-theme .pv.dark i {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.khata .k-theme .pv.dark i:last-child {
+  background: linear-gradient(135deg, #ffa25a, #ff6a88);
+}
+
+.khata .k-theme .pv.system {
+  background: linear-gradient(90deg, #eef1f7 50%, #0e0b19 50%);
+}
+
+.khata .k-theme .pv.system i {
+  background: rgba(128, 128, 160, 0.4);
+}
+
+.khata .k-theme .pv.system i:last-child {
+  background: linear-gradient(90deg, #4a63f5 50%, #ff8a6a 50%);
+}
+
+.khata .k-theme .nm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.khata .k-bookcards {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 720px) {
+  .khata .k-bookcards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.khata .k-book {
+  display: grid;
+  gap: 14px;
+}
+
+.khata .k-book .top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.khata .k-book .top a {
+  flex: 1;
+  min-width: 0;
+  color: var(--k-text);
+  text-decoration: none;
+}
+
+.khata .k-book .top a b {
+  display: block;
+  font-size: 16px;
+}
+
+.khata .k-book .nums {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.khata .k-book .nums div {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--k-surface-2);
+}
+
+.khata .k-book .nums small {
+  display: block;
+  font-size: 12px;
+  color: var(--k-muted);
+  font-weight: 700;
+}
+
+.khata .k-grid4 {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .khata .k-grid4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.khata .k-curs {
+  display: grid;
+  gap: 8px;
+}
+
+.khata .k-cur {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--k-surface-2);
+}
+
+.khata .k-addform {
+  animation: k-pop 0.3s var(--k-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .khata *,
+  .khata *::before,
+  .khata *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .khata .k-quick {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .khata .k-sumbar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .khata .k-sumbar > div:last-child {
+    grid-column: span 2;
+  }
+
+  .khata .k-hero .split {
+    grid-template-columns: 1fr;
+  }
+}
+

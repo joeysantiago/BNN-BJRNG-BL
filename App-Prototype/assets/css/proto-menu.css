@@ -1,0 +1,10 @@
+/* Prototype pages menu (only when a page is opened on its own; the dashboard sidebar replaces it). Moved from thakurg.html as it was. */
+.proto-menu { position: fixed; inset-block-end: 14px; left: 14px; z-index: 1000; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; font: 600 14px/1.3 var(--font-body); }
+.proto-menu .proto-list { max-height: min(70vh, 560px); overflow: auto; padding: 8px; display: grid; gap: 2px; min-width: 240px; order: -1; }
+.proto-menu .proto-list a { display: flex; justify-content: space-between; gap: 12px; padding: 9px 12px; min-height: 44px; align-items: center; border-radius: 12px; color: var(--text); text-decoration: none; }
+.proto-menu .proto-list a:hover, .proto-menu .proto-list a[aria-current] { background: var(--btn-bg); }
+body:has(.khata .k-tabs) .proto-menu { inset-block-end: 96px; }
+@media (min-width: 1024px) { body:has(.khata .k-tabs) .proto-menu { inset-block-end: 14px; } }
+.proto-menu .proto-list small { color: var(--muted); font-weight: 500; }
+
+.in-dashboard .proto-menu { display: none; }

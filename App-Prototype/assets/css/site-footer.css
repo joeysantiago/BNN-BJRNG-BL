@@ -1,0 +1,112 @@
+/* Site footer. Moved from thakurg.html as it was. */
+/* src/app/shared/site-footer.scss */
+.sc-footer .foot {
+  margin-block-start: 48px;
+  padding-block: 28px;
+  border-block-start: var(--header-border);
+  background: var(--header-bg);
+  -webkit-backdrop-filter: var(--header-filter);
+  backdrop-filter: var(--header-filter);
+}
+
+.sc-footer .foot-in {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sc-footer .links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+
+.sc-footer .links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 10px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.sc-footer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* Prototype: the footer is pinned to the bottom of every page and kept compact; the page reserves its height so nothing hides behind it. */
+:root {
+  --foot-h: 52px;
+}
+
+.sc-footer .foot {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 50;
+  margin: 0;
+  padding-block: 4px calc(4px + env(safe-area-inset-bottom));
+}
+
+/* Links and copyright centred together; on narrow screens the copyright drops under the links. */
+.sc-footer .foot-in {
+  gap: 0 16px;
+  justify-content: center;
+  text-align: center;
+}
+
+.sc-footer .links {
+  gap: 0 2px;
+}
+
+.sc-footer p {
+  font-size: 13px;
+}
+
+body:has(.sc-footer) .sc-app main {
+  padding-block-end: calc(var(--foot-h) + 16px + env(safe-area-inset-bottom));
+}
+
+body:has(.sc-footer) .proto-menu {
+  inset-block-end: calc(var(--foot-h) + 12px);
+}
+
+/* Narrow screens: links on one line, the copyright line under them. */
+@media (max-width: 720px) {
+  :root {
+    --foot-h: 70px;
+  }
+
+  .sc-footer .links {
+    justify-content: center;
+  }
+
+  .sc-footer .links a {
+    padding-inline: 7px;
+  }
+
+  .sc-footer p {
+    font-size: 12px;
+    padding-block-end: 2px;
+  }
+}
+
+/* Wide screens: a slimmer footer bar (40px), so it takes less of the screen. Phones keep the 44px tap targets above. */
+@media (min-width: 721px) {
+  :root {
+    --foot-h: 40px;
+  }
+
+  .sc-footer .links a {
+    min-height: 32px;
+    font-size: 14px;
+  }
+
+  .sc-footer p {
+    font-size: 12px;
+  }
+}

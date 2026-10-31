@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<meta name="description" content="Clickable prototype of SnapTracker, the automatic SMS expense tracker inside SnapKhata: login, OTP, app password, dashboard, detected transactions, privacy and a simulated Android device." />
+<title>SnapTracker prototype</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Crect width=%2224%22 height=%2224%22 rx=%226%22 fill=%22%236a46f0%22/%3E%3Cpath d=%22M12 14l4-4M5.3 18a8 8 0 1 1 13.4 0%22 fill=%22none%22 stroke=%22white%22 stroke-width=%222.2%22 stroke-linecap=%22round%22/%3E%3C/svg%3E" />
+<script>
+  // Paint the shared light / dark choice before the first frame.
+  (function () {
+    try {
+      var m = localStorage.getItem('thakurg-proto-mode');
+      if (m === 'light' || m === 'dark')
+        document.documentElement.setAttribute('data-theme', m);
+    } catch (e) {}
+  })();
+</script>
+<link rel="stylesheet" href="../assets/css/snaptracker.css" />
+</head>
+<body>
+<div id="app"></div>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<script>window.PAGE_ID = 'tracker';</script>
+<script src="../assets/js/routes.js"></script>
+<script src="../assets/js/bridge.js"></script>
+<script src="../assets/js/snaptracker.js"></script>
+</body>
+</html>
