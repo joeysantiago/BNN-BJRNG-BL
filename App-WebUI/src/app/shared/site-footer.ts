@@ -29,9 +29,14 @@ import { SettingsService } from '../core/settings.service';
     </footer>
   `,
   styles: `
+    /* Pinned to the bottom of every page and kept compact; links and copyright centred together. */
     .foot {
-      margin-block-start: 48px;
-      padding-block: 28px;
+      position: fixed;
+      inset-inline: 0;
+      inset-block-end: 0;
+      z-index: 50;
+      margin: 0;
+      padding-block: 4px calc(4px + env(safe-area-inset-bottom));
       border-block-start: var(--header-border);
       background: var(--header-bg);
       -webkit-backdrop-filter: var(--header-filter);
@@ -40,14 +45,15 @@ import { SettingsService } from '../core/settings.service';
     .foot-in {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px 24px;
+      gap: 0 16px;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
+      text-align: center;
     }
     .links {
       display: flex;
       flex-wrap: wrap;
-      gap: 4px 8px;
+      gap: 0 2px;
     }
     .links a {
       display: inline-flex;
@@ -60,7 +66,30 @@ import { SettingsService } from '../core/settings.service';
     p {
       margin: 0;
       color: var(--muted);
-      font-size: 14px;
+      font-size: 13px;
+    }
+    /* Narrow screens: links on one line, the copyright line under them. */
+    @media (max-width: 720px) {
+      .links {
+        justify-content: center;
+      }
+      .links a {
+        padding-inline: 7px;
+      }
+      p {
+        font-size: 12px;
+        padding-block-end: 2px;
+      }
+    }
+    /* Wide screens: a slimmer 40px bar. Phones keep the 44px tap targets above. */
+    @media (min-width: 721px) {
+      .links a {
+        min-height: 32px;
+        font-size: 14px;
+      }
+      p {
+        font-size: 12px;
+      }
     }
   `,
 })

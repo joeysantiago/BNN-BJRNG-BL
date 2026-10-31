@@ -3,43 +3,25 @@
     <h1 id="st-h1">{{ i18n.t('st.h1a') }} <em>{{ i18n.t('st.h1b') }}</em></h1>
     <p class="lead">{{ i18n.t('st.lead') }}</p>
 
+    <div class="hero-grid">
+    <div class="hero-meter">
     @if (resultUrl(); as src) {
       <img class="result-img" [src]="src" width="1200" height="630" [alt]="status() + '. ' + share.text(current()!)" />
     } @else {
-    <div class="dial inset" [class.live]="engine.running()">
-      <svg viewBox="-4 -4 248 248" role="img" [attr.aria-label]="status() + ' ' + fmt(engine.gauge()) + ' ' + unit()">
-        <defs>
-          <linearGradient id="gg" x1="0" y1="1" x2="1" y2="0">
-            <stop offset="0" style="stop-color: var(--gauge-a)" />
-            <stop offset="1" style="stop-color: var(--gauge-b)" />
-          </linearGradient>
-        </defs>
-        <g class="g-minor" aria-hidden="true">
-          @for (m of minorTicks; track $index) {
-            <line [attr.x1]="m.x1" [attr.y1]="m.y1" [attr.x2]="m.x2" [attr.y2]="m.y2" />
+    <div class="dial" [class.live]="engine.running()">
+      <svg viewBox="-18 -18 276 218" role="img" [attr.aria-label]="status() + ' ' + fmt(engine.gauge()) + ' ' + unit()">
+        <circle class="g-inner" cx="120" cy="120" r="72" />
+        <g class="g-seg" aria-hidden="true">
+          @for (s of segments; track $index) {
+            <line [class.on]="$index < lit()" [class.head]="$index === lit() - 1" [style.--k]="s.k" [attr.x1]="s.x1" [attr.y1]="s.y1" [attr.x2]="s.x2" [attr.y2]="s.y2" />
           }
         </g>
-        <circle class="g-bg" cx="120" cy="120" r="94" fill="none" stroke-width="14" />
-        <circle
-          class="g-fill"
-          cx="120"
-          cy="120"
-          r="94"
-          fill="none"
-          stroke="url(#gg)"
-          stroke-width="14"
-          stroke-linecap="round"
-          transform="rotate(-90 120 120)"
-          pathLength="100"
-          [style.stroke-dasharray]="dash() + ' 100'"
-          [style.opacity]="arcVisible() ? 1 : 0"
-        />
-        <circle class="g-tip" r="8" [attr.cx]="tip().x" [attr.cy]="tip().y" [style.opacity]="arcVisible() ? 1 : 0" />
         <g aria-hidden="true">
-          @for (t of ticks; track t.label) {
-            <text class="g-tick" [attr.x]="t.x" [attr.y]="t.y" text-anchor="middle">{{ t.label }}</text>
+          @for (l of labels; track l.text) {
+            <text class="g-label" [class.on]="lit() > 0 && l.f <= fraction() + 0.0001" [attr.x]="l.x" [attr.y]="l.y" text-anchor="middle" dominant-baseline="central">{{ l.text }}</text>
           }
         </g>
+        <g class="g-peak" [attr.transform]="'rotate(' + peakAngle().toFixed(2) + ' 120 120)'" [style.opacity]="peakVisible() ? 1 : 0" aria-hidden="true"><path d="M223 120 L230 116 L230 124 Z" /></g>
       </svg>
       <div class="read" aria-hidden="true">
         <span class="val">{{ fmt(engine.gauge()) }}</span>
@@ -65,7 +47,9 @@
     @if (cfg.on('speed.progress')) {
     <div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="progress()" [attr.aria-label]="status()"><i [style.width.%]="progress()"></i></div>
     }
+    </div>
 
+    <div class="hero-side">
     <p class="status" [class.bad]="engine.phase() === 'error'" aria-live="polite">{{ status() }}</p>
     <button type="button" class="btn pri lg go" [class.stop]="engine.running()" (click)="start()">{{ buttonLabel() }}</button>
 
@@ -155,6 +139,8 @@
         </div>
       }
     }
+    </div>
+    </div>
 
     <p class="note">{{ i18n.t('st.note') }}</p>
   </section>

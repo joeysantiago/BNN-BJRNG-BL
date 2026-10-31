@@ -429,3 +429,21 @@ p {
     scroll-behavior: auto !important;
   }
 }
+
+/* The site footer is pinned to the bottom of every page; the page reserves its height so nothing hides behind it. */
+:root {
+  --foot-h: 52px;
+}
+@media (max-width: 720px) {
+  :root {
+    --foot-h: 70px;
+  }
+}
+@media (min-width: 721px) {
+  :root {
+    --foot-h: 40px;
+  }
+}
+body:has(app-site-footer) main {
+  padding-block-end: calc(var(--foot-h) + 16px + env(safe-area-inset-bottom));
+}

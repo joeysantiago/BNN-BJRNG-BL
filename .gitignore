@@ -45,3 +45,7 @@ Thumbs.db
 
 # YouTube helper secret key
 /.youtube-token
+
+# .NET build output
+[Bb]in/
+[Oo]bj/

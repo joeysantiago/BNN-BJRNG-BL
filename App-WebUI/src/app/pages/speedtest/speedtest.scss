@@ -33,85 +33,166 @@ h1 em {
 }
 
 /* ---------- Dial ---------- */
+/* A segmented 240° ring on the card itself (no box): bars light up with the speed, the leading bar glows,
+   a small marker keeps the peak of the current phase, and the reading sits in the centre. */
 .dial {
   position: relative;
-  width: min(420px, 100%);
+  width: min(400px, 100%);
   margin: 0 auto 8px;
-  padding: 16px;
-  overflow: hidden;
+  container-type: inline-size;
 }
-/* A soft glow behind the dial. It pulses while a test is running. */
+
+/* A soft glow in the middle of the ring. It pulses while a test is running. 50cqi = the ring centre. */
 .dial::before {
-  content: '';
+  content: "";
   position: absolute;
-  inset: 14%;
+  inset-inline-start: 50%;
+  inset-block-start: 50cqi;
+  width: 64cqi;
+  aspect-ratio: 1;
+  translate: -50% -50%;
   border-radius: 50%;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--gauge-a) 26%, transparent), transparent 72%);
-  opacity: 0.55;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--gauge-a) 28%, transparent), transparent 75%);
+  opacity: 0.5;
   pointer-events: none;
 }
+
 .dial.live::before {
   animation: glow 1.8s ease-in-out infinite;
 }
-.dial svg,
-.read {
-  position: relative;
-}
+
 @keyframes glow {
   50% {
     opacity: 1;
-    transform: scale(1.08);
+    transform: scale(1.1);
   }
 }
-.g-minor line {
-  stroke: var(--inset-muted);
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  opacity: 0.55;
-}
-.g-tip {
-  fill: #ffffff;
-  stroke: var(--gauge-b);
-  stroke-width: 3;
-  filter: drop-shadow(0 0 7px var(--gauge-a)) drop-shadow(0 0 14px var(--gauge-a));
-  transition: opacity 0.2s;
-}
 .dial svg {
+  position: relative;
   display: block;
   width: 100%;
   height: auto;
 }
-.g-bg {
+
+.g-inner {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.2;
+  stroke-dasharray: 0.1 6;
+  stroke-linecap: round;
+  opacity: 0.45;
+}
+
+.g-seg line {
   stroke: var(--track);
+  stroke-width: 4.2;
+  stroke-linecap: round;
+  transition: stroke 0.25s, stroke-width 0.25s;
 }
-.g-fill {
-  transition:
-    stroke-dasharray 0.1s linear,
-    opacity 0.2s;
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--gauge-a) 55%, transparent));
+
+.g-seg line.on {
+  stroke: color-mix(in srgb, var(--gauge-b) calc(var(--k) * 100%), var(--gauge-a));
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--gauge-a) 60%, transparent));
 }
-.g-tick {
-  font: 600 10px var(--font-body);
-  fill: var(--inset-muted);
+
+.g-seg line.head {
+  stroke-width: 6.5;
+  filter: drop-shadow(0 0 6px var(--gauge-b)) drop-shadow(0 0 12px var(--gauge-a));
 }
+
+.g-label {
+  font: 700 10px var(--font-body);
+  fill: var(--muted);
+  opacity: 0.7;
+  transition: fill 0.25s, opacity 0.25s;
+}
+
+.g-label.on {
+  fill: var(--text);
+  opacity: 1;
+}
+
+.g-peak {
+  fill: var(--text);
+  transition: opacity 0.2s;
+}
+
 .read {
   position: absolute;
   inset-inline: 0;
-  inset-block-start: 50%;
-  transform: translateY(-50%);
+  inset-block-start: 50cqi;
+  translate: 0 -50%;
   display: grid;
   justify-items: center;
   line-height: 1;
 }
+
 .val {
-  font: 800 clamp(3.2rem, 15vw, 5.6rem) var(--inset-font);
+  font: 800 16cqi var(--font-body);
   font-variant-numeric: tabular-nums;
-  color: var(--inset-text);
+  letter-spacing: -0.02em;
+  color: var(--text);
 }
+
 .unit {
-  margin-block-start: 8px;
-  font: 700 clamp(0.95rem, 2.6vw, 1.2rem) var(--inset-font);
-  color: var(--inset-muted);
+  margin-block-start: 2.2cqi;
+  font: 700 4.4cqi var(--font-body);
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+/* ---------- One-screen layout ---------- */
+/* A smaller title and lead, and on wide screens the meter on the left with the status, button and results on the right,
+   so the whole test fits on one screen without scrolling. */
+.page {
+  padding-block: 16px 0;
+}
+
+.hero {
+  padding-block: clamp(16px, 2.5vw, 28px);
+}
+
+h1 {
+  max-width: none;
+  margin-block-end: 0.3em;
+  font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+}
+
+.lead {
+  margin-block-end: 12px;
+  font-size: clamp(0.95rem, 1.6vw, 1.05rem);
+}
+
+@media (min-width: 960px) {
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: center;
+  }
+
+  .dial {
+    width: min(360px, 100%);
+  }
+
+  .hero-side .status {
+    margin-block-start: 0;
+  }
+
+  .hero-side .res {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: none;
+    margin-block-start: 20px;
+  }
+
+  .hero-side .loaded,
+  .hero-side .share-panel {
+    max-width: none;
+  }
+
+  .hero-side .actions {
+    margin-block-start: 16px;
+  }
 }
 
 .result-img {

@@ -9,11 +9,27 @@ import { SpeedResult } from '../../core/models/results.model';
 import { SettingsService } from '../../core/settings.service';
 import { ShareService, fmtMbps } from '../../core/share.service';
 import { ConnectionDetails } from '../../shared/connection-details';
-import { PHASE_MS, SpeedEngine, gaugeFraction } from '../../core/speed-engine.service';
+import { PHASE_MS, SpeedEngine } from '../../core/speed-engine.service';
 import { Component, OnDestroy, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 
-const TICKS = [0, 5, 25, 100, 500];
+/** The dial: a 240° ring of bars starting at 150° (lower left), with these speeds marked along it, evenly spaced. */
+const ARC_START = 150;
+const ARC_SWEEP = 240;
+const SEGMENTS = 54;
+const GAUGE_STOPS = [0, 5, 10, 25, 50, 75, 100, 250, 500, 1000, 2500, 5000, 10000];
 const range = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+const gaugeAngle = (frac: number) => ARC_START + ARC_SWEEP * frac;
+const tickLabel = (mbps: number) => (mbps >= 1000 ? `${mbps / 1000}G` : String(mbps));
+const polar = (r: number, deg: number) => [+(120 + r * Math.cos((deg * Math.PI) / 180)).toFixed(1), +(120 + r * Math.sin((deg * Math.PI) / 180)).toFixed(1)];
+
+/** Where a speed sits on the dial (0 to 1): straight lines between the marked speeds. */
+const gaugeFraction = (mbps: number): number => {
+  const last = GAUGE_STOPS.length - 1;
+  const v = Math.min(GAUGE_STOPS[last], Math.max(0, mbps));
+  const next = GAUGE_STOPS.findIndex((s) => s > v);
+  const i = next < 0 ? last - 1 : next - 1;
+  return (i + (v - GAUGE_STOPS[i]) / (GAUGE_STOPS[i + 1] - GAUGE_STOPS[i])) / last;
+};
 
 @Component({
   selector: 'app-speedtest',
@@ -84,27 +100,30 @@ export class Speedtest implements OnDestroy {
   protected readonly accKeys = range(4).map((i) => `info.acc.${i}` as TranslationKey);
   protected readonly fixKeys = range(6).map((i) => `info.fix.${i}` as TranslationKey);
 
-  /** Ring fill, as a share of the full circle (pathLength is 100). */
-  protected readonly dash = computed(() => (gaugeFraction(this.engine.gauge()) * 100).toFixed(2));
-  protected readonly arcVisible = computed(() => gaugeFraction(this.engine.gauge()) * 100 > 0.2);
-
-  /** Fine tick marks inside the ring, every fifth one longer. Decoration only. */
-  protected readonly minorTicks = Array.from({ length: 60 }, (_, i) => {
-    const a = ((-90 + (360 * i) / 60) * Math.PI) / 180;
-    const r = i % 5 === 0 ? 68 : 74;
-    return { x1: +(120 + r * Math.cos(a)).toFixed(1), y1: +(120 + r * Math.sin(a)).toFixed(1), x2: +(120 + 80 * Math.cos(a)).toFixed(1), y2: +(120 + 80 * Math.sin(a)).toFixed(1) };
+  /** The bars of the ring. --k (0 to 1) blends the lit colour from one end of the ring to the other. */
+  protected readonly segments = Array.from({ length: SEGMENTS }, (_, i) => {
+    const deg = gaugeAngle(i / (SEGMENTS - 1));
+    const [x1, y1] = polar(84, deg);
+    const [x2, y2] = polar(100, deg);
+    return { k: (i / (SEGMENTS - 1)).toFixed(3), x1, y1, x2, y2 };
   });
 
-  /** The glowing dot at the leading end of the ring. */
-  protected readonly tip = computed(() => {
-    const a = ((-90 + 360 * gaugeFraction(this.engine.gauge())) * Math.PI) / 180;
-    return { x: +(120 + 94 * Math.cos(a)).toFixed(1), y: +(120 + 94 * Math.sin(a)).toFixed(1) };
+  protected readonly labels = GAUGE_STOPS.map((m, i) => {
+    const f = i / (GAUGE_STOPS.length - 1);
+    const [x, y] = polar(117, gaugeAngle(f));
+    return { text: tickLabel(m), f, x, y };
   });
 
-  protected readonly ticks = TICKS.map((m) => {
-    const a = ((-90 + 360 * gaugeFraction(m)) * Math.PI) / 180;
-    return { label: String(m), x: +(120 + 111 * Math.cos(a)).toFixed(1), y: +(120 + 111 * Math.sin(a) + 3.5).toFixed(1) };
-  });
+  protected readonly fraction = computed(() => gaugeFraction(this.engine.gauge()));
+
+  /** How many bars are lit; the last lit one is the glowing head. */
+  protected readonly lit = computed(() => (this.fraction() > 0.002 ? Math.round(this.fraction() * (SEGMENTS - 1)) + 1 : 0));
+
+  /** The highest speed of the current phase, marked just outside the ring. */
+  private readonly peak = signal(0);
+  private peakPhase = this.engine.phase();
+  protected readonly peakAngle = computed(() => gaugeAngle(gaugeFraction(this.peak())));
+  protected readonly peakVisible = computed(() => gaugeFraction(this.peak()) * 100 > 0.2);
 
   protected readonly status = computed(() => {
     switch (this.engine.phase()) {
@@ -226,6 +245,15 @@ export class Speedtest implements OnDestroy {
         if (url)
           URL.revokeObjectURL(url);
       });
+    });
+
+    // The peak marker starts again with every phase (ping, download, upload).
+    effect(() => {
+      const phase = this.engine.phase();
+      const gauge = this.engine.gauge();
+      const same = phase === this.peakPhase;
+      this.peakPhase = phase;
+      this.peak.update((p) => (same ? Math.max(p, gauge) : gauge));
     });
 
     // A new connection state re-opens the "No internet access" screen if it was closed.
