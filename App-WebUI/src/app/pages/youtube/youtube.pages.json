@@ -1,0 +1,4 @@
+{
+  "prerender": ["youtube"],
+  "sitemap": [{ "path": "/youtube/", "priority": "0.6" }]
+}

@@ -4,6 +4,8 @@
 
 /** Old addresses that the real site redirects. */
 const ROUTE_REDIRECTS = {
+  // This branch has no speed test: the home address opens the branch's own app.
+  '/': '/youtube',
   '/hr': '/HR', '/Nexon': '/nexon', '/Creta': '/creta', '/audio': '/creta', '/config': '/master', '/speedtest': '/',
   // The SnapKhata OTP login and PIN screens are gone: SnapKhata uses the common login.
   '/khata/login': '/login', '/khata/set-pin': '/khata/app', '/khata/unlock': '/khata/app',
@@ -22,6 +24,10 @@ const ROUTE_GROUPS = [
  * outer/inner: for pages with their own address space (SnapTracker), how its addresses map into the dashboard's.
  */
 const ROUTES = [
+  {
+    id: 'youtube', group: 'site', file: 'youtube.html', icon: 'play', match: /^\/youtube$/, home: '/youtube',
+    label: { en: 'YouTube', hi: 'यूट्यूब', ar: 'يوتيوب' },
+  },
   {
     id: 'about', group: 'info', file: 'about.html', icon: 'info', match: /^\/about$/, home: '/about',
     label: { en: 'About', hi: 'हमारे बारे में', ar: 'حول الموقع' },
