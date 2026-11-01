@@ -23,6 +23,10 @@ const ROUTE_GROUPS = [
  */
 const ROUTES = [
   {
+    id: 'speed', group: 'site', file: 'speedtest.html', icon: 'gauge', match: /^\/(hi|ar)?$/, home: (lang) => (lang === 'en' ? '/' : '/' + lang),
+    label: { en: 'Speed test', hi: 'स्पीड टेस्ट', ar: 'اختبار السرعة' },
+  },
+  {
     id: 'about', group: 'info', file: 'about.html', icon: 'info', match: /^\/about$/, home: '/about',
     label: { en: 'About', hi: 'हमारे बारे में', ar: 'حول الموقع' },
   },
