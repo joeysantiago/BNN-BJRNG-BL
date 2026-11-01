@@ -1,0 +1,4 @@
+{
+  "prerender": ["HR"],
+  "sitemap": [{ "path": "/HR/", "priority": "0.7" }]
+}

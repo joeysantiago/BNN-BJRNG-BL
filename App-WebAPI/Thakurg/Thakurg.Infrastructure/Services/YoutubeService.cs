@@ -1,0 +1,229 @@
+using System.Diagnostics;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using Thakurg.Application.Services;
+using Thakurg.Contracts.Abstractions;
+using Thakurg.Contracts.Configurations;
+using Thakurg.Contracts.Exceptions;
+using Thakurg.Contracts.Messages;
+using Thakurg.Contracts.YouTube;
+using Thakurg.Infrastructure.Common;
+using YoutubeExplode;
+using YoutubeExplode.Common;
+using YoutubeExplode.Exceptions;
+using YoutubeExplode.Videos.Streams;
+
+namespace Thakurg.Infrastructure.Services;
+
+public class YoutubeService : IYoutubeService
+{
+    private readonly IMemoryCache _cache;
+
+    private readonly YoutubeClient _youtube;
+
+    private readonly YoutubeOptions _options;
+
+    private readonly IYoutubeDataApi _dataApi;
+
+    private readonly HostingOptions _hosting;
+
+    private readonly StreamingOptions _streaming;
+
+    private static readonly Regex VideoIdPattern = new(@"^[\w-]{11}$", RegexOptions.Compiled);
+
+    private static readonly Regex ListIdPattern = new(@"^[\w-]{10,64}$", RegexOptions.Compiled);
+
+    public YoutubeService(IMemoryCache cache, YoutubeClient youtube, IOptions<YoutubeOptions> options, IOptions<StreamingOptions> streaming, IYoutubeDataApi dataApi, IOptions<HostingOptions> hosting)
+    {
+        _hosting = hosting.Value;
+        _cache = cache;
+        _youtube = youtube;
+        _dataApi = dataApi;
+        _options = options.Value;
+        _streaming = streaming.Value;
+    }
+
+    #region Public Methods
+
+    public YoutubeDownloadInfoDto GetDownloadInfo()
+    {
+        return new YoutubeDownloadInfoDto { Format = Mp3ConverterPath() is null ? "m4a" : "mp3" };
+    }
+
+    public async Task<YoutubeVideoDto> GetVideoAsync(string videoId, CancellationToken cancellationToken)
+    {
+        if (!VideoIdPattern.IsMatch(videoId))
+            throw new BusinessException(MessageCodes.YoutubeVideoIdInvalid, 400);
+
+        var viaApi = await TryApiAsync(() => _dataApi.GetVideoAsync(videoId, cancellationToken), cancellationToken);
+
+        if (viaApi is not null)
+            return viaApi;
+
+        var video = await GuardAsync(() => _youtube.Videos.GetAsync(videoId, cancellationToken).AsTask());
+
+        return ToDto(videoId, video.Title, video.Author.ChannelTitle, video.Duration);
+    }
+
+    /// <summary>MP3 where ffmpeg is available (see Mp3ConverterPath); otherwise the original audio, so a host without ffmpeg (such as Azure App Service) still downloads.</summary>
+    public async Task<FileStreamDto> OpenDownloadAsync(string videoId, CancellationToken cancellationToken)
+    {
+        var video = await GetVideoAsync(videoId, cancellationToken);
+        var ffmpeg = Mp3ConverterPath();
+
+        if (ffmpeg is null)
+            return await OpenOriginalAsync(video, cancellationToken);
+
+        var source = (await OpenSourceAsync(videoId, cancellationToken)).Content;
+        var process = StartFfmpeg(ffmpeg, video, source);
+
+        return new FileStreamDto { Content = new ProcessOutputStream(process, source), ContentType = "audio/mpeg", FileName = $"{SafeName(video.Title, videoId)}.mp3" };
+    }
+
+    public async Task<List<YoutubeVideoDto>> SearchAsync(string? query, CancellationToken cancellationToken)
+    {
+        var text = query?.Trim() ?? string.Empty;
+
+        if (text.Length == 0)
+            throw new BusinessException(MessageCodes.YoutubeQueryRequired, 400);
+
+        var found = await TryApiAsync(() => _dataApi.SearchAsync(text[..Math.Min(text.Length, 200)], _options.MaxResults, cancellationToken), cancellationToken);
+
+        if (found is not null)
+            return found;
+
+        var results = await GuardAsync(async () => await _youtube.Search.GetVideosAsync(text[..Math.Min(text.Length, 200)], cancellationToken).CollectAsync(_options.MaxResults));
+
+        return results.Select(v => ToDto(v.Id.Value, v.Title, v.Author.ChannelTitle, v.Duration)).ToList();
+    }
+
+    public async Task<List<YoutubeVideoDto>> GetPlaylistAsync(string listId, CancellationToken cancellationToken)
+    {
+        if (!ListIdPattern.IsMatch(listId))
+            throw new BusinessException(MessageCodes.YoutubePlaylistIdInvalid, 400);
+
+        var viaApi = await TryApiAsync(() => _dataApi.GetPlaylistAsync(listId, 200, cancellationToken), cancellationToken);
+
+        if (viaApi is not null)
+            return viaApi;
+
+        var items = await GuardAsync(async () => await _youtube.Playlists.GetVideosAsync(listId, cancellationToken).CollectAsync(200));
+
+        return items.Select(v => ToDto(v.Id.Value, v.Title, v.Author.ChannelTitle, v.Duration)).ToList();
+    }
+
+    public async Task<FileStreamDto> OpenAudioAsync(string videoId, string? range, CancellationToken cancellationToken)
+    {
+        return PacketRange.Apply(await OpenSourceAsync(videoId, cancellationToken), range, _streaming.PacketBytes);
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    /// <summary>Local: the configured ffmpeg. Azure: the ffmpeg you deployed (YouTube:AzureFfmpegPath) if that file exists, otherwise null, meaning no MP3 conversion.</summary>
+    private string? Mp3ConverterPath()
+    {
+        if (!_hosting.IsAzure)
+            return _options.FfmpegPath;
+
+        return !string.IsNullOrWhiteSpace(_options.AzureFfmpegPath) && File.Exists(_options.AzureFfmpegPath) ? _options.AzureFfmpegPath : null;
+    }
+
+    private static string SafeName(string title, string fallback)
+    {
+        var name = Regex.Replace(title, @"[^\w\s.-]", string.Empty).Trim();
+
+        return name.Length == 0 ? fallback : name[..Math.Min(name.Length, 80)];
+    }
+
+    private static async Task<T> GuardAsync<T>(Func<Task<T>> action)
+    {
+        try
+        {
+            return await action();
+        }
+        catch (Exception ex) when (ex is YoutubeExplodeException or HttpRequestException)
+        {
+            throw new BusinessException(MessageCodes.YoutubeLookupFailed, 502);
+        }
+    }
+
+    private Process StartFfmpeg(string ffmpeg, YoutubeVideoDto video, Stream source)
+    {
+        var startInfo = new ProcessStartInfo(ffmpeg) { RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true };
+
+        foreach (var argument in new[] { "-hide_banner", "-loglevel", "error", "-i", "pipe:0", "-vn", "-codec:a", "libmp3lame", "-b:a", "320k", "-metadata", $"title={video.Title}", "-metadata", $"artist={video.Artist}", "-f", "mp3", "pipe:1" })
+            startInfo.ArgumentList.Add(argument);
+
+        try
+        {
+            return Process.Start(startInfo) ?? throw new BusinessException(MessageCodes.YoutubeFfmpegMissing, 503);
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            source.Dispose();
+
+            throw new BusinessException(MessageCodes.YoutubeFfmpegMissing, 503);
+        }
+    }
+
+    private static YoutubeVideoDto ToDto(string id, string title, string artist, TimeSpan? duration)
+    {
+        return new YoutubeVideoDto { Id = id, Title = title, Artist = artist, Duration = (int)(duration?.TotalSeconds ?? 0), Thumb = $"https://i.ytimg.com/vi/{id}/mqdefault.jpg" };
+    }
+
+    private async Task<FileStreamDto> OpenSourceAsync(string videoId, CancellationToken cancellationToken)
+    {
+        var info = await GetAudioInfoAsync(videoId, cancellationToken);
+        var content = await GuardAsync(() => _youtube.Videos.Streams.GetAsync(info, cancellationToken).AsTask());
+
+        return new FileStreamDto { Content = content, ContentType = info.Container == Container.Mp4 ? "audio/mp4" : "audio/webm" };
+    }
+
+    private async Task<AudioOnlyStreamInfo> GetAudioInfoAsync(string videoId, CancellationToken cancellationToken)
+    {
+        if (!VideoIdPattern.IsMatch(videoId))
+            throw new BusinessException(MessageCodes.YoutubeVideoIdInvalid, 400);
+
+        if (_cache.TryGetValue(videoId, out AudioOnlyStreamInfo? cached) && cached is not null)
+            return cached;
+
+        var manifest = await GuardAsync(() => _youtube.Videos.Streams.GetManifestAsync(videoId, cancellationToken).AsTask());
+        var audio = manifest.GetAudioOnlyStreams().ToList();
+        var mp4 = audio.Where(s => s.Container == Container.Mp4).ToList();
+
+        if (audio.Count == 0)
+            throw new BusinessException(MessageCodes.YoutubeNoAudio, 404);
+
+        var best = (AudioOnlyStreamInfo)(mp4.Count > 0 ? mp4 : audio).GetWithHighestBitrate();
+        _cache.Set(videoId, best, TimeSpan.FromMinutes(_options.StreamCacheMinutes));
+
+        return best;
+    }
+
+    private async Task<FileStreamDto> OpenOriginalAsync(YoutubeVideoDto video, CancellationToken cancellationToken)
+    {
+        var file = await OpenSourceAsync(video.Id, cancellationToken);
+        file.FileName = $"{SafeName(video.Title, video.Id)}.{(file.ContentType == "audio/mp4" ? "m4a" : "webm")}";
+
+        return file;
+    }
+
+    /// <summary>Asks the official API (when a key is stored). Any failure, such as a used-up quota, returns null so the caller falls back to the other source.</summary>
+    private static async Task<T?> TryApiAsync<T>(Func<Task<T?>> call, CancellationToken cancellationToken) where T : class
+    {
+        try
+        {
+            return await call();
+        }
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or KeyNotFoundException or InvalidOperationException or FormatException || (ex is OperationCanceledException && !cancellationToken.IsCancellationRequested))
+        {
+            return null;
+        }
+    }
+
+    #endregion
+}

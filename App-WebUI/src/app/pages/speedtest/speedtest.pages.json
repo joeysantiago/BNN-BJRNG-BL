@@ -1,0 +1,8 @@
+{
+  "prerender": ["", "hi", "ar"],
+  "sitemap": [
+    { "path": "/", "priority": "1.0", "alt": true },
+    { "path": "/hi/", "priority": "0.9", "alt": true },
+    { "path": "/ar/", "priority": "0.9", "alt": true }
+  ]
+}

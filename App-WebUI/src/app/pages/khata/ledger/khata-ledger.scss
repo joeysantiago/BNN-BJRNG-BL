@@ -1,0 +1,70 @@
+:host {
+  display: block;
+  padding-block-end: 80px;
+}
+
+.head {
+  justify-content: space-between;
+}
+
+.balance {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.sub {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.type {
+  display: flex;
+  gap: 16px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.type label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+
+.type input {
+  width: auto;
+  min-height: 0;
+}
+
+.bal {
+  text-align: end;
+}
+
+.gone {
+  opacity: 0.6;
+}
+
+.gone .k-amount {
+  text-decoration: line-through;
+}
+
+.actions {
+  padding: 8px 4px 0;
+}
+
+.add {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: var(--k-surface);
+  border-block-start: 1px solid var(--k-line);
+}

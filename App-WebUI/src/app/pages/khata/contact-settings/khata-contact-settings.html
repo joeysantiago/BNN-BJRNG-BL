@@ -1,0 +1,37 @@
+<section class="k-page" aria-labelledby="cs-h1">
+  <a class="k-btn link back" [routerLink]="['/khata/app/b', bookId, 'contact', contactId]">← {{ i18n.t('khata.back') }}</a>
+  <h1 id="cs-h1" class="k-title">{{ i18n.t('khata.cs.title') }}</h1>
+
+  @if (contact(); as c) {
+    <form class="k-card k-form" (submit)="$event.preventDefault(); save(name.value, mobile.value, email.value, address.value, note.value, type.value)">
+      <label>{{ i18n.t('khata.c.name') }}<input #name type="text" maxlength="100" required [value]="c.name" [disabled]="busy()" /></label>
+      <label>{{ i18n.t('khata.c.mobile') }}<input #mobile type="tel" inputmode="tel" [value]="c.mobile ?? ''" [disabled]="busy()" /></label>
+      <label>{{ i18n.t('khata.c.email') }}<input #email type="email" [value]="c.email ?? ''" [disabled]="busy()" /></label>
+      <label>{{ i18n.t('khata.cs.address') }}<input #address type="text" maxlength="300" [value]="c.address ?? ''" [disabled]="busy()" /></label>
+      <label>{{ i18n.t('khata.cs.note') }}<input #note type="text" maxlength="500" [value]="c.note ?? ''" [disabled]="busy()" /></label>
+      <label>{{ i18n.t('khata.c.type') }}
+        <select #type [disabled]="busy()">
+          <option value="1" [selected]="c.contactType === 1">{{ i18n.t('khata.c.customer') }}</option>
+          <option value="2" [selected]="c.contactType === 2">{{ i18n.t('khata.c.supplier') }}</option>
+        </select>
+      </label>
+      <button type="submit" class="k-btn pri" [disabled]="busy()">{{ i18n.t('khata.save') }}</button>
+    </form>
+
+    <div class="k-card k-form">
+      <label class="toggle"><input #allowBox type="checkbox" [checked]="c.allowContactEntries" [disabled]="busy()" (change)="toggle(allowBox)" />{{ i18n.t('khata.cs.allow', { name: c.name }) }}</label>
+      <p class="k-muted">{{ i18n.t('khata.cs.allowHint') }}</p>
+    </div>
+
+    <button type="button" class="k-btn danger" [disabled]="busy()" (click)="remove()">{{ i18n.t('khata.cs.delete') }}</button>
+  } @else if (!busy() && !error()) {
+    <p class="k-muted">{{ i18n.t('khata.loading') }}</p>
+  }
+
+  @if (info()) {
+    <p class="k-ok" role="status">{{ info() }}</p>
+  }
+  @if (error()) {
+    <p class="k-error" role="alert">{{ error() }}</p>
+  }
+</section>

@@ -1,0 +1,100 @@
+<section class="k-page" aria-labelledby="ledger-h1">
+  <div class="k-row head">
+    <a class="k-btn link" [routerLink]="['/khata/app/b', bookId()]">← {{ i18n.t('khata.back') }}</a>
+    @if (contact()) {
+      <a class="k-btn link" [routerLink]="['/khata/app/b', bookId(), 'contact', contactId(), 'settings']">{{ i18n.t('khata.e.settings') }}</a>
+    }
+  </div>
+
+  <h1 id="ledger-h1" class="k-title">{{ contact()?.name ?? i18n.t('khata.app.name') }}</h1>
+  @if (book()) {
+    <p class="k-card balance">
+      <span class="k-muted">{{ i18n.t(balance() > 0 ? 'khata.e.balanceGet' : balance() < 0 ? 'khata.e.balanceGive' : 'khata.e.balanceSettled') }}</span>
+      <b class="k-amount" [class.k-get]="balance() > 0" [class.k-give]="balance() < 0">{{ money(balance()) }}</b>
+    </p>
+  }
+
+  @if (form(); as f) {
+    <form class="k-card k-form" (submit)="$event.preventDefault(); save(amount.value, date.value, note.value)">
+      <h2 class="sub" [class.k-give]="f.type === gave" [class.k-get]="f.type === got">{{ i18n.t(f.entry ? 'khata.e.editTitle' : f.type === gave ? 'khata.e.gave' : 'khata.e.got') }}</h2>
+      @if (f.entry) {
+        <fieldset class="type">
+          <legend class="sr-only">{{ i18n.t('khata.e.type') }}</legend>
+          <label><input type="radio" name="type" [checked]="f.type === gave" (change)="form.set({ type: gave, entry: f.entry })" />{{ i18n.t('khata.e.gave') }}</label>
+          <label><input type="radio" name="type" [checked]="f.type === got" (change)="form.set({ type: got, entry: f.entry })" />{{ i18n.t('khata.e.got') }}</label>
+        </fieldset>
+      }
+      <label>{{ i18n.t('khata.e.amount', { symbol: book()?.currency?.symbol ?? '' }) }}<input #amount type="text" inputmode="decimal" autocomplete="off" required [value]="amountText(f.entry)" [disabled]="busy()" /></label>
+      <label>{{ i18n.t('khata.e.date') }}<input #date type="date" required [max]="today" [value]="f.entry?.entryDate ?? today" [disabled]="busy()" /></label>
+      <label>{{ i18n.t('khata.e.note') }}<input #note type="text" maxlength="500" autocomplete="off" [value]="f.entry?.note ?? ''" [disabled]="busy()" /></label>
+      <div class="k-row end">
+        <button type="button" class="k-btn" (click)="close()">{{ i18n.t('khata.cancel') }}</button>
+        <button type="submit" class="k-btn pri" [disabled]="busy()">{{ i18n.t('khata.save') }}</button>
+      </div>
+    </form>
+  }
+
+  @if (error()) {
+    <p class="k-error" role="alert">{{ error() }}</p>
+  }
+
+  @if (history(); as versions) {
+    <div class="k-card">
+      <h2 class="sub">{{ i18n.t('khata.e.historyTitle') }}</h2>
+      <ol class="k-list">
+        @for (v of versions; track v.version) {
+          <li class="k-muted">{{ i18n.t('khata.e.version', { n: v.version }) }} · {{ formatDate(v.changedOn) }} · {{ i18n.t(v.changeType === 3 ? 'khata.e.deleted' : v.snapshot.entryType === gave ? 'khata.e.gave' : 'khata.e.got') }} {{ money(v.snapshot.amountMinor) }} · {{ formatDate(v.snapshot.entryDate) }}{{ v.snapshot.note ? ' · ' + v.snapshot.note : '' }}</li>
+        }
+      </ol>
+      <button type="button" class="k-btn" (click)="close()">{{ i18n.t('khata.close') }}</button>
+    </div>
+  }
+
+  @if (entries().length) {
+    <ul class="k-list">
+      @for (e of entries(); track e.id) {
+        <li>
+          <button type="button" class="k-item" [class.gone]="e.isDeleted" [attr.aria-expanded]="selected()?.id === e.id" (click)="selected.set(selected()?.id === e.id ? null : e)">
+            <span>
+              <b>{{ formatDate(e.entryDate) }}</b>
+              <small>{{ e.note }}</small>
+              @if (e.isDeleted) {
+                <small class="k-give">{{ i18n.t('khata.e.deleted') }}</small>
+              } @else if (e.version > 1) {
+                <small>{{ i18n.t('khata.e.edited') }}</small>
+              }
+              @if (!e.addedByMe) {
+                <small>{{ i18n.t('khata.e.addedByContact') }}</small>
+              }
+            </span>
+            <span class="bal">
+              <b class="k-amount" [class.k-give]="e.entryType === gave" [class.k-get]="e.entryType === got">{{ money(e.amountMinor) }}</b>
+              <small>{{ i18n.t(e.entryType === gave ? 'khata.e.gave' : 'khata.e.got') }}</small>
+            </span>
+          </button>
+          @if (selected()?.id === e.id) {
+            <div class="k-row actions">
+              @if (e.addedByMe && !e.isDeleted) {
+                <button type="button" class="k-btn" [disabled]="busy()" (click)="edit(e)">{{ i18n.t('khata.e.edit') }}</button>
+                <button type="button" class="k-btn danger" [disabled]="busy()" (click)="remove(e)">{{ i18n.t('khata.e.delete') }}</button>
+              }
+              <button type="button" class="k-btn" [disabled]="busy()" (click)="showHistory(e)">{{ i18n.t('khata.e.history') }}</button>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+    @if (entries().length < total()) {
+      <button type="button" class="k-btn" [disabled]="busy()" (click)="more()">{{ i18n.t('khata.e.more') }}</button>
+    }
+  } @else if (!busy() && contact()) {
+    <p class="k-muted">{{ i18n.t('khata.e.none') }}</p>
+  }
+
+  @if (contact()) {
+    <div class="add">
+      <button type="button" class="k-btn gave" (click)="open(gave)">{{ i18n.t('khata.e.gave') }}</button>
+      <button type="button" class="k-btn got" (click)="open(got)">{{ i18n.t('khata.e.got') }}</button>
+    </div>
+  }
+</section>

@@ -1,0 +1,7 @@
+{
+  "prerender": ["creta", "nexon", "creta-add", "nexon-add"],
+  "sitemap": [
+    { "path": "/creta/", "priority": "0.6" },
+    { "path": "/nexon/", "priority": "0.6" }
+  ]
+}

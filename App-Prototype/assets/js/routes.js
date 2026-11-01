@@ -23,6 +23,39 @@ const ROUTE_GROUPS = [
  */
 const ROUTES = [
   {
+    id: 'speed', group: 'site', file: 'speedtest.html', icon: 'gauge', match: /^\/(hi|ar)?$/, home: (lang) => (lang === 'en' ? '/' : '/' + lang),
+    label: { en: 'Speed test', hi: 'स्पीड टेस्ट', ar: 'اختبار السرعة' },
+  },
+  {
+    id: 'youtube', group: 'site', file: 'youtube.html', icon: 'play', match: /^\/youtube$/, home: '/youtube',
+    label: { en: 'YouTube', hi: 'यूट्यूब', ar: 'يوتيوب' },
+  },
+  {
+    id: 'creta', group: 'site', file: 'creta.html', icon: 'music', match: /^\/creta(-add)?$/, home: '/creta',
+    label: { en: 'Creta audio', hi: 'क्रेटा ऑडियो', ar: 'مشغل كريتا' },
+    links: [{ path: '/creta-add', label: { en: 'Add songs', hi: 'गाने जोड़ें', ar: 'إضافة أغانٍ' } }],
+  },
+  {
+    id: 'nexon', group: 'site', file: 'nexon.html', icon: 'music', match: /^\/nexon(-add)?$/, home: '/nexon',
+    label: { en: 'Nexon audio', hi: 'नेक्सॉन ऑडियो', ar: 'مشغل نيكسون' },
+    links: [{ path: '/nexon-add', label: { en: 'Add songs', hi: 'गाने जोड़ें', ar: 'إضافة أغانٍ' } }],
+  },
+  {
+    id: 'hr', group: 'apps', file: 'hr.html', icon: 'users', match: /^\/HR$/, home: '/HR',
+    label: { en: 'Atrium HR', hi: 'एट्रियम एचआर', ar: 'أتريوم للموارد البشرية' },
+  },
+  {
+    id: 'khata', group: 'apps', file: 'khata.html', icon: 'book', match: /^\/khata(\/|$)/, home: '/khata',
+    label: { en: 'SnapKhata', hi: 'स्नैपखाता', ar: 'سناب خاتا' },
+    links: [{ path: '/khata/app', label: { en: 'Open the app', hi: 'ऐप खोलें', ar: 'فتح التطبيق' } }],
+  },
+  {
+    id: 'tracker', group: 'apps', file: 'snaptracker.html', icon: 'spark', match: /^\/tracker(\/|$)/, home: '/tracker/app',
+    label: { en: 'SnapTracker', hi: 'स्नैपट्रैकर', ar: 'سناب تراكر' },
+    outer: (p) => '/tracker' + (p === '/' ? '' : p),
+    inner: (p) => p.replace(/^\/tracker/, '') || '/',
+  },
+  {
     id: 'about', group: 'info', file: 'about.html', icon: 'info', match: /^\/about$/, home: '/about',
     label: { en: 'About', hi: 'हमारे बारे में', ar: 'حول الموقع' },
   },

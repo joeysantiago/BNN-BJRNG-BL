@@ -1,0 +1,39 @@
+using Microsoft.EntityFrameworkCore;
+using Thakurg.Domain.Entities;
+
+namespace Thakurg.Infrastructure.Persistence;
+
+public partial class CommonDbContext
+{
+    public DbSet<KhataBook> KhataBooks => Set<KhataBook>();
+
+    public DbSet<KhataUser> KhataUsers => Set<KhataUser>();
+
+    public DbSet<KhataContact> KhataContacts => Set<KhataContact>();
+
+    public DbSet<KhataAuditLog> KhataAuditLogs => Set<KhataAuditLog>();
+
+    public DbSet<KhataCurrency> KhataCurrencies => Set<KhataCurrency>();
+
+    public DbSet<KhataTransaction> KhataTransactions => Set<KhataTransaction>();
+
+    public DbSet<KhataIdempotencyKey> KhataIdempotencyKeys => Set<KhataIdempotencyKey>();
+
+    public DbSet<KhataTransactionHistory> KhataTransactionHistory => Set<KhataTransactionHistory>();
+
+    #region Private Methods
+
+    partial void OnKhataModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<KhataBook>().ToTable("KhataBooks");
+        modelBuilder.Entity<KhataUser>().ToTable("KhataUsers");
+        modelBuilder.Entity<KhataAuditLog>().ToTable("KhataAuditLog");
+        modelBuilder.Entity<KhataCurrency>().ToTable("KhataCurrencies");
+        modelBuilder.Entity<KhataIdempotencyKey>().ToTable("KhataIdempotencyKeys");
+        modelBuilder.Entity<KhataTransactionHistory>().ToTable("KhataTransactionHistory");
+        modelBuilder.Entity<KhataContact>().ToTable("KhataContacts").Property(c => c.RowVersion).IsRowVersion();
+        modelBuilder.Entity<KhataTransaction>().ToTable("KhataTransactions").Property(t => t.RowVersion).IsRowVersion();
+    }
+
+    #endregion
+}

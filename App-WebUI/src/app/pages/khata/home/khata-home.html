@@ -1,0 +1,24 @@
+<section class="k-page" aria-labelledby="home-h1">
+  @if (ready()) {
+    <form class="k-card k-form" (submit)="$event.preventDefault(); create(name.value, currency.value)">
+      <h1 id="home-h1" class="k-title">{{ i18n.t('khata.book.firstTitle') }}</h1>
+      <p class="k-lead">{{ i18n.t('khata.book.firstLead') }}</p>
+      <label>{{ i18n.t('khata.book.name') }}<input #name type="text" maxlength="100" required [value]="i18n.t('khata.book.defaultName')" [disabled]="busy()" /></label>
+      <label>{{ i18n.t('khata.book.currency') }}
+        <select #currency [disabled]="busy()">
+          @for (c of state.currencies(); track c.id) {
+            <option [value]="c.id">{{ c.symbol }} · {{ c.code }} · {{ c.name }}</option>
+          }
+        </select>
+      </label>
+      <p class="k-muted">{{ i18n.t('khata.book.lockedHint') }}</p>
+      <button type="submit" class="k-btn pri" [disabled]="busy()">{{ i18n.t('khata.book.create') }}</button>
+    </form>
+  } @else if (!error()) {
+    <h1 id="home-h1" class="k-title">{{ i18n.t('khata.app.name') }}</h1>
+    <p class="k-muted" role="status">{{ i18n.t('khata.loading') }}</p>
+  }
+  @if (error()) {
+    <p class="k-error" role="alert">{{ error() }}</p>
+  }
+</section>
