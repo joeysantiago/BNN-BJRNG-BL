@@ -1,0 +1,322 @@
+/* Common login (auth-ui.js): the user menu in the site header, the "log in" / "no access" panel shown instead of a protected page,
+   and the Log in, Sign up and Profile screens. Uses the skin tokens of base.css, so it follows glass, clay, skeu and neu. */
+
+/* Header: Log in button, or the name with its menu */
+.sc-header .acc-btn {
+  gap: 8px;
+  max-width: 220px;
+  padding-inline: 6px 14px;
+}
+
+.sc-header .acc-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acc-avatar {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--pri-bg);
+  color: var(--pri-color);
+  font: 800 14px/1 var(--font-body);
+}
+
+.acc-avatar.lg {
+  width: 64px;
+  height: 64px;
+  font-size: 28px;
+}
+
+.sc-header .acc-pop {
+  width: min(260px, 100vw - 32px);
+}
+
+.sc-header .acc-pop a.skin-opt {
+  text-decoration: none;
+}
+
+.sc-header .acc-who {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 6px 12px 10px;
+  overflow-wrap: anywhere;
+  border-block-end: 1px solid var(--track);
+}
+
+.sc-header .acc-who small {
+  color: var(--muted);
+}
+
+/* Phones keep 44px tap targets; the narrowest screens show only the icon / initial */
+@media (max-width: 819px) {
+  .sc-header .acc-btn,
+  .sc-header .acc-login {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 420px) {
+  .sc-header .acc-name,
+  .sc-header .acc-login span {
+    display: none;
+  }
+
+  .sc-header .acc-btn,
+  .sc-header .acc-login {
+    min-width: 44px;
+    padding-inline: 8px;
+  }
+}
+
+/* Screens */
+.sc-acc .page {
+  display: grid;
+  gap: 20px;
+  padding-block: 24px 0;
+}
+
+.sc-acc .page.narrow {
+  max-width: 560px;
+}
+
+.sc-acc h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 5vw, 2.4rem);
+  font-weight: 600;
+}
+
+.sc-acc h2 {
+  margin-block-end: 6px;
+}
+
+.sc-acc .lead,
+.sc-acc .help,
+.sc-acc .msg {
+  color: var(--muted);
+}
+
+.sc-acc .acc-form {
+  display: grid;
+  gap: 16px;
+}
+
+.sc-acc .acc-card .acc-form {
+  margin-block-start: 8px;
+}
+
+.sc-acc .stack {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sc-acc .stack .help {
+  font-weight: 500;
+}
+
+.sc-acc input[type=email],
+.sc-acc input[type=text],
+.sc-acc input[type=password],
+.sc-acc select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--track);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: 500 16px var(--font-body);
+}
+
+.sc-acc select option {
+  color: #111;
+  background: #fff;
+}
+
+.sc-acc .acc-pw {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sc-acc .acc-pw input {
+  flex: 1;
+  min-width: 0;
+}
+
+.sc-acc .acc-pw .btn {
+  min-height: 44px;
+}
+
+.sc-acc .status {
+  margin: 0;
+  font-weight: 700;
+  color: var(--ok);
+}
+
+.sc-acc .status.bad {
+  color: var(--danger);
+}
+
+.sc-acc .acc-submit {
+  width: 100%;
+}
+
+.sc-acc .acc-switch {
+  margin: 12px 0 0;
+  text-align: center;
+}
+
+.sc-acc .acc-switch a {
+  display: inline-block;
+  padding-block: 12px;
+  color: inherit;
+  font-weight: 700;
+}
+
+.sc-acc .acc-demo ul {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sc-acc .acc-use {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  width: 100%;
+  text-align: start;
+}
+
+.sc-acc .acc-use span {
+  font-size: 14px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.sc-acc .acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.sc-acc .fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 14px;
+}
+
+.sc-acc .acc-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+}
+
+.sc-acc .acc-head h1 {
+  margin: 0;
+}
+
+.sc-acc .acc-head .lead {
+  margin: 4px 0 8px;
+  overflow-wrap: anywhere;
+}
+
+.sc-acc .pill {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 999px;
+  box-shadow: var(--btn-shadow);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sc-acc .pill.on {
+  color: var(--text);
+}
+
+.sc-acc .acc-apps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sc-acc .acc-apps li {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: 10px 14px;
+}
+
+.sc-acc .acc-apps .pill {
+  color: var(--inset-muted);
+}
+
+.sc-acc .tt {
+  display: grid;
+  min-width: 0;
+}
+
+.sc-acc .tt small {
+  color: var(--inset-muted);
+}
+
+.sc-acc .acc-out {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sc-acc .acc-out h2 {
+  margin: 0;
+}
+
+/* The "log in" / "no access" panel */
+.sc-acc .gate {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  max-width: 600px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.sc-acc .gate .lock {
+  display: inline-grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  margin: 0 0 12px;
+}
+
+.sc-acc .gate .msg {
+  margin: 0;
+}
+
+.sc-acc .gate .msg[role=alert] {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.sc-acc .gate .acts {
+  justify-content: center;
+  margin-block-start: 16px;
+}

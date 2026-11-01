@@ -1,0 +1,96 @@
+.page {
+  display: grid;
+  gap: 20px;
+  max-width: 720px;
+  padding-block: 24px 0;
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 5vw, 2.4rem);
+  font-weight: 600;
+}
+.lead,
+.note,
+.hint {
+  color: var(--muted);
+}
+.lead {
+  direction: ltr;
+  unicode-bidi: plaintext;
+  overflow-wrap: anywhere;
+}
+.form {
+  display: grid;
+  gap: 16px;
+}
+.field {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.field input,
+.field select {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: var(--inset-border);
+  border-radius: 14px;
+  background: var(--inset-bg);
+  box-shadow: var(--inset-shadow);
+  color: var(--inset-text);
+  font: 500 16px var(--font-body);
+  box-sizing: border-box;
+}
+.field select option {
+  color: #111;
+  background: #fff;
+}
+.field input:disabled,
+.field select:disabled {
+  opacity: 0.6;
+}
+.hint {
+  font-weight: 500;
+}
+.check {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+}
+.check input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent, currentColor);
+}
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.status {
+  margin: 0;
+  font-weight: 600;
+}
+.status.bad {
+  color: var(--danger);
+}
+.apps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+.inert {
+  cursor: default;
+  opacity: 0.75;
+}
+.inert:hover {
+  transform: none;
+  box-shadow: var(--btn-shadow);
+}

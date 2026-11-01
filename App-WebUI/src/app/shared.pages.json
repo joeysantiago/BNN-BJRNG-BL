@@ -1,0 +1,10 @@
+{
+  "prerender": ["about", "privacy", "terms", "master", "offline", "error", "login", "signup", "profile"],
+  "sitemap": [
+    { "path": "/login/", "priority": "0.3" },
+    { "path": "/signup/", "priority": "0.3" },
+    { "path": "/about/", "priority": "0.3" },
+    { "path": "/privacy/", "priority": "0.2" },
+    { "path": "/terms/", "priority": "0.2" }
+  ]
+}

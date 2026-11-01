@@ -1,0 +1,209 @@
+.page {
+  display: grid;
+  gap: 20px;
+  padding-block: 24px 0;
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 600;
+}
+h2 {
+  margin-block-end: 6px;
+}
+.lead,
+.note,
+.help {
+  color: var(--muted);
+}
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-start: 16px;
+}
+.status {
+  margin: 0;
+  font-weight: 600;
+}
+.status.bad,
+.was.bad {
+  color: var(--bad, #c0392b);
+}
+.rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.rows li {
+  padding: 10px 14px;
+}
+.rows label:not(.stack) {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+}
+.rows input[type='checkbox'] {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent, currentColor);
+}
+.txt {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+.txt small,
+.was {
+  color: var(--muted);
+}
+.pill {
+  flex: none;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.pill.on {
+  color: var(--text);
+}
+.diff {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: -2px;
+}
+.stack {
+  display: grid;
+  gap: 6px;
+}
+.setup {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  margin-block-start: 16px;
+}
+.setup label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.setup-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+select,
+input[type='text'],
+input[type='number'],
+input[type='password'],
+input[type='url'],
+textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line, rgba(128, 128, 128, 0.4));
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+textarea {
+  direction: ltr;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13px;
+  resize: vertical;
+}
+.sechead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.sechead h2 {
+  margin: 0;
+  min-width: 0;
+}
+.topbar {
+  display: grid;
+  gap: 12px;
+}
+.topbar .bar {
+  margin-block-start: 0;
+}
+.acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.status:empty {
+  display: none;
+}
+@media (min-width: 900px) {
+  /* stays in view while you scroll through the sections; the site header is about 70px tall */
+  .topbar {
+    position: sticky;
+    inset-block-start: 76px;
+    z-index: 5;
+  }
+}
+.users {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.users li {
+  padding: 12px 14px;
+}
+.user .who {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: baseline;
+  margin: 0 0 8px;
+}
+.user .who small,
+.user .mail {
+  color: var(--muted);
+}
+.user .mail {
+  direction: ltr;
+  overflow-wrap: anywhere;
+}
+.apps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.chk {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+}
+.chk input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent, currentColor);
+}
+.chk.admin {
+  font-weight: 700;
+}
+.user .bar {
+  margin-block-start: 8px;
+}

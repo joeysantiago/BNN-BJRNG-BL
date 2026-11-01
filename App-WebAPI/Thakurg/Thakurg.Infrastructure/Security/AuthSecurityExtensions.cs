@@ -1,0 +1,130 @@
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Thakurg.Application.Repositories;
+using Thakurg.Application.Services;
+using Thakurg.Contracts.Auth;
+using Thakurg.Contracts.Configurations;
+using Thakurg.Contracts.Messages;
+using Thakurg.Contracts.Wrappers;
+
+namespace Thakurg.Infrastructure.Security;
+
+public static class AuthSecurityExtensions
+{
+    private const int MinimumSecretLength = 32;
+
+    private static readonly string[] AllApps = [AppCodes.Hr, AppCodes.Creta, AppCodes.Khata, AppCodes.Nexon, AppCodes.Youtube, AppCodes.Tracker];
+
+    #region Public Methods
+
+    // Administrators may open every app; everyone else only the apps ticked for them on the master page.
+    public static bool HasApp(this ClaimsPrincipal user, string app)
+    {
+        return user.HasClaim(AuthClaimTypes.Admin, "true") || user.HasClaim(AuthClaimTypes.App, app);
+    }
+
+    // The common login: JWT bearer tokens checked against an active UserSessions row. Admin rights and app access are loaded from the database
+    // on every request, so a change on the master page applies at once. Policies: User = logged in, Admin, App:<code> = access to that app.
+    public static IServiceCollection AddThakurgAuthentication(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
+    {
+        services.AddOptions<AuthOptions>().Bind(configuration.GetSection(AuthOptions.SectionName)).PostConfigure(options => UseDevelopmentSecret(options, environment)).Validate(IsValid, "Auth:Jwt:Secret must be at least 32 characters (set it with dotnet user-secrets), Auth:PasswordMinLength at least 8, and every other Auth number above 0.").ValidateOnStart();
+        services.AddAuthentication(AuthPolicies.Scheme).AddJwtBearer(AuthPolicies.Scheme, _ => { });
+        services.AddOptions<JwtBearerOptions>(AuthPolicies.Scheme).Configure<IOptions<AuthOptions>>((bearer, auth) => ConfigureBearer(bearer, auth.Value));
+        var authorization = services.AddAuthorizationBuilder()
+            .AddPolicy(AuthPolicies.User, policy => policy.AddAuthenticationSchemes(AuthPolicies.Scheme).RequireAuthenticatedUser())
+            .AddPolicy(AuthPolicies.Admin, policy => policy.AddAuthenticationSchemes(AuthPolicies.Scheme).RequireAuthenticatedUser().RequireClaim(AuthClaimTypes.Admin, "true"));
+
+        foreach (var app in AllApps)
+            authorization.AddPolicy(AuthPolicies.AppPrefix + app, policy => policy.AddAuthenticationSchemes(AuthPolicies.Scheme).RequireAuthenticatedUser().RequireAssertion(context => context.User.HasApp(app)));
+
+        return services;
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private static bool IsValid(AuthOptions options)
+    {
+        return options.Jwt.Secret.Length >= MinimumSecretLength && options.Jwt is { AccessMinutes: > 0, RefreshDays: > 0 } && options is { PasswordMinLength: >= 8, MaxFailedLogins: > 0, LockoutMinutes: > 0 };
+    }
+
+    // A logout or a password change ends the session, so its access tokens stop working at once, not only when they expire.
+    private static async Task ValidateSessionAsync(TokenValidatedContext context)
+    {
+        var identity = context.Principal?.Identity as ClaimsIdentity;
+        var hasIds = int.TryParse(identity?.FindFirst(AuthClaimTypes.Subject)?.Value, out var userId) & int.TryParse(identity?.FindFirst(AuthClaimTypes.Session)?.Value, out var sessionId);
+        var repository = context.HttpContext.RequestServices.GetRequiredService<IAuthRepository>();
+        var cancellationToken = context.HttpContext.RequestAborted;
+
+        if (identity is null || !hasIds || !await repository.IsSessionActiveAsync(sessionId, userId, DateTime.UtcNow, cancellationToken))
+        {
+            context.Fail(MessageCodes.AuthSessionInvalid);
+            return;
+        }
+
+        var user = await repository.GetUserAsync(userId, cancellationToken);
+
+        if (user is null)
+        {
+            context.Fail(MessageCodes.AuthSessionInvalid);
+            return;
+        }
+
+        identity.AddClaim(new Claim(AuthClaimTypes.Admin, user.IsAdmin ? "true" : "false"));
+        identity.AddClaims((await repository.GetAppCodesAsync(userId, cancellationToken)).Select(code => new Claim(AuthClaimTypes.App, code)));
+    }
+
+    private static void ConfigureBearer(JwtBearerOptions bearer, AuthOptions auth)
+    {
+        bearer.MapInboundClaims = false;
+        bearer.TokenValidationParameters = new TokenValidationParameters { ValidIssuer = auth.Jwt.Issuer, ValidAudience = auth.Jwt.Issuer, IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(auth.Jwt.Secret)), NameClaimType = AuthClaimTypes.Subject, ClockSkew = TimeSpan.FromSeconds(30) };
+        bearer.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context => ReadCookieTokenAsync(context, auth),
+            OnTokenValidated = ValidateSessionAsync,
+            OnChallenge = context =>
+            {
+                context.HandleResponse();
+                return WriteFailureAsync(context.HttpContext, StatusCodes.Status401Unauthorized, MessageCodes.AuthSessionInvalid);
+            },
+            OnForbidden = context => WriteFailureAsync(context.HttpContext, StatusCodes.Status403Forbidden, MessageCodes.AuthForbidden)
+        };
+    }
+
+    // Audio, cover pictures and video streams are loaded by the browser from a plain URL (no Authorization header), so for GET requests
+    // the access token may also come from the HttpOnly access cookie. Requests that change something always need the header.
+    private static Task ReadCookieTokenAsync(MessageReceivedContext context, AuthOptions auth)
+    {
+        var request = context.Request;
+
+        if (string.IsNullOrEmpty(request.Headers.Authorization) && (HttpMethods.IsGet(request.Method) || HttpMethods.IsHead(request.Method)))
+            context.Token = request.Cookies[auth.AccessCookie.Name];
+
+        return Task.CompletedTask;
+    }
+
+    // Local development needs no setup: without a configured secret, a random one is made at startup (tokens then end when the API restarts).
+    private static void UseDevelopmentSecret(AuthOptions options, IHostEnvironment environment)
+    {
+        if (environment.IsDevelopment() && options.Jwt.Secret.Length < MinimumSecretLength)
+            options.Jwt.Secret = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
+    }
+
+    private static async Task WriteFailureAsync(HttpContext httpContext, int statusCode, string code)
+    {
+        var message = await httpContext.RequestServices.GetRequiredService<IMessageService>().GetAsync(code);
+        httpContext.Response.StatusCode = statusCode;
+        await httpContext.Response.WriteAsJsonAsync(ApiResponse<object?>.FailureResponse(message));
+    }
+
+    #endregion
+}

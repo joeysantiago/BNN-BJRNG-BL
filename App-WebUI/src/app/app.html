@@ -1,0 +1,10 @@
+@if (!bare()) {
+  <a class="skip" href="#main" (click)="skip($event)">{{ i18n.t('a11y.skip') }}</a>
+  <app-site-header />
+}
+<main id="main" tabindex="-1" [class.bare]="bare()">
+  <router-outlet />
+</main>
+@if (!bare()) {
+  <app-site-footer />
+}

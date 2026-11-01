@@ -1,0 +1,4 @@
+/* Page names (PageNames seed rows). Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+'use strict';
+
+const PAGES = {"en":{"speed":"Speed test","connection":"Your connection details","services":"Services status","about":"About","privacy":"Privacy","terms":"Terms","creta":"Creta audio","nexon":"Nexon audio","hr":"Atrium HR","khata":"SnapKhata"},"hi":{"speed":"स्पीड टेस्ट","connection":"आपके कनेक्शन का विवरण","services":"सेवाओं की स्थिति","about":"हमारे बारे में","privacy":"गोपनीयता","terms":"शर्तें","creta":"क्रेटा ऑडियो","nexon":"नेक्सॉन ऑडियो","hr":"एट्रियम एचआर","khata":"स्नैपखाता"},"ar":{"speed":"اختبار السرعة","connection":"تفاصيل اتصالك","services":"حالة الخدمات","about":"حول الموقع","privacy":"الخصوصية","terms":"الشروط","creta":"مشغل كريتا","nexon":"مشغل نيكسون","hr":"أتريوم للموارد البشرية","khata":"سناب خاتا"}};

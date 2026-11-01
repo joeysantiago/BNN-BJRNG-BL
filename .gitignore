@@ -1,0 +1,24 @@
+
+# .NET
+bin/
+obj/
+*.user
+appsettings.*.local.json
+logs/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.suo
+
+# Angular / Node
+node_modules/
+dist/
+.angular/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Runtime data
+/App-Data/

@@ -1,0 +1,9 @@
+main {
+  display: block;
+  outline: none;
+}
+
+/* Room for the fixed footer at the bottom (see site-footer.scss), so the end of the page is never hidden behind it. */
+main:not(.bare) {
+  padding-block-end: calc(var(--foot-h) + 16px + env(safe-area-inset-bottom));
+}
