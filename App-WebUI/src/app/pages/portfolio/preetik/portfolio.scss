@@ -1,0 +1,121 @@
+// A simple dark page with its own look, independent of the site skins.
+:host {
+  --bg: #0f0d1f;
+  --card: rgba(255, 255, 255, 0.05);
+  --line: rgba(255, 255, 255, 0.12);
+  --ink: #f2f0ff;
+  --muted: #b4afcf;
+  --accent: #f472b6;
+  --accent2: #a78bfa;
+  color-scheme: dark;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: clip;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: radial-gradient(60rem 30rem at 80% -10%, rgba(167, 139, 250, 0.18), transparent), var(--bg);
+  color: var(--ink);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+a {
+  color: inherit;
+}
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.nav {
+  padding-top: env(safe-area-inset-top, 0px);
+  border-bottom: 1px solid var(--line);
+}
+.nav .inner {
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 800;
+  font-size: 1.4rem;
+  text-decoration: none;
+}
+.brand i {
+  color: var(--accent);
+  font-style: normal;
+}
+
+.page {
+  flex: 1;
+}
+.hero {
+  padding: 4rem 0 2.5rem;
+}
+.badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+h1 {
+  margin: 1rem 0 0.5rem;
+  font-size: clamp(2.4rem, 8vw, 4.2rem);
+  font-weight: 800;
+  line-height: 1.05;
+  background: linear-gradient(110deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.lead {
+  max-width: 36em;
+  color: var(--muted);
+  font-size: 1.15rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 1rem;
+  padding-bottom: 4rem;
+}
+.card {
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+.card h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.2rem;
+}
+.card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.foot {
+  padding: 1.5rem 1rem;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.foot a {
+  display: inline-block;
+  padding: 0.6rem 0;
+}

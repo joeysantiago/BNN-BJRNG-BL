@@ -1,0 +1,351 @@
+<div class="progress" #bar aria-hidden="true"></div>
+<canvas class="sky" #sky aria-hidden="true"></canvas>
+<div class="glow a" aria-hidden="true"></div>
+<div class="glow b" aria-hidden="true"></div>
+<div class="cursor" #glow aria-hidden="true"></div>
+
+<header class="nav" [class.solid]="solid()">
+  <div class="inner">
+    <a class="brand" href="#top" (click)="go($event, 'top')" aria-label="Kunal Kumar, back to top">KK<i>.</i></a>
+    <nav aria-label="Portfolio sections">
+      <a class="sm" href="#journey" (click)="go($event, 'journey')">Journey</a>
+      <a class="sm" href="#experience" (click)="go($event, 'experience')">Experience</a>
+      <a href="#projects" (click)="go($event, 'projects')">Projects</a>
+      <a class="sm" href="#skills" (click)="go($event, 'skills')">Skills</a>
+      <a class="hire" href="#contact" (click)="go($event, 'contact')">Hire me</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page" id="top">
+  <div class="inner">
+    <section class="hero" aria-labelledby="pf-hi">
+      <div>
+        <span class="badge"><span class="live"></span>Open to new opportunities</span>
+        <h1 id="pf-hi"><span class="name">Kunal Kumar</span></h1>
+        <p class="role">I'm a <span class="typed">{{ role() }}</span><span class="caret" aria-hidden="true"></span></p>
+        <p class="lead">
+          I build business applications across <b>every layer</b>: the SQL Server tables and stored procedures, the <b>C# services and APIs</b> that hold the business rules, and the
+          <b>Angular screens</b> people use every day. Right now that means .NET 10 microservices and Angular 20+ modules for <b>Eurofins' laboratory system</b>.
+        </p>
+        <div class="actions">
+          <a class="button primary magnet" href="mailto:kkumar.nitrr@gmail.com">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>Email me
+          </a>
+          <a class="button magnet" href="#projects" (click)="go($event, 'projects')">See my work</a>
+          <div class="socials">
+            <a href="https://www.linkedin.com/in/imkkumar/" target="_blank" rel="noopener" aria-label="LinkedIn profile">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4V21H3V9.75Zm6.5 0h3.8v1.6h.06c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.77 2.6 4.77 6V21h-4v-5c0-1.2-.02-2.75-1.68-2.75-1.68 0-1.94 1.3-1.94 2.66V21h-4V9.75Z" />
+              </svg>
+            </a>
+            <a href="tel:+919540000677" aria-label="Call +91 954 0000 677">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="float">
+        <div class="code" #code>
+          <div class="bar"><span class="r"></span><span class="y"></span><span class="g"></span><em>KunalKumar.cs</em></div>
+<pre><span class="d">[ApiController]</span>
+<span class="d">[Route</span>(<span class="s">"api/[controller]"</span>)<span class="d">]</span>
+<span class="k">public class</span> <span class="n">KunalKumar</span> : <span class="n">ControllerBase</span>
+&#123;
+  <span class="k">string</span>   <span class="p">Role</span>   = <span class="s">"Full Stack .NET Dev"</span>;
+  <span class="k">int</span>      <span class="p">Years</span>  = <span class="n">7</span>; <span class="c">// and counting</span>
+  <span class="k">string</span>[] <span class="p">Stack</span>  = &#123; <span class="s">".NET"</span>, <span class="s">"Angular"</span>, <span class="s">"Azure"</span> &#125;;
+  <span class="k">string</span>   <span class="p">Client</span> = <span class="s">"Eurofins"</span>;
+
+  <span class="c">// on time, optimized, precise</span>
+  <span class="d">[HttpGet]</span>
+  <span class="k">public string</span> <span class="d">Hire</span>() =&gt;
+    <span class="s">"kkumar.nitrr&#64;gmail.com"</span>;
+&#125;</pre>
+        </div>
+      </div>
+    </section>
+
+    <div class="stats reveal">
+      @for (s of stats; track s.label; let i = $index) {
+        <div class="stat"><b>{{ statText()[i] }}</b><span>{{ s.label }}</span></div>
+      }
+    </div>
+  </div>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="row">
+      @for (t of marquee; track $index) {
+        <span>{{ t }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="inner">
+    <section id="journey" aria-labelledby="j-h">
+      <div class="sec-head reveal">
+        <h2 id="j-h">From Angular 4 to 20, on .NET all the way</h2>
+        <p>
+          I've shipped production Angular on versions 4, 14, 18 and 20+, always with .NET on the server. Each project sits at the version it was built with. Tap one to see what that stage of
+          the journey looked like.
+        </p>
+      </div>
+      <div class="journey reveal">
+        <p class="swipe">Swipe the timeline sideways to see every version.</p>
+        <div class="track-scroll">
+          <div class="track" #track>
+            <div class="rail"><i></i></div>
+            @for (t of ticks; track t.v) {
+              <span class="tick" [class.now]="t.now" [style.left.%]="t.left">v{{ t.v }}{{ t.now ? '+' : '' }}</span>
+            }
+            @for (pin of pins; track pin.p.id) {
+              <button type="button" class="pin" [style.left.%]="pin.left" [attr.aria-pressed]="selected().id === pin.p.id" (click)="pick(pin.p, $event)">
+                <span class="lbl">{{ pin.p.short || pin.p.name }}</span><span class="stem"></span><span class="dot"></span>
+              </button>
+            }
+          </div>
+        </div>
+        <div aria-live="polite">
+          @for (p of [selected()]; track p.id) {
+            <div class="detail">
+              <div class="ver">v{{ p.v }}</div>
+              <div>
+                <h3>{{ p.name }}</h3>
+                <div class="stk">{{ p.stack.join(' · ') }}</div>
+                <p>{{ p.step || p.text }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section id="about" aria-labelledby="a-h">
+      <div class="about">
+        <div class="reveal">
+          <h2 id="a-h">I turn business needs into software that holds up.</h2>
+          <p>
+            I like owning a feature all the way down: the table and the query, the service that applies the business rules, the API between client and server, and the Angular screen at
+            the end. Knowing the whole path means that when something breaks or slows down, I can follow it to the cause instead of passing it to someone else.
+          </p>
+          <p>
+            The domains have changed from job to job: <b>drug testing, document signing, payroll, recruitment, corporate learning and accounting</b>. The common thread is software where a wrong
+            value has consequences, such as a lab result, a salary or a signed document, so I treat validation and edge cases as part of the feature.
+          </p>
+          <p>
+            I hold an <b>MCA from NIT Raipur</b>, one of India's National Institutes of Technology, and a B.Sc. in Physics. Outside work I explore IoT, which keeps me curious about the
+            hardware end of software.
+          </p>
+        </div>
+        <div class="traits reveal">
+          <div class="trait">
+            <div class="ic" aria-hidden="true">🔗</div><b>Both sides of the API</b><span>I write the C# endpoint and the Angular code that calls it, so the contract between them is designed once, not negotiated later.</span>
+          </div>
+          <div class="trait">
+            <div class="ic" aria-hidden="true">🏗️</div><b>Starts from zero</b><span>Took e-Sign from an empty repository to a working core alone, then brought colleagues onto a codebase ready for them.</span>
+          </div>
+          <div class="trait">
+            <div class="ic" aria-hidden="true">⚡</div><b>Follows the slow path down</b><span>When a screen drags, I look past the UI to the stored procedure behind it and fix the cause there.</span>
+          </div>
+          <div class="trait">
+            <div class="ic" aria-hidden="true">🧩</div><b>Rules into code</b><span>Payroll rules, approval hierarchies and lab workflows turned into logic that people can rely on.</span>
+          </div>
+          <div class="trait">
+            <div class="ic" aria-hidden="true">🤖</div><b>Old code and new</b><span>Started on Angular 4 and jQuery, now on .NET 10 and Angular 20+, so legacy code and fresh releases are both familiar ground.</span>
+          </div>
+          <div class="trait">
+            <div class="ic" aria-hidden="true">🤝</div><b>Team habits</b><span>Agile sprints, code reviews and clean handovers, so whoever picks up my work next can move quickly.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="experience" aria-labelledby="e-h">
+      <div class="sec-head reveal">
+        <h2 id="e-h">Where I've worked</h2>
+        <p>
+          Five companies, each adding something different: production support, scale, building from zero, database tuning and, now, life-sciences software. The products themselves are
+          described under Projects. This section is about the role I played.
+        </p>
+      </div>
+      <div class="jobs">
+        <article class="job now reveal">
+          <div class="top"><h3>Full Stack Developer <span class="co">&#64; Programmers.ai</span></h3><span class="when">Jul 2025 – Present</span></div>
+          <span class="client">Client: Eurofins, CoreLabs Laboratory Management System</span>
+          <ul>
+            <li>Carry lab features from the data model to the screen: EF Core entities and .NET 10 microservices on the back end, Angular 20+ modules on the front end.</li>
+            <li>Work in a six-member Agile team building the workflows lab staff rely on every day.</li>
+            <li>Use Claude Code day to day for writing, reviewing and refactoring code, as part of the team's development workflow.</li>
+            <li><b>Received the Outstanding Performance award</b> for my contribution to CoreLabs.</li>
+          </ul>
+        </article>
+        <article class="job reveal">
+          <div class="top"><h3>Software Developer <span class="co">&#64; MetaDesign Solutions</span></h3><span class="when">Feb 2025 – Apr 2025</span></div>
+          <ul>
+            <li>A short engagement focused on one layer: diagnosing a slow live application and fixing it at the database, in its SQL Server stored procedures.</li>
+          </ul>
+        </article>
+        <article class="job reveal">
+          <div class="top"><h3>Full Stack Developer <span class="co">&#64; Speridian Technologies</span></h3><span class="when">2 years</span></div>
+          <ul>
+            <li><b>Led e-Sign from an empty repository</b>: made the early architecture decisions, built the core signing flow alone, then onboarded colleagues to complete it.</li>
+            <li>Translated HR policy into code for O360 Payroll, covering salary calculation, holidays and leave.</li>
+            <li>Connected recruitment to the rest of HR: the O360 Recruitment Management System hands every new hire to the employee portal automatically.</li>
+          </ul>
+        </article>
+        <article class="job reveal">
+          <div class="top"><h3>Full Stack Developer <span class="co">&#64; GCube WebWide (now Tenneo)</span></h3><span class="when">3 years</span></div>
+          <ul>
+            <li>Joined the core product team of a corporate learning platform used by <b>2 million+ learners</b>, where every release reached the whole user base.</li>
+            <li>Worked across the ASP.NET back end, the Angular 4+ and jQuery front end and the Cordova mobile build, all hosted on Azure.</li>
+            <li><b>Won two awards</b>: A New Kid on the Block for individual performance, then the Certificate of Excellence with my team.</li>
+          </ul>
+        </article>
+        <article class="job reveal">
+          <div class="top"><h3>Software Developer <span class="co">&#64; VirtusMinds Technologies</span></h3><span class="when">1 year</span></div>
+          <ul>
+            <li>Looked after My Financial Online in production, fixing issues and adding features in ASP.NET MVC, C#, Angular and SQL Server.</li>
+            <li>My first full-stack role, where I learned to trace a problem from the screen down to the database and back.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="projects" aria-labelledby="p-h">
+      <div class="sec-head reveal"><h2 id="p-h">Things I've built</h2><p>Six systems in life sciences, HR, e-learning and finance. Each card covers what the product does and the part I built.</p></div>
+      <div class="filters reveal" role="group" aria-label="Filter projects">
+        @for (f of filters; track f.id) {
+          <button type="button" [attr.aria-pressed]="filter() === f.id" (click)="filter.set(f.id)">{{ f.label }}</button>
+        }
+      </div>
+      <div class="grid" #grid>
+        @for (p of projects; track p.id) {
+          <article class="pcard reveal" [class.big]="p.big" [class.star]="p.star" [class.hide]="hidden(p)">
+            <span class="tag">{{ tag(p) }}</span>
+            <h3>{{ p.name }}</h3>
+            <div class="kind">{{ p.kind }}</div>
+            <p>{{ p.text }}</p>
+            <div class="stk">
+              @for (s of p.stack; track s) {
+                <span>{{ s }}</span>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section id="skills" aria-labelledby="s-h">
+      <div class="sec-head reveal">
+        <h2 id="s-h">My toolkit</h2>
+        <p>Grouped by layer, with the ones I use most highlighted. Together they cover a feature from the schema to the screen and through the pipeline that ships it.</p>
+      </div>
+      <div class="skills">
+        <div class="sk reveal">
+          <h3>Backend <small>7+ yrs</small></h3>
+          <p>Layered APIs and microservices in C#, from classic ASP.NET and MVC through to .NET 10, with EF Core or ADO.NET for data access.</p>
+          <div class="chips">
+            <span class="core">C#</span><span class="core">.NET 10</span><span class="core">ASP.NET Core</span><span class="core">EF Core</span><span>ASP.NET MVC</span><span>ASP.NET</span><span>ADO.NET</span>
+            <span>Microservices</span><span>Monolithic</span>
+          </div>
+        </div>
+        <div class="sk reveal">
+          <h3>Frontend</h3>
+          <p>Angular for workflow-heavy business screens, plus the jQuery and JavaScript that older products still depend on.</p>
+          <div class="chips">
+            <span class="core">Angular 4–20+</span><span class="core">TypeScript</span><span>JavaScript</span><span>jQuery</span><span>AJAX</span><span>HTML5</span><span>CSS</span><span>Bootstrap</span>
+          </div>
+        </div>
+        <div class="sk reveal">
+          <h3>Data and cloud</h3>
+          <p>SQL Server design and stored procedure tuning, Azure hosting and Functions, and Power BI when the data needs to be reported on.</p>
+          <div class="chips">
+            <span class="core">SQL Server 2022</span><span class="core">Microsoft Azure</span><span>Azure SQL</span><span>Azure Functions</span><span>Azure DevOps</span><span>Azure Boards</span>
+            <span>Stored procedure tuning</span><span>Power BI</span>
+          </div>
+        </div>
+        <div class="sk reveal">
+          <h3>Tools and ways of working</h3>
+          <p>Sprints tracked in Jira or Azure Boards, Git through GitHub and Sourcetree, and the right editor for each layer.</p>
+          <div class="chips">
+            <span class="core">Claude Code</span><span>Visual Studio 2022</span><span>VS Code</span><span>SSMS</span><span>GitHub</span><span>Sourcetree</span><span>Jira</span><span>Agile</span><span>Windows</span>
+            <span>Linux</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="awards" aria-labelledby="aw-h">
+      <div class="sec-head reveal">
+        <h2 id="aw-h">Awards and certificates</h2>
+        <p>Three awards from two employers: one for a strong start, one shared with a team, and one for current client work. All three came from production products.</p>
+      </div>
+      <div class="awards reveal">
+        <div class="award top">
+          <span class="yr">Programmers.ai · Eurofins CoreLabs</span><b>Outstanding Performance</b>
+          <p>
+            Given by Programmers.ai for my contribution to CoreLabs, the laboratory management system the company builds for Eurofins. It recognises work on both halves of the product: the
+            .NET 10 services and the Angular 20+ modules lab staff use to register samples, assign tests and record results.
+          </p>
+          <p>
+            Because this software feeds drug-testing results, the award stands for work that is dependable as well as delivered. It is also my most recent award, earned on
+            the newest stack I have worked with.
+          </p>
+        </div>
+        <div class="award">
+          <span class="yr">GCube WebWide · 2020–21</span><b>Certificate of Excellence</b>
+          <p>
+            A team award for the best performance of 2020–21, shared with the core product team behind GCube's Learning Management System. Our features reached learners on the web and
+            through the mobile and iOS apps.
+          </p>
+          <p>
+            It came a year after my individual award at the same company. The first award showed I could stand out on my own; this one showed I could help a whole team deliver.
+          </p>
+        </div>
+        <div class="award">
+          <span class="yr">GCube WebWide · 2019–20</span><b>A New Kid on the Block</b>
+          <p>
+            GCube WebWide's award for the best individual performance by a newcomer, received as a recent addition to the LMS core product team. It recognises someone new whose work already
+            makes a visible difference to the product.
+          </p>
+          <p>The earliest of the three, and the start of a pattern: the more I delivered, the more I was trusted with.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="education" aria-labelledby="ed-h">
+      <div class="sec-head reveal">
+        <h2 id="ed-h">Education</h2>
+        <p>Physics first, then a master's in computing. One taught me to reason from first principles, the other gave me the theory behind the systems I now build.</p>
+      </div>
+      <div class="edu reveal">
+        <div>
+          <b>Master of Computer Applications</b><span>National Institute of Technology (NIT) Raipur, an Institute of National Importance</span><span class="pct">60.58%</span>
+          <p>Algorithms, databases, software engineering and computer networks, which I still draw on when designing schemas and services.</p>
+        </div>
+        <div>
+          <b>B.Sc. in Physics</b><span>B.R. Ambedkar Bihar University, Muzaffarpur</span><span class="pct">63.75%</span>
+          <p>Breaking a problem into measurable parts, a habit that carries straight into debugging and performance work.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta reveal" id="contact" aria-labelledby="c-h">
+      <span class="badge"><span class="live"></span>Open to new opportunities</span>
+      <h2 id="c-h">Let's build something reliable.</h2>
+      <p>
+        If your team needs someone who can take a feature from the database table to the finished screen, and stay with it after release, I'd like to hear about it. Email, phone or
+        LinkedIn all reach me.
+      </p>
+      <div class="actions">
+        <a class="button primary magnet" href="mailto:kkumar.nitrr@gmail.com">kkumar.nitrr&#64;gmail.com</a>
+        <a class="button magnet" href="https://www.linkedin.com/in/imkkumar/" target="_blank" rel="noopener">Connect on LinkedIn</a>
+        <a class="button magnet" href="tel:+919540000677">+91 954 0000 677</a>
+      </div>
+    </section>
+  </div>
+</div>
+
+<footer class="foot">Designed and built by Kunal Kumar · <a href="https://thakurg.com/#/kunal/">thakurg.com/#/kunal</a></footer>
