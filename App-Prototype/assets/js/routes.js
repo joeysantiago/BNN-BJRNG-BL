@@ -4,6 +4,8 @@
 
 /** Old addresses that the real site redirects. */
 const ROUTE_REDIRECTS = {
+  // This branch has no speed test: the home address opens the branch's own app.
+  '/': '/creta',
   '/hr': '/HR', '/Nexon': '/nexon', '/Creta': '/creta', '/audio': '/creta', '/config': '/master', '/speedtest': '/',
   // The SnapKhata OTP login and PIN screens are gone: SnapKhata uses the common login.
   '/khata/login': '/login', '/khata/set-pin': '/khata/app', '/khata/unlock': '/khata/app',
@@ -22,6 +24,11 @@ const ROUTE_GROUPS = [
  * outer/inner: for pages with their own address space (SnapTracker), how its addresses map into the dashboard's.
  */
 const ROUTES = [
+  {
+    id: 'creta', group: 'site', file: 'creta.html', icon: 'music', match: /^\/creta(-add)?$/, home: '/creta',
+    label: { en: 'Creta audio', hi: 'क्रेटा ऑडियो', ar: 'مشغل كريتا' },
+    links: [{ path: '/creta-add', label: { en: 'Add songs', hi: 'गाने जोड़ें', ar: 'إضافة أغانٍ' } }],
+  },
   {
     id: 'about', group: 'info', file: 'about.html', icon: 'info', match: /^\/about$/, home: '/about',
     label: { en: 'About', hi: 'हमारे बारे में', ar: 'حول الموقع' },
