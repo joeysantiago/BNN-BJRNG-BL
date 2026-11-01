@@ -1,0 +1,43 @@
+:host {
+  display: block;
+}
+
+.bar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 8px 16px;
+  background: var(--k-surface);
+  border-block-end: 1px solid var(--k-line);
+}
+
+.brand {
+  font-weight: 800;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+.switch {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.switch select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--k-line);
+  background: var(--k-bg);
+  color: var(--k-text);
+  font: 600 15px var(--font-body);
+}
+
+.actions {
+  display: flex;
+  margin-inline-start: auto;
+}

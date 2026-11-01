@@ -1,0 +1,4 @@
+{
+  "prerender": ["khata"],
+  "sitemap": [{ "path": "/khata/", "priority": "0.6" }]
+}

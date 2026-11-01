@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.head {
+  justify-content: space-between;
+}
+
+.book {
+  display: grid;
+  gap: 8px;
+}
+
+.name {
+  text-decoration: none;
+  color: var(--k-text);
+}
+
+.sums {
+  font-weight: 700;
+}
+
+.sub {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.cur {
+  justify-content: space-between;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
