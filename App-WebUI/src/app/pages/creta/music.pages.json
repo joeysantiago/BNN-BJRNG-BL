@@ -1,0 +1,6 @@
+{
+  "prerender": ["nexon", "nexon-add"],
+  "sitemap": [
+    { "path": "/nexon/", "priority": "0.6" }
+  ]
+}
