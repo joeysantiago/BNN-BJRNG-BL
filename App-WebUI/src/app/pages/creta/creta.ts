@@ -3,15 +3,23 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { SeoService } from '../../core/seo.service';
 import { isPlatformBrowser } from '@angular/common';
+import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
 import { DanceDoodle } from '../../shared/dance-doodle';
 import { Repeat } from '../../shared/models/player.model';
 import { TranslationKey } from '../../core/models/i18n.model';
 import { SettingsService } from '../../core/settings.service';
+import { environment } from '../../../environments/environment';
 import { PlayerId, Track, TracksResponse } from './creta.model';
 import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
 
 const PATHS: Record<PlayerId, string> = { creta: '/creta/', nexon: '/nexon/' };
+
+/** The track list may wait for a sleeping database to wake up (Azure SQL free offer). */
+const LOAD_TIMEOUT_MS = environment.timings.musicLoadMs;
+
+/** A failed song is resumed at most once per gap, so a file that really is broken does not loop. */
+const RESUME_GAP_MS = environment.timings.musicResumeGapMs;
 
 const fmtTime = (s: number): string => {
   if (!Number.isFinite(s) || s < 0)
@@ -29,10 +37,12 @@ const fmtTime = (s: number): string => {
 
 export class Creta implements OnDestroy {
   protected readonly id: PlayerId = inject(ActivatedRoute).snapshot.data['player'] === 'nexon' ? 'nexon' : 'creta';
+  private lastResume = 0;
   protected autoplay = false;
   protected readonly time = signal(0);
   protected readonly index = signal(0);
   private readonly path = PATHS[this.id];
+  private resumeAt: number | null = null;
 
   // Deleting a song goes through the music API, which checks the login. Adding songs lives on the creta-add and nexon-add pages.
   protected readonly busy = signal(false);
@@ -45,6 +55,7 @@ export class Creta implements OnDestroy {
   protected readonly loaded = signal(false);
   protected readonly playing = signal(false);
   protected readonly shuffle = signal(false);
+  private readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
   protected readonly tracks = signal<Track[]>([]);
   protected readonly repeat = signal<Repeat>('off');
@@ -93,6 +104,9 @@ export class Creta implements OnDestroy {
       a.muted = this.muted();
     });
 
+    // The login stays fresh while music plays, even when the phone is locked.
+    effect(() => this.auth.keepAwake(this.playing()));
+
     afterNextRender(() => void this.loadTracks());
   }
 
@@ -100,6 +114,7 @@ export class Creta implements OnDestroy {
 
   ngOnDestroy(): void {
     this.audioRef()?.nativeElement.pause();
+    this.auth.keepAwake(false);
     if (this.browser && 'mediaSession' in navigator)
       navigator.mediaSession.metadata = null;
   }
@@ -130,11 +145,6 @@ export class Creta implements OnDestroy {
     } else {
       a.pause();
     }
-  }
-
-  protected onError(): void {
-    if (this.current())
-      this.failed.set(true);
   }
 
   protected cycleRepeat(): void {
@@ -242,12 +252,23 @@ export class Creta implements OnDestroy {
 
   private async loadTracks(): Promise<void> {
     try {
-      this.setTracks((await this.api.get<TracksResponse>(`/music/${this.id}/tracks`)).tracks);
+      this.setTracks((await this.api.get<TracksResponse>(`/music/${this.id}/tracks`, LOAD_TIMEOUT_MS)).tracks);
     } catch {
       this.tracks.set([]);
     }
     this.loaded.set(true);
     this.setupMediaSession();
+  }
+
+  /** A packet failed: the login ran out or the server was busy waking up. The song is resumed once before it counts as failed. */
+  protected onError(a: HTMLAudioElement): void {
+    if (!this.current())
+      return;
+    if (a.error?.code !== MediaError.MEDIA_ERR_ABORTED && Date.now() - this.lastResume > RESUME_GAP_MS) {
+      void this.resume(a);
+      return;
+    }
+    this.failed.set(true);
   }
 
   protected onEnded(a: HTMLAudioElement): void {
@@ -262,6 +283,10 @@ export class Creta implements OnDestroy {
   // ----- audio element events -----
   protected onLoaded(a: HTMLAudioElement): void {
     this.duration.set(a.duration || 0);
+    if (this.resumeAt !== null) {
+      a.currentTime = this.resumeAt;
+      this.resumeAt = null;
+    }
     if (this.autoplay) {
       this.autoplay = false;
       void a.play().catch(() => undefined);
@@ -288,6 +313,20 @@ export class Creta implements OnDestroy {
     } finally {
       this.busy.set(false);
     }
+  }
+
+  /** Renews the login, then loads the same song again and carries on from the second where it stopped. */
+  private async resume(a: HTMLAudioElement): Promise<void> {
+    this.lastResume = Date.now();
+    const at = a.currentTime;
+    const wasPlaying = this.autoplay || this.playing();
+    if (!(await this.auth.renewSession())) {
+      this.failed.set(true);
+      return;
+    }
+    this.resumeAt = at;
+    this.autoplay = wasPlaying;
+    a.load();
   }
 
   protected tt(name: 'h1' | 'lead' | 'empty2' | 'seo.title' | 'seo.desc'): string {

@@ -5,7 +5,7 @@
 
     @if (src(); as s) {
       <audio #audio [src]="s" crossorigin="use-credentials" preload="metadata" (loadedmetadata)="onLoaded(audio)" (durationchange)="duration.set(audio.duration || 0)" (timeupdate)="time.set(audio.currentTime)" (play)="playing.set(true)"
-        (pause)="playing.set(false)" (ended)="onEnded(audio)" (error)="onError()" (emptied)="onTrackChange()" (loadstart)="onTrackChange()"></audio>
+        (pause)="playing.set(false)" (ended)="onEnded(audio)" (error)="onError(audio)" (emptied)="onTrackChange()" (loadstart)="onTrackChange()"></audio>
     }
 
     @if (current(); as t) {
