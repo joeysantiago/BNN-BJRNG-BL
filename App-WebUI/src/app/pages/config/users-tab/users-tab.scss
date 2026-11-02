@@ -1,0 +1,15 @@
+@use '../config';
+
+.add {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  margin-block-start: 12px;
+}
+.add h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+.apps {
+  margin-block-start: 8px;
+}

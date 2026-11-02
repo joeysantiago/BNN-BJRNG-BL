@@ -1,3 +1,4 @@
+import { PageCode } from '../../core/models/role.model';
 import { FeatureGroup, FeatureInfo, SettingsSection } from '../../core/models/app-settings.model';
 
 export interface ConfigGroup {
@@ -23,9 +24,18 @@ export interface SaveNotice {
   section: SaveTarget;
 }
 
-/** The answer shown under the user row of the Users and access panel that was saved. */
+/** The answer shown under the row of a tab that was saved (a user, a role, a page right). */
 export interface UserNotice {
   id: number;
   text: string;
   error: boolean;
+}
+
+/** A tab of the Settings page. */
+export type SettingsTab = 'account' | 'users' | 'roles' | 'permissions' | 'features' | 'connection' | 'services' | 'youtube' | 'json';
+
+/** A tab of the Settings page and the page code whose View right shows it. */
+export interface TabInfo {
+  id: SettingsTab;
+  page: PageCode;
 }

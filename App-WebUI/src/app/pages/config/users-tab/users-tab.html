@@ -1,0 +1,121 @@
+<section class="card grp" aria-labelledby="usr-h">
+  <h2 id="usr-h">{{ i18n.t('usr.h') }}</h2>
+  <p class="help">{{ i18n.t('usr.lead') }}</p>
+  @if (autoApps()) {
+    <p class="help">{{ i18n.t('cfg.users.auto', { apps: autoApps() }) }}</p>
+  }
+  @if (error()) {
+    <p class="status bad" role="alert">{{ error() }}</p>
+  }
+
+  @if (access(); as a) {
+    @if (canAdd()) {
+      <form class="add inset" [attr.aria-busy]="busy() === NEW" aria-labelledby="usr-add-h" (submit)="create($event)">
+        <h3 id="usr-add-h">{{ i18n.t('usr.add.h') }}</h3>
+        <fieldset class="bare" [disabled]="busy() !== null">
+          <legend class="sr-only">{{ i18n.t('usr.add.h') }}</legend>
+          <div class="grid">
+            <label class="stack">
+              <span>{{ i18n.t('auth.email') }}</span>
+              <input name="email" type="email" inputmode="email" autocomplete="off" spellcheck="false" maxlength="256" required />
+            </label>
+            <label class="stack">
+              <span>{{ i18n.t('auth.name') }}</span>
+              <input name="displayName" type="text" autocomplete="off" maxlength="100" />
+            </label>
+            <label class="stack">
+              <span>{{ i18n.t('auth.password') }}</span>
+              <input name="password" type="password" autocomplete="new-password" aria-describedby="usr-pw-hint" required />
+              <small id="usr-pw-hint" class="was">{{ i18n.t('auth.pwHint') }}</small>
+            </label>
+            <label class="stack">
+              <span>{{ i18n.t('usr.role') }}</span>
+              <select name="roleId" required>
+                @for (r of roles(); track r.id) {
+                  <option [value]="r.id" [selected]="r.id === defaultRole()">{{ roleName(r) }}</option>
+                }
+              </select>
+            </label>
+          </div>
+          @if (apps().length) {
+            <div class="apps" role="group" [attr.aria-label]="i18n.t('usr.apps')">
+              @for (app of apps(); track app.code) {
+                <label class="chk"><input type="checkbox" name="app" [value]="app.code" [checked]="app.autoGrant" /><span>{{ appName(app.code) }}</span></label>
+              }
+            </div>
+          }
+          <div class="bar">
+            @if (noticeFor(NEW); as n) {
+              <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+            }
+            <button type="submit" class="btn pri">{{ i18n.t(busy() === NEW ? 'cfg.save.saving' : 'usr.add.btn') }}</button>
+          </div>
+        </fieldset>
+      </form>
+    }
+
+    <ul class="list">
+      @for (u of a.users; track u.id) {
+        <li class="inset">
+          <form [attr.aria-busy]="busy() === u.id" [attr.aria-label]="u.email" (submit)="save($event, u)">
+            <p class="who">
+              <b>{{ u.displayName }}</b>
+              <span class="tag">{{ u.roleName }}</span>
+              @if (u.id === auth.user()?.id) {
+                <small>{{ i18n.t('cfg.users.you') }}</small>
+              }
+              <span class="mail">{{ u.email }}</span>
+            </p>
+            @if (locked(u)) {
+              <p class="note">{{ i18n.t('usr.locked') }}</p>
+            } @else {
+              <fieldset class="bare" [disabled]="!canEdit() || busy() !== null">
+                <legend class="sr-only">{{ i18n.t('cfg.users.apps', { name: u.displayName }) }}</legend>
+                <div class="grid">
+                  <label class="stack">
+                    <span>{{ i18n.t('auth.name') }}</span>
+                    <input name="displayName" type="text" autocomplete="off" maxlength="100" required [value]="u.displayName" />
+                  </label>
+                  <label class="stack">
+                    <span>{{ i18n.t('usr.role') }}</span>
+                    <select name="roleId" [disabled]="u.id === auth.user()?.id" [attr.aria-describedby]="u.id === auth.user()?.id ? 'usr-self-' + u.id : null">
+                      @for (r of roles(); track r.id) {
+                        <option [value]="r.id" [selected]="r.id === u.roleId">{{ roleName(r) }}</option>
+                      }
+                    </select>
+                    @if (u.id === auth.user()?.id) {
+                      <input type="hidden" name="roleId" [value]="u.roleId" />
+                      <small class="was" [id]="'usr-self-' + u.id">{{ i18n.t('usr.self') }}</small>
+                    }
+                  </label>
+                </div>
+                @if (apps().length) {
+                  <div class="apps" role="group" [attr.aria-label]="i18n.t('usr.apps')">
+                    @for (app of apps(); track app.code) {
+                      <label class="chk"><input type="checkbox" name="app" [value]="app.code" [checked]="u.apps.includes(app.code)" /><span>{{ appName(app.code) }}</span></label>
+                    }
+                  </div>
+                }
+              </fieldset>
+              <div class="bar">
+                @if (noticeFor(u.id); as n) {
+                  <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+                }
+                <div class="acts">
+                  @if (canDelete() && u.id !== auth.user()?.id) {
+                    <button type="button" class="btn danger" [disabled]="busy() !== null" (click)="remove(u)">{{ i18n.t(confirming() === u.id ? 'usr.delete.sure' : 'usr.delete') }}</button>
+                  }
+                  @if (canEdit()) {
+                    <button type="submit" class="btn pri" [disabled]="busy() !== null">{{ i18n.t(busy() === u.id ? 'cfg.save.saving' : 'cfg.save') }}</button>
+                  }
+                </div>
+              </div>
+            }
+          </form>
+        </li>
+      }
+    </ul>
+  } @else if (!error()) {
+    <p class="help" role="status">{{ i18n.t('cfg.users.loading') }}</p>
+  }
+</section>

@@ -11,7 +11,7 @@ using Thakurg.Infrastructure.Security;
 
 namespace Thakurg.API.Controllers;
 
-// The common login of every app: sign up, log in, refresh, log out, and the logged-in user's own profile and password.
+// The common login of every app: sign up, log in, refresh, log out, and the logged-in user's own profile, password and page options.
 [ApiController]
 [Route("api/auth")]
 public class AuthController : ControllerBase
@@ -95,6 +95,17 @@ public class AuthController : ControllerBase
         Response.WriteAuthCookies(_auth, signIn);
 
         return Ok(ApiResponse<AuthResultDto>.SuccessResponse(signIn.Auth));
+    }
+
+    // The options of their own pages the user switches off for themselves (the My settings tab).
+    [HttpPut("me/features")]
+    [HasPermission(PageCodes.Account, PermissionActions.Edit)]
+    [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
+    public async Task<ActionResult<ApiResponse<UserDto>>> UpdateFeatures([FromBody] FeaturePreferencesDto request, CancellationToken cancellationToken)
+    {
+        var result = await _authService.UpdateFeaturesAsync(HttpContext.AuthCaller().UserId, request, cancellationToken);
+
+        return Ok(ApiResponse<UserDto>.SuccessResponse(result.Data, result.Message));
     }
 
     #endregion

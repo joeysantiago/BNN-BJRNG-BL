@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Thakurg.API.Extensions;
@@ -9,10 +8,9 @@ using Thakurg.Infrastructure.Security;
 
 namespace Thakurg.API.Controllers;
 
-// The Users and access panel of the master page: administrators tick which apps each user may open, and who else is an administrator.
+// The Users tab of the Settings page: add, change and delete users, their role and the apps each may open. Each action needs that right of the caller's role.
 [ApiController]
 [Route("api/admin/users")]
-[Authorize(Policy = AuthPolicies.Admin)]
 public class UserAccessController : ControllerBase
 {
     private readonly IUserAccessService _accessService;
@@ -25,6 +23,7 @@ public class UserAccessController : ControllerBase
     #region Public Methods
 
     [HttpGet]
+    [HasPermission(PageCodes.Users, PermissionActions.View)]
     public async Task<ActionResult<ApiResponse<UserAccessDto>>> List(CancellationToken cancellationToken)
     {
         var access = await _accessService.GetAsync(cancellationToken);
@@ -32,11 +31,32 @@ public class UserAccessController : ControllerBase
         return Ok(ApiResponse<UserAccessDto>.SuccessResponse(access));
     }
 
+    [HttpDelete("{userId:int}")]
+    [HasPermission(PageCodes.Users, PermissionActions.Delete)]
+    [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
+    public async Task<ActionResult<ApiResponse<object?>>> Delete(int userId, CancellationToken cancellationToken)
+    {
+        var message = await _accessService.DeleteAsync(HttpContext.AuthCaller(), userId, cancellationToken);
+
+        return Ok(ApiResponse<object?>.SuccessResponse(null, message));
+    }
+
+    [HttpPost]
+    [HasPermission(PageCodes.Users, PermissionActions.Add)]
+    [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
+    public async Task<ActionResult<ApiResponse<UserDto>>> Create([FromBody] UserCreateDto request, CancellationToken cancellationToken)
+    {
+        var result = await _accessService.CreateAsync(HttpContext.AuthCaller(), request, cancellationToken);
+
+        return Ok(ApiResponse<UserDto>.SuccessResponse(result.Data, result.Message));
+    }
+
     [HttpPut("{userId:int}")]
+    [HasPermission(PageCodes.Users, PermissionActions.Edit)]
     [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
     public async Task<ActionResult<ApiResponse<UserDto>>> Update(int userId, [FromBody] UserAccessUpdateDto request, CancellationToken cancellationToken)
     {
-        var result = await _accessService.UpdateAsync(HttpContext.AuthCaller().UserId, userId, request, cancellationToken);
+        var result = await _accessService.UpdateAsync(HttpContext.AuthCaller(), userId, request, cancellationToken);
 
         return Ok(ApiResponse<UserDto>.SuccessResponse(result.Data, result.Message));
     }

@@ -5,6 +5,7 @@ using Thakurg.Application.Services;
 using Thakurg.Contracts.Auth;
 using Thakurg.Contracts.Settings;
 using Thakurg.Contracts.Wrappers;
+using Thakurg.Infrastructure.Security;
 
 namespace Thakurg.API.Controllers;
 
@@ -29,14 +30,31 @@ public class SettingsController : ControllerBase
         return Ok(ApiResponse<AppSettingsDto>.SuccessResponse(settings));
     }
 
+    // Each part needs the Edit right of its Settings tab: features and gauge = Site options, connection rows, services.
     [HttpPut]
-    [Authorize(Policy = AuthPolicies.Admin)]
+    [Authorize(Policy = AuthPolicies.User)]
     [EnableRateLimiting("sensitive")]
     public async Task<ActionResult<ApiResponse<AppSettingsDto>>> Save([FromBody] SettingsUpdateDto request, CancellationToken cancellationToken)
     {
+        if (!CanSave(request))
+            return Forbid();
+
         var result = await _settingsService.SaveAsync(request, cancellationToken);
 
         return Ok(ApiResponse<AppSettingsDto>.SuccessResponse(result.Data, result.Message));
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private bool CanSave(SettingsUpdateDto request)
+    {
+        var features = (request.Features is null && request.Speed is null) || User.HasPermission(PageCodes.Features, PermissionActions.Edit);
+        var connection = request.Connection is null || User.HasPermission(PageCodes.Connection, PermissionActions.Edit);
+        var services = request.Services is null || User.HasPermission(PageCodes.Services, PermissionActions.Edit);
+
+        return features && connection && services;
     }
 
     #endregion
