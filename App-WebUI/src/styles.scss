@@ -11,8 +11,8 @@
   --font-mono: 'Consolas', 'SF Mono', ui-monospace, monospace;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --radius-pill: 999px;
-  /* Height of the fixed site footer: links and copyright on two lines on phones, one 40px bar on wider screens. */
-  --foot-h: 70px;
+  /* Height of the fixed site footer: one line of links and copyright on phones (44px tap targets), a 40px bar on wider screens. */
+  --foot-h: 46px;
 }
 
 @media (min-width: 721px) {
