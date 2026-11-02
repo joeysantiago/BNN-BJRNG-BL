@@ -284,3 +284,37 @@
     padding: 6px;
   }
 }
+
+/* Phones and small tablets: one row only. The page links (speed test, connection details, services) are dropped,
+   since those sections sit right below on the same page, and the brand text shrinks so the buttons fit beside it. */
+@media (max-width: 819px) {
+  .nav {
+    display: none;
+  }
+  .bar-in {
+    flex-wrap: nowrap;
+  }
+  .brand,
+  .brand-text {
+    min-width: 0;
+  }
+  .brand-text b {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .tools {
+    flex-wrap: nowrap;
+    flex: none;
+    gap: 6px;
+  }
+  .lang select {
+    max-width: 104px;
+  }
+}
+
+@media (max-width: 420px) {
+  .brand-text {
+    display: none;
+  }
+}
