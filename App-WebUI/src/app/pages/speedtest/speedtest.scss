@@ -481,3 +481,107 @@ h1 {
   gap: 12px;
   justify-content: center;
 }
+
+/* ---------- Phones: the whole test on one screen ---------- */
+/* Meter, clock, the four results and the share/save icons fit without scrolling. The lead stays in the HTML for crawlers
+   and screen readers; the meter shrinks with the screen height so short phones keep the results in view. */
+@media (max-width: 699px) {
+  .page {
+    padding-block-start: 8px;
+  }
+
+  .hero {
+    padding: 14px 12px;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+    line-height: 1.25;
+    margin-block-end: 6px;
+  }
+
+  .lead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .dial {
+    width: clamp(180px, calc((100dvh - 490px) * 1.27), 300px);
+    margin-block-end: 0;
+  }
+
+  .result-img {
+    margin-block-end: 0;
+  }
+
+  .live {
+    gap: 6px;
+    margin-block-start: 6px;
+  }
+  .chip {
+    gap: 6px;
+    min-height: 32px;
+    padding: 4px 10px;
+  }
+  .chip .k {
+    font-size: 12px;
+  }
+  .chip .v {
+    font-size: 13px;
+  }
+
+  .prog {
+    margin-block-start: 8px;
+  }
+
+  .status {
+    margin: 6px 0;
+    font-size: 14px;
+  }
+
+  .go.lg {
+    min-height: 48px;
+  }
+
+  .res {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin-block-start: 12px;
+  }
+  .cell {
+    padding: 8px 4px;
+    text-align: center;
+  }
+  .cell dt {
+    font-size: 10px;
+    letter-spacing: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cell dd {
+    font-size: 1.15rem;
+  }
+  .cell dd small {
+    display: block;
+    margin: 2px 0 0;
+    font-size: 0.7rem;
+  }
+
+  .loaded {
+    margin-block-start: 8px;
+    padding: 8px 12px;
+  }
+
+  .actions {
+    gap: 10px;
+    margin-block-start: 10px;
+  }
+  .share-panel {
+    margin-block-start: 10px;
+  }
+}
