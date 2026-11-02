@@ -2,19 +2,20 @@ import { appLink } from '../../core/apps';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { SeoService } from '../../core/seo.service';
+import { FEATURE_APPS } from '../../feature-routes';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
 import { TranslationKey } from '../../core/models/i18n.model';
-import { FEATURES, FEATURE_GROUPS } from '../../core/features';
 import { KeyStatus } from '../../core/models/key-status.model';
 import { AuthUser, UserAccess } from '../../core/models/auth.model';
 import { SettingsService, validStops } from '../../core/settings.service';
+import { FEATURES, FEATURE_GROUPS, featureBuilt } from '../../core/features';
 import { Component, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 import { ConfigGroup, PanelNotice, SaveNotice, SaveTarget, UserNotice } from './config.model';
 import { ConnectionField, FeatureId, SettingsOverrides, SettingsSection } from '../../core/models/app-settings.model';
 
 /**
- * Shows every setting from the settings master tables (served by the API) and lets an administrator change it. Edits are drafts that preview at once
+ * Shows the settings of this branch's apps (FEATURE_APPS) and the site-wide ones from the settings master tables (served by the API), and lets an administrator change them. Edits are drafts that preview at once
  * in this browser; a Save button in every section (and Save all at the top) writes them to the database. The Users and access panel decides which
  * apps each account may open. Other logged-in users only see a short note: the API refuses their changes anyway.
  */
@@ -46,10 +47,14 @@ export class Config {
   protected readonly saveNotice = signal<SaveNotice | null>(null);
   protected readonly userNotice = signal<UserNotice | null>(null);
   protected readonly importMessage = signal<'' | 'ok' | 'bad'>('');
+  protected readonly hasSpeed = featureBuilt('speed', FEATURE_APPS);
+  protected readonly hasYoutube = featureBuilt('youtube', FEATURE_APPS);
   protected readonly json = computed(() => JSON.stringify(this.cfg.overrides(), null, 2));
   protected readonly fields = computed(() => Object.keys(this.defaults.connection.fields) as ConnectionField[]);
-  protected readonly groups: ConfigGroup[] = FEATURE_GROUPS.map((g) => ({ ...g, items: FEATURES.filter((f) => f.group === g.id) }));
-  protected readonly autoApps = computed(() => (this.access()?.apps ?? []).filter((a) => a.autoGrant).map((a) => this.appName(a.code)).join(', '));
+  // Only this branch's apps: a Creta build shows no speed test, YouTube or SnapKhata settings and no access boxes for those apps.
+  protected readonly apps = computed(() => (this.access()?.apps ?? []).filter((a) => FEATURE_APPS.includes(a.code)));
+  protected readonly autoApps = computed(() => this.apps().filter((a) => a.autoGrant).map((a) => this.appName(a.code)).join(', '));
+  protected readonly groups: ConfigGroup[] = FEATURE_GROUPS.filter((g) => featureBuilt(g.id, FEATURE_APPS)).map((g) => ({ ...g, items: FEATURES.filter((f) => f.group === g.id && featureBuilt(f.id, FEATURE_APPS)) })).filter((g) => g.items.length);
 
   constructor() {
     effect(() => {
@@ -107,7 +112,7 @@ export class Config {
   }
 
   private async loadAdmin(): Promise<void> {
-    await Promise.all([this.loadKeyState(), this.loadUsers()]);
+    await Promise.all([this.hasYoutube ? this.loadKeyState() : Promise.resolve(), this.loadUsers()]);
   }
 
   private async loadUsers(): Promise<void> {
@@ -181,13 +186,13 @@ export class Config {
     return n?.section === target ? n : null;
   }
 
-  /** Saves one user's administrator switch and app boxes. The form is read before its fields are disabled (disabled fields are not sent). */
+  /** Saves one user's administrator switch and app boxes. The form is read before its fields are disabled (disabled fields are not sent). Apps this branch does not show keep their access. */
   protected async saveUser(ev: Event, user: AuthUser): Promise<void> {
     ev.preventDefault();
     if (this.savingUser() !== null)
       return;
     const data = new FormData(ev.target as HTMLFormElement);
-    const body = { isAdmin: data.get('admin') !== null, apps: data.getAll('app').map(String) };
+    const body = { isAdmin: data.get('admin') !== null, apps: [...data.getAll('app').map(String), ...user.apps.filter((c) => !FEATURE_APPS.includes(c))] };
     this.savingUser.set(user.id);
     this.userNotice.set(null);
     try {

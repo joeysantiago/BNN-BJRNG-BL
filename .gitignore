@@ -20,5 +20,8 @@ dist/
 .DS_Store
 Thumbs.db
 
-# Runtime data
-/App-Data/
+# Runtime data. The music players' songs (creta, nexon) are committed; everything else here stays out of git,
+# because App-Data/khata/ holds users' private bills (snapkhata-design.md).
+/App-Data/*
+!/App-Data/creta/
+!/App-Data/nexon/

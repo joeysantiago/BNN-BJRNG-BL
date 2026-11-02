@@ -19,3 +19,6 @@ import { SPEEDTEST_ROUTES } from './pages/speedtest/speedtest.routes';
 export const FEATURE_ROUTES: Routes = [...SPEEDTEST_ROUTES, ...MUSIC_ROUTES, ...YOUTUBE_ROUTES, ...KHATA_ROUTES, ...HR_ROUTES];
 
 export const FEATURE_PAGES: SitePages[] = [SPEEDTEST_PAGES, MUSIC_PAGES, YOUTUBE_PAGES, KHATA_PAGES, HR_PAGES];
+
+/** The apps this branch holds (app codes of core/apps.ts, plus 'speedtest'). The Settings page shows only their settings and access boxes. */
+export const FEATURE_APPS: string[] = ['speedtest', 'creta', 'nexon', 'youtube', 'khata', 'tracker', 'hr'];

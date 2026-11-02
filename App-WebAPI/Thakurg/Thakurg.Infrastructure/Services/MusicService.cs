@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Thakurg.Application.Repositories;
 using Thakurg.Application.Services;
@@ -15,8 +16,12 @@ using Thakurg.Infrastructure.Common;
 
 namespace Thakurg.Infrastructure.Services;
 
+// Players and track lists are kept in memory for MusicStorage:CacheMinutes, so the many audio packets of a song do not query the database
+// (a free Azure SQL database can then sleep). Uploading or deleting a song clears the player's list at once.
 public class MusicService : IMusicService
 {
+    private readonly IMemoryCache _cache;
+
     private readonly IMusicFileStore _fileStore;
 
     private readonly StreamingOptions _streaming;
@@ -33,13 +38,14 @@ public class MusicService : IMusicService
 
     private static readonly Regex BitrateTag = new(@"\s*[\[(]?\s*\d{2,3}\s*kbps\s*[\])]?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    public MusicService(IOptions<MusicStorageOptions> options, IOptions<StreamingOptions> streaming, IMusicFileStore fileStore, IMessageService messageService, IMusicRepository musicRepository)
+    public MusicService(IOptions<MusicStorageOptions> options, IOptions<StreamingOptions> streaming, IMusicFileStore fileStore, IMessageService messageService, IMusicRepository musicRepository, IMemoryCache cache)
     {
         _options = options.Value;
         _streaming = streaming.Value;
         _fileStore = fileStore;
         _messageService = messageService;
         _musicRepository = musicRepository;
+        _cache = cache;
     }
 
     #region Public Methods
@@ -47,7 +53,7 @@ public class MusicService : IMusicService
     public async Task<MusicTracksDto> ListAsync(string player, CancellationToken cancellationToken)
     {
         var musicPlayer = await RequirePlayerAsync(player, cancellationToken);
-        var tracks = await _musicRepository.GetTracksAsync(musicPlayer.Id, cancellationToken);
+        var tracks = await CachedTracksAsync(musicPlayer, cancellationToken);
 
         return ToDto(musicPlayer, tracks);
     }
@@ -58,6 +64,7 @@ public class MusicService : IMusicService
         var track = await RequireTrackAsync(musicPlayer, trackId, cancellationToken);
 
         await _musicRepository.RemoveTrackAsync(track, cancellationToken);
+        _cache.Remove(TracksKey(musicPlayer.Id));
         _fileStore.Delete(musicPlayer.FolderName, track.FileName);
 
         if (track.CoverFileName is not null)
@@ -69,7 +76,7 @@ public class MusicService : IMusicService
     public async Task<FileStreamDto> OpenCoverAsync(string player, int trackId, CancellationToken cancellationToken)
     {
         var musicPlayer = await RequirePlayerAsync(player, cancellationToken);
-        var track = await RequireTrackAsync(musicPlayer, trackId, cancellationToken);
+        var track = await FindTrackAsync(musicPlayer, trackId, cancellationToken);
 
         if (track.CoverFileName is null)
             throw new BusinessException(MessageCodes.MusicFileMissing, 404);
@@ -80,7 +87,7 @@ public class MusicService : IMusicService
     public async Task<FileStreamDto> OpenAudioAsync(string player, int trackId, string? range, CancellationToken cancellationToken)
     {
         var musicPlayer = await RequirePlayerAsync(player, cancellationToken);
-        var track = await RequireTrackAsync(musicPlayer, trackId, cancellationToken);
+        var track = await FindTrackAsync(musicPlayer, trackId, cancellationToken);
 
         return PacketRange.Apply(OpenFile(musicPlayer, track.FileName), range, _streaming.PacketBytes);
     }
@@ -125,6 +132,7 @@ public class MusicService : IMusicService
         }
 
         await _musicRepository.AddTracksAsync(added, cancellationToken);
+        _cache.Remove(TracksKey(musicPlayer.Id));
         var tracks = await _musicRepository.GetTracksAsync(musicPlayer.Id, cancellationToken);
 
         return new ServiceResultDto<MusicTracksDto> { Data = ToDto(musicPlayer, tracks), Message = await _messageService.GetAsync(MessageCodes.MusicTracksUploaded, added.Count) };
@@ -142,6 +150,11 @@ public class MusicService : IMusicService
     private bool IsAudio(string fileName)
     {
         return _options.AudioExtensions.Contains(Path.GetExtension(fileName), StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static string TracksKey(int playerId)
+    {
+        return $"music-tracks:{playerId}";
     }
 
     private static string TitleOf(string fileName)
@@ -184,7 +197,31 @@ public class MusicService : IMusicService
 
     private async Task<MusicPlayer> RequirePlayerAsync(string code, CancellationToken cancellationToken)
     {
-        return await _musicRepository.GetPlayerAsync(code.ToLowerInvariant(), cancellationToken) ?? throw new BusinessException(MessageCodes.MusicPlayerNotFound, 404);
+        var player = await _cache.GetOrCreateAsync($"music-player:{code.ToLowerInvariant()}", entry =>
+        {
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(_options.CacheMinutes));
+            return _musicRepository.GetPlayerAsync(code.ToLowerInvariant(), cancellationToken);
+        });
+
+        return player ?? throw new BusinessException(MessageCodes.MusicPlayerNotFound, 404);
+    }
+
+    private async Task<List<MusicTrack>> CachedTracksAsync(MusicPlayer player, CancellationToken cancellationToken)
+    {
+        var tracks = await _cache.GetOrCreateAsync(TracksKey(player.Id), entry =>
+        {
+            entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(_options.CacheMinutes));
+            return _musicRepository.GetTracksAsync(player.Id, cancellationToken);
+        });
+
+        return tracks ?? [];
+    }
+
+    private async Task<MusicTrack> FindTrackAsync(MusicPlayer player, int trackId, CancellationToken cancellationToken)
+    {
+        var tracks = await CachedTracksAsync(player, cancellationToken);
+
+        return tracks.FirstOrDefault(t => t.Id == trackId) ?? throw new BusinessException(MessageCodes.MusicTrackNotFound, 404);
     }
 
     private async Task<MusicTrack> RequireTrackAsync(MusicPlayer player, int trackId, CancellationToken cancellationToken)

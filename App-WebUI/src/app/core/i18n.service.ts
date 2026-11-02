@@ -3,11 +3,12 @@ import { DOCUMENT } from '@angular/common';
 import { LANGS, Lang, langInfo } from './site';
 import { PageId } from './models/app-settings.model';
 import { SettingsService } from './settings.service';
+import { environment } from '../../environments/environment';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Dictionaries, Dictionary, TranslationKey } from './models/i18n.model';
 
 const STORAGE_KEY = 'thakurg-lang';
-const LOAD_TIMEOUT = 5000;
+const LOAD_TIMEOUT = environment.timings.i18nLoadMs;
 
 @Injectable({ providedIn: 'root' })
 

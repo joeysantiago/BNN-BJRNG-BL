@@ -11,6 +11,8 @@ public class AuthOptions
 
     public int PasswordMinLength { get; set; }
 
+    public int SessionCacheSeconds { get; set; }
+
     public AuthJwtOptions Jwt { get; set; } = new();
 
     public List<string> AdminEmails { get; set; } = [];
