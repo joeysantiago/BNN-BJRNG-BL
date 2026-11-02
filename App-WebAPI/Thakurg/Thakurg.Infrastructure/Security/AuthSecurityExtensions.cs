@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Thakurg.Application.Repositories;
 using Thakurg.Application.Services;
 using Thakurg.Contracts.Auth;
 using Thakurg.Contracts.Configurations;
@@ -31,8 +30,8 @@ public static class AuthSecurityExtensions
         return user.HasClaim(AuthClaimTypes.Admin, "true") || user.HasClaim(AuthClaimTypes.App, app);
     }
 
-    // The common login: JWT bearer tokens checked against an active UserSessions row. Admin rights and app access are loaded from the database
-    // on every request, so a change on the master page applies at once. Policies: User = logged in, Admin, App:<code> = access to that app.
+    // The common login: JWT bearer tokens checked against an active UserSessions row. Admin rights and app access come from the database, kept in memory
+    // for Auth:SessionCacheSeconds (AuthSessionCache); a change on the master page clears it, so it applies at once. Policies: User = logged in, Admin, App:<code> = access to that app.
     public static IServiceCollection AddThakurgAuthentication(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         services.AddOptions<AuthOptions>().Bind(configuration.GetSection(AuthOptions.SectionName)).PostConfigure(options => UseDevelopmentSecret(options, environment)).Validate(IsValid, "Auth:Jwt:Secret must be at least 32 characters (set it with dotnet user-secrets), Auth:PasswordMinLength at least 8, and every other Auth number above 0.").ValidateOnStart();
@@ -54,7 +53,7 @@ public static class AuthSecurityExtensions
 
     private static bool IsValid(AuthOptions options)
     {
-        return options.Jwt.Secret.Length >= MinimumSecretLength && options.Jwt is { AccessMinutes: > 0, RefreshDays: > 0 } && options is { PasswordMinLength: >= 8, MaxFailedLogins: > 0, LockoutMinutes: > 0 };
+        return options.Jwt.Secret.Length >= MinimumSecretLength && options.Jwt is { AccessMinutes: > 0, RefreshDays: > 0 } && options is { PasswordMinLength: >= 8, MaxFailedLogins: > 0, LockoutMinutes: > 0, SessionCacheSeconds: > 0 };
     }
 
     // A logout or a password change ends the session, so its access tokens stop working at once, not only when they expire.
@@ -62,25 +61,17 @@ public static class AuthSecurityExtensions
     {
         var identity = context.Principal?.Identity as ClaimsIdentity;
         var hasIds = int.TryParse(identity?.FindFirst(AuthClaimTypes.Subject)?.Value, out var userId) & int.TryParse(identity?.FindFirst(AuthClaimTypes.Session)?.Value, out var sessionId);
-        var repository = context.HttpContext.RequestServices.GetRequiredService<IAuthRepository>();
-        var cancellationToken = context.HttpContext.RequestAborted;
+        var sessionCache = context.HttpContext.RequestServices.GetRequiredService<IAuthSessionCache>();
+        var access = identity is not null && hasIds ? await sessionCache.GetAsync(sessionId, userId, context.HttpContext.RequestAborted) : null;
 
-        if (identity is null || !hasIds || !await repository.IsSessionActiveAsync(sessionId, userId, DateTime.UtcNow, cancellationToken))
+        if (identity is null || access is null)
         {
             context.Fail(MessageCodes.AuthSessionInvalid);
             return;
         }
 
-        var user = await repository.GetUserAsync(userId, cancellationToken);
-
-        if (user is null)
-        {
-            context.Fail(MessageCodes.AuthSessionInvalid);
-            return;
-        }
-
-        identity.AddClaim(new Claim(AuthClaimTypes.Admin, user.IsAdmin ? "true" : "false"));
-        identity.AddClaims((await repository.GetAppCodesAsync(userId, cancellationToken)).Select(code => new Claim(AuthClaimTypes.App, code)));
+        identity.AddClaim(new Claim(AuthClaimTypes.Admin, access.IsAdmin ? "true" : "false"));
+        identity.AddClaims(access.Apps.Select(code => new Claim(AuthClaimTypes.App, code)));
     }
 
     private static void ConfigureBearer(JwtBearerOptions bearer, AuthOptions auth)
