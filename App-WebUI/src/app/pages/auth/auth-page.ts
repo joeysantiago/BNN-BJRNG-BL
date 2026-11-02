@@ -2,6 +2,7 @@ import { AuthMode } from './auth-page.model';
 import { SeoService } from '../../core/seo.service';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
+import { DevLogin } from '../../core/models/auth.model';
 import { environment } from '../../../environments/environment';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Component, afterNextRender, effect, inject, signal } from '@angular/core';
@@ -29,8 +30,8 @@ export class AuthPage {
   private readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
   private readonly route = inject(ActivatedRoute);
-  protected readonly devEmail = environment.devEmail;
-  protected readonly devPassword = environment.devPassword;
+  /** Development builds only: the seeded logins, the first pre-filled. Empty in QA, UAT and live. */
+  protected readonly devLogins: DevLogin[] = environment.devLogins;
   protected readonly next = safeNext(this.route.snapshot.queryParamMap.get('next'));
   protected readonly mode: AuthMode = this.route.snapshot.data['mode'] === 'signup' ? 'signup' : 'login';
 
@@ -70,6 +71,12 @@ export class AuthPage {
     } finally {
       this.busy.set(false);
     }
+  }
+
+  /** Fills the form with one of the seeded development logins. */
+  useLogin(login: DevLogin, email: HTMLInputElement, password: HTMLInputElement): void {
+    email.value = login.email;
+    password.value = login.password;
   }
 
   // #endregion
