@@ -12,7 +12,7 @@ using Thakurg.Infrastructure.Common;
 
 namespace Thakurg.Infrastructure.Services;
 
-// The common login: e-mail + password sign-up and login, refresh-token sessions, profile and password change.
+// The common login: e-mail + password sign-up and login, refresh-token sessions, profile, password change and the user's own page options.
 public class AuthService : IAuthService
 {
     private const int DeviceIdLength = 64;
@@ -37,6 +37,10 @@ public class AuthService : IAuthService
 
     private static readonly string[] Languages = ["en", "hi", "ar"];
 
+    // The options a user may switch off for themselves, by code prefix, and the apps that make them "their own": none = every user (header, speed test).
+    // Page switches (page.*) are not listed: they stay with the site settings.
+    private static readonly Dictionary<string, string[]> OwnFeatureApps = new() { ["site."] = [], ["speed."] = [], ["yt."] = [AppCodes.Youtube], ["audio."] = [AppCodes.Creta, AppCodes.Nexon] };
+
     public AuthService(IOptions<AuthOptions> options, IAuthTokenService tokenService, IPasswordHasher passwordHasher, IMessageService messageService, IAuthRepository authRepository, IAuthSessionCache sessionCache)
     {
         _options = options.Value;
@@ -53,7 +57,7 @@ public class AuthService : IAuthService
     {
         var user = await RequireUserAsync(userId, cancellationToken);
 
-        return ToDto(user, await _authRepository.GetAppCodesAsync(user.Id, cancellationToken));
+        return await BuildUserAsync(user, cancellationToken);
     }
 
     public async Task<string> LogoutAsync(AuthCallerDto caller, CancellationToken cancellationToken)
@@ -89,9 +93,9 @@ public class AuthService : IAuthService
         session.ExpiresOn = now.AddDays(_options.Jwt.RefreshDays);
         session.ModifiedOn = now;
         await _authRepository.SaveChangesAsync(cancellationToken);
-        var apps = await _authRepository.GetAppCodesAsync(user.Id, cancellationToken);
+        var dto = await BuildUserAsync(user, cancellationToken);
 
-        return new SignInDto { Auth = _tokenService.CreateResult(user, session.Id, apps), RefreshToken = newToken, RefreshExpiresOn = session.ExpiresOn };
+        return new SignInDto { Auth = _tokenService.CreateResult(dto, session.Id), RefreshToken = newToken, RefreshExpiresOn = session.ExpiresOn };
     }
 
     // A wrong password counts towards the lockout; the same message is used for an unknown e-mail, so it does not reveal which addresses exist.
@@ -123,8 +127,8 @@ public class AuthService : IAuthService
         return await StartSessionAsync(user, caller, now, cancellationToken);
     }
 
-    // Self sign-up: the account gets the apps marked AutoGrant (Khata, SnapTracker); the others wait for an administrator.
-    // An e-mail listed in Auth:AdminEmails signs up as an administrator with every app.
+    // Self sign-up: the account gets the sign-up role (Roles.IsDefault, the Standard User) and the apps marked AutoGrant (Khata, SnapTracker); the others wait for an administrator.
+    // An e-mail listed in Auth:AdminEmails signs up as a super admin with every app.
     public async Task<SignInDto> RegisterAsync(RegisterRequestDto request, AuthCallerDto caller, CancellationToken cancellationToken)
     {
         var email = EmailAddress.Normalize(request.Email) ?? throw new BusinessException(MessageCodes.AuthEmailInvalid, 400);
@@ -133,15 +137,16 @@ public class AuthService : IAuthService
             throw new BusinessException(MessageCodes.AuthEmailTaken, 409);
 
         var now = DateTime.UtcNow;
-        var isAdmin = _options.AdminEmails.Any(a => string.Equals(a.Trim(), email, StringComparison.OrdinalIgnoreCase));
+        var isOwner = _options.AdminEmails.Any(a => string.Equals(a.Trim(), email, StringComparison.OrdinalIgnoreCase));
         var displayName = string.IsNullOrWhiteSpace(request.DisplayName) ? email[..email.IndexOf('@')] : request.DisplayName.Trim();
 
         if (displayName.Length > MaxDisplayNameLength)
             throw new BusinessException(MessageCodes.AuthProfileInvalid, 400, MaxDisplayNameLength);
 
-        var user = new User { Email = email, PasswordHash = HashNewPassword(request.Password), DisplayName = displayName, Language = Languages[0], IsAdmin = isAdmin, LastLoginOn = now };
+        var role = (isOwner ? await _authRepository.GetRoleByCodeAsync(RoleCodes.SuperAdmin, cancellationToken) : await _authRepository.GetDefaultRoleAsync(cancellationToken)) ?? throw new BusinessException(MessageCodes.RoleNotFound, 500);
+        var user = new User { Email = email, PasswordHash = HashNewPassword(request.Password), DisplayName = displayName, Language = Languages[0], RoleId = role.Id, LastLoginOn = now };
         await _authRepository.AddUserAsync(user, cancellationToken);
-        var apps = isAdmin ? await _authRepository.GetAllAppsAsync(cancellationToken) : await _authRepository.GetAutoGrantAppsAsync(cancellationToken);
+        var apps = isOwner ? await _authRepository.GetAllAppsAsync(cancellationToken) : await _authRepository.GetAutoGrantAppsAsync(cancellationToken);
         await _authRepository.AddAccessAsync(apps.Select(a => new UserAppAccess { UserId = user.Id, AppId = a.Id, CreatedBy = user.Id }), cancellationToken);
 
         return await StartSessionAsync(user, caller, now, cancellationToken);
@@ -179,9 +184,28 @@ public class AuthService : IAuthService
         user.ModifiedBy = user.Id;
         user.ModifiedOn = DateTime.UtcNow;
         await _authRepository.SaveChangesAsync(cancellationToken);
-        var dto = ToDto(user, await _authRepository.GetAppCodesAsync(user.Id, cancellationToken));
+        var dto = await BuildUserAsync(user, cancellationToken);
 
         return new ServiceResultDto<UserDto> { Data = dto, Message = await _messageService.GetAsync(MessageCodes.AuthProfileSaved) };
+    }
+
+    // The options of their own pages the user switched off for themselves. Only options of the header, the speed test and the apps they can open are accepted.
+    public async Task<ServiceResultDto<UserDto>> UpdateFeaturesAsync(int userId, FeaturePreferencesDto request, CancellationToken cancellationToken)
+    {
+        var user = await RequireUserAsync(userId, cancellationToken);
+        var dto = await BuildUserAsync(user, cancellationToken);
+        var features = await _authRepository.GetFeaturesAsync(cancellationToken);
+        var codes = (request.Hidden ?? []).Distinct().ToList();
+        var unknown = codes.FirstOrDefault(c => !IsOwnFeature(c, dto) || features.All(f => f.Code != c));
+
+        if (unknown is not null)
+            throw new BusinessException(MessageCodes.AuthFeatureUnknown, 400, unknown);
+
+        await _authRepository.ReplaceHiddenFeaturesAsync(user.Id, features.Where(f => codes.Contains(f.Code)).Select(f => f.Id).ToList(), cancellationToken);
+        await _authRepository.SaveChangesAsync(cancellationToken);
+        dto.HiddenFeatures = codes;
+
+        return new ServiceResultDto<UserDto> { Data = dto, Message = await _messageService.GetAsync(MessageCodes.AuthFeaturesSaved) };
     }
 
     #endregion
@@ -201,9 +225,11 @@ public class AuthService : IAuthService
         return value is { Length: > 0 } text ? text[..Math.Min(text.Length, length)] : null;
     }
 
-    private static UserDto ToDto(User user, List<string> apps)
+    private static bool IsOwnFeature(string code, UserDto user)
     {
-        return new UserDto { Id = user.Id, Email = user.Email, DisplayName = user.DisplayName, Language = user.Language, IsAdmin = user.IsAdmin, Apps = apps };
+        var apps = OwnFeatureApps.FirstOrDefault(p => code.StartsWith(p.Key, StringComparison.Ordinal)).Value;
+
+        return apps is not null && (apps.Length == 0 || user.IsAdmin || apps.Any(user.Apps.Contains));
     }
 
     private async Task<User> RequireUserAsync(int userId, CancellationToken cancellationToken)
@@ -211,14 +237,25 @@ public class AuthService : IAuthService
         return await _authRepository.GetUserAsync(userId, cancellationToken) ?? throw new BusinessException(MessageCodes.AuthSessionInvalid, 401);
     }
 
+    // The account as the site sees it: role, the role's rights, apps and the options the user switched off.
+    private async Task<UserDto> BuildUserAsync(User user, CancellationToken cancellationToken)
+    {
+        var role = await _authRepository.GetRoleAsync(user.RoleId, cancellationToken) ?? throw new BusinessException(MessageCodes.AuthSessionInvalid, 401);
+        var rights = await _authRepository.GetPermissionsAsync(role.Id, cancellationToken);
+        var apps = await _authRepository.GetAppCodesAsync(user.Id, cancellationToken);
+        var hidden = await _authRepository.GetHiddenFeaturesAsync(user.Id, cancellationToken);
+
+        return new UserDto { Id = user.Id, Email = user.Email, DisplayName = user.DisplayName, Language = user.Language, RoleId = role.Id, RoleCode = role.Code, RoleName = role.Name, IsAdmin = RoleCodes.IsAdmin(role.Code), Apps = apps, Permissions = rights.SelectMany(PermissionNames.Expand).ToList(), HiddenFeatures = hidden };
+    }
+
     private async Task<SignInDto> StartSessionAsync(User user, AuthCallerDto caller, DateTime now, CancellationToken cancellationToken)
     {
         var refreshToken = _tokenService.NewSecret();
         var session = new UserSession { UserId = user.Id, RefreshTokenHash = _tokenService.Hash(refreshToken), DeviceId = Truncate(caller.DeviceId, DeviceIdLength) ?? _tokenService.NewSecret()[..16], UserAgent = Truncate(caller.UserAgent, UserAgentLength), LoggedInOn = now, ExpiresOn = now.AddDays(_options.Jwt.RefreshDays) };
         await _authRepository.AddSessionAsync(session, cancellationToken);
-        var apps = await _authRepository.GetAppCodesAsync(user.Id, cancellationToken);
+        var dto = await BuildUserAsync(user, cancellationToken);
 
-        return new SignInDto { Auth = _tokenService.CreateResult(user, session.Id, apps), RefreshToken = refreshToken, RefreshExpiresOn = session.ExpiresOn };
+        return new SignInDto { Auth = _tokenService.CreateResult(dto, session.Id), RefreshToken = refreshToken, RefreshExpiresOn = session.ExpiresOn };
     }
 
     #endregion

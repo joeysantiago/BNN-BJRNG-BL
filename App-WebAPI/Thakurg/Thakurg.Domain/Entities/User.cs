@@ -6,7 +6,7 @@ public class User : BaseEntity
 {
     public int Id { get; set; }
 
-    public bool IsAdmin { get; set; }
+    public int RoleId { get; set; }
 
     public int FailedLoginCount { get; set; }
 

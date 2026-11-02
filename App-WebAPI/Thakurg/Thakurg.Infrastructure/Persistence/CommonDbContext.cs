@@ -9,6 +9,10 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
 {
     public DbSet<App> Apps => Set<App>();
 
+    public DbSet<Page> Pages => Set<Page>();
+
+    public DbSet<Role> Roles => Set<Role>();
+
     public DbSet<User> Users => Set<User>();
 
     public DbSet<Feature> Features => Set<Feature>();
@@ -21,11 +25,15 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
 
     public DbSet<ServiceItem> ServiceItems => Set<ServiceItem>();
 
+    public DbSet<UserFeature> UserFeatures => Set<UserFeature>();
+
     public DbSet<UserSession> UserSessions => Set<UserSession>();
 
     public DbSet<UserAppAccess> UserAppAccess => Set<UserAppAccess>();
 
     public DbSet<PageTranslation> Translations => Set<PageTranslation>();
+
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
 
     public DbSet<ConnectionField> ConnectionFields => Set<ConnectionField>();
 
@@ -73,6 +81,8 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<App>().ToTable("Apps");
+        modelBuilder.Entity<Page>().ToTable("Pages");
+        modelBuilder.Entity<Role>().ToTable("Roles");
         modelBuilder.Entity<User>().ToTable("Users");
         modelBuilder.Entity<Feature>().ToTable("Features");
         modelBuilder.Entity<Message>().ToTable("Messages");
@@ -80,9 +90,11 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
         modelBuilder.Entity<AppSetting>().ToTable("AppSettings");
         modelBuilder.Entity<ServiceItem>().ToTable("ServiceItems");
         modelBuilder.Entity<UserSession>().ToTable("UserSessions");
+        modelBuilder.Entity<UserFeature>().ToTable("UserFeatures");
         modelBuilder.Entity<UserAppAccess>().ToTable("UserAppAccess");
         modelBuilder.Entity<PageTranslation>().ToTable("Translations");
         modelBuilder.Entity<ConnectionField>().ToTable("ConnectionFields");
+        modelBuilder.Entity<RolePermission>().ToTable("RolePermissions");
 
         OnMusicModelCreating(modelBuilder);
         OnKhataModelCreating(modelBuilder);

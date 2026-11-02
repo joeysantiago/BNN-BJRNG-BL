@@ -7,7 +7,7 @@ BEGIN
         PasswordHash     NVARCHAR(200)     NOT NULL                                                         ,
         DisplayName      NVARCHAR(100)     NOT NULL CONSTRAINT DF_Users_DisplayName DEFAULT (N'')           ,
         Language         VARCHAR(5)        NOT NULL CONSTRAINT DF_Users_Language DEFAULT ('en')             ,
-        IsAdmin          BIT               NOT NULL CONSTRAINT DF_Users_IsAdmin DEFAULT (0)                 ,
+        RoleId           INT               NOT NULL                                                         ,
         FailedLoginCount INT               NOT NULL CONSTRAINT DF_Users_FailedLoginCount DEFAULT (0)        ,
         LockedUntil      DATETIME2         NULL                                                             ,
         LastLoginOn      DATETIME2         NULL                                                             ,
@@ -19,9 +19,11 @@ BEGIN
         ModifiedBy       INT               NULL                                                             ,
         ModifiedOn       DATETIME2         NULL                                                             ,
 
-        CONSTRAINT PK_Users PRIMARY KEY CLUSTERED (Id)
+        CONSTRAINT PK_Users PRIMARY KEY CLUSTERED (Id),
+        CONSTRAINT FK_Users_Roles_RoleId FOREIGN KEY (RoleId) REFERENCES Roles (Id)
     );
 
     CREATE UNIQUE INDEX IX_Users_Email ON Users (Email);
+    CREATE INDEX IX_Users_RoleId ON Users (RoleId);
 END
 GO
