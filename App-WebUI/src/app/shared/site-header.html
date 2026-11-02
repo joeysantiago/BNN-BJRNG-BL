@@ -27,14 +27,12 @@
     <div class="tools" [class.solo]="!onSpeedRoute()">
       @if (!cfg.on('site.install')) {
       } @else if (install.canPrompt()) {
-        <button type="button" class="btn sm pri" [attr.aria-label]="i18n.t('install.btn')" (click)="install.prompt()">
+        <button type="button" class="btn sm pri icon" [attr.aria-label]="i18n.t('install.btn')" [attr.title]="i18n.t('install.btn')" (click)="install.prompt()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>
-          <span>{{ i18n.t('install.btn') }}</span>
         </button>
       } @else if (install.showIosHint()) {
-        <button type="button" class="btn sm pri" [attr.aria-label]="i18n.t('install.btn')" (click)="iosOpen()">
+        <button type="button" class="btn sm pri icon" [attr.aria-label]="i18n.t('install.btn')" [attr.title]="i18n.t('install.btn')" (click)="iosOpen()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>
-          <span>{{ i18n.t('install.btn') }}</span>
         </button>
       }
 
