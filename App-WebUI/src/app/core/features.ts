@@ -70,6 +70,26 @@ const PAGE_FEATURES: Record<string, FeatureId> = {
   '/khata': 'page.khata',
 };
 
+/** The apps that own each app-only settings group and switch (FEATURE_APPS codes). Anything not listed is site-wide and always shown. */
+const FEATURE_OWNERS: Partial<Record<FeatureGroup | FeatureId, string[]>> = {
+  speed: ['speedtest'],
+  youtube: ['youtube'],
+  audio: ['creta', 'nexon'],
+  'site.nav': ['speedtest'],
+  'page.speed': ['speedtest'],
+  'page.youtube': ['youtube'],
+  'page.creta': ['creta'],
+  'page.nexon': ['nexon'],
+  'page.hr': ['hr'],
+  'page.khata': ['khata'],
+};
+
+/** True when the setting is site-wide or belongs to one of the apps this branch holds (FEATURE_APPS of feature-routes.ts). */
+export function featureBuilt(id: FeatureGroup | FeatureId, apps: readonly string[]): boolean {
+  const owners = FEATURE_OWNERS[id];
+  return !owners || owners.some((a) => apps.includes(a));
+}
+
 /** The switch that controls the page at this address, or null for pages that cannot be switched off (config, errors). Every SnapKhata screen follows page.khata. */
 export function pageFeature(url: string): FeatureId | null {
   const path = url.split(/[?#]/)[0].replace(/\/+$/, '') || '/';

@@ -1,11 +1,12 @@
 import { FEATURES } from './features';
 import { ApiService } from './api.service';
 import { EMPTY_SETTINGS } from '../appSettings';
+import { environment } from '../../environments/environment';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { AppSettings, ConnectionField, FeatureFlags, FeatureId, SettingsOverrides, SettingsSection } from './models/app-settings.model';
 
-const LOAD_TIMEOUT = 5000;
-const SAVE_TIMEOUT = 15000;
+const LOAD_TIMEOUT = environment.timings.settingsLoadMs;
+const SAVE_TIMEOUT = environment.timings.settingsSaveMs;
 
 /** Same rule as the API: 2 to 20 whole numbers, the first 0, each larger than the one before, at most 100000. */
 export const validStops = (v: unknown): v is number[] => Array.isArray(v) && v.length >= 2 && v.length <= 20 && v.every((n) => Number.isInteger(n)) && v[0] === 0 && v[v.length - 1] <= 100000 && v.every((n, i) => i === 0 || n > v[i - 1]);

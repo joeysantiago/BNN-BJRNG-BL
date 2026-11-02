@@ -11,3 +11,6 @@ import { YOUTUBE_ROUTES } from './pages/youtube/youtube.routes';
 export const FEATURE_ROUTES: Routes = [{ path: '', pathMatch: 'full', redirectTo: 'youtube' }, ...YOUTUBE_ROUTES];
 
 export const FEATURE_PAGES: SitePages[] = [YOUTUBE_PAGES];
+
+/** The apps this branch holds (app codes of core/apps.ts, plus 'speedtest'). The Settings page shows only their settings and access boxes. */
+export const FEATURE_APPS: string[] = ['youtube'];
