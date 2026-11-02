@@ -16,9 +16,11 @@ public static partial class DependencyInjection
 {
     #region Public Methods
 
+    // A paused Azure SQL database (free offer) answers with a transient error while it wakes up, so failed calls are retried instead of failing.
+    // Code that opens its own transaction must run it through Database.CreateExecutionStrategy().
     public static IServiceCollection AddCommonDbContext(this IServiceCollection services, string connectionString)
     {
-        services.AddDbContext<CommonDbContext>(options => options.UseSqlServer(connectionString));
+        services.AddDbContext<CommonDbContext>(options => options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure()));
         services.AddScoped<ICommonDbContext>(provider => provider.GetRequiredService<CommonDbContext>());
 
         return services;
@@ -45,6 +47,7 @@ public static partial class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<ISettingsService, SettingsService>();
+        services.AddScoped<IAuthSessionCache, AuthSessionCache>();
         services.AddScoped<IUserAccessService, UserAccessService>();
         services.AddScoped<ITranslationService, TranslationService>();
 

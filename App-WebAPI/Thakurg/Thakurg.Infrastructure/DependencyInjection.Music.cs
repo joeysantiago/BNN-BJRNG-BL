@@ -16,7 +16,7 @@ public static partial class DependencyInjection
 
     static partial void AddMusicFeature(IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<MusicStorageOptions>(configuration.GetSection(MusicStorageOptions.SectionName));
+        services.AddOptions<MusicStorageOptions>().Bind(configuration.GetSection(MusicStorageOptions.SectionName)).Validate(o => o.CacheMinutes > 0, "MusicStorage:CacheMinutes must be above 0.").ValidateOnStart();
 
         services.AddSingleton<IMusicFileStore, MusicFileStore>();
         services.AddScoped<IMusicRepository, MusicRepository>();

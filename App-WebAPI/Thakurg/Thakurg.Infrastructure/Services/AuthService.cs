@@ -27,6 +27,8 @@ public class AuthService : IAuthService
 
     private readonly IAuthRepository _authRepository;
 
+    private readonly IAuthSessionCache _sessionCache;
+
     private readonly IAuthTokenService _tokenService;
 
     private readonly IMessageService _messageService;
@@ -35,13 +37,14 @@ public class AuthService : IAuthService
 
     private static readonly string[] Languages = ["en", "hi", "ar"];
 
-    public AuthService(IOptions<AuthOptions> options, IAuthTokenService tokenService, IPasswordHasher passwordHasher, IMessageService messageService, IAuthRepository authRepository)
+    public AuthService(IOptions<AuthOptions> options, IAuthTokenService tokenService, IPasswordHasher passwordHasher, IMessageService messageService, IAuthRepository authRepository, IAuthSessionCache sessionCache)
     {
         _options = options.Value;
         _tokenService = tokenService;
         _passwordHasher = passwordHasher;
         _messageService = messageService;
         _authRepository = authRepository;
+        _sessionCache = sessionCache;
     }
 
     #region Public Methods
@@ -62,6 +65,7 @@ public class AuthService : IAuthService
             session.RevokedOn = DateTime.UtcNow;
             session.ModifiedOn = session.RevokedOn;
             await _authRepository.SaveChangesAsync(cancellationToken);
+            _sessionCache.Forget(caller.UserId);
         }
 
         return await _messageService.GetAsync(MessageCodes.AuthLoggedOut);
@@ -157,6 +161,7 @@ public class AuthService : IAuthService
         user.ModifiedOn = now;
         await _authRepository.SaveChangesAsync(cancellationToken);
         await _authRepository.RevokeSessionsAsync(user.Id, caller.SessionId, now, cancellationToken);
+        _sessionCache.Forget(user.Id);
 
         return await _messageService.GetAsync(MessageCodes.AuthPasswordChanged);
     }
