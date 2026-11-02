@@ -1,5 +1,7 @@
 import { filter, map } from 'rxjs';
 import { Lang, langInfo } from '../core/site';
+import { featureBuilt } from '../core/features';
+import { FEATURE_APPS } from '../feature-routes';
 import { Skin } from '../core/models/theme.model';
 import { AuthService } from '../core/auth.service';
 import { I18nService } from '../core/i18n.service';
@@ -29,6 +31,8 @@ export class SiteHeader {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly settings = this.cfg.settings;
+  // The navigation holds only speed test links, so a branch without the speed test has none.
+  protected readonly hasNav = featureBuilt('site.nav', FEATURE_APPS);
   protected readonly themeOpen = signal(false);
   protected readonly userOpen = signal(false);
   private readonly ios = viewChild.required<ElementRef<HTMLDialogElement>>('ios');

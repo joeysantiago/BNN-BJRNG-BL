@@ -59,7 +59,8 @@ Shared files call feature files through partial methods and lists, so most share
 C# drops a call to a partial method that has no implementation, so a branch without the feature file still compiles.
 
 **Files that differ per branch.** Each branch lists only its own features in these files; on `matrix` they list none, on `main` all:
-- `App-WebUI/src/app/feature-routes.ts`: the feature routes and pages; a branch without the speed test sends `/` to its own app.
+- `App-WebUI/src/app/feature-routes.ts`: the feature routes and pages, and `FEATURE_APPS` (the apps the branch holds; the Settings page and the
+  header show only their settings, panels and access boxes); a branch without the speed test sends `/` to its own app.
 - `App-Prototype/assets/js/routes.js`: the prototype pages; a branch without the speed test sends `/` to its own app.
 - Creta and Nexon: `pages/creta/music.routes.ts`, `pages/creta/music.pages.json`, `SqlScripts/INSERT/Music/001_MusicPlayers.sql` keep only their
   own player, and the prototype keeps only its own player page.
@@ -73,4 +74,3 @@ into `main` touches them only if the branch changed them; then keep `main`'s ful
 ## Known gaps
 - **Advertisements:** no advertisement code exists in any layer, so no branch has it.
 - **SnapTracker:** only the prototype exists; its branch has no WebUI page, API or tables of its own yet (the app code `tracker` exists for access).
-- **YouTube key panel on the Master page** is shared; in branches without YouTube its status call answers 404 and the panel shows the key as not set.
