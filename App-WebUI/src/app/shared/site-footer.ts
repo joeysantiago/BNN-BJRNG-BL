@@ -22,9 +22,8 @@ import { SettingsService } from '../core/settings.service';
               <a routerLink="/terms/">{{ i18n.page('terms') }}</a>
             }
           }
-          <a routerLink="/master/">{{ i18n.t('cfg.link') }}</a>
         </nav>
-        <p>&copy; {{ year }} {{ site }}. {{ i18n.t('ft.rights') }}</p>
+        <p>&copy; {{ year }} {{ site }}.<span class="rights"> {{ i18n.t('ft.rights') }}</span></p>
       </div>
     </footer>
   `,
@@ -68,17 +67,27 @@ import { SettingsService } from '../core/settings.service';
       color: var(--muted);
       font-size: 13px;
     }
-    /* Narrow screens: links on one line, the copyright line under them. */
+    /* Narrow screens: links and copyright share one line; "All rights reserved" is dropped to make room. */
     @media (max-width: 720px) {
+      .foot-in {
+        flex-wrap: nowrap;
+        gap: 0 6px;
+      }
       .links {
-        justify-content: center;
+        flex-wrap: nowrap;
+        gap: 0;
       }
       .links a {
-        padding-inline: 7px;
+        padding-inline: 6px;
+        font-size: 13px;
+        white-space: nowrap;
       }
       p {
         font-size: 12px;
-        padding-block-end: 2px;
+        white-space: nowrap;
+      }
+      .rights {
+        display: none;
       }
     }
     /* Wide screens: a slimmer 40px bar. Phones keep the 44px tap targets above. */

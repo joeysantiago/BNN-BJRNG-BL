@@ -107,21 +107,25 @@
     @if (current(); as r) {
       <div class="actions">
         @if (cfg.on('speed.share')) {
-        <button type="button" class="btn" aria-haspopup="true" [attr.aria-expanded]="shareOpen()" (click)="onShare()">
+        <button type="button" class="btn icon" aria-haspopup="true" [attr.aria-expanded]="shareOpen()" [attr.title]="i18n.t('act.share')" (click)="onShare()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
-          {{ i18n.t('act.share') }}
+          <span class="sr-only">{{ i18n.t('act.share') }}</span>
         </button>
         }
         @if (cfg.on('speed.save')) {
-        <button type="button" class="btn" [disabled]="saved()" (click)="save()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
-          {{ saved() ? i18n.t('act.saved') : i18n.t('act.save') }}
+        <button type="button" class="btn icon" [disabled]="saved()" [attr.title]="saved() ? i18n.t('act.saved') : i18n.t('act.save')" (click)="save()">
+          @if (saved()) {
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+          } @else {
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+          }
+          <span class="sr-only">{{ saved() ? i18n.t('act.saved') : i18n.t('act.save') }}</span>
         </button>
         }
         @if (cfg.on('speed.image')) {
-        <button type="button" class="btn" (click)="image()">
+        <button type="button" class="btn icon" [attr.title]="i18n.t('act.image')" (click)="image()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          {{ i18n.t('act.image') }}
+          <span class="sr-only">{{ i18n.t('act.image') }}</span>
         </button>
         }
       </div>
