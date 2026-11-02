@@ -1,0 +1,25 @@
+:host {
+  display: inline-grid;
+  flex: none;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--accent, #888), var(--accent-2, #aaa));
+  color: var(--accent-contrast, #1a1020);
+  box-shadow: 0 0 0 2px var(--inset-bg, transparent);
+}
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.initials {
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: calc(var(--size) * 0.4);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  user-select: none;
+}

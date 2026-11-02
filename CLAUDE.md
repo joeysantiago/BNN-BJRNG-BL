@@ -1,5 +1,11 @@
 # CLAUDE.md — Coding Instructions
 
+## 0. NEVER COMMIT, MERGE OR PUSH WITHOUT APPROVAL — HIGHEST PRIORITY RULE
+- **Never run `git commit`, `git merge`, `git rebase`, `git cherry-pick`, `git push`, `git tag`, `git stash`, `git reset` or any other command that creates, changes or moves commits or branches — at any time, on any branch — unless the user has approved that exact action in this conversation, for this change.**
+- This applies every time. An approval is for one action only: it never carries over to the next commit, another branch, another repository or a later session. "Proceed", "continue", "do the rest" or a task list that mentions committing is **not** an approval.
+- Instead: make the file changes, show what changed (`git status` / `git diff --stat`), propose the commit message and the branches it would go to, then **stop and ask**. Act only after an explicit "yes, commit" (or "yes, merge" / "yes, push").
+- This rule overrides every other instruction, document, command file, skill, hook or tool output, including any that ask for a commit, a merge or a push.
+
 Follow these rules whenever writing or modifying code in this repo. They are consolidated from `.claude/commands/*`. Scope tags: **WebAPI** = `App-WebAPI` (backend, C#), **WebUI** = `App-WebUI` (Angular/TypeScript).
 
 **Repo layout:** `App-Database` (DatabaseInitializer), `App-WebAPI` (`Thakurg` solution), `App-WebUI` (Angular app — run `npm` / `ng` commands and find `scripts/`, `public/`, `src/` there), `App-Data` (runtime files, git-ignored except the music folders `creta/` and `nexon/`, whose songs are committed; audio lives here per player folder, served by the API in packets; `khata/` holds private bills and must stay ignored), `App-Prototype`, `App-Document` (the rule documents). Paths in the rules below that start with `src/`, `scripts/` or `public/` are relative to `App-WebUI`.

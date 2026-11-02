@@ -2,11 +2,19 @@
 
 :host {
   display: grid;
-  gap: 20px;
 }
-.own + .own {
-  margin-block-start: 16px;
+.own {
+  margin-block-start: 14px;
 }
-.own legend {
-  margin-block-end: 4px;
+.own-h {
+  padding: 0;
+  margin-block-end: 2px;
+  color: var(--accent-ink, var(--text));
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.note-line {
+  margin-block-start: 8px;
 }
