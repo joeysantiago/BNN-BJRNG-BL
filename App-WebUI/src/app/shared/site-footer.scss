@@ -10,7 +10,7 @@
   -webkit-backdrop-filter: var(--header-filter);
   backdrop-filter: var(--header-filter);
 }
-/* Links and copyright centred together; on narrow screens the copyright drops under the links. */
+/* Links and copyright centred together on one line. */
 .foot-in {
   display: flex;
   flex-wrap: wrap;
@@ -38,17 +38,27 @@ p {
   font-size: 13px;
 }
 
-/* Narrow screens: links on one line, the copyright line under them. */
+/* Narrow screens: links and copyright share one line; "All rights reserved" is dropped to make room. */
 @media (max-width: 720px) {
+  .foot-in {
+    flex-wrap: nowrap;
+    gap: 0 6px;
+  }
   .links {
-    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 0;
   }
   .links a {
-    padding-inline: 7px;
+    padding-inline: 6px;
+    font-size: 13px;
+    white-space: nowrap;
   }
   p {
     font-size: 12px;
-    padding-block-end: 2px;
+    white-space: nowrap;
+  }
+  .rights {
+    display: none;
   }
 }
 
