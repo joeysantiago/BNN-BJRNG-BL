@@ -34,7 +34,7 @@ BEGIN
         ('YOUTUBE_LOOKUP_FAILED', N'{"en":"YouTube could not be reached for this request.","hi":"इस अनुरोध के लिए YouTube से संपर्क नहीं हो सका।","ar":"تعذر الوصول إلى يوتيوب لهذا الطلب."}'),
         ('YOUTUBE_NO_AUDIO', N'{"en":"No audio stream is available for this video.","hi":"इस वीडियो के लिए कोई ऑडियो स्ट्रीम उपलब्ध नहीं है।","ar":"لا يتوفر مسار صوتي لهذا الفيديو."}'),
         ('TRANSLATION_LANGUAGE_INVALID', N'{"en":"This language is not supported.","hi":"यह भाषा समर्थित नहीं है।","ar":"هذه اللغة غير مدعومة."}'),
-        ('TOO_MANY_REQUESTS', N'{"en":"Too many attempts. Please wait a minute and try again.","hi":"बहुत अधिक प्रयास। कृपया एक मिनट प्रतीक्षा करें और फिर प्रयास करें।","ar":"محاولات كثيرة جدًا. يرجى الانتظار دقيقة ثم المحاولة مرة أخرى."}'),
+        ('TOO_MANY_REQUESTS', N'{"en":"Too many attempts. Please wait a few minutes and try again.","hi":"बहुत अधिक प्रयास। कृपया कुछ मिनट प्रतीक्षा करें और फिर प्रयास करें।","ar":"محاولات كثيرة جدًا. يرجى الانتظار بضع دقائق ثم المحاولة مرة أخرى."}'),
         ('YOUTUBE_FFMPEG_MISSING', N'{"en":"MP3 conversion is not available on this server.","hi":"इस सर्वर पर MP3 रूपांतरण उपलब्ध नहीं है।","ar":"تحويل MP3 غير متاح على هذا الخادم."}'),
         ('YOUTUBE_KEY_SAVED', N'{"en":"The YouTube API key was saved.","hi":"YouTube API कुंजी सहेज ली गई।","ar":"تم حفظ مفتاح YouTube API."}'),
         ('YOUTUBE_KEY_REJECTED', N'{"en":"YouTube did not accept this API key. Check the key and that the YouTube Data API v3 is enabled for it.","hi":"YouTube ने यह API कुंजी स्वीकार नहीं की। कुंजी जाँचें और देखें कि उसके लिए YouTube Data API v3 चालू है।","ar":"لم يقبل YouTube مفتاح API هذا. تحقق من المفتاح ومن تفعيل YouTube Data API v3 له."}'),
