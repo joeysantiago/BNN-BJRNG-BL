@@ -2,7 +2,7 @@
 
 Follow these rules whenever writing or modifying code in this repo. They are consolidated from `.claude/commands/*`. Scope tags: **WebAPI** = `App-WebAPI` (backend, C#), **WebUI** = `App-WebUI` (Angular/TypeScript).
 
-**Repo layout:** `App-Database` (DatabaseInitializer), `App-WebAPI` (`Thakurg` solution), `App-WebUI` (Angular app — run `npm` / `ng` commands and find `scripts/`, `public/`, `src/` there), `App-Data` (git-ignored runtime files; audio lives here per player folder, served by the API in packets), `App-Prototype`, `App-Document` (the rule documents). Paths in the rules below that start with `src/`, `scripts/` or `public/` are relative to `App-WebUI`.
+**Repo layout:** `App-Database` (DatabaseInitializer), `App-WebAPI` (`Thakurg` solution), `App-WebUI` (Angular app — run `npm` / `ng` commands and find `scripts/`, `public/`, `src/` there), `App-Data` (runtime files, git-ignored except the music folders `creta/` and `nexon/`, whose songs are committed; audio lives here per player folder, served by the API in packets; `khata/` holds private bills and must stay ignored), `App-Prototype`, `App-Document` (the rule documents). Paths in the rules below that start with `src/`, `scripts/` or `public/` are relative to `App-WebUI`.
 
 **Global exclusions:** skip `*.spec.ts` for UI ordering/import rules; skip auto-generated code (`bin`, `obj`, `Migrations`).
 **Global principle:** formatting/refactor rules are *pure* changes — never alter names, types, logic, values or behaviour. Build / type-check afterwards (`ng build` for UI, build the API projects for backend).

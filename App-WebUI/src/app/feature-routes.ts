@@ -11,3 +11,6 @@ import { SPEEDTEST_ROUTES } from './pages/speedtest/speedtest.routes';
 export const FEATURE_ROUTES: Routes = [...SPEEDTEST_ROUTES];
 
 export const FEATURE_PAGES: SitePages[] = [SPEEDTEST_PAGES];
+
+/** The apps this branch holds (app codes of core/apps.ts, plus 'speedtest'). The Settings page shows only their settings and access boxes. */
+export const FEATURE_APPS: string[] = ['speedtest'];
