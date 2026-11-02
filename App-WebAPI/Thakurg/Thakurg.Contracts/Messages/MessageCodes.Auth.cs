@@ -16,7 +16,13 @@ public static partial class MessageCodes
 
     public const string AuthEmailTaken = "AUTH_EMAIL_TAKEN";
 
+    public const string AuthOwnAccount = "AUTH_OWN_ACCOUNT";
+
     public const string AuthAccessSaved = "AUTH_ACCESS_SAVED";
+
+    public const string AuthUserCreated = "AUTH_USER_CREATED";
+
+    public const string AuthUserDeleted = "AUTH_USER_DELETED";
 
     public const string AuthEmailInvalid = "AUTH_EMAIL_INVALID";
 
@@ -28,7 +34,11 @@ public static partial class MessageCodes
 
     public const string AuthUserNotFound = "AUTH_USER_NOT_FOUND";
 
+    public const string AuthFeaturesSaved = "AUTH_FEATURES_SAVED";
+
     public const string AuthPasswordWrong = "AUTH_PASSWORD_WRONG";
+
+    public const string AuthFeatureUnknown = "AUTH_FEATURE_UNKNOWN";
 
     public const string AuthProfileInvalid = "AUTH_PROFILE_INVALID";
 

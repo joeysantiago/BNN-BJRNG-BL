@@ -9,6 +9,10 @@ public partial interface ICommonDbContext
 {
     DbSet<App> Apps { get; }
 
+    DbSet<Page> Pages { get; }
+
+    DbSet<Role> Roles { get; }
+
     DbSet<User> Users { get; }
 
     DatabaseFacade Database { get; }
@@ -23,11 +27,15 @@ public partial interface ICommonDbContext
 
     DbSet<ServiceItem> ServiceItems { get; }
 
+    DbSet<UserFeature> UserFeatures { get; }
+
     DbSet<UserSession> UserSessions { get; }
 
     DbSet<UserAppAccess> UserAppAccess { get; }
 
     DbSet<PageTranslation> Translations { get; }
+
+    DbSet<RolePermission> RolePermissions { get; }
 
     DbSet<ConnectionField> ConnectionFields { get; }
 

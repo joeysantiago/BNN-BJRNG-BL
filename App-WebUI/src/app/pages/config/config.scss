@@ -207,3 +207,93 @@ textarea {
 .user .bar {
   margin-block-start: 8px;
 }
+/* Tabs: one row that wraps on small screens, so the page never scrolls sideways. */
+.tabbar {
+  padding: 10px;
+}
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tab {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tab[aria-selected='true'] {
+  background: var(--inset-bg);
+  box-shadow: var(--inset-shadow);
+  color: var(--accent-ink, var(--text));
+}
+.tab:focus-visible {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: 2px;
+}
+.panel {
+  display: grid;
+  gap: 20px;
+}
+.bare {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+/* Forms and lists of the Users, Roles and Role rights tabs. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+}
+.grid .stack span {
+  font-weight: 700;
+  font-size: 14px;
+}
+.list {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.list > li {
+  padding: 12px 14px;
+}
+.who {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: baseline;
+  margin: 0 0 8px;
+}
+.who small,
+.mail,
+.tag {
+  color: var(--muted);
+}
+.mail {
+  direction: ltr;
+  overflow-wrap: anywhere;
+}
+.tag {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  outline: 1px solid currentColor;
+}
+.btn.danger {
+  color: var(--bad, #c0392b);
+}
+.rights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+}

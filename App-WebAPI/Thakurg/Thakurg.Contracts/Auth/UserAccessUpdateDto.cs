@@ -2,7 +2,9 @@ namespace Thakurg.Contracts.Auth;
 
 public class UserAccessUpdateDto
 {
-    public bool IsAdmin { get; set; }
+    public int RoleId { get; set; }
+
+    public string? DisplayName { get; set; }
 
     public List<string> Apps { get; set; } = [];
 }

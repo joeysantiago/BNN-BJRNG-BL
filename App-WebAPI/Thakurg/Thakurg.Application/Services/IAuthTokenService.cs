@@ -1,5 +1,4 @@
 using Thakurg.Contracts.Auth;
-using Thakurg.Domain.Entities;
 
 namespace Thakurg.Application.Services;
 
@@ -9,5 +8,5 @@ public interface IAuthTokenService
 
     string Hash(string value);
 
-    AuthResultDto CreateResult(User user, int sessionId, List<string> apps);
+    AuthResultDto CreateResult(UserDto user, int sessionId);
 }
