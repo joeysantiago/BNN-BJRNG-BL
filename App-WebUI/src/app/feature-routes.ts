@@ -9,3 +9,6 @@ import { SitePages } from './core/models/site-pages.model';
 export const FEATURE_ROUTES: Routes = [];
 
 export const FEATURE_PAGES: SitePages[] = [];
+
+/** The apps this branch holds (app codes of core/apps.ts, plus 'speedtest'). The Settings page shows only their settings and access boxes. */
+export const FEATURE_APPS: string[] = [];
