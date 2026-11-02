@@ -10,14 +10,17 @@ namespace Thakurg.Infrastructure.Services;
 // The Users and access panel of the master page (administrators only): which apps each user may open, and who is an administrator.
 public class UserAccessService : IUserAccessService
 {
+    private readonly IAuthSessionCache _sessionCache;
+
     private readonly IMessageService _messageService;
 
     private readonly IUserAccessRepository _accessRepository;
 
-    public UserAccessService(IMessageService messageService, IUserAccessRepository accessRepository)
+    public UserAccessService(IMessageService messageService, IUserAccessRepository accessRepository, IAuthSessionCache sessionCache)
     {
         _messageService = messageService;
         _accessRepository = accessRepository;
+        _sessionCache = sessionCache;
     }
 
     #region Public Methods
@@ -55,6 +58,7 @@ public class UserAccessService : IUserAccessService
         user.ModifiedOn = DateTime.UtcNow;
         await _accessRepository.ReplaceAccessAsync(user.Id, apps.Where(a => codes.Contains(a.Code)).Select(a => a.Id).ToList(), cancellationToken);
         await _accessRepository.SaveChangesAsync(cancellationToken);
+        _sessionCache.Forget(user.Id);
         var dto = new UserDto { Id = user.Id, Email = user.Email, DisplayName = user.DisplayName, Language = user.Language, IsAdmin = user.IsAdmin, Apps = apps.Where(a => codes.Contains(a.Code)).Select(a => a.Code).ToList() };
 
         return new ServiceResultDto<UserDto> { Data = dto, Message = await _messageService.GetAsync(MessageCodes.AuthAccessSaved) };

@@ -1,14 +1,15 @@
 import { ApiService } from './api.service';
 import { I18nService } from './i18n.service';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../environments/environment';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { AuthResult, AuthTabMessage, AuthUser } from './models/auth.model';
 import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 
-const TIMEOUT = 30000;
-const HELLO_WAIT_MS = 300;
+const TIMEOUT = environment.timings.authCallMs;
+const HELLO_WAIT_MS = environment.timings.tabHelloMs;
 const CHANNEL = 'thakurg-auth';
-const RENEW_BEFORE_MS = 60_000;
+const RENEW_BEFORE_MS = environment.timings.renewBeforeMs;
 const DEVICE_KEY = 'thakurg-device';
 const REFRESH_LOCK = 'thakurg-refresh';
 
@@ -19,6 +20,7 @@ const REFRESH_LOCK = 'thakurg-refresh';
 @Injectable({ providedIn: 'root' })
 
 export class AuthService {
+  private awake = false;
   private expiresAt = 0;
   private token: string | null = null;
   private readonly router = inject(Router);
@@ -55,6 +57,13 @@ export class AuthService {
     }
   }
 
+  /** While music plays the login is renewed even on a hidden page (locked phone), because the audio element loads its next packets with the access cookie. */
+  keepAwake(on: boolean): void {
+    this.awake = on;
+    if (on && this.token && this.expiresAt - Date.now() < RENEW_BEFORE_MS)
+      void this.recover();
+  }
+
   /** Administrators may open every app. */
   hasApp(code: string): boolean {
     return this.isAdmin() || this.apps().includes(code);
@@ -75,6 +84,11 @@ export class AuthService {
       return;
     this.user.set(user);
     this.post({ type: 'session', token: this.token ?? undefined, expiresAt: this.expiresAt, user });
+  }
+
+  /** A fresh access token now, for example after an audio packet was refused. False when the session is over (then every tab logs out). */
+  renewSession(): Promise<boolean> {
+    return this.recover();
   }
 
   /** True when someone is logged in: from memory, from another open tab, or from the refresh cookie. Asked once per page load; browser only. */
@@ -137,7 +151,7 @@ export class AuthService {
     this.channel.onmessage = (event: MessageEvent<AuthTabMessage>) => this.onTabMessage(event.data);
   }
 
-  /** Renews the token shortly before it runs out, while the page is in use. A hidden page is left to run out (a 401 then refreshes it). */
+  /** Renews the token shortly before it runs out, while the page is in use or music plays. A hidden, silent page is left to run out (a 401 then refreshes it). */
   private scheduleRenew(): void {
     clearTimeout(this.renewTimer);
     if (!this.browser || !this.token)
@@ -157,7 +171,7 @@ export class AuthService {
   }
 
   private async renew(): Promise<void> {
-    if (document.visibilityState === 'visible' && this.token)
+    if ((document.visibilityState === 'visible' || this.awake) && this.token)
       await this.recover();
   }
 

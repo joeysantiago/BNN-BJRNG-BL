@@ -27,17 +27,23 @@ public class KhataTransactionRepository : IKhataTransactionRepository
     }
 
     // Entry, its first history row and the contact balance are saved in one SQL transaction (design S3).
+    // The database retries on failure, so the whole transaction runs through the execution strategy and is repeated as one unit.
     public async Task AddAsync(KhataTransaction entry, KhataTransactionHistory history, long balanceDelta, CancellationToken cancellationToken)
     {
-        await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
-        _dbContext.KhataTransactions.Add(entry);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
 
-        history.TransactionId = entry.Id;
-        _dbContext.KhataTransactionHistory.Add(history);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-        await AdjustBalanceAsync(entry.ContactId, balanceDelta, cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+            _dbContext.KhataTransactions.Add(entry);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            history.TransactionId = entry.Id;
+            _dbContext.KhataTransactionHistory.Add(history);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            await AdjustBalanceAsync(entry.ContactId, balanceDelta, cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        });
     }
 
     // Soft-deleted entries are listed too, so both sides still see them with a "deleted" label.
@@ -53,23 +59,28 @@ public class KhataTransactionRepository : IKhataTransactionRepository
     // False when the entry was changed since the caller read it; then nothing is saved.
     public async Task<bool> UpdateAsync(KhataTransaction entry, byte[] expectedRowVersion, KhataTransactionHistory history, long balanceDelta, CancellationToken cancellationToken)
     {
-        await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
-        _dbContext.Entry(entry).Property(t => t.RowVersion).OriginalValue = expectedRowVersion;
-        _dbContext.KhataTransactionHistory.Add(history);
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
 
-        try
+        return await strategy.ExecuteAsync(async () =>
         {
-            await _dbContext.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            return false;
-        }
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+            _dbContext.Entry(entry).Property(t => t.RowVersion).OriginalValue = expectedRowVersion;
+            _dbContext.KhataTransactionHistory.Add(history);
 
-        await AdjustBalanceAsync(entry.ContactId, balanceDelta, cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+            try
+            {
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return false;
+            }
 
-        return true;
+            await AdjustBalanceAsync(entry.ContactId, balanceDelta, cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
+            return true;
+        });
     }
 
     #endregion
