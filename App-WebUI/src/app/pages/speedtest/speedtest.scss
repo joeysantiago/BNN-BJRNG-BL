@@ -46,7 +46,8 @@ h1 em {
 .dial::before {
   content: "";
   position: absolute;
-  inset-inline-start: 50%;
+  /* Physical left, not inset-inline-start: translate is always physical, so in Arabic (RTL) the glow would sit off centre and widen the page. */
+  left: 50%;
   inset-block-start: 50cqi;
   width: 64cqi;
   aspect-ratio: 1;

@@ -11,7 +11,7 @@
         </span>
       </a>
 
-      @if (cfg.on('site.nav')) {
+      @if (hasNav && cfg.on('site.nav')) {
       <nav class="nav" [attr.aria-label]="i18n.t('nav.main')">
         <a [routerLink]="i18n.info().home" [class.on]="onSpeedRoute()" [attr.aria-current]="onSpeedRoute() ? 'page' : null">{{ i18n.page('speed') }}</a>
         @if (settings().connection.enabled) {

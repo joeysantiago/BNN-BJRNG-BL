@@ -4,6 +4,8 @@
 
 .page {
   display: grid;
+  /* The column may shrink below the cards' content width, so the player never widens the page on small phones. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
   align-content: start;
   padding-block: 24px 0;
@@ -310,6 +312,17 @@ input[type='range']::-moz-range-thumb {
 .note {
   margin: 0;
   color: var(--muted);
+}
+
+/* Small phones (320 px): slimmer card padding and control gaps so the five player buttons fit; the buttons keep their 44 px tap size. */
+@media (max-width: 360px) {
+  .player,
+  .list {
+    padding-inline: 12px;
+  }
+  .controls {
+    gap: 4px;
+  }
 }
 
 @media (max-width: 460px) {

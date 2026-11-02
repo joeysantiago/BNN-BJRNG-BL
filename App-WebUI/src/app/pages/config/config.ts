@@ -3,11 +3,11 @@ import { TranslationKey } from '../../i18n/en';
 import { SeoService } from '../../core/seo.service';
 import { I18nService } from '../../core/i18n.service';
 import { SettingsService } from '../../core/settings.service';
-import { FEATURES, FEATURE_GROUPS } from '../../core/features';
 import { Component, computed, effect, inject, signal } from '@angular/core';
+import { FEATURES, FEATURE_APPS, FEATURE_GROUPS, featureBuilt } from '../../core/features';
 import { AppSettings, ConnectionField, FeatureId, SettingsOverrides } from '../../core/models/app-settings.model';
 
-/** Shows every setting from appSettings.ts and lets you change it. Changes are saved in this browser. */
+/** Shows the settings of this build's apps (FEATURE_APPS) and the site-wide ones from appSettings.ts and lets you change them. Changes are saved in this browser. */
 @Component({
   selector: 'app-config',
   templateUrl: './config.html',
@@ -21,7 +21,10 @@ export class Config {
   protected readonly importMessage = signal<'' | 'ok' | 'bad'>('');
   protected readonly settings = this.cfg.settings;
   protected readonly defaults = this.cfg.defaults;
-  protected readonly groups: ConfigGroup[] = FEATURE_GROUPS.map((g) => ({ ...g, items: FEATURES.filter((f) => f.group === g.id) }));
+  protected readonly hasSpeed = featureBuilt('speed', FEATURE_APPS);
+  protected readonly hasYoutube = featureBuilt('youtube', FEATURE_APPS);
+  // Only this build's apps: a build without the speed test or YouTube shows none of their settings.
+  protected readonly groups: ConfigGroup[] = FEATURE_GROUPS.filter((g) => featureBuilt(g.id, FEATURE_APPS)).map((g) => ({ ...g, items: FEATURES.filter((f) => f.group === g.id && featureBuilt(f.id, FEATURE_APPS)) })).filter((g) => g.items.length);
 
   protected readonly json = computed(() => JSON.stringify(this.cfg.overrides(), null, 2));
 

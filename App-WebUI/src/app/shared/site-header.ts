@@ -6,6 +6,7 @@ import { ThemeService } from '../core/theme.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { InstallService } from '../core/install.service';
 import { SettingsService } from '../core/settings.service';
+import { FEATURE_APPS, featureBuilt } from '../core/features';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Component, ElementRef, HostListener, computed, inject, signal, viewChild } from '@angular/core';
 
@@ -26,6 +27,8 @@ export class SiteHeader {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly settings = this.cfg.settings;
+  // The navigation holds only speed test links, so a build without the speed test has none.
+  protected readonly hasNav = featureBuilt('site.nav', FEATURE_APPS);
   protected readonly themeOpen = signal(false);
   private readonly ios = viewChild.required<ElementRef<HTMLDialogElement>>('ios');
 
