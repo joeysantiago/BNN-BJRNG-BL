@@ -24,14 +24,21 @@ public static class AuthSecurityExtensions
 
     #region Public Methods
 
-    // Administrators may open every app; everyone else only the apps ticked for them on the master page.
+    // Administrators may open every app; everyone else only the apps ticked for them on the Users tab.
     public static bool HasApp(this ClaimsPrincipal user, string app)
     {
         return user.HasClaim(AuthClaimTypes.Admin, "true") || user.HasClaim(AuthClaimTypes.App, app);
     }
 
-    // The common login: JWT bearer tokens checked against an active UserSessions row. Admin rights and app access come from the database, kept in memory
-    // for Auth:SessionCacheSeconds (AuthSessionCache); a change on the master page clears it, so it applies at once. Policies: User = logged in, Admin, App:<code> = access to that app.
+    // A super admin has every right; everyone else the rights of their role (RolePermissions).
+    public static bool HasPermission(this ClaimsPrincipal user, string page, string action)
+    {
+        return user.HasClaim(AuthClaimTypes.Role, RoleCodes.SuperAdmin) || user.HasClaim(AuthClaimTypes.Permission, PermissionNames.Claim(page, action));
+    }
+
+    // The common login: JWT bearer tokens checked against an active UserSessions row. The role, its rights and app access come from the database, kept in memory
+    // for Auth:SessionCacheSeconds (AuthSessionCache); a change on the Settings page clears it, so it applies at once. Policies: User = logged in, Admin, App:<code> = access to that app,
+    // Perm:<page>:<action> = a right of the role on a Settings page (HasPermissionAttribute).
     public static IServiceCollection AddThakurgAuthentication(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         services.AddOptions<AuthOptions>().Bind(configuration.GetSection(AuthOptions.SectionName)).PostConfigure(options => UseDevelopmentSecret(options, environment)).Validate(IsValid, "Auth:Jwt:Secret must be at least 32 characters (set it with dotnet user-secrets), Auth:PasswordMinLength at least 8, and every other Auth number above 0.").ValidateOnStart();
@@ -43,6 +50,10 @@ public static class AuthSecurityExtensions
 
         foreach (var app in AllApps)
             authorization.AddPolicy(AuthPolicies.AppPrefix + app, policy => policy.AddAuthenticationSchemes(AuthPolicies.Scheme).RequireAuthenticatedUser().RequireAssertion(context => context.User.HasApp(app)));
+
+        foreach (var page in PageCodes.All)
+            foreach (var action in PermissionActions.All)
+                authorization.AddPolicy(PermissionNames.Policy(page, action), policy => policy.AddAuthenticationSchemes(AuthPolicies.Scheme).RequireAuthenticatedUser().RequireAssertion(context => context.User.HasPermission(page, action)));
 
         return services;
     }
@@ -71,6 +82,8 @@ public static class AuthSecurityExtensions
         }
 
         identity.AddClaim(new Claim(AuthClaimTypes.Admin, access.IsAdmin ? "true" : "false"));
+        identity.AddClaim(new Claim(AuthClaimTypes.Role, access.RoleCode));
+        identity.AddClaims(access.Permissions.Select(right => new Claim(AuthClaimTypes.Permission, right)));
         identity.AddClaims(access.Apps.Select(code => new Claim(AuthClaimTypes.App, code)));
     }
 

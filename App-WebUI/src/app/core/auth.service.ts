@@ -1,10 +1,12 @@
 import { ApiService } from './api.service';
 import { I18nService } from './i18n.service';
 import { isPlatformBrowser } from '@angular/common';
+import { SettingsService } from './settings.service';
 import { environment } from '../../environments/environment';
+import { PageCode, PermissionAction } from './models/role.model';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { AuthResult, AuthTabMessage, AuthUser } from './models/auth.model';
-import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
 
 const TIMEOUT = environment.timings.authCallMs;
 const HELLO_WAIT_MS = environment.timings.tabHelloMs;
@@ -27,6 +29,7 @@ export class AuthService {
   private readonly api = inject(ApiService);
   private readonly i18n = inject(I18nService);
   readonly user = signal<AuthUser | null>(null);
+  private readonly cfg = inject(SettingsService);
   private channel: BroadcastChannel | null = null;
   private restoring: Promise<boolean> | null = null;
   private refreshing: Promise<boolean> | null = null;
@@ -34,9 +37,14 @@ export class AuthService {
   readonly apps = computed(() => this.user()?.apps ?? []);
   readonly isAdmin = computed(() => this.user()?.isAdmin ?? false);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
+  readonly isSuperAdmin = computed(() => this.user()?.roleCode === 'super-admin');
+  /** Any right on a Settings tab: the Settings page has something to show. */
+  readonly canOpenSettings = computed(() => this.isSuperAdmin() || (this.user()?.permissions ?? []).some((p) => p.endsWith(':view')));
 
   constructor() {
     this.api.useAuth({ token: () => this.token, refresh: () => this.recover() });
+    // The options the user switched off for themselves follow the login (and are dropped on logout).
+    effect(() => this.cfg.setHidden(this.user()?.hiddenFeatures ?? []));
     if (this.browser)
       this.listenToTabs();
   }
@@ -99,6 +107,18 @@ export class AuthService {
       return Promise.resolve(true);
     this.restoring ??= this.start();
     return this.restoring;
+  }
+
+  /** Saves the options of their own pages the user switched off. Resolves with the server's message. */
+  async updateFeatures(hidden: string[]): Promise<string> {
+    const res = await this.api.sendFull<AuthUser>('PUT', '/auth/me/features', this.init({ hidden }), TIMEOUT);
+    this.patchUser(res.data);
+    return res.message ?? '';
+  }
+
+  /** A right of the user's role on a Settings page; a super admin has every right. The API checks the same rule. */
+  can(page: PageCode, action: PermissionAction = 'view'): boolean {
+    return this.isSuperAdmin() || (this.user()?.permissions ?? []).includes(`${page}:${action}`);
   }
 
   async login(email: string, password: string): Promise<AuthUser> {
