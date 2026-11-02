@@ -21,6 +21,8 @@ const sameStops = (a: number[], b: number[]): boolean => a.length === b.length &
 
 export class SettingsService {
   private readonly api = inject(ApiService);
+  /** Options the logged-in user switched off for themselves (set by AuthService). They only hide: a site-wide switch that is off stays off. */
+  private readonly hidden = signal<string[]>([]);
   readonly overrides = signal<SettingsOverrides>({});
   private readonly base = signal<AppSettings>(EMPTY_SETTINGS);
   readonly changed = computed(() => Object.keys(this.overrides()).length > 0);
@@ -51,9 +53,9 @@ export class SettingsService {
     this.overrides.set({});
   }
 
-  /** Whether a feature is on. Reads a signal, so templates and effects update when it changes. */
+  /** Whether a feature is on for this visitor: on for the site and not switched off by the logged-in user. Reads signals, so templates and effects update when it changes. */
   on(id: FeatureId): boolean {
-    return this.settings().features[id];
+    return this.settings().features[id] && !this.hidden().includes(id);
   }
 
   /** Fetch the settings from the API. Never throws: when the API cannot be reached the structural fallback stays in use. */
@@ -63,6 +65,11 @@ export class SettingsService {
     } catch (e) {
       console.warn('Settings could not be loaded from the API; using the empty fallback.', e);
     }
+  }
+
+  /** The options the logged-in user switched off for themselves; an empty list after a logout. */
+  setHidden(codes: string[]): void {
+    this.hidden.set(codes);
   }
 
   /** Set the speeds (Mbps) printed on the speed test gauge. Invalid lists are ignored. */

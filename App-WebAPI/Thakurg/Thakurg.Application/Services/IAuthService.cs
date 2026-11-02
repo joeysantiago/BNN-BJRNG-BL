@@ -18,4 +18,6 @@ public interface IAuthService
     Task<string> ChangePasswordAsync(PasswordChangeDto request, AuthCallerDto caller, CancellationToken cancellationToken);
 
     Task<ServiceResultDto<UserDto>> UpdateProfileAsync(int userId, ProfileUpdateDto request, CancellationToken cancellationToken);
+
+    Task<ServiceResultDto<UserDto>> UpdateFeaturesAsync(int userId, FeaturePreferencesDto request, CancellationToken cancellationToken);
 }

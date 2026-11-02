@@ -83,7 +83,7 @@
             <div class="pop card user-pop" id="user-menu" role="group" [attr.aria-label]="i18n.t('auth.menu', { name: u.displayName })">
               <p class="who-mail">{{ u.email }}</p>
               <a class="skin-opt" routerLink="/profile" (click)="userOpen.set(false)">{{ i18n.t('auth.profile') }}</a>
-              @if (u.isAdmin) {
+              @if (auth.canOpenSettings()) {
                 <a class="skin-opt" routerLink="/master" (click)="userOpen.set(false)">{{ i18n.t('auth.master') }}</a>
               }
               <button type="button" class="skin-opt" (click)="logout()">{{ i18n.t('auth.logout') }}</button>

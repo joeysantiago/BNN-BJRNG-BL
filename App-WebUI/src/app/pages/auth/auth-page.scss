@@ -81,3 +81,20 @@ h1 {
   padding-block: 12px;
   font-weight: 700;
 }
+.dev {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-block-start: 16px;
+}
+.dev .hint {
+  flex-basis: 100%;
+  margin: 0;
+  text-align: center;
+}
+.dev .btn {
+  min-height: 44px;
+  direction: ltr;
+  overflow-wrap: anywhere;
+}

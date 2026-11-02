@@ -10,5 +10,7 @@ public class AuthCallerDto
 
     public string? DeviceId { get; set; }
 
+    public string? RoleCode { get; set; }
+
     public string? UserAgent { get; set; }
 }

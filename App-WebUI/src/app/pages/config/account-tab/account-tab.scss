@@ -1,0 +1,12 @@
+@use '../config';
+
+:host {
+  display: grid;
+  gap: 20px;
+}
+.own + .own {
+  margin-block-start: 16px;
+}
+.own legend {
+  margin-block-end: 4px;
+}

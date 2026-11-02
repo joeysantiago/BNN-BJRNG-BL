@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using Thakurg.Application.Services;
 using Thakurg.Contracts.Auth;
 using Thakurg.Contracts.Configurations;
-using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Services;
 
@@ -33,16 +32,15 @@ public class AuthTokenService : IAuthTokenService
         return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(value)));
     }
 
-    // The token names only the user and the session; admin rights and app access are read from the database on every request.
-    public AuthResultDto CreateResult(User user, int sessionId, List<string> apps)
+    // The token names only the user and the session; the role, its rights and app access are read from the database on every request.
+    public AuthResultDto CreateResult(UserDto user, int sessionId)
     {
         var lifetime = TimeSpan.FromMinutes(_options.Jwt.AccessMinutes);
         var claims = new Dictionary<string, object> { [AuthClaimTypes.Subject] = user.Id.ToString(), [AuthClaimTypes.Session] = sessionId.ToString() };
         var signing = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Jwt.Secret)), SecurityAlgorithms.HmacSha256);
         var token = _handler.CreateToken(new SecurityTokenDescriptor { Issuer = _options.Jwt.Issuer, Audience = _options.Jwt.Issuer, Expires = DateTime.UtcNow.Add(lifetime), Claims = claims, SigningCredentials = signing });
-        var dto = new UserDto { Id = user.Id, Email = user.Email, DisplayName = user.DisplayName, Language = user.Language, IsAdmin = user.IsAdmin, Apps = apps };
 
-        return new AuthResultDto { AccessToken = token, ExpiresInSeconds = (int)lifetime.TotalSeconds, User = dto };
+        return new AuthResultDto { AccessToken = token, ExpiresInSeconds = (int)lifetime.TotalSeconds, User = user };
     }
 
     #endregion
