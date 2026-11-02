@@ -1,0 +1,99 @@
+<section class="card grp" aria-labelledby="perm-h">
+  <h2 id="perm-h">{{ i18n.t('perm.h') }}</h2>
+  <p class="help">{{ i18n.t('perm.lead') }}</p>
+  @if (error()) {
+    <p class="status bad" role="alert">{{ error() }}</p>
+  }
+
+  @if (roles(); as rs) {
+    <label class="stack pick">
+      <span>{{ i18n.t('usr.role') }}</span>
+      <select name="role" [disabled]="busy() !== null" (change)="pick($event)">
+        @for (r of rs; track r.id) {
+          <option [value]="r.id" [selected]="r.id === roleId()">{{ r.name }}</option>
+        }
+      </select>
+    </label>
+  }
+
+  @if (role()?.code === 'super-admin') {
+    <p class="note">{{ i18n.t('perm.super') }}</p>
+  }
+  @if (locked()) {
+    <p class="note">{{ i18n.t('role.locked') }}</p>
+  }
+
+  @if (list(); as l) {
+    <ul class="list">
+      @for (row of l.permissions; track row.id) {
+        <li class="inset">
+          <form [attr.aria-busy]="busy() === row.id" [attr.aria-label]="pageName(row.pageCode)" (submit)="save($event, row)">
+            <p class="who"><b>{{ pageName(row.pageCode) }}</b></p>
+            <fieldset class="bare" [disabled]="locked() || !canEdit() || busy() !== null">
+              <legend class="sr-only">{{ i18n.t('perm.rights', { page: pageName(row.pageCode) }) }}</legend>
+              <div class="rights">
+                <label class="chk"><input type="checkbox" name="canView" [checked]="row.canView" /><span>{{ i18n.t('perm.view') }}</span></label>
+                @if (page(row)?.hasAdd) {
+                  <label class="chk"><input type="checkbox" name="canAdd" [checked]="row.canAdd" /><span>{{ i18n.t('perm.add') }}</span></label>
+                }
+                <label class="chk"><input type="checkbox" name="canEdit" [checked]="row.canEdit" /><span>{{ i18n.t('perm.edit') }}</span></label>
+                @if (page(row)?.hasDelete) {
+                  <label class="chk"><input type="checkbox" name="canDelete" [checked]="row.canDelete" /><span>{{ i18n.t('perm.delete') }}</span></label>
+                }
+              </div>
+            </fieldset>
+            @if (!locked()) {
+              <div class="bar">
+                @if (noticeFor(row.id); as n) {
+                  <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+                }
+                <div class="acts">
+                  @if (canDelete()) {
+                    <button type="button" class="btn danger" [disabled]="busy() !== null" (click)="remove(row)">{{ i18n.t(confirming() === row.id ? 'perm.remove.sure' : 'perm.remove') }}</button>
+                  }
+                  @if (canEdit()) {
+                    <button type="submit" class="btn pri" [disabled]="busy() !== null">{{ i18n.t(busy() === row.id ? 'cfg.save.saving' : 'cfg.save') }}</button>
+                  }
+                </div>
+              </div>
+            }
+          </form>
+        </li>
+      } @empty {
+        <li class="note">{{ i18n.t('perm.none') }}</li>
+      }
+    </ul>
+
+    @if (canAdd() && !locked() && free().length) {
+      <form class="add inset" [attr.aria-busy]="busy() === NEW" aria-labelledby="perm-add-h" (submit)="create($event)">
+        <h3 id="perm-add-h">{{ i18n.t('perm.add.h') }}</h3>
+        <fieldset class="bare" [disabled]="busy() !== null">
+          <legend class="sr-only">{{ i18n.t('perm.add.h') }}</legend>
+          <label class="stack">
+            <span>{{ i18n.t('perm.page') }}</span>
+            <select name="pageId" required>
+              @for (p of free(); track p.id) {
+                <option [value]="p.id">{{ pageName(p.code) }}</option>
+              }
+            </select>
+          </label>
+          <div class="rights">
+            <label class="chk"><input type="checkbox" name="canView" checked /><span>{{ i18n.t('perm.view') }}</span></label>
+            <label class="chk"><input type="checkbox" name="canAdd" /><span>{{ i18n.t('perm.add') }}</span></label>
+            <label class="chk"><input type="checkbox" name="canEdit" /><span>{{ i18n.t('perm.edit') }}</span></label>
+            <label class="chk"><input type="checkbox" name="canDelete" /><span>{{ i18n.t('perm.delete') }}</span></label>
+          </div>
+          <small class="was">{{ i18n.t('perm.add.help') }}</small>
+          <div class="bar">
+            @if (noticeFor(NEW); as n) {
+              <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+            }
+            <button type="submit" class="btn pri">{{ i18n.t(busy() === NEW ? 'cfg.save.saving' : 'perm.add.btn') }}</button>
+          </div>
+        </fieldset>
+      </form>
+    }
+  } @else if (!error()) {
+    <p class="help" role="status">{{ i18n.t('cfg.loading') }}</p>
+  }
+</section>

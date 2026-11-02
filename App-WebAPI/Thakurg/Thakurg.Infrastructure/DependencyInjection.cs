@@ -39,17 +39,20 @@ public static partial class DependencyInjection
         services.AddSingleton<IAuthTokenService, AuthTokenService>();
 
         services.AddScoped<IAuthRepository, AuthRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<IUserAccessRepository, UserAccessRepository>();
         services.AddScoped<ITranslationRepository, TranslationRepository>();
 
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<ISettingsService, SettingsService>();
         services.AddScoped<IAuthSessionCache, AuthSessionCache>();
         services.AddScoped<IUserAccessService, UserAccessService>();
         services.AddScoped<ITranslationService, TranslationService>();
+        services.AddScoped<IRolePermissionService, RolePermissionService>();
 
         AddSpeedTestFeature(services, configuration);
         AddMusicFeature(services, configuration);

@@ -1,0 +1,118 @@
+<section class="card grp" aria-labelledby="role-h">
+  <h2 id="role-h">{{ i18n.t('role.h') }}</h2>
+  <p class="help">{{ i18n.t('role.lead') }}</p>
+  @if (error()) {
+    <p class="status bad" role="alert">{{ error() }}</p>
+  }
+
+  @if (roles(); as list) {
+    <ul class="list">
+      @for (r of list; track r.id) {
+        <li class="inset">
+          <form [attr.aria-busy]="busy() === r.id" [attr.aria-label]="r.name" (submit)="save($event, r)">
+            <p class="who">
+              <b>{{ r.name }}</b>
+              @if (r.isSystem) {
+                <span class="tag">{{ i18n.t('role.system') }}</span>
+              }
+              @if (r.isDefault) {
+                <span class="tag">{{ i18n.t('role.default') }}</span>
+              }
+              <small>{{ i18n.t('role.users', { n: r.userCount }) }}</small>
+            </p>
+            @if (locked(r)) {
+              <p class="note">{{ i18n.t('role.locked') }}</p>
+            } @else {
+              <fieldset class="bare" [disabled]="!canEdit() || busy() !== null">
+                <legend class="sr-only">{{ r.name }}</legend>
+                <div class="grid">
+                  <label class="stack">
+                    <span>{{ i18n.t('role.name') }}</span>
+                    <input name="name" type="text" autocomplete="off" maxlength="100" required [value]="r.name" />
+                  </label>
+                  <label class="stack">
+                    <span>{{ i18n.t('role.code') }}</span>
+                    <input name="code" type="text" autocomplete="off" spellcheck="false" maxlength="50" pattern="[a-z][a-z0-9\-]{1,49}" required [value]="r.code" [readOnly]="r.isSystem" [attr.aria-describedby]="'role-code-' + r.id" />
+                    <small class="was" [id]="'role-code-' + r.id">{{ i18n.t(r.isSystem ? 'role.code.locked' : 'role.code.help') }}</small>
+                  </label>
+                  <label class="stack">
+                    <span>{{ i18n.t('role.desc') }}</span>
+                    <input name="description" type="text" autocomplete="off" maxlength="250" [value]="r.description ?? ''" />
+                  </label>
+                  <label class="stack">
+                    <span>{{ i18n.t('role.order') }}</span>
+                    <input name="sortOrder" type="number" min="0" step="1" [value]="r.sortOrder" />
+                  </label>
+                </div>
+                @if (r.code !== 'super-admin') {
+                  <label class="chk">
+                    <input type="checkbox" name="isDefault" [checked]="r.isDefault" [disabled]="r.isDefault" [attr.aria-describedby]="'role-def-' + r.id" />
+                    <span>{{ i18n.t('role.default.set') }}</span>
+                  </label>
+                  @if (r.isDefault) {
+                    <!-- A disabled box is not sent: keep the mark (it moves only by making another role the sign-up role). -->
+                    <input type="hidden" name="isDefault" value="on" />
+                  }
+                  <small class="was" [id]="'role-def-' + r.id">{{ i18n.t('role.default.help') }}</small>
+                }
+              </fieldset>
+              <div class="bar">
+                @if (noticeFor(r.id); as n) {
+                  <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+                }
+                <div class="acts">
+                  @if (canDelete() && !r.isSystem) {
+                    <button type="button" class="btn danger" [disabled]="busy() !== null" (click)="remove(r)">{{ i18n.t(confirming() === r.id ? 'role.delete.sure' : 'role.delete') }}</button>
+                  }
+                  @if (canEdit()) {
+                    <button type="submit" class="btn pri" [disabled]="busy() !== null">{{ i18n.t(busy() === r.id ? 'cfg.save.saving' : 'cfg.save') }}</button>
+                  }
+                </div>
+              </div>
+            }
+          </form>
+        </li>
+      }
+    </ul>
+
+    @if (canAdd()) {
+      <form class="add inset" [attr.aria-busy]="busy() === NEW" aria-labelledby="role-add-h" (submit)="create($event)">
+        <h3 id="role-add-h">{{ i18n.t('role.add.h') }}</h3>
+        <fieldset class="bare" [disabled]="busy() !== null">
+          <legend class="sr-only">{{ i18n.t('role.add.h') }}</legend>
+          <div class="grid">
+            <label class="stack">
+              <span>{{ i18n.t('role.name') }}</span>
+              <input name="name" type="text" autocomplete="off" maxlength="100" required />
+            </label>
+            <label class="stack">
+              <span>{{ i18n.t('role.code') }}</span>
+              <input name="code" type="text" autocomplete="off" spellcheck="false" maxlength="50" pattern="[a-z][a-z0-9\-]{1,49}" required aria-describedby="role-add-code" />
+              <small id="role-add-code" class="was">{{ i18n.t('role.code.help') }}</small>
+            </label>
+            <label class="stack">
+              <span>{{ i18n.t('role.desc') }}</span>
+              <input name="description" type="text" autocomplete="off" maxlength="250" />
+            </label>
+            <label class="stack">
+              <span>{{ i18n.t('role.order') }}</span>
+              <input name="sortOrder" type="number" min="0" step="1" [value]="list.length + 1" />
+            </label>
+          </div>
+          <label class="chk">
+            <input type="checkbox" name="isDefault" />
+            <span>{{ i18n.t('role.default.set') }}</span>
+          </label>
+          <div class="bar">
+            @if (noticeFor(NEW); as n) {
+              <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+            }
+            <button type="submit" class="btn pri">{{ i18n.t(busy() === NEW ? 'cfg.save.saving' : 'role.add.btn') }}</button>
+          </div>
+        </fieldset>
+      </form>
+    }
+  } @else if (!error()) {
+    <p class="help" role="status">{{ i18n.t('cfg.loading') }}</p>
+  }
+</section>
