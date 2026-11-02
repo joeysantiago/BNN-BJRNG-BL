@@ -8,7 +8,7 @@ using Thakurg.Contracts.Configurations;
 
 namespace Thakurg.Infrastructure.Services;
 
-// Every request checks that its session is still active and loads the user's apps. Audio and video arrive in many small packets,
+// Every request checks that its session is still active and loads the user's role, its rights and apps. Audio and video arrive in many small packets,
 // so the answer is kept in memory for Auth:SessionCacheSeconds and the database can sleep while music plays.
 // A logout, a password change or an access change on the master page calls Forget, so it still applies at once.
 public class AuthSessionCache : IAuthSessionCache
@@ -55,7 +55,13 @@ public class AuthSessionCache : IAuthSessionCache
         if (user is null)
             return null;
 
-        var access = new AuthAccessDto { IsAdmin = user.IsAdmin, Apps = await _authRepository.GetAppCodesAsync(userId, cancellationToken) };
+        var role = await _authRepository.GetRoleAsync(user.RoleId, cancellationToken);
+
+        if (role is null)
+            return null;
+
+        var rights = await _authRepository.GetPermissionsAsync(role.Id, cancellationToken);
+        var access = new AuthAccessDto { RoleCode = role.Code, IsAdmin = RoleCodes.IsAdmin(role.Code), Permissions = rights.SelectMany(PermissionNames.Expand).ToList(), Apps = await _authRepository.GetAppCodesAsync(userId, cancellationToken) };
         _cache.Set(key, access, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_options.SessionCacheSeconds)).AddExpirationToken(new CancellationChangeToken(forgotten)));
 
         return access;

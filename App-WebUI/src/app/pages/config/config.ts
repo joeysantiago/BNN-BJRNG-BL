@@ -1,59 +1,76 @@
-import { appLink } from '../../core/apps';
-import { RouterLink } from '@angular/router';
+import { RolesTab } from './roles-tab/roles-tab';
+import { UsersTab } from './users-tab/users-tab';
 import { ApiService } from '../../core/api.service';
 import { SeoService } from '../../core/seo.service';
 import { FEATURE_APPS } from '../../feature-routes';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
+import { AccountTab } from './account-tab/account-tab';
 import { TranslationKey } from '../../core/models/i18n.model';
 import { KeyStatus } from '../../core/models/key-status.model';
-import { AuthUser, UserAccess } from '../../core/models/auth.model';
+import { PermissionsTab } from './permissions-tab/permissions-tab';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SettingsService, validStops } from '../../core/settings.service';
 import { FEATURES, FEATURE_GROUPS, featureBuilt } from '../../core/features';
 import { Component, afterNextRender, computed, effect, inject, signal } from '@angular/core';
-import { ConfigGroup, PanelNotice, SaveNotice, SaveTarget, UserNotice } from './config.model';
-import { ConnectionField, FeatureId, SettingsOverrides, SettingsSection } from '../../core/models/app-settings.model';
+import { ConfigGroup, PanelNotice, SaveNotice, SaveTarget, SettingsTab, TabInfo } from './config.model';
+import { ConnectionField, FeatureGroup, FeatureId, SettingsOverrides, SettingsSection } from '../../core/models/app-settings.model';
+
+/** Every tab of the page, in order. A tab shows when the user's role may view its page and this branch holds what it is about. */
+const TABS: TabInfo[] = [
+  { id: 'account', page: 'settings.account' },
+  { id: 'users', page: 'settings.users' },
+  { id: 'roles', page: 'settings.roles' },
+  { id: 'permissions', page: 'settings.permissions' },
+  { id: 'features', page: 'settings.features' },
+  { id: 'connection', page: 'settings.connection' },
+  { id: 'services', page: 'settings.services' },
+  { id: 'youtube', page: 'settings.youtube' },
+  { id: 'json', page: 'settings.json' },
+];
 
 /**
- * Shows the settings of this branch's apps (FEATURE_APPS) and the site-wide ones from the settings master tables (served by the API), and lets an administrator change them. Edits are drafts that preview at once
- * in this browser; a Save button in every section (and Save all at the top) writes them to the database. The Users and access panel decides which
- * apps each account may open. Other logged-in users only see a short note: the API refuses their changes anyway.
+ * /master, the Settings page. One tab per area, shown by the rights of the user's role (Role rights tab; a super admin sees every tab):
+ * My settings (language, skin, password and the options of their own pages, for every user), Users, Roles, Role rights, and the site settings of this branch's apps
+ * (FEATURE_APPS). Site setting edits are drafts that preview at once in this browser; a Save button in every section (and Save all) writes them to the database.
+ * The API checks every right again, so a hidden button is a convenience, not the protection.
  */
 @Component({
   selector: 'app-config',
-  imports: [RouterLink],
+  imports: [RouterLink, AccountTab, UsersTab, RolesTab, PermissionsTab],
   templateUrl: './config.html',
   styleUrl: './config.scss',
 })
 
 export class Config {
   protected readonly busy = signal(false);
+  private readonly router = inject(Router);
   private readonly api = inject(ApiService);
   private readonly seo = inject(SeoService);
   protected readonly gaugeBad = signal(false);
+  private readonly route = inject(ActivatedRoute);
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
   // Declared before the fields that read it: field initializers run in this order.
   protected readonly cfg = inject(SettingsService);
   protected readonly settings = this.cfg.settings;
   protected readonly defaults = this.cfg.defaults;
-  protected readonly usersError = signal<string>('');
   protected readonly ytKeySet = signal<boolean | null>(null);
-  protected readonly savingUser = signal<number | null>(null);
-  protected readonly access = signal<UserAccess | null>(null);
   protected readonly saving = signal<SaveTarget | null>(null);
   protected readonly count = computed(() => this.cfg.pending());
   protected readonly ytNotice = signal<PanelNotice | null>(null);
   protected readonly saveNotice = signal<SaveNotice | null>(null);
-  protected readonly userNotice = signal<UserNotice | null>(null);
   protected readonly importMessage = signal<'' | 'ok' | 'bad'>('');
   protected readonly hasSpeed = featureBuilt('speed', FEATURE_APPS);
   protected readonly hasYoutube = featureBuilt('youtube', FEATURE_APPS);
   protected readonly json = computed(() => JSON.stringify(this.cfg.overrides(), null, 2));
+  protected readonly tabs = computed(() => TABS.filter((t) => this.auth.can(t.page) && this.built(t.id)));
   protected readonly fields = computed(() => Object.keys(this.defaults.connection.fields) as ConnectionField[]);
-  // Only this branch's apps: a Creta build shows no speed test, YouTube or SnapKhata settings and no access boxes for those apps.
-  protected readonly apps = computed(() => (this.access()?.apps ?? []).filter((a) => FEATURE_APPS.includes(a.code)));
-  protected readonly autoApps = computed(() => this.apps().filter((a) => a.autoGrant).map((a) => this.appName(a.code)).join(', '));
+  protected readonly requested = signal<SettingsTab | null>(this.route.snapshot.queryParamMap.get('tab') as SettingsTab | null);
+  /** The open tab: the one asked for in ?tab= when the user may see it, otherwise the first. */
+  protected readonly current = computed(() => this.tabs().find((t) => t.id === this.requested()) ?? this.tabs()[0] ?? null);
+  /** The site settings sections the user may save; Save all saves only these. */
+  protected readonly editable = computed(() => this.sections().filter((s) => this.auth.can(s === 'connection' ? 'settings.connection' : s === 'services' ? 'settings.services' : 'settings.features', 'edit')));
   protected readonly groups: ConfigGroup[] = FEATURE_GROUPS.filter((g) => featureBuilt(g.id, FEATURE_APPS)).map((g) => ({ ...g, items: FEATURES.filter((f) => f.group === g.id && featureBuilt(f.id, FEATURE_APPS)) })).filter((g) => g.items.length);
 
   constructor() {
@@ -64,66 +81,55 @@ export class Config {
         path: '/master/',
         image: 'default',
         lang: this.i18n.lang(),
-        // A tool for the site owner, not a page to find in search results.
+        // A tool for the site's users and owner, not a page to find in search results.
         noindex: true,
       });
     });
 
-    // The guard has restored the login before this page opens, so isAdmin is known here.
+    // The guard has restored the login before this page opens, so the rights are known here.
     afterNextRender(() => {
-      if (this.auth.isAdmin())
-        void this.loadAdmin();
+      if (this.hasYoutube && this.auth.can('settings.youtube'))
+        void this.loadKeyState();
     });
   }
 
-  // #region Private Methods
+  // #region Public Methods
 
-  protected reset(): void {
+  reset(): void {
     this.cfg.reset();
   }
 
-  protected secs(ev: Event): void {
+  secs(ev: Event): void {
     this.cfg.setRefreshSeconds(+(ev.target as HTMLInputElement).value);
   }
 
   /** Applies the typed gauge speeds (Mbps, separated by commas or spaces); a list the API would refuse is not applied. */
-  protected gauge(ev: Event): void {
+  gauge(ev: Event): void {
     const stops = (ev.target as HTMLInputElement).value.split(/[\s,]+/).filter(Boolean).map(Number);
     this.gaugeBad.set(!validStops(stops));
     if (!this.gaugeBad())
       this.cfg.setGaugeStops(stops);
   }
 
-  protected state(on: boolean): string {
+  state(on: boolean): string {
     return this.i18n.t(on ? 'cfg.on' : 'cfg.off');
   }
 
-  protected checked(ev: Event): boolean {
+  checked(ev: Event): boolean {
     return (ev.target as HTMLInputElement).checked;
   }
 
-  protected appName(code: string): string {
-    return this.i18n.t(appLink(code).name);
+  tabName(tab: TabInfo): string {
+    return this.i18n.t(`perm.page.${tab.page}` as TranslationKey);
   }
 
-  /** The server's own message when it answered; "server unreachable" when it did not. */
-  private failureText(e: unknown): string {
-    return (e as { status?: number }).status !== undefined ? (e as Error).message : this.i18n.t('yt.serverdown');
+  /** Opens a tab and keeps it in the address (?tab=), so a reload or a shared link opens the same tab. */
+  select(id: SettingsTab): void {
+    this.requested.set(id);
+    void this.router.navigate([], { relativeTo: this.route, queryParams: { tab: id }, queryParamsHandling: 'merge', replaceUrl: true });
   }
 
-  private async loadAdmin(): Promise<void> {
-    await Promise.all([this.hasYoutube ? this.loadKeyState() : Promise.resolve(), this.loadUsers()]);
-  }
-
-  private async loadUsers(): Promise<void> {
-    try {
-      this.access.set(await this.api.get<UserAccess>('/admin/users'));
-    } catch (e) {
-      this.usersError.set(this.failureText(e));
-    }
-  }
-
-  protected importJson(text: string): void {
+  importJson(text: string): void {
     try {
       const parsed = JSON.parse(text) as SettingsOverrides;
       if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
@@ -135,37 +141,29 @@ export class Config {
     }
   }
 
-  private async loadKeyState(): Promise<void> {
-    try {
-      this.ytKeySet.set((await this.api.get<KeyStatus>('/youtube/key')).isSet);
-    } catch (e) {
-      this.ytNotice.set({ text: this.failureText(e), error: true });
-    }
-  }
-
-  protected saveLabel(target: SaveTarget): string {
+  saveLabel(target: SaveTarget): string {
     return this.i18n.t(this.saving() === target ? 'cfg.save.saving' : target === 'all' ? 'cfg.save.all' : 'cfg.save');
   }
 
-  protected feature(id: FeatureId, ev: Event): void {
+  feature(id: FeatureId, ev: Event): void {
     this.cfg.setFeature(id, this.checked(ev));
   }
 
-  protected label(id: ConnectionField): TranslationKey {
+  label(id: ConnectionField): TranslationKey {
     return `conn.${id}` as TranslationKey;
   }
 
   /** Unsaved edits in one section; 0 disables that section's Save button. */
-  protected pendingIn(section: SettingsSection): number {
+  pendingIn(section: SettingsSection): number {
     return this.cfg.pending([section]);
   }
 
-  /** Saves one section, or every unsaved edit for `all`. The server checks that the caller is an administrator; the page only shows what it answers. */
-  protected async save(target: SaveTarget): Promise<void> {
+  /** Saves one section, or every unsaved edit the user may save for `all`. The server checks the rights again; the page only shows what it answers. */
+  async save(target: SaveTarget): Promise<void> {
     this.saving.set(target);
     this.saveNotice.set(null);
     try {
-      const text = await this.cfg.save(target === 'all' ? undefined : [target]);
+      const text = await this.cfg.save(target === 'all' ? this.editable() : [target]);
       this.saveNotice.set({ text: text || this.i18n.t('cfg.save.nothing'), error: false, section: target });
     } catch (e) {
       this.saveNotice.set({ text: this.failureText(e), error: true, section: target });
@@ -174,41 +172,27 @@ export class Config {
     }
   }
 
-  /** The answer of the last save of this user row. */
-  protected userNoticeFor(user: AuthUser): UserNotice | null {
-    const n = this.userNotice();
-    return n?.id === user.id ? n : null;
-  }
-
   /** The answer of the last save, only when it belongs to this Save button. */
-  protected noticeFor(target: SaveTarget): SaveNotice | null {
+  noticeFor(target: SaveTarget): SaveNotice | null {
     const n = this.saveNotice();
     return n?.section === target ? n : null;
   }
 
-  /** Saves one user's administrator switch and app boxes. The form is read before its fields are disabled (disabled fields are not sent). Apps this branch does not show keep their access. */
-  protected async saveUser(ev: Event, user: AuthUser): Promise<void> {
-    ev.preventDefault();
-    if (this.savingUser() !== null)
+  /** Arrow keys, Home and End move between the tabs (the WAI-ARIA tabs pattern); the tab that gets focus opens. */
+  onTabKey(ev: KeyboardEvent, index: number): void {
+    const tabs = this.tabs();
+    const step = this.i18n.dir() === 'rtl' ? -1 : 1;
+    const moves: Record<string, number> = { ArrowRight: index + step, ArrowLeft: index - step, Home: 0, End: tabs.length - 1 };
+    if (!(ev.key in moves))
       return;
-    const data = new FormData(ev.target as HTMLFormElement);
-    const body = { isAdmin: data.get('admin') !== null, apps: [...data.getAll('app').map(String), ...user.apps.filter((c) => !FEATURE_APPS.includes(c))] };
-    this.savingUser.set(user.id);
-    this.userNotice.set(null);
-    try {
-      const res = await this.api.sendFull<AuthUser>('PUT', `/admin/users/${user.id}`, this.api.json(body));
-      this.access.update((a) => (a ? { ...a, users: a.users.map((u) => (u.id === user.id ? res.data : u)) } : a));
-      this.auth.patchUser(res.data);
-      this.userNotice.set({ id: user.id, text: res.message ?? '', error: false });
-    } catch (e) {
-      this.userNotice.set({ id: user.id, text: this.failureText(e), error: true });
-    } finally {
-      this.savingUser.set(null);
-    }
+    ev.preventDefault();
+    const next = tabs[(moves[ev.key] + tabs.length) % tabs.length];
+    this.select(next.id);
+    document.getElementById(`cfg-tab-${next.id}`)?.focus();
   }
 
   /** Sends the YouTube API key. The API checks that the caller is an administrator and checks the key with Google, then stores it in the database. */
-  protected async saveYoutube(ev: Event, input: HTMLInputElement): Promise<void> {
+  async saveYoutube(ev: Event, input: HTMLInputElement): Promise<void> {
     ev.preventDefault();
     const key = input.value.trim();
     if (!key || this.busy())
@@ -224,6 +208,34 @@ export class Config {
       this.ytNotice.set({ text: this.failureText(e), error: true });
     } finally {
       this.busy.set(false);
+    }
+  }
+
+  // #endregion
+
+  // #region Private Methods
+
+  /** Every site settings section this branch shows: the feature groups, then connection and services when the speed test is built. */
+  private sections(): SettingsSection[] {
+    const groups: SettingsSection[] = this.groups.map((g) => g.id as FeatureGroup);
+    return this.hasSpeed ? [...groups, 'connection', 'services'] : groups;
+  }
+
+  /** Whether this branch holds what the tab is about (a Creta build has no speed test or YouTube settings). */
+  private built(id: SettingsTab): boolean {
+    return id === 'connection' || id === 'services' ? this.hasSpeed : id === 'youtube' ? this.hasYoutube : id === 'features' ? this.groups.length > 0 : true;
+  }
+
+  /** The server's own message when it answered; "server unreachable" when it did not. */
+  private failureText(e: unknown): string {
+    return (e as { status?: number }).status !== undefined ? (e as Error).message : this.i18n.t('yt.serverdown');
+  }
+
+  private async loadKeyState(): Promise<void> {
+    try {
+      this.ytKeySet.set((await this.api.get<KeyStatus>('/youtube/key')).isSet);
+    } catch (e) {
+      this.ytNotice.set({ text: this.failureText(e), error: true });
     }
   }
 
