@@ -53,6 +53,16 @@ public class KhataBooksController : ControllerBase
         return Ok(ApiResponse<object?>.SuccessResponse(null, message));
     }
 
+    // ?today=yyyy-MM-dd is the browser's local date; the month chart ends with its month.
+    [HttpGet("{bookId:int}/summary")]
+    [EnableRateLimiting(SecurityExtensions.KhataReadPolicy)]
+    public async Task<ActionResult<ApiResponse<BookSummaryDto>>> Summary(int bookId, [FromQuery] string? today, CancellationToken cancellationToken)
+    {
+        var summary = await _bookService.GetSummaryAsync(HttpContext.KhataCaller(), bookId, today, cancellationToken);
+
+        return Ok(ApiResponse<BookSummaryDto>.SuccessResponse(summary));
+    }
+
     [HttpPut("{bookId:int}")]
     [EnableRateLimiting(SecurityExtensions.KhataWritePolicy)]
     public async Task<ActionResult<ApiResponse<BookDto>>> Update(int bookId, [FromBody] BookRequestDto request, CancellationToken cancellationToken)

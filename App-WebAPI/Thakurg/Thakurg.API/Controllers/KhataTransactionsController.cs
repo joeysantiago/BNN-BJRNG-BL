@@ -35,6 +35,15 @@ public class KhataTransactionsController : ControllerBase
         return Ok(ApiResponse<object?>.SuccessResponse(null, message));
     }
 
+    [HttpGet("transactions/{transactionId:int}")]
+    [EnableRateLimiting(SecurityExtensions.KhataReadPolicy)]
+    public async Task<ActionResult<ApiResponse<TransactionDetailDto>>> Detail(int transactionId, CancellationToken cancellationToken)
+    {
+        var detail = await _transactionService.GetDetailAsync(HttpContext.KhataCaller(), transactionId, cancellationToken);
+
+        return Ok(ApiResponse<TransactionDetailDto>.SuccessResponse(detail));
+    }
+
     [HttpGet("transactions/{transactionId:int}/history")]
     [EnableRateLimiting(SecurityExtensions.KhataReadPolicy)]
     public async Task<ActionResult<ApiResponse<List<TransactionHistoryDto>>>> History(int transactionId, CancellationToken cancellationToken)
@@ -44,6 +53,24 @@ public class KhataTransactionsController : ControllerBase
         return Ok(ApiResponse<List<TransactionHistoryDto>>.SuccessResponse(history));
     }
 
+    [HttpGet("contacts/{contactId:int}/transactions")]
+    [EnableRateLimiting(SecurityExtensions.KhataReadPolicy)]
+    public async Task<ActionResult<ApiResponse<TransactionPageDto>>> List(int contactId, [FromQuery] TransactionQueryDto query, CancellationToken cancellationToken)
+    {
+        var result = await _transactionService.GetPageAsync(HttpContext.KhataCaller(), contactId, query, cancellationToken);
+
+        return Ok(ApiResponse<TransactionPageDto>.SuccessResponse(result));
+    }
+
+    [HttpGet("books/{bookId:int}/transactions")]
+    [EnableRateLimiting(SecurityExtensions.KhataReadPolicy)]
+    public async Task<ActionResult<ApiResponse<TransactionPageDto>>> BookList(int bookId, [FromQuery] TransactionQueryDto query, CancellationToken cancellationToken)
+    {
+        var result = await _transactionService.GetBookPageAsync(HttpContext.KhataCaller(), bookId, query, cancellationToken);
+
+        return Ok(ApiResponse<TransactionPageDto>.SuccessResponse(result));
+    }
+
     [HttpPut("transactions/{transactionId:int}")]
     [EnableRateLimiting(SecurityExtensions.KhataWritePolicy)]
     public async Task<ActionResult<ApiResponse<TransactionDto>>> Update(int transactionId, [FromBody] TransactionRequestDto request, CancellationToken cancellationToken)
@@ -51,15 +78,6 @@ public class KhataTransactionsController : ControllerBase
         var entry = await _transactionService.UpdateAsync(HttpContext.KhataCaller(), transactionId, request, cancellationToken);
 
         return Ok(ApiResponse<TransactionDto>.SuccessResponse(entry));
-    }
-
-    [HttpGet("contacts/{contactId:int}/transactions")]
-    [EnableRateLimiting(SecurityExtensions.KhataReadPolicy)]
-    public async Task<ActionResult<ApiResponse<TransactionPageDto>>> List(int contactId, [FromQuery] int page, [FromQuery] int? pageSize, CancellationToken cancellationToken)
-    {
-        var result = await _transactionService.GetPageAsync(HttpContext.KhataCaller(), contactId, page, pageSize, cancellationToken);
-
-        return Ok(ApiResponse<TransactionPageDto>.SuccessResponse(result));
     }
 
     [HttpPost("contacts/{contactId:int}/transactions")]
