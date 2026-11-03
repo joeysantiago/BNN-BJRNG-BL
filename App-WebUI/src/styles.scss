@@ -216,6 +216,156 @@
   --card-text-shadow: none;
 }
 
+/* ---------- Brightness: each skin also comes in the other brightness (data-mode, set by ThemeService and index.html).
+   Glass is dark and the others light until the visitor picks Dark, Light or System. ---------- */
+
+/* Glass, light: frosted panes on a pale lilac sky, the same gold, darker where it is text. */
+:root[data-skin='glass'][data-mode='light'] {
+  color-scheme: light;
+  --bg: #f6eef8;
+  --bg-image:
+    radial-gradient(900px 600px at 12% 8%, rgba(214, 140, 190, 0.42), transparent 62%),
+    radial-gradient(800px 600px at 92% 18%, rgba(240, 200, 110, 0.38), transparent 60%),
+    radial-gradient(1000px 700px at 50% 105%, rgba(140, 120, 240, 0.32), transparent 60%);
+  --text: #2a1530;
+  --muted: #5d4866;
+  --accent: #c9952c;
+  --accent-2: #e8bd5c;
+  --accent-ink: #8a5a06;
+  --on-accent: #241208;
+  --focus: #8a5a06;
+  --card-bg: rgba(255, 255, 255, 0.55);
+  --card-border: 1px solid rgba(255, 255, 255, 0.8);
+  --card-shadow: 0 24px 60px rgba(90, 40, 110, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --btn-bg: rgba(255, 255, 255, 0.6);
+  --btn-color: var(--text);
+  --btn-border: 1px solid rgba(120, 70, 140, 0.2);
+  --btn-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --btn-hover-shadow: 0 8px 22px rgba(90, 40, 110, 0.18), inset 0 1px 0 #fff;
+  --btn-active-shadow: inset 0 2px 8px rgba(90, 40, 110, 0.2);
+  --pri-shadow: 0 10px 28px rgba(201, 149, 44, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --gauge-a: #c9952c;
+  --gauge-b: #e8bd5c;
+  --inset-bg: rgba(255, 255, 255, 0.6);
+  --inset-border: 1px solid rgba(120, 70, 140, 0.18);
+  --inset-shadow: inset 0 2px 8px rgba(90, 40, 110, 0.12);
+  --inset-text: #2a1530;
+  --inset-muted: #5d4866;
+  --track: rgba(90, 40, 110, 0.14);
+  --danger: #b3261e;
+  --ok: #17703f;
+  --warn: #8a5a00;
+  --header-bg: rgba(246, 238, 248, 0.7);
+  --header-border: 1px solid rgba(120, 70, 140, 0.14);
+}
+
+/* Clay, dark: soft puffy shapes in deep violet. */
+:root[data-skin='clay'][data-mode='dark'] {
+  color-scheme: dark;
+  --bg: #1d1530;
+  --bg-image: linear-gradient(135deg, #2a1838 0%, #1b1a3a 50%, #12282a 100%);
+  --text: #f1eaff;
+  --muted: #c5b8e2;
+  --accent: #a58bff;
+  --accent-2: #c3b0ff;
+  --accent-ink: #c3b0ff;
+  --on-accent: #1d1530;
+  --focus: #c3b0ff;
+  --card-bg: #2a2045;
+  --card-shadow:
+    14px 14px 30px rgba(0, 0, 0, 0.45), -10px -10px 24px rgba(120, 90, 190, 0.14),
+    inset -7px -7px 14px rgba(0, 0, 0, 0.25), inset 7px 7px 14px rgba(150, 120, 230, 0.12);
+  --btn-bg: #30254f;
+  --btn-color: #f1eaff;
+  --btn-shadow:
+    7px 7px 16px rgba(0, 0, 0, 0.4), -5px -5px 12px rgba(120, 90, 190, 0.14),
+    inset -3px -3px 7px rgba(0, 0, 0, 0.22), inset 3px 3px 7px rgba(150, 120, 230, 0.14);
+  --btn-hover-shadow:
+    9px 9px 20px rgba(0, 0, 0, 0.45), -6px -6px 14px rgba(120, 90, 190, 0.18),
+    inset -3px -3px 7px rgba(0, 0, 0, 0.22), inset 3px 3px 7px rgba(150, 120, 230, 0.14);
+  --btn-active-shadow: inset 5px 5px 11px rgba(0, 0, 0, 0.45), inset -5px -5px 11px rgba(150, 120, 230, 0.12);
+  --pri-bg: linear-gradient(145deg, #b39dff, #7c5cf5);
+  --pri-color: #160f28;
+  --pri-shadow: 8px 8px 18px rgba(0, 0, 0, 0.45), -5px -5px 12px rgba(120, 90, 190, 0.16), inset 4px 4px 9px rgba(220, 210, 255, 0.4);
+  --gauge-a: #c3b0ff;
+  --gauge-b: #7c5cf5;
+  --inset-bg: #221a3a;
+  --inset-shadow: inset 6px 6px 13px rgba(0, 0, 0, 0.45), inset -6px -6px 13px rgba(150, 120, 230, 0.1);
+  --inset-text: #f1eaff;
+  --inset-muted: #c5b8e2;
+  --track: #3a2f5c;
+  --danger: #ff9b9b;
+  --ok: #8ee6b0;
+  --warn: #f6c76b;
+  --header-bg: rgba(29, 21, 48, 0.82);
+}
+
+/* Skeu, dark: gunmetal brushed metal and dark glossy keys; the LCD stays. */
+:root[data-skin='skeu'][data-mode='dark'] {
+  color-scheme: dark;
+  --bg: #2b2f35;
+  --bg-image:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0 1px, rgba(0, 0, 0, 0.08) 1px 3px),
+    linear-gradient(180deg, #353a41, #22262b);
+  --text: #eef1f5;
+  --muted: #b7bec8;
+  --accent: #4a9cff;
+  --accent-2: #8cc2ff;
+  --accent-ink: #8cc2ff;
+  --on-accent: #0b1a2e;
+  --focus: #8cc2ff;
+  --card-bg: linear-gradient(180deg, #474d56 0%, #30343b 100%);
+  --card-border: 1px solid #16191d;
+  --card-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 -2px 0 rgba(0, 0, 0, 0.35) inset, 0 12px 24px rgba(0, 0, 0, 0.55), 0 2px 3px rgba(0, 0, 0, 0.5);
+  --btn-bg: linear-gradient(180deg, #5a616b 0%, #434951 48%, #363b42 52%, #40464e 100%);
+  --btn-color: #eef1f5;
+  --btn-border: 1px solid #111418;
+  --btn-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 2px 4px rgba(0, 0, 0, 0.55);
+  --btn-hover-shadow: 0 1px 0 rgba(255, 255, 255, 0.22) inset, 0 4px 9px rgba(0, 0, 0, 0.6);
+  --btn-active-shadow: 0 3px 8px rgba(0, 0, 0, 0.65) inset;
+  --danger: #ff9b9b;
+  --ok: #8ee6b0;
+  --warn: #f6c76b;
+  --header-bg: linear-gradient(180deg, #3d424a, #2a2e34);
+  --header-border: 1px solid #16191d;
+  --card-text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Neu, dark: the same soft extruded shapes, lit from the top left on slate. */
+:root[data-skin='neu'][data-mode='dark'] {
+  color-scheme: dark;
+  --bg: #2a2f39;
+  --text: #e6eaf2;
+  --muted: #aeb6c6;
+  --accent: #8a96ff;
+  --accent-2: #aab3ff;
+  --accent-ink: #aab3ff;
+  --on-accent: #151a2e;
+  --focus: #aab3ff;
+  --card-bg: #2a2f39;
+  --card-shadow: 10px 10px 22px #1c2027, -10px -10px 22px #383e4b;
+  --btn-bg: #2a2f39;
+  --btn-color: #e6eaf2;
+  --btn-shadow: 6px 6px 12px #1c2027, -6px -6px 12px #383e4b;
+  --btn-hover-shadow: 8px 8px 16px #1c2027, -8px -8px 16px #383e4b;
+  --btn-active-shadow: inset 5px 5px 10px #1c2027, inset -5px -5px 10px #383e4b;
+  --pri-bg: #8a96ff;
+  --pri-color: #151a2e;
+  --pri-shadow: 6px 6px 14px #1c2027, -6px -6px 14px #383e4b;
+  --gauge-a: #aab3ff;
+  --gauge-b: #8a96ff;
+  --inset-bg: #2a2f39;
+  --inset-shadow: inset 6px 6px 12px #1c2027, inset -6px -6px 12px #383e4b;
+  --inset-text: #e6eaf2;
+  --inset-muted: #aeb6c6;
+  --track: #3a404d;
+  --danger: #ff9b9b;
+  --ok: #8ee6b0;
+  --warn: #f6c76b;
+  --header-bg: rgba(42, 47, 57, 0.9);
+}
+
 /* ---------- Base ---------- */
 *,
 *::before,
@@ -446,4 +596,59 @@ p {
 }
 body:has(app-site-footer) main {
   padding-block-end: calc(var(--foot-h) + 16px + env(safe-area-inset-bottom));
+}
+
+/* Dropdowns: the open list follows the skin instead of a white system box. Every browser gets the skin's colours on the options;
+   browsers with customizable selects (Chrome and Edge 135+) also get a rounded panel, the skin's hover colour instead of system blue,
+   and the chosen option in the accent colour. Options stay 44px tall for touch. */
+option {
+  background: var(--bg);
+  color: var(--text);
+}
+@supports (appearance: base-select) {
+  /* The chosen value stays on one line beside the arrow; a long one is cut, never wrapped over the box edge. */
+  select {
+    appearance: base-select;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  option {
+    white-space: normal;
+  }
+  select::picker-icon {
+    color: var(--muted);
+    transition: rotate 0.15s ease;
+  }
+  select:open::picker-icon {
+    rotate: 180deg;
+  }
+  ::picker(select) {
+    appearance: base-select;
+    margin-block: 6px;
+    padding: 6px;
+    border: 1px solid var(--line, rgba(128, 128, 128, 0.3));
+    border-radius: 14px;
+    background: var(--bg);
+    color: var(--text);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  }
+  option {
+    min-height: 44px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+  }
+  option:hover,
+  option:focus-visible {
+    outline: none;
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+  option:checked {
+    color: var(--accent-ink);
+    font-weight: 700;
+  }
+  option::checkmark {
+    color: var(--accent);
+  }
 }

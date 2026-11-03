@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr" data-skin="glass">
+<html lang="en" dir="ltr" data-skin="glass" data-mode="dark">
   <head>
     <meta charset="utf-8" />
     <title>Internet Speed Test: Check Download, Upload and Ping (Free)</title>
@@ -31,8 +31,14 @@
     <script>
       (function () {
         try {
+          var el = document.documentElement;
           var s = localStorage.getItem('thakurg-skin');
-          if (s && /^(glass|clay|skeu|neu)$/.test(s)) document.documentElement.setAttribute('data-skin', s);
+          if (!s || !/^(glass|clay|skeu|neu)$/.test(s)) s = 'glass';
+          el.setAttribute('data-skin', s);
+          // Brightness: the visitor's choice (dark, light, or system = the device), otherwise the skin's own (Glass dark, the others light).
+          var m = localStorage.getItem('thakurg-mode');
+          var dark = m === 'dark' || (m === 'system' && matchMedia('(prefers-color-scheme: dark)').matches) || (m !== 'light' && m !== 'system' && s === 'glass');
+          el.setAttribute('data-mode', dark ? 'dark' : 'light');
         } catch (e) {}
       })();
     </script>
