@@ -14,8 +14,9 @@ import { KhataApiService } from '../../../core/khata-api.service';
 import { KhataSkeleton } from '../ui/khata-skeleton/khata-skeleton';
 import { KhataStateService } from '../../../core/khata-state.service';
 import { KhataEmptyArt } from '../ui/khata-empty-art/khata-empty-art';
-import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
-import { KHATA_CUSTOMER, KHATA_SUPPLIER, KhataBookContacts, KhataContactType, KhataPartyKind, KhataPartyRow, KhataPartySort, KhataPartyStatus } from '../../../core/models/khata.model';
+import { PHOTO_LIMITS, PHOTO_TYPES, photoName, squarePhoto } from '../../../core/khata-photos';
+import { Component, DestroyRef, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { KHATA_CUSTOMER, KHATA_SUPPLIER, KhataBookContacts, KhataContactType, KhataPartyKind, KhataPartyRow, KhataPartySort, KhataPartyStatus, KhataUpload } from '../../../core/models/khata.model';
 
 /** /khata/app/b/:bookId/parties: customers and suppliers of a book with their balance; search, sort, filter by type and status, and add a party. */
 @Component({
@@ -30,6 +31,7 @@ export class KhataParties {
   protected readonly error = signal('');
   protected readonly busy = signal(false);
   protected readonly missing = signal('');
+  protected readonly preview = signal('');
   private requestKey = crypto.randomUUID();
   protected readonly adding = signal(false);
   protected readonly formError = signal('');
@@ -42,6 +44,7 @@ export class KhataParties {
   private readonly state = inject(KhataStateService);
   protected readonly kind = signal<KhataPartyKind>('all');
   protected readonly sort = signal<KhataPartySort>('recent');
+  protected readonly photo = signal<KhataUpload | null>(null);
   protected readonly status = signal<KhataPartyStatus>('all');
   protected readonly data = signal<KhataBookContacts | null>(null);
   protected readonly invalid = signal<Record<string, boolean>>({});
@@ -81,6 +84,7 @@ export class KhataParties {
   });
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => this.setPhoto(null));
     effect(() => this.state.screen(this.i18n.t('khata.nav.parties')));
     effect(() => {
       const bookId = this.bookId();
@@ -95,6 +99,10 @@ export class KhataParties {
 
   // #region Public Methods
 
+  clearPhoto(): void {
+    this.setPhoto(null);
+  }
+
   clearFilters(): void {
     this.q.set('');
     this.kind.set('all');
@@ -105,6 +113,7 @@ export class KhataParties {
     this.adding.set(open);
     this.formError.set('');
     this.invalid.set({});
+    this.setPhoto(null);
     if (open)
       setTimeout(() => this.nameInput()?.nativeElement.focus());
   }
@@ -132,10 +141,15 @@ export class KhataParties {
     this.busy.set(true);
     this.formError.set('');
     try {
-      await this.api.createContact(this.bookId(), { name: fields.name, mobile: fields.mobile || undefined, email: fields.email || undefined, contactType: Number(data.get('type')) as KhataContactType }, this.requestKey);
+      const contact = await this.api.createContact(this.bookId(), { name: fields.name, mobile: fields.mobile || undefined, email: fields.email || undefined, contactType: Number(data.get('type')) as KhataContactType }, this.requestKey);
       this.requestKey = crypto.randomUUID();
-      this.adding.set(false);
-      this.ui.notify(this.i18n.t('khata.c.added', { name: fields.name }));
+      const photo = this.photo();
+      let note = this.i18n.t('khata.c.added', { name: fields.name });
+      // The party stays saved when its picture is refused; the toast then says why, and the picture can be added from the party's settings.
+      if (photo)
+        note = await this.api.setContactPhoto(contact.id, photo).then(() => note, (e: Error) => e.message);
+      this.toggleAdd(false);
+      this.ui.notify(note);
       await this.load(this.bookId(), false);
       void this.state.loadBooks().catch(() => null);
     } catch (e) {
@@ -145,9 +159,40 @@ export class KhataParties {
     }
   }
 
+  /** Cuts the picked picture to a small square at once, so a bad file is caught before the party is saved, and shows it in the form. */
+  async pickPhoto(input: HTMLInputElement): Promise<void> {
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file || this.busy())
+      return;
+    this.formError.set('');
+    if (!PHOTO_TYPES.includes(file.type) || file.size > PHOTO_LIMITS.maxPickedBytes) {
+      this.formError.set(this.i18n.t('khata.cs.photoBad'));
+      return;
+    }
+    this.busy.set(true);
+    try {
+      const blob = await squarePhoto(file).catch(() => null);
+      if (!blob || blob.size > PHOTO_LIMITS.maxContactPhotoBytes) {
+        this.formError.set(this.i18n.t('khata.cs.photoBad'));
+        return;
+      }
+      this.setPhoto({ blob, name: photoName(file.name, blob) });
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
   // #endregion
 
   // #region Private Methods
+
+  private setPhoto(photo: KhataUpload | null): void {
+    if (this.preview())
+      URL.revokeObjectURL(this.preview());
+    this.photo.set(photo);
+    this.preview.set(photo ? URL.createObjectURL(photo.blob) : '');
+  }
 
   private async load(bookId: number, skeleton = true): Promise<void> {
     if (!bookId)

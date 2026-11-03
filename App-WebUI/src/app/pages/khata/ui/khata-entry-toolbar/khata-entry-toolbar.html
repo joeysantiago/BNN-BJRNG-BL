@@ -27,8 +27,7 @@
   </div>
   @if (withParty()) {
     <div class="k-dates">
-      <label>{{ i18n.t('khata.f.from') }}<input type="date" [max]="query().to || today" [value]="query().from" (change)="set({ from: $any($event.target).value })" /></label>
-      <label>{{ i18n.t('khata.f.to') }}<input type="date" [min]="query().from" [max]="today" [value]="query().to" (change)="set({ to: $any($event.target).value })" /></label>
+      <app-khata-date-picker mode="range" [label]="i18n.t('khata.dp.range')" [max]="today" [from]="query().from" [to]="query().to" (rangeChange)="set($event)" />
       @if (query().from || query().to) {
         <button type="button" class="k-btn ghost sm" (click)="clear()">{{ i18n.t('khata.f.clear') }}</button>
       }

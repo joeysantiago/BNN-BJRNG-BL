@@ -354,7 +354,7 @@ export type KhataExportFormat = 'pdf' | 'xlsx' | 'csv';
 export type KhataSettingsTab = 'general' | 'notifications' | 'storage';
 
 /** A menu of the SnapKhata top bar. */
-export type KhataMenu = 'lang' | 'theme';
+export type KhataMenu = 'lang' | 'theme' | 'book';
 
 /** Which form of the SnapKhata profile is saving. */
 export type KhataProfileForm = 'photo' | 'details' | 'address' | 'password';
@@ -363,4 +363,54 @@ export type KhataProfileForm = 'photo' | 'details' | 'address' | 'password';
 export interface KhataNotice {
   text: string;
   error: boolean;
+}
+
+/** The date picker: one day, or a from–to range. */
+export type KhataDateMode = 'single' | 'range';
+
+/** What the date picker's calendar shows: the days of a month, the months of a year, or a page of years. */
+export type KhataDateView = 'days' | 'months' | 'years';
+
+/** A ready-made range of the date picker. */
+export type KhataDatePreset = 'all' | 'last7' | 'last30' | 'thisMonth' | 'lastMonth' | 'thisYear';
+
+/** A from–to range as YYYY-MM-DD; an empty side is open. */
+export interface KhataDateRange {
+  to: string;
+  from: string;
+}
+
+/** One day of the date picker's month grid. */
+export interface KhataDateCell {
+  day: number;
+  iso: string;
+  end: boolean;
+  label: string;
+  start: boolean;
+  today: boolean;
+  inRange: boolean;
+  outside: boolean;
+  disabled: boolean;
+  selected: boolean;
+}
+
+/** One month or year of the date picker's month and year views. */
+export interface KhataPickCell {
+  key: string;
+  label: string;
+  current: boolean;
+  disabled: boolean;
+  selected: boolean;
+}
+
+/** The text of the date picker's button: the date(s), and a small line under it such as "Yesterday" or "Last 7 days". */
+export interface KhataDateDisplay {
+  sub: string;
+  main: string;
+}
+
+/** A one-tap day of the single date picker ("Today", "Yesterday"): how many days back. */
+export interface KhataDateQuick {
+  key: string;
+  days: number;
 }

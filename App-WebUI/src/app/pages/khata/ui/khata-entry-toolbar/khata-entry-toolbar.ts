@@ -1,6 +1,7 @@
 import { KhataIcon } from '../khata-icon/khata-icon';
 import { todayIso } from '../../../../core/khata-format';
 import { I18nService } from '../../../../core/i18n.service';
+import { KhataDatePicker } from '../khata-date-picker/khata-date-picker';
 import { Component, OnDestroy, inject, input, model } from '@angular/core';
 import { KhataEntryKind, KhataEntryQuery, KhataEntrySort } from '../../../../core/models/khata.model';
 
@@ -9,7 +10,7 @@ const SEARCH_DELAY_MS = 300;
 /** Search, sort and filter chips of an entry list. Every change starts again at page 1. `withParty` adds the date range and searches party names too. */
 @Component({
   selector: 'app-khata-entry-toolbar',
-  imports: [KhataIcon],
+  imports: [KhataIcon, KhataDatePicker],
   templateUrl: './khata-entry-toolbar.html',
 })
 

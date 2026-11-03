@@ -139,15 +139,17 @@ export class KhataShell implements OnDestroy {
       this.menu.set(null);
   }
 
+  /** Opens a book from the picker; 0 is "Manage books…". */
+  switchBook(bookId: number): void {
+    this.menu.set(null);
+    void this.router.navigateByUrl(bookId ? `/khata/app/b/${bookId}` : '/khata/app/books');
+  }
+
   setMode(mode: ThemeMode): void {
     const root = this.root()?.nativeElement;
     root?.classList.add('k-theming');
     this.theme.setMode(mode);
     setTimeout(() => root?.classList.remove('k-theming'), THEME_FADE_MS);
-  }
-
-  switchBook(value: string): void {
-    void this.router.navigateByUrl(value === 'books' ? '/khata/app/books' : `/khata/app/b/${value}`);
   }
 
   swipeEnd(ev: PointerEvent): void {

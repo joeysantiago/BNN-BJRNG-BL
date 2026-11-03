@@ -6,11 +6,11 @@ public interface IKhataUserRepository
 {
     Task SaveChangesAsync(CancellationToken cancellationToken);
 
-    Task AddUserAsync(KhataUser user, CancellationToken cancellationToken);
-
     Task AddAuditAsync(KhataAuditLog entry, CancellationToken cancellationToken);
 
     Task<KhataUser?> GetUserAsync(int userId, CancellationToken cancellationToken);
+
+    Task<bool> TryAddUserAsync(KhataUser user, CancellationToken cancellationToken);
 
     Task<KhataUser?> FindByAccountAsync(int accountUserId, CancellationToken cancellationToken);
 }

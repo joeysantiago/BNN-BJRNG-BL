@@ -56,37 +56,61 @@
   min-width: 0;
 }
 
-.khata .k-bookpick select {
+/* The book picker: a button showing the open book; its list is the same pop-up menu as the language picker (k-pop / k-pop-opt). */
+.khata .k-bookpick-btn {
   width: 100%;
   min-height: 44px;
-  padding: 8px 34px 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 8px 14px;
   border-radius: 14px;
   border: 1px solid var(--k-line-strong);
   background: var(--k-surface-solid);
   color: var(--k-text);
   font: 700 14.5px/1.2 var(--k-font);
-  appearance: none;
-  -webkit-appearance: none;
-  text-overflow: ellipsis;
+  text-align: start;
   cursor: pointer;
 }
 
-.khata[data-kt=dark] .k-bookpick select {
+.khata[data-kt=dark] .k-bookpick-btn {
   background: rgba(255, 255, 255, 0.06);
 }
 
-.khata .k-bookpick select option {
-  color: #0f172a;
-  background: #ffffff;
+.khata .k-bookpick .name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.khata .k-bookpick > .k-ico {
-  position: absolute;
-  inset-inline-end: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
+.khata .k-bookpick-btn > .k-ico {
+  flex: none;
   color: var(--k-muted);
+  transition: transform 0.2s var(--k-ease);
+}
+
+.khata .k-bookpick-btn[aria-expanded=true] > .k-ico {
+  transform: rotate(180deg);
+}
+
+.khata .k-book-pop {
+  inset-inline: 0;
+  min-width: 0;
+  max-height: min(360px, 60vh);
+  overflow-y: auto;
+}
+
+.khata .k-book-pop .manage {
+  margin-top: 2px;
+  border-top: 1px solid var(--k-line);
+  border-radius: 0 0 12px 12px;
+  color: var(--k-muted);
+}
+
+.khata .k-book-pop .manage:hover {
+  color: var(--k-text);
 }
 
 .khata .k-top-actions {
@@ -306,6 +330,19 @@
   border: 1px solid var(--k-line);
   color: var(--k-text);
   text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.khata .k-who:hover {
+  background: var(--k-surface-3);
+  border-color: var(--k-brand);
+}
+
+.khata .k-who[aria-current=page] {
+  background: var(--k-surface-solid);
+  border-color: var(--k-brand);
+  box-shadow: var(--k-shadow);
 }
 
 .khata .k-who small {
@@ -591,8 +628,8 @@
 }
 
 .khata .k-sort select option {
-  color: #0f172a;
-  background: #ffffff;
+  color: var(--k-text);
+  background: var(--k-surface-solid);
 }
 
 .khata .k-sort > .k-ico {

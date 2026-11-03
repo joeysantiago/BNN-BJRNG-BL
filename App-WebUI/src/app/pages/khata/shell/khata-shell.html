@@ -2,28 +2,20 @@
   <div class="k-app">
     <aside class="k-rail" [attr.aria-label]="i18n.t('khata.app.menu')">
       <a class="k-logo" routerLink="/khata/app"><span class="mark"><svg kIco="logo" [stroke]="2.2"></svg></span><span>{{ i18n.t('khata.app.name') }}</span></a>
-      <ng-container *ngTemplateOutlet="picker" />
+      <ng-container *ngTemplateOutlet="picker; context: { $implicit: 'rail' }" />
       @if (bookId()) {
         <a class="k-btn pri k-new" [routerLink]="['/khata/app/b', bookId(), 'new']" [queryParams]="newEntryQuery()"><svg kIco="plus" [size]="18"></svg>{{ i18n.t('khata.nav.newEntry') }}</a>
       }
       <nav>
         @for (n of nav(); track n.id) {
-          <a class="k-nav" [routerLink]="n.link" [attr.aria-current]="section() === n.id ? 'page' : null"><svg [kIco]="n.icon"></svg>{{ i18n.t(n.key) }}</a>
+          @if (n.id !== 'profile') {
+            <a class="k-nav" [routerLink]="n.link" [attr.aria-current]="section() === n.id ? 'page' : null"><svg [kIco]="n.icon"></svg>{{ i18n.t(n.key) }}</a>
+          }
         }
       </nav>
       <span class="grow"></span>
       <div class="foot">
-        <div class="k-seg" role="group" [attr.aria-label]="i18n.t('khata.theme.label')">
-          @for (m of modes; track m) {
-            <button type="button" [attr.aria-pressed]="theme.activeMode() === m" [title]="i18n.t('khata.theme.' + m)" [attr.aria-label]="i18n.t('khata.theme.' + m)" (click)="setMode(m)"><svg [kIco]="modeIcons[m]" [size]="17"></svg></button>
-          }
-        </div>
-        <div class="k-seg" role="group" [attr.aria-label]="i18n.t('lang.label')">
-          @for (l of i18n.languages; track l.code) {
-            <button type="button" [attr.lang]="l.code" [attr.aria-pressed]="i18n.lang() === l.code" (click)="setLang(l.code)">{{ l.native }}</button>
-          }
-        </div>
-        <a class="k-who" routerLink="/khata/app/profile">
+        <a class="k-who" routerLink="/khata/app/profile" [attr.aria-current]="section() === 'profile' ? 'page' : null">
           <app-user-avatar [user]="auth.user()" [size]="40" />
           <span><b>{{ i18n.t('khata.p.title') }}</b><small>{{ auth.user()?.email }}</small></span>
         </a>
@@ -33,7 +25,7 @@
     <div class="k-mainwrap">
       <header class="k-top">
         <a class="k-logo" routerLink="/khata/app" [attr.aria-label]="i18n.t('khata.app.name')"><span class="mark"><svg kIco="logo" [stroke]="2.2"></svg></span><span>{{ i18n.t('khata.app.name') }}</span></a>
-        <ng-container *ngTemplateOutlet="picker" />
+        <ng-container *ngTemplateOutlet="picker; context: { $implicit: 'top' }" />
         <span class="crumb">{{ state.title() }}</span>
         <div class="k-top-actions">
           <div class="k-menu">
@@ -135,17 +127,24 @@
   }
 </div>
 
-<ng-template #picker>
+<ng-template #picker let-where>
   @if (state.books().length) {
-    <label class="k-bookpick">
-      <span class="sr-only">{{ i18n.t('khata.app.book') }}</span>
-      <select (change)="switchBook($any($event.target).value)">
-        @for (book of state.books(); track book.id) {
-          <option [value]="book.id" [selected]="book.id === bookId()">{{ book.name }} · {{ book.currency.symbol }}</option>
-        }
-        <option value="books">{{ i18n.t('khata.app.manageBooks') }}</option>
-      </select>
-      <svg kIco="chevD" [size]="18"></svg>
-    </label>
+    <div class="k-menu k-bookpick">
+      <button type="button" class="k-bookpick-btn" aria-haspopup="true" [attr.aria-controls]="'k-book-menu-' + where" [attr.aria-expanded]="menu() === 'book'" (click)="toggleMenu('book')">
+        <span class="sr-only">{{ i18n.t('khata.app.book') }}:</span>
+        <span class="name">{{ state.current()?.name }} · {{ state.current()?.currency?.symbol }}</span>
+        <svg kIco="chevD" [size]="18"></svg>
+      </button>
+      @if (menu() === 'book') {
+        <div class="k-pop k-book-pop" role="group" [id]="'k-book-menu-' + where" [attr.aria-label]="i18n.t('khata.app.book')">
+          @for (book of state.books(); track book.id) {
+            <button type="button" class="k-pop-opt" [attr.aria-pressed]="book.id === bookId()" (click)="switchBook(book.id)">
+              <span class="name">{{ book.name }} · {{ book.currency.symbol }}</span>@if (book.id === bookId()) {<svg kIco="check" [size]="16"></svg>}
+            </button>
+          }
+          <button type="button" class="k-pop-opt manage" (click)="switchBook(0)"><svg kIco="book" [size]="18"></svg>{{ i18n.t('khata.app.manageBooks') }}</button>
+        </div>
+      }
+    </div>
   }
 </ng-template>

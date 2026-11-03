@@ -249,10 +249,6 @@
   margin-inline-start: auto;
 }
 
-.khata .k-rail .k-seg button {
-  font-size: 12.5px;
-}
-
 /* Profile: the identity card beside the details on wide screens, everything stacked on a phone. */
 .khata .k-profile {
   display: grid;
@@ -480,4 +476,65 @@
 
 .khata .k-photo-row label {
   cursor: pointer;
+}
+
+.khata .k-photo-row .k-hint {
+  flex: 1;
+  min-width: 180px;
+}
+
+/* New party: the picture with round icon buttons on it (+ / edit at the bottom corner, delete at the top corner). */
+.khata .k-photo-pick {
+  position: relative;
+  flex: none;
+}
+
+.khata .k-photo-pick.is-busy {
+  opacity: 0.6;
+}
+
+.khata .k-photo-act {
+  position: absolute;
+  inset-inline-end: -8px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--k-surface-solid);
+  box-shadow: var(--k-shadow-sm);
+  cursor: pointer;
+  transition: transform 0.15s var(--k-ease);
+}
+
+/* The visible badge is small; the tap area around it is 44 px. */
+.khata .k-photo-act::before {
+  content: '';
+  position: absolute;
+  inset: -7px;
+}
+
+.khata .k-photo-act:hover {
+  transform: scale(1.08);
+}
+
+.khata .k-photo-act:focus-within {
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-photo-act.edit {
+  bottom: -8px;
+  color: var(--k-on-brand);
+  background: var(--k-brand-grad);
+}
+
+.khata .k-photo-act.del {
+  top: -8px;
+  color: var(--k-on-brand);
+  background: var(--k-give);
+}
+
+.khata .k-photo-act:disabled {
+  cursor: default;
 }

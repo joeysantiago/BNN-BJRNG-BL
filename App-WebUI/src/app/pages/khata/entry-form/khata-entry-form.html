@@ -76,14 +76,13 @@
       </div>
 
       <div class="k-two">
-        <label class="k-field ico">
-          <span class="lbl">{{ i18n.t('khata.e.date') }}</span>
-          <svg kIco="calendar" [size]="18"></svg>
-          <input name="date" type="date" required [max]="today" [value]="date()" [attr.aria-invalid]="!!invalid()['date']" (input)="date.set($any($event.target).value); clearInvalid('date')" />
+        <div class="k-field">
+          <span class="lbl" aria-hidden="true">{{ i18n.t('khata.e.date') }}</span>
+          <app-khata-date-picker [label]="i18n.t('khata.e.date')" [max]="today" [invalid]="!!invalid()['date']" [(value)]="date" (valueChange)="clearInvalid('date')" />
           @if (invalid()['date']) {
             <p class="k-hint k-give">{{ i18n.t('khata.ef.dateRule') }}</p>
           }
-        </label>
+        </div>
         <div class="k-field">
           <span class="lbl">{{ i18n.t('khata.ef.status') }}</span>
           <div class="k-status-line">

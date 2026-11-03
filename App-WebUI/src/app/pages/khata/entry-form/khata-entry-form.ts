@@ -10,6 +10,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { KhataStateService } from '../../../core/khata-state.service';
 import { KhataEmptyArt } from '../ui/khata-empty-art/khata-empty-art';
 import { fromMinor, toMinor, todayIso } from '../../../core/khata-format';
+import { KhataDatePicker } from '../ui/khata-date-picker/khata-date-picker';
 import { PHOTO_LIMITS, PHOTO_TYPES, compressPhoto, fileSize, photoName } from '../../../core/khata-photos';
 import { Component, ElementRef, OnDestroy, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { KHATA_CUSTOMER, KHATA_GAVE, KHATA_GOT, KhataBook, KhataContact, KhataEntry, KhataEntryRequest, KhataEntryType, KhataPhoto } from '../../../core/models/khata.model';
@@ -25,7 +26,7 @@ const MAX_NOTE = 500;
   templateUrl: './khata-entry-form.html',
   styleUrl: './khata-entry-form.scss',
   host: { '(window:beforeunload)': 'leaving($event)' },
-  imports: [RouterLink, KhataIcon, KhataAvatar, KhataEmptyArt, KhataSkeleton, KhataMissing],
+  imports: [RouterLink, KhataIcon, KhataAvatar, KhataEmptyArt, KhataSkeleton, KhataMissing, KhataDatePicker],
 })
 
 export class KhataEntryForm implements OnDestroy {

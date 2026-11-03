@@ -20,6 +20,25 @@
         <div class="k-card-h">
           <div><h2 id="add-h">{{ i18n.t('khata.c.addTitle') }}</h2><p>{{ i18n.t('khata.c.addLead') }}</p></div>
         </div>
+        <div class="k-photo-row">
+          <div class="k-photo-pick" [class.is-busy]="busy()">
+            <span class="k-av lg a1" [class.has-photo]="!!preview()" aria-hidden="true">
+              @if (preview()) {
+                <img [src]="preview()" alt="" />
+              } @else {
+                <svg kIco="user" [size]="28"></svg>
+              }
+            </span>
+            <label class="k-photo-act edit" [title]="i18n.t(photo() ? 'khata.cs.photoChange' : 'khata.cs.photoAdd')">
+              <input #photoInput type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" [attr.aria-label]="i18n.t(photo() ? 'khata.cs.photoChange' : 'khata.cs.photoAdd')" [disabled]="busy()" (change)="pickPhoto(photoInput)" />
+              <svg [kIco]="photo() ? 'edit' : 'plus'" [size]="16" [stroke]="2.4"></svg>
+            </label>
+            @if (photo()) {
+              <button type="button" class="k-photo-act del" [title]="i18n.t('khata.cs.photoRemove')" [attr.aria-label]="i18n.t('khata.cs.photoRemove')" [disabled]="busy()" (click)="clearPhoto()"><svg kIco="trash" [size]="15"></svg></button>
+            }
+          </div>
+          <p class="k-hint k-m0">{{ i18n.t('khata.cs.photoHint') }}</p>
+        </div>
         <div class="k-two">
           <label class="k-field ico">
             <span class="lbl">{{ i18n.t('khata.c.name') }}</span>
