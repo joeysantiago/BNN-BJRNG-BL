@@ -93,13 +93,8 @@
 .lang select {
   /* Language names are written in their own scripts, so use system fonts and skip downloading web fonts for them. */
   font-family: system-ui, 'Segoe UI', 'Nirmala UI', 'Noto Sans', sans-serif;
-  appearance: auto;
   padding-inline: 10px;
   max-width: 130px;
-}
-.lang select option {
-  color: #111;
-  background: #fff;
 }
 
 .menu {
@@ -116,6 +111,12 @@
   z-index: 60;
   border-radius: 22px;
 }
+/* Glass panels show the page through a blur, but a panel inside the blurred header cannot blur the page (browsers blur only one layer),
+   so the page text would show through. Its menus get an almost solid pane of the page colour instead. */
+:host-context([data-skin='glass']) .pop {
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+}
+
 .skin-opt {
   display: flex;
   align-items: center;
@@ -137,6 +138,41 @@
 .skin-opt.on {
   box-shadow: var(--btn-active-shadow);
   font-weight: 800;
+}
+
+/* Dark / Light / System side by side on top, the skins listed below. */
+.modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding-block-end: 8px;
+  border-block-end: 1px solid var(--line, rgba(128, 128, 128, 0.25));
+}
+.mode-opt {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 8px 4px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--muted);
+  font: 600 12.5px var(--font-body);
+  cursor: pointer;
+}
+.mode-opt:hover {
+  color: var(--text);
+  box-shadow: var(--btn-shadow);
+}
+.mode-opt.on {
+  color: var(--accent-ink);
+  box-shadow: var(--btn-active-shadow);
+  font-weight: 800;
+}
+.mode-opt:focus-visible,
+.skin-opt:focus-visible {
+  outline: 2px solid var(--focus, currentColor);
+  outline-offset: 2px;
 }
 
 /* Small previews, each drawn in its own skin so the choice is visible before picking */
@@ -220,13 +256,37 @@
 .user-pop a.skin-opt {
   text-decoration: none;
 }
+.who-card {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 12px 10px;
+  margin-block-end: 4px;
+  border-block-end: 1px solid var(--line, rgba(128, 128, 128, 0.25));
+}
 .who-mail {
+  display: grid;
+  min-width: 0;
   margin: 0;
-  padding: 4px 12px 8px;
   font-size: 13px;
   color: var(--muted);
+}
+.who-mail b {
+  color: var(--text);
+  font-size: 14px;
+}
+.who-mail span {
   direction: ltr;
   overflow-wrap: anywhere;
+}
+.who-mail small {
+  font-weight: 700;
+  color: var(--accent-ink, var(--text));
+}
+.who {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
 }
 
 /* Phones: full 44px tap targets; the name gives way to the icon on the smallest screens. */
@@ -316,5 +376,17 @@
 @media (max-width: 420px) {
   .brand-text {
     display: none;
+  }
+}
+
+/* Phones: a menu under a button that is not at the screen edge would run off the side, so menus span the screen below the bar. */
+@media (max-width: 560px) {
+  .pop {
+    position: fixed;
+    inset-block-start: 62px;
+    inset-inline: 12px;
+    width: auto;
+    max-height: calc(100dvh - 80px);
+    overflow-y: auto;
   }
 }

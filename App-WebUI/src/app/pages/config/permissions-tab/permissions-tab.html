@@ -1,13 +1,13 @@
-<section class="card grp" aria-labelledby="perm-h">
-  <h2 id="perm-h">{{ i18n.t('perm.h') }}</h2>
+<section class="sec" aria-labelledby="perm-h">
+  <h2 id="perm-h" class="sec-h">{{ i18n.t('perm.h') }}</h2>
   <p class="help">{{ i18n.t('perm.lead') }}</p>
   @if (error()) {
     <p class="status bad" role="alert">{{ error() }}</p>
   }
 
   @if (roles(); as rs) {
-    <label class="stack pick">
-      <span>{{ i18n.t('usr.role') }}</span>
+    <label class="field-row">
+      <span class="txt"><b>{{ i18n.t('usr.role') }}</b>@if (role()?.code === 'super-admin') { <small>{{ i18n.t('perm.super') }}</small> }</span>
       <select name="role" [disabled]="busy() !== null" (change)="pick($event)">
         @for (r of rs; track r.id) {
           <option [value]="r.id" [selected]="r.id === roleId()">{{ r.name }}</option>
@@ -15,82 +15,75 @@
       </select>
     </label>
   }
-
-  @if (role()?.code === 'super-admin') {
-    <p class="note">{{ i18n.t('perm.super') }}</p>
-  }
   @if (locked()) {
-    <p class="note">{{ i18n.t('role.locked') }}</p>
+    <p class="note lock">{{ i18n.t('role.locked') }}</p>
   }
 
   @if (list(); as l) {
-    <ul class="list">
-      @for (row of l.permissions; track row.id) {
-        <li class="inset">
-          <form [attr.aria-busy]="busy() === row.id" [attr.aria-label]="pageName(row.pageCode)" (submit)="save($event, row)">
-            <p class="who"><b>{{ pageName(row.pageCode) }}</b></p>
-            <fieldset class="bare" [disabled]="locked() || !canEdit() || busy() !== null">
-              <legend class="sr-only">{{ i18n.t('perm.rights', { page: pageName(row.pageCode) }) }}</legend>
-              <div class="rights">
-                <label class="chk"><input type="checkbox" name="canView" [checked]="row.canView" /><span>{{ i18n.t('perm.view') }}</span></label>
-                @if (page(row)?.hasAdd) {
-                  <label class="chk"><input type="checkbox" name="canAdd" [checked]="row.canAdd" /><span>{{ i18n.t('perm.add') }}</span></label>
-                }
-                <label class="chk"><input type="checkbox" name="canEdit" [checked]="row.canEdit" /><span>{{ i18n.t('perm.edit') }}</span></label>
-                @if (page(row)?.hasDelete) {
-                  <label class="chk"><input type="checkbox" name="canDelete" [checked]="row.canDelete" /><span>{{ i18n.t('perm.delete') }}</span></label>
-                }
-              </div>
-            </fieldset>
-            @if (!locked()) {
-              <div class="bar">
-                @if (noticeFor(row.id); as n) {
-                  <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
-                }
-                <div class="acts">
-                  @if (canDelete()) {
-                    <button type="button" class="btn danger" [disabled]="busy() !== null" (click)="remove(row)">{{ i18n.t(confirming() === row.id ? 'perm.remove.sure' : 'perm.remove') }}</button>
-                  }
-                  @if (canEdit()) {
-                    <button type="submit" class="btn pri" [disabled]="busy() !== null">{{ i18n.t(busy() === row.id ? 'cfg.save.saving' : 'cfg.save') }}</button>
-                  }
-                </div>
-              </div>
+    @if (l.permissions.length) {
+      <div class="mx" role="table" [attr.aria-label]="i18n.t('perm.h')">
+        <div class="mx-row mx-head" role="row">
+          <span role="columnheader">{{ i18n.t('perm.page') }}</span>
+          <span role="columnheader">{{ i18n.t('perm.view') }}</span>
+          <span role="columnheader">{{ i18n.t('perm.add') }}</span>
+          <span role="columnheader">{{ i18n.t('perm.edit') }}</span>
+          <span role="columnheader">{{ i18n.t('perm.delete') }}</span>
+          <span role="columnheader"><span class="sr-only">{{ i18n.t('perm.remove') }}</span></span>
+        </div>
+        @for (row of l.permissions; track row.id) {
+          <div class="mx-row" role="row" [attr.aria-busy]="busy() === row.id">
+            <span class="mx-page" role="rowheader"><b>{{ pageName(row.pageCode) }}</b></span>
+            <span role="cell" [attr.data-label]="i18n.t('perm.view')">
+              <input type="checkbox" role="switch" class="switch" [checked]="row.canView" [disabled]="locked() || !canEdit() || busy() !== null" [attr.aria-label]="i18n.t('perm.switch', { right: i18n.t('perm.view'), page: pageName(row.pageCode) })" (change)="toggle(row, 'canView', $event)" />
+            </span>
+            <span role="cell" [attr.data-label]="i18n.t('perm.add')">
+              @if (page(row)?.hasAdd) {
+                <input type="checkbox" role="switch" class="switch" [checked]="row.canAdd" [disabled]="locked() || !canEdit() || busy() !== null" [attr.aria-label]="i18n.t('perm.switch', { right: i18n.t('perm.add'), page: pageName(row.pageCode) })" (change)="toggle(row, 'canAdd', $event)" />
+              } @else {
+                <span class="na" [attr.title]="i18n.t('perm.na')">—<span class="sr-only">{{ i18n.t('perm.na') }}</span></span>
+              }
+            </span>
+            <span role="cell" [attr.data-label]="i18n.t('perm.edit')">
+              <input type="checkbox" role="switch" class="switch" [checked]="row.canEdit" [disabled]="locked() || !canEdit() || busy() !== null" [attr.aria-label]="i18n.t('perm.switch', { right: i18n.t('perm.edit'), page: pageName(row.pageCode) })" (change)="toggle(row, 'canEdit', $event)" />
+            </span>
+            <span role="cell" [attr.data-label]="i18n.t('perm.delete')">
+              @if (page(row)?.hasDelete) {
+                <input type="checkbox" role="switch" class="switch" [checked]="row.canDelete" [disabled]="locked() || !canEdit() || busy() !== null" [attr.aria-label]="i18n.t('perm.switch', { right: i18n.t('perm.delete'), page: pageName(row.pageCode) })" (change)="toggle(row, 'canDelete', $event)" />
+              } @else {
+                <span class="na" [attr.title]="i18n.t('perm.na')">—<span class="sr-only">{{ i18n.t('perm.na') }}</span></span>
+              }
+            </span>
+            <span role="cell" class="mx-end">
+              @if (canDelete() && !locked()) {
+                <button type="button" class="icon-btn danger" [class.sure]="confirming() === row.id" [disabled]="busy() !== null" [attr.aria-label]="i18n.t(confirming() === row.id ? 'perm.remove.sure' : 'perm.remove.name', { page: pageName(row.pageCode) })"
+                  [attr.title]="i18n.t(confirming() === row.id ? 'perm.remove.sure' : 'perm.remove')" (click)="remove(row)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+              }
+            </span>
+            @if (noticeFor(row.id); as n) {
+              <p class="status mx-note" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
             }
-          </form>
-        </li>
-      } @empty {
-        <li class="note">{{ i18n.t('perm.none') }}</li>
-      }
-    </ul>
+          </div>
+        }
+      </div>
+    } @else {
+      <p class="note">{{ i18n.t('perm.none') }}</p>
+    }
 
     @if (canAdd() && !locked() && free().length) {
-      <form class="add inset" [attr.aria-busy]="busy() === NEW" aria-labelledby="perm-add-h" (submit)="create($event)">
-        <h3 id="perm-add-h">{{ i18n.t('perm.add.h') }}</h3>
-        <fieldset class="bare" [disabled]="busy() !== null">
-          <legend class="sr-only">{{ i18n.t('perm.add.h') }}</legend>
-          <label class="stack">
-            <span>{{ i18n.t('perm.page') }}</span>
-            <select name="pageId" required>
-              @for (p of free(); track p.id) {
-                <option [value]="p.id">{{ pageName(p.code) }}</option>
-              }
-            </select>
-          </label>
-          <div class="rights">
-            <label class="chk"><input type="checkbox" name="canView" checked /><span>{{ i18n.t('perm.view') }}</span></label>
-            <label class="chk"><input type="checkbox" name="canAdd" /><span>{{ i18n.t('perm.add') }}</span></label>
-            <label class="chk"><input type="checkbox" name="canEdit" /><span>{{ i18n.t('perm.edit') }}</span></label>
-            <label class="chk"><input type="checkbox" name="canDelete" /><span>{{ i18n.t('perm.delete') }}</span></label>
-          </div>
-          <small class="was">{{ i18n.t('perm.add.help') }}</small>
-          <div class="bar">
-            @if (noticeFor(NEW); as n) {
-              <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+      <form [attr.aria-busy]="busy() === NEW" [attr.aria-label]="i18n.t('perm.add.h')" (submit)="create($event)">
+        <div class="addrow">
+          <select name="pageId" required [disabled]="busy() !== null" [attr.aria-label]="i18n.t('perm.page')">
+            @for (p of free(); track p.id) {
+              <option [value]="p.id">{{ pageName(p.code) }}</option>
             }
-            <button type="submit" class="btn pri">{{ i18n.t(busy() === NEW ? 'cfg.save.saving' : 'perm.add.btn') }}</button>
-          </div>
-        </fieldset>
+          </select>
+          <button type="submit" class="btn pri" [disabled]="busy() !== null"><span class="plus" aria-hidden="true">+</span>{{ i18n.t(busy() === NEW ? 'cfg.save.saving' : 'cfg.add') }}</button>
+        </div>
+        @if (noticeFor(NEW); as n) {
+          <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+        }
       </form>
     }
   } @else if (!error()) {
