@@ -1,0 +1,16 @@
+@use '../config';
+
+:host {
+  display: grid;
+}
+.code {
+  margin-inline-start: 6px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.row-note {
+  padding-block-end: 10px;
+}
+input[readonly] {
+  opacity: 0.7;
+}

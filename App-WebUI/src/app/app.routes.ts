@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { Speedtest } from './pages/speedtest/speedtest';
+import { appGuard, authGuard } from './core/auth.guards';
 
+const auth = () => import('./pages/auth/auth-page').then((m) => m.AuthPage);
 const status = () => import('./pages/not-found/status-page').then((m) => m.StatusPage);
 const staticPage = () => import('./pages/static/static-page').then((m) => m.StaticPage);
 
@@ -10,11 +12,11 @@ export const routes: Routes = [
   { path: 'hi', component: Speedtest, data: { lang: 'hi' } },
   { path: 'ar', component: Speedtest, data: { lang: 'ar' } },
 
-  { path: 'HR', loadComponent: () => import('./pages/atrium/atrium').then((m) => m.Atrium) },
+  { path: 'HR', loadComponent: () => import('./pages/atrium/atrium').then((m) => m.Atrium), canActivate: [appGuard('hr')] },
   { path: 'hr', redirectTo: 'HR' },
 
-  { path: 'creta', loadComponent: () => import('./pages/creta/creta').then((m) => m.Creta), data: { player: 'creta' } },
-  { path: 'nexon', loadComponent: () => import('./pages/creta/creta').then((m) => m.Creta), data: { player: 'nexon' } },
+  { path: 'creta', loadComponent: () => import('./pages/creta/creta').then((m) => m.Creta), canActivate: [appGuard('creta')], data: { player: 'creta' } },
+  { path: 'nexon', loadComponent: () => import('./pages/creta/creta').then((m) => m.Creta), canActivate: [appGuard('nexon')], data: { player: 'nexon' } },
   { path: 'Nexon', redirectTo: 'nexon' },
   { path: 'Creta', redirectTo: 'creta' },
   { path: 'audio', redirectTo: 'creta' },
@@ -25,13 +27,20 @@ export const routes: Routes = [
   { path: 'preetik', loadComponent: () => import('./pages/portfolio/preetik/portfolio').then((m) => m.Portfolio) },
   { path: 'Preetik', redirectTo: 'preetik' },
 
-  { path: 'youtube', loadComponent: () => import('./pages/youtube/youtube').then((m) => m.Youtube) },
+  { path: 'youtube', loadComponent: () => import('./pages/youtube/youtube').then((m) => m.Youtube), canActivate: [appGuard('youtube')] },
+
+  // The common login of every app. One page with two modes. Mojito has no API: the demo backend in the browser answers (core/demo).
+  { path: 'login', loadComponent: auth, data: { mode: 'login' } },
+  { path: 'signup', loadComponent: auth, data: { mode: 'signup' } },
+  { path: 'profile', loadComponent: () => import('./pages/profile/profile').then((m) => m.Profile), canActivate: [authGuard] },
+  { path: 'no-access', loadComponent: status, data: { kind: 'noaccess' } },
 
   { path: 'about', loadComponent: staticPage, data: { kind: 'about' } },
   { path: 'privacy', loadComponent: staticPage, data: { kind: 'privacy' } },
   { path: 'terms', loadComponent: staticPage, data: { kind: 'terms' } },
 
-  { path: 'master', loadComponent: () => import('./pages/config/config').then((m) => m.Config) },
+  // Any logged-in user may open it; each tab shows by the rights of the user's role.
+  { path: 'master', loadComponent: () => import('./pages/config/config').then((m) => m.Config), canActivate: [authGuard] },
   { path: 'config', redirectTo: 'master' },
   { path: 'disabled', loadComponent: status, data: { kind: '404' } },
 

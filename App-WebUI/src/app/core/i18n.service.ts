@@ -51,9 +51,9 @@ export class I18nService {
       }
   }
 
-  /** Translate a key. Reads the language signal, so templates update when the language changes. */
+  /** Translate a key; an unknown key (an app code this build does not name) is shown as it is. Reads the language signal, so templates update when the language changes. */
   t(key: TranslationKey, params?: Record<string, string | number>): string {
-    let text = DICTS[this.lang()][key] ?? EN[key];
+    let text: string = DICTS[this.lang()][key] ?? EN[key] ?? key;
     if (params)
       for (const [k, v] of Object.entries(params)) text = text.replaceAll(`{${k}}`, String(v));
     return text;

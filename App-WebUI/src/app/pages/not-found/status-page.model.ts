@@ -1,1 +1,1 @@
-export type Kind = '404' | 'error' | 'offline';
+export type Kind = '404' | 'error' | 'offline' | 'noaccess';

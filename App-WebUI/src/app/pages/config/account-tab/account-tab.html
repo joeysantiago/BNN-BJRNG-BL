@@ -1,0 +1,90 @@
+@if (auth.user(); as u) {
+  <section class="sec" aria-labelledby="acc-look">
+    <h2 id="acc-look" class="sec-h">{{ i18n.t('acc.look.h') }}</h2>
+    <p class="help">{{ i18n.t('acc.look.help') }}</p>
+    <label class="field-row">
+      <span class="txt"><b>{{ i18n.t('auth.p.language') }}</b></span>
+      <select name="language" [disabled]="!canEdit() || saving() !== null" (change)="saveLanguage($event)">
+        @for (l of i18n.languages; track l.code) {
+          <option [value]="l.code" [selected]="l.code === (u.language || i18n.lang())">{{ l.native }}</option>
+        }
+      </select>
+    </label>
+    <label class="field-row">
+      <span class="txt"><b>{{ i18n.t('theme.mode') }}</b></span>
+      <select name="mode" (change)="pickMode($event)">
+        @for (m of theme.modes; track m.id) {
+          <option [value]="m.id" [selected]="theme.activeMode() === m.id">{{ i18n.t(m.labelKey) }}</option>
+        }
+      </select>
+    </label>
+    <label class="field-row">
+      <span class="txt"><b>{{ i18n.t('theme.label') }}</b></span>
+      <select name="skin" (change)="pickSkin($event)">
+        @for (s of theme.skins; track s.id) {
+          <option [value]="s.id" [selected]="theme.skin() === s.id">{{ i18n.t(s.labelKey) }}</option>
+        }
+      </select>
+    </label>
+    @if (noticeFor('language'); as n) {
+      <p class="status note-line" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+    }
+  </section>
+
+  <section class="sec" aria-labelledby="acc-pw">
+    <h2 id="acc-pw" class="sec-h">{{ i18n.t('auth.p.pw.h') }}</h2>
+    <form [attr.aria-busy]="saving() === 'password'" (submit)="changePassword($event)">
+      <!-- The e-mail lets password managers file the new password under the right account. -->
+      <input type="email" name="username" autocomplete="username" [value]="u.email" hidden />
+      <fieldset class="bare" [disabled]="!canEdit() || saving() !== null">
+        <legend class="sr-only">{{ i18n.t('auth.p.pw.h') }}</legend>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('auth.p.pw.current') }}</b></span>
+          <input name="currentPassword" [type]="show() ? 'text' : 'password'" autocomplete="current-password" required />
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('auth.p.pw.new') }}</b><small id="acc-pw-hint">{{ i18n.t('auth.pwHint') }}</small></span>
+          <input name="newPassword" [type]="show() ? 'text' : 'password'" autocomplete="new-password" aria-describedby="acc-pw-hint" required />
+        </label>
+        <label class="opt">
+          <span class="txt"><b>{{ i18n.t('auth.show') }}</b></span>
+          <input type="checkbox" role="switch" class="switch" [checked]="show()" (change)="show.set(!show())" />
+        </label>
+      </fieldset>
+      @if (canEdit()) {
+        <div class="foot">
+          <button type="submit" class="btn pri" [disabled]="saving() !== null">{{ i18n.t(saving() === 'password' ? 'auth.busy' : 'auth.p.pw.btn') }}</button>
+          @if (noticeFor('password'); as n) {
+            <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+          }
+        </div>
+      }
+    </form>
+  </section>
+
+  <section class="sec" aria-labelledby="acc-own">
+    <h2 id="acc-own" class="sec-h">{{ i18n.t('acc.own.h') }}</h2>
+    <p class="help">{{ i18n.t('acc.own.help') }}</p>
+    @if (noticeFor('features'); as n) {
+      <p class="status note-line" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+    }
+    @for (g of groups(); track g.id) {
+      <fieldset class="bare own" [disabled]="!canEdit()">
+        <legend class="own-h">{{ g.label }}</legend>
+        <div class="opts">
+          @for (f of g.items; track f.id) {
+            <label class="opt">
+              <span class="txt">
+                <b>{{ f.label }}</b>
+                <small>{{ siteOff(f.id) ? i18n.t('acc.own.siteOff') : f.help }}</small>
+              </span>
+              <input type="checkbox" role="switch" class="switch" [checked]="shown(f.id) && !siteOff(f.id)" [disabled]="siteOff(f.id) || saving() === 'features'" (change)="toggle(f.id, $event)" />
+            </label>
+          }
+        </div>
+      </fieldset>
+    } @empty {
+      <p class="note">{{ i18n.t('acc.own.none') }}</p>
+    }
+  </section>
+}

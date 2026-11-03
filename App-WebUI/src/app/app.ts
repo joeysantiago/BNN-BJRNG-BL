@@ -1,5 +1,6 @@
 import { filter, map } from 'rxjs';
 import { pageFeature } from './core/features';
+import { AuthService } from './core/auth.service';
 import { I18nService } from './core/i18n.service';
 import { SiteFooter } from './shared/site-footer';
 import { SiteHeader } from './shared/site-header';
@@ -33,6 +34,7 @@ import { Component, afterNextRender, computed, effect, inject } from '@angular/c
 })
 export class App {
   protected readonly i18n = inject(I18nService);
+  private readonly auth = inject(AuthService);
   private readonly theme = inject(ThemeService);
   private readonly cfg = inject(SettingsService);
   private readonly router = inject(Router);
@@ -59,6 +61,8 @@ export class App {
       // Applied after hydration so the prerendered HTML and the first client render match.
       this.cfg.restore();
       this.theme.restore();
+      // Restore a login (saved in this browser by the demo backend, or from another open tab) once per page load. Guards wait for the same answer.
+      void this.auth.ensureSession();
       const stored = this.i18n.stored();
       if (!stored) return;
       // Read the real address, not router.url: when the page starts from the cached app shell the router has not finished its first navigation yet.

@@ -243,7 +243,69 @@
   margin-inline-start: auto;
 }
 
-/* The bar spans the full width, so the skin and language pickers sit in the top-right corner of every page, with a slimmer bar. */
+/* User menu: "Log in" when logged out, the display name with Profile, Master (administrators) and Log out when logged in. */
+.who-name {
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.user-pop {
+  width: min(260px, calc(100vw - 32px));
+}
+.user-pop a.skin-opt {
+  text-decoration: none;
+}
+.who-card {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 12px 10px;
+  margin-block-end: 4px;
+  border-block-end: 1px solid var(--line, rgba(128, 128, 128, 0.25));
+}
+.who-mail {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.who-mail b {
+  color: var(--text);
+  font-size: 14px;
+}
+.who-mail span {
+  direction: ltr;
+  overflow-wrap: anywhere;
+}
+.who-mail small {
+  font-weight: 700;
+  color: var(--accent-ink, var(--text));
+}
+.who {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Phones: full 44px tap targets; the name gives way to the icon on the smallest screens. */
+@media (max-width: 819px) {
+  .user .btn {
+    min-height: 44px;
+  }
+}
+@media (max-width: 420px) {
+  .who-name {
+    display: none;
+  }
+  .user .who {
+    min-width: 44px;
+    padding-inline: 10px;
+  }
+}
+
+/* The bar spans the full width, so the skin, language and login controls sit in the top-right corner of every page, with a slimmer bar. */
 .bar-in {
   width: auto;
   margin-inline: 0;
@@ -284,7 +346,7 @@
 }
 
 /* Phones and small tablets: one row only. The page links (speed test, connection details, services) are dropped,
-   since those sections sit right below on the same page, and the brand text shrinks so the pickers fit beside it. */
+   since those sections sit right below on the same page, and the brand text shrinks so the buttons fit beside it. */
 @media (max-width: 819px) {
   .nav {
     display: none;
@@ -292,9 +354,7 @@
   .bar-in {
     flex-wrap: nowrap;
   }
-  .brand {
-    min-width: 0;
-  }
+  .brand,
   .brand-text {
     min-width: 0;
   }
@@ -313,7 +373,7 @@
   }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 420px) {
   .brand-text {
     display: none;
   }

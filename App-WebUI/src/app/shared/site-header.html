@@ -37,18 +37,15 @@
       }
 
       @if (cfg.on('site.theme')) {
-      <div class="menu">
-        <button
-          type="button"
-          class="btn sm icon"
-          [class.is-on]="themeOpen()"
-          aria-haspopup="true"
-          [attr.aria-expanded]="themeOpen()"
-          aria-controls="theme-menu"
-          [attr.aria-label]="i18n.t('theme.label')"
-          (click)="toggleTheme($event)"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 22a10 10 0 1 1 10-10c0 2.5-2 3-3.5 3H16a2 2 0 0 0-1.5 3.3c.6.8.3 3.7-2.5 3.7z"/></svg>
+      <div class="menu skin">
+        <button type="button" class="btn sm icon" [class.is-on]="themeOpen()" aria-haspopup="true" [attr.aria-expanded]="themeOpen()" aria-controls="theme-menu" [attr.aria-label]="i18n.t('theme.label')" (click)="toggleTheme($event)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="13.5" cy="6.5" r="1"/>
+            <circle cx="17.5" cy="10.5" r="1"/>
+            <circle cx="8.5" cy="7.5" r="1"/>
+            <circle cx="6.5" cy="12.5" r="1"/>
+            <path d="M12 22a10 10 0 1 1 10-10c0 2.5-2 3-3.5 3H16a2 2 0 0 0-1.5 3.3c.6.8.3 3.7-2.5 3.7z"/>
+          </svg>
         </button>
         @if (themeOpen()) {
           <div class="pop card" id="theme-menu" role="group" [attr.aria-label]="i18n.t('theme.label')">
@@ -70,13 +67,7 @@
               }
             </div>
             @for (s of theme.skins; track s.id) {
-              <button
-                type="button"
-                class="skin-opt"
-                [class.on]="theme.skin() === s.id"
-                [attr.aria-pressed]="theme.skin() === s.id"
-                (click)="pick(s.id)"
-              >
+              <button type="button" class="skin-opt" [class.on]="theme.skin() === s.id" [attr.aria-pressed]="theme.skin() === s.id" (click)="pick(s.id)">
                 <span class="swatch" [attr.data-skin]="s.id" aria-hidden="true"></span>
                 <span>{{ i18n.t(s.labelKey) }}</span>
               </button>
@@ -97,6 +88,31 @@
         </select>
       </label>
       }
+
+      <div class="menu user">
+        @if (auth.user(); as u) {
+          <button type="button" class="btn sm who" [class.is-on]="userOpen()" aria-haspopup="true" [attr.aria-expanded]="userOpen()" aria-controls="user-menu" [attr.aria-label]="i18n.t('auth.menu', { name: u.displayName })"
+            (click)="toggleUser($event)">
+            <app-user-avatar [user]="u" [size]="26" />
+            <span class="who-name">{{ u.displayName }}</span>
+          </button>
+          @if (userOpen()) {
+            <div class="pop card user-pop" id="user-menu" role="group" [attr.aria-label]="i18n.t('auth.menu', { name: u.displayName })">
+              <div class="who-card">
+                <app-user-avatar [user]="u" [size]="40" />
+                <p class="who-mail"><b>{{ u.displayName }}</b><span>{{ u.email }}</span><small>{{ u.roleName }}</small></p>
+              </div>
+              <a class="skin-opt" routerLink="/profile" (click)="userOpen.set(false)">{{ i18n.t('auth.profile') }}</a>
+              @if (auth.canOpenSettings()) {
+                <a class="skin-opt" routerLink="/master" (click)="userOpen.set(false)">{{ i18n.t('auth.master') }}</a>
+              }
+              <button type="button" class="skin-opt" (click)="logout()">{{ i18n.t('auth.logout') }}</button>
+            </div>
+          }
+        } @else {
+          <a class="btn sm login" routerLink="/login" [queryParams]="loginParams()">{{ i18n.t('auth.loginLink') }}</a>
+        }
+      </div>
     </div>
   </div>
 </header>

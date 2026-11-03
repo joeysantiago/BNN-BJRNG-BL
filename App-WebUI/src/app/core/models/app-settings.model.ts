@@ -26,7 +26,10 @@ export interface FeatureInfo {
 
 export type FeatureFlags = Record<FeatureId, boolean>;
 
-/** What the /config page saves in this browser. Only what differs from appSettings.ts is stored. */
+/** A part of the Settings page that has its own Save button. `youtubeAccess` is the YouTube key and download helper. */
+export type SettingsSection = FeatureGroup | 'connection' | 'services' | 'youtubeAccess';
+
+/** Changes to appSettings.ts: the saved ones (kept by the demo backend) and the unsaved drafts of the Settings page. Only what differs is kept. */
 export interface SettingsOverrides {
   features?: Partial<FeatureFlags>;
   connection?: { enabled?: boolean; fields?: Partial<Record<ConnectionField, boolean>> };

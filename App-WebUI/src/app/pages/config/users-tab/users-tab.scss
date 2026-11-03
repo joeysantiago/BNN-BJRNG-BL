@@ -1,0 +1,15 @@
+@use '../config';
+
+:host {
+  display: grid;
+}
+.txt b small {
+  margin-inline-start: 6px;
+  font-weight: 500;
+}
+.row-note {
+  padding-block-end: 10px;
+}
+.add .apps {
+  margin-block-start: 4px;
+}

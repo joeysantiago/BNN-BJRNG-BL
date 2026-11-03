@@ -1,0 +1,120 @@
+<section class="sec" aria-labelledby="usr-h">
+  <h2 id="usr-h" class="sec-h">{{ i18n.t('usr.h') }}</h2>
+  <p class="help">{{ i18n.t('usr.lead') }}@if (autoApps()) { {{ i18n.t('cfg.users.auto', { apps: autoApps() }) }} }</p>
+  @if (error()) {
+    <p class="status bad" role="alert">{{ error() }}</p>
+  }
+
+  @if (access(); as a) {
+    <ul class="list">
+      @for (u of a.users; track u.id) {
+        <li class="item">
+          <div class="row">
+            <app-user-avatar [user]="u" [size]="36" />
+            <span class="txt">
+              <b>{{ u.displayName }}@if (u.id === auth.user()?.id) { <small>{{ i18n.t('cfg.users.you') }}</small> }</b>
+              <small class="mail">{{ u.email }}</small>
+            </span>
+            <span class="tags">
+              <span class="tag on">{{ u.roleName }}</span>
+              @for (name of appTags(u); track name) {
+                <span class="tag">{{ name }}</span>
+              }
+            </span>
+            <span class="icons">
+              @if (locked(u)) {
+                <span class="icon-btn" role="img" [attr.aria-label]="i18n.t('usr.locked')" [attr.title]="i18n.t('usr.locked')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                </span>
+              } @else {
+                @if (canEdit()) {
+                  <button type="button" class="icon-btn" [attr.aria-expanded]="editing() === u.id" [attr.aria-controls]="'usr-edit-' + u.id" [attr.aria-label]="i18n.t('cfg.edit.name', { name: u.displayName })" [attr.title]="i18n.t('cfg.edit')"
+                    (click)="toggleEdit(u.id)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                  </button>
+                }
+                @if (canDelete() && u.id !== auth.user()?.id) {
+                  <button type="button" class="icon-btn danger" [class.sure]="confirming() === u.id" [disabled]="busy() !== null" [attr.aria-label]="i18n.t(confirming() === u.id ? 'usr.delete.sure' : 'cfg.delete.name', { name: u.displayName })"
+                    [attr.title]="i18n.t(confirming() === u.id ? 'usr.delete.sure' : 'usr.delete')" (click)="remove(u)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                  </button>
+                }
+              }
+            </span>
+          </div>
+
+          @if (editing() === u.id) {
+            <form class="edit" [id]="'usr-edit-' + u.id" [attr.aria-busy]="busy() === u.id" [attr.aria-label]="i18n.t('cfg.edit.name', { name: u.displayName })" (submit)="save($event, u)">
+              <fieldset class="bare" [disabled]="busy() !== null">
+                <legend class="sr-only">{{ i18n.t('cfg.users.apps', { name: u.displayName }) }}</legend>
+                <div class="grid">
+                  <label class="stack">
+                    <span>{{ i18n.t('auth.name') }}</span>
+                    <input name="displayName" type="text" autocomplete="off" maxlength="100" required [value]="u.displayName" />
+                  </label>
+                  <label class="stack">
+                    <span>{{ i18n.t('usr.role') }}</span>
+                    <select name="roleId" [disabled]="u.id === auth.user()?.id">
+                      @for (r of roles(); track r.id) {
+                        <option [value]="r.id" [selected]="r.id === u.roleId">{{ roleName(r) }}</option>
+                      }
+                    </select>
+                    @if (u.id === auth.user()?.id) {
+                      <input type="hidden" name="roleId" [value]="u.roleId" />
+                      <small>{{ i18n.t('usr.self') }}</small>
+                    }
+                  </label>
+                </div>
+                @if (apps().length) {
+                  <div class="apps" role="group" [attr.aria-label]="i18n.t('usr.apps')">
+                    @for (app of apps(); track app.code) {
+                      <label class="chk"><input type="checkbox" name="app" [value]="app.code" [checked]="u.apps.includes(app.code)" /><span>{{ appName(app.code) }}</span></label>
+                    }
+                  </div>
+                }
+              </fieldset>
+              <div class="acts">
+                <button type="submit" class="btn pri" [disabled]="busy() !== null">{{ i18n.t(busy() === u.id ? 'cfg.save.saving' : 'cfg.save') }}</button>
+                <button type="button" class="btn" (click)="toggleEdit(u.id)">{{ i18n.t('cfg.cancel') }}</button>
+              </div>
+            </form>
+          }
+          @if (noticeFor(u.id); as n) {
+            <p class="status row-note" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+          }
+        </li>
+      }
+    </ul>
+
+    @if (canAdd()) {
+      <form class="add" [attr.aria-busy]="busy() === NEW" [attr.aria-label]="i18n.t('usr.add.h')" (submit)="create($event)">
+        <fieldset class="bare" [disabled]="busy() !== null">
+          <legend class="sr-only">{{ i18n.t('usr.add.h') }}</legend>
+          <div class="addrow">
+            <input name="email" type="email" inputmode="email" autocomplete="off" spellcheck="false" maxlength="256" required [attr.placeholder]="i18n.t('auth.email')" [attr.aria-label]="i18n.t('auth.email')" />
+            <input name="displayName" type="text" autocomplete="off" maxlength="100" [attr.placeholder]="i18n.t('auth.name')" [attr.aria-label]="i18n.t('auth.name')" />
+            <input name="password" type="password" autocomplete="new-password" required [attr.placeholder]="i18n.t('auth.password')" [attr.aria-label]="i18n.t('auth.password')" [attr.title]="i18n.t('auth.pwHint')" />
+            <select name="roleId" required [attr.aria-label]="i18n.t('usr.role')">
+              @for (r of roles(); track r.id) {
+                <option [value]="r.id" [selected]="r.id === defaultRole()">{{ roleName(r) }}</option>
+              }
+            </select>
+            <button type="submit" class="btn pri"><span class="plus" aria-hidden="true">+</span>{{ i18n.t(busy() === NEW ? 'cfg.save.saving' : 'cfg.add') }}</button>
+          </div>
+          @if (apps().length) {
+            <div class="apps" role="group" [attr.aria-label]="i18n.t('usr.apps')">
+              @for (app of apps(); track app.code) {
+                <label class="chk"><input type="checkbox" name="app" [value]="app.code" [checked]="app.autoGrant" /><span>{{ appName(app.code) }}</span></label>
+              }
+            </div>
+          }
+        </fieldset>
+        @if (noticeFor(NEW); as n) {
+          <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+        }
+      </form>
+    }
+  } @else if (!error()) {
+    <p class="help" role="status">{{ i18n.t('cfg.users.loading') }}</p>
+  }
+</section>

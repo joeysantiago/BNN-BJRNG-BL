@@ -1,0 +1,119 @@
+<div class="wrap page">
+  @if (auth.user(); as u) {
+    <h1 id="profile-h1" class="sr-only">{{ i18n.t('auth.p.h1') }}</h1>
+    <div class="layout">
+      <section class="card id" aria-labelledby="profile-name">
+        <div class="photo">
+          <app-user-avatar [user]="u" [size]="112" [label]="u.displayName" />
+          <div class="photo-acts">
+            <label class="btn sm" [class.is-busy]="saving() === 'photo'">
+              <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" [disabled]="saving() !== null" (change)="pickPhoto($event)" />
+              <span>{{ i18n.t(u.avatar ? 'auth.p.photo.change' : 'auth.p.photo.add') }}</span>
+            </label>
+            @if (u.avatar) {
+              <button type="button" class="btn sm ghost" [disabled]="saving() !== null" (click)="removePhoto()">{{ i18n.t('auth.p.photo.remove') }}</button>
+            }
+          </div>
+          <small class="hint">{{ i18n.t('auth.p.photo.help') }}</small>
+          @if (photoNotice(); as n) {
+            <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+          }
+        </div>
+        <h2 id="profile-name" class="name">{{ u.displayName }}</h2>
+        <p class="mail">{{ u.email }}</p>
+        <span class="badge">{{ u.roleName }}</span>
+        <dl class="facts">
+          <div><dt>{{ i18n.t('auth.p.since') }}</dt><dd>{{ since() }}</dd></div>
+          <div><dt>{{ i18n.t('auth.p.lastLogin') }}</dt><dd>{{ lastLogin() || i18n.t('auth.p.never') }}</dd></div>
+          <div><dt>{{ i18n.t('auth.p.appsCount') }}</dt><dd>{{ apps().length }}</dd></div>
+          <div><dt>{{ i18n.t('auth.p.language') }}</dt><dd>{{ i18n.info().native }}</dd></div>
+        </dl>
+        <div class="id-acts">
+          @if (auth.canOpenSettings()) {
+            <a class="btn" routerLink="/master">{{ i18n.t('auth.master') }}</a>
+          }
+          <button type="button" class="btn ghost" (click)="logout()">{{ i18n.t('auth.logout') }}</button>
+        </div>
+      </section>
+
+      <div class="col">
+        <section class="card" aria-labelledby="profile-details">
+          <h2 id="profile-details">{{ i18n.t('auth.p.details') }}</h2>
+          <form class="form" [attr.aria-busy]="saving() === 'details'" (submit)="saveDetails($event)">
+            <label class="field">
+              <span>{{ i18n.t('auth.name') }}</span>
+              <input name="displayName" type="text" autocomplete="name" maxlength="100" required [value]="u.displayName" [disabled]="saving() === 'details'" />
+            </label>
+            <label class="field">
+              <span>{{ i18n.t('auth.p.language') }}</span>
+              <select name="language" [disabled]="saving() === 'details'">
+                @for (l of i18n.languages; track l.code) {
+                  <option [value]="l.code" [selected]="l.code === (u.language || i18n.lang())">{{ l.native }}</option>
+                }
+              </select>
+            </label>
+            <div class="bar">
+              <button type="submit" class="btn pri" [disabled]="saving() !== null">{{ i18n.t(saving() === 'details' ? 'auth.busy' : 'auth.p.save') }}</button>
+              @if (infoNotice(); as n) {
+                <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+              }
+            </div>
+          </form>
+        </section>
+
+        <section class="card" aria-labelledby="profile-apps">
+          <h2 id="profile-apps">{{ i18n.t('auth.p.apps.h') }}</h2>
+          @if (apps().length) {
+            <ul class="apps">
+              @for (app of apps(); track app.code) {
+                <li>
+                  @if (app.path) {
+                    <a class="chip" [routerLink]="app.path">{{ i18n.t(app.name) }}</a>
+                  } @else {
+                    <span class="chip inert">{{ i18n.t(app.name) }}</span>
+                  }
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="note">{{ i18n.t('auth.p.apps.none') }}</p>
+          }
+          <p class="note">{{ i18n.t(u.isAdmin ? 'auth.p.adminNote' : 'auth.p.apps.note') }}</p>
+        </section>
+      </div>
+
+      <section class="card" aria-labelledby="profile-pw">
+        <h2 id="profile-pw">{{ i18n.t('auth.p.pw.h') }}</h2>
+        <form class="form" [attr.aria-busy]="saving() === 'password'" (submit)="changePassword($event)">
+          <!-- The e-mail lets password managers file the new password under the right account. -->
+          <input type="email" name="username" autocomplete="username" [value]="u.email" hidden />
+          <label class="field">
+            <span>{{ i18n.t('auth.p.pw.current') }}</span>
+            <input name="currentPassword" [type]="show() ? 'text' : 'password'" autocomplete="current-password" required [disabled]="saving() === 'password'" />
+          </label>
+          <label class="field">
+            <span>{{ i18n.t('auth.p.pw.new') }}</span>
+            <input name="newPassword" [type]="show() ? 'text' : 'password'" autocomplete="new-password" aria-describedby="profile-pw-hint" required [disabled]="saving() === 'password'" />
+            <small id="profile-pw-hint" class="hint">{{ i18n.t('auth.pwHint') }}</small>
+          </label>
+          <label class="check">
+            <input type="checkbox" [checked]="show()" (change)="show.set(!show())" />
+            <span>{{ i18n.t('auth.show') }}</span>
+          </label>
+          <div class="bar">
+            <button type="submit" class="btn pri" [disabled]="saving() !== null">{{ i18n.t(saving() === 'password' ? 'auth.busy' : 'auth.p.pw.btn') }}</button>
+            @if (pwNotice(); as n) {
+              <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+            }
+          </div>
+        </form>
+      </section>
+    </div>
+  } @else {
+    <section class="card head" aria-labelledby="profile-h1">
+      <h1 id="profile-h1">{{ i18n.t('auth.p.h1') }}</h1>
+      <p class="lead">{{ i18n.t('auth.p.signedOut') }}</p>
+      <a class="btn pri" routerLink="/login" [queryParams]="{ next: '/profile' }">{{ i18n.t('auth.login.btn') }}</a>
+    </section>
+  }
+</div>
