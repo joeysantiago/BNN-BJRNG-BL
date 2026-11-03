@@ -107,6 +107,8 @@ export class Config {
   /** Opens a tab and keeps it in the address (?tab=), so a reload or a shared link opens the same tab. */
   select(id: SettingsTab): void {
     this.requested.set(id);
+    // On phones the tab row scrolls sideways: bring the chosen tab fully into view.
+    document.getElementById(`cfg-tab-${id}`)?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
     void this.router.navigate([], { relativeTo: this.route, queryParams: { tab: id }, queryParamsHandling: 'merge', replaceUrl: true });
   }
 

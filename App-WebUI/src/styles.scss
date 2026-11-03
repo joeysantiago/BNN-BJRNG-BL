@@ -597,6 +597,15 @@ p {
 body:has(app-site-footer) main {
   padding-block-end: calc(var(--foot-h) + 16px + env(safe-area-inset-bottom));
 }
+/* Phones and tablets: an app with its own bottom tab bar (Khata) owns the bottom edge, so the site footer steps aside and frees the space. */
+@media (max-width: 1023px) {
+  body:has(.khata .k-tabs) app-site-footer {
+    display: none;
+  }
+  body:has(.khata .k-tabs) main {
+    padding-block-end: 0;
+  }
+}
 
 /* Dropdowns: the open list follows the skin instead of a white system box. Every browser gets the skin's colours on the options;
    browsers with customizable selects (Chrome and Edge 135+) also get a rounded panel, the skin's hover colour instead of system blue,
