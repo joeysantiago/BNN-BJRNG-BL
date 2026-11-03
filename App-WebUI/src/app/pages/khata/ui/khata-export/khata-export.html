@@ -1,0 +1,20 @@
+<div class="k-menu">
+  <button type="button" class="k-btn" aria-haspopup="true" [attr.aria-expanded]="open()" [class.is-busy]="!!busy()" (click)="toggle()"><svg kIco="download" [size]="18"></svg>{{ i18n.t('khata.x.export') }}<svg kIco="chevD" [size]="16"></svg></button>
+  @if (open()) {
+    <div class="k-pop" role="group" [attr.aria-label]="i18n.t('khata.x.export')">
+      @for (f of formats; track f) {
+        <button type="button" class="k-pop-opt" [disabled]="!!busy()" (click)="download(f)">
+          @if (busy() === f) {
+            <span class="k-spin k-brand-ink" aria-hidden="true"></span>
+          } @else {
+            <svg [kIco]="f === 'pdf' ? 'note' : 'list'" [size]="18"></svg>
+          }
+          {{ i18n.t('khata.x.' + f) }}
+        </button>
+      }
+      @if (error()) {
+        <p class="k-err" role="alert"><svg kIco="alert" [size]="16"></svg><span>{{ error() }}</span></p>
+      }
+    </div>
+  }
+</div>

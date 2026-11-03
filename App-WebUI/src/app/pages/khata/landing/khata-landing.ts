@@ -50,7 +50,7 @@ export class KhataLanding implements OnDestroy {
 
   constructor() {
     this.style.load();
-    this.pwa.enter(this.i18n.t('khata.app.name'));
+    this.pwa.enter();
     effect(() => {
       const title = this.i18n.t('seo.khata.title');
       const description = this.i18n.t('seo.khata.desc');

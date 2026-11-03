@@ -98,3 +98,20 @@ h1 {
   direction: ltr;
   overflow-wrap: anywhere;
 }
+
+/* SnapKhata and SnapTracker: password or one-time code, and e-mail or phone for the code. */
+.way {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.way .btn[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.way label.btn {
+  cursor: pointer;
+}

@@ -55,6 +55,26 @@
       </div>
     </section>
 
+    <section class="k-card" aria-labelledby="cs-notify">
+      <div class="k-card-h"><div><h2 id="cs-notify">{{ i18n.t('khata.cs.notifyTitle') }}</h2><p>{{ i18n.t('khata.cs.notifyLead', { name: c.name }) }}</p></div></div>
+      @if (notify(); as n) {
+        @for (ch of channels; track ch) {
+          <div class="k-set-row">
+            <span class="t">
+              <span class="k-ib brand"><svg [kIco]="ch === 'app' ? 'zap' : ch === 'sms' ? 'phone' : 'mail'" [size]="18"></svg></span>
+              <span>
+                <b>{{ i18n.t('khata.cs.ch.' + ch) }}</b>
+                <small>{{ ch === 'email' ? (c.email || i18n.t('khata.cs.noEmail')) : ch === 'sms' ? (c.mobile || i18n.t('khata.cs.noMobile')) : i18n.t('khata.cs.appHint') }}</small>
+              </span>
+            </span>
+            <span class="k-switch"><input #chBox type="checkbox" role="switch" [checked]="n[ch]" [disabled]="busy()" [attr.aria-label]="i18n.t('khata.cs.ch.' + ch)" (change)="toggleChannel(ch, chBox)" /><span></span></span>
+          </div>
+        }
+      } @else {
+        <span class="k-sk sk-bar"></span>
+      }
+    </section>
+
     <section class="k-card k-danger-card" aria-labelledby="cs-danger">
       <div class="k-set-row">
         <span class="t"><span class="k-ib give"><svg kIco="trash" [size]="18"></svg></span><span><b id="cs-danger">{{ i18n.t('khata.cs.delete') }}</b><small>{{ i18n.t('khata.cs.deleteHint') }}</small></span></span>

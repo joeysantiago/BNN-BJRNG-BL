@@ -20,6 +20,7 @@ export interface AuthUser {
   avatar: string | null;
   permissions: string[];
   hiddenFeatures: string[];
+  loginMethod?: LoginMethod;
   lastLoginOn: string | null;
 }
 
@@ -68,4 +69,31 @@ export interface AuthHooks {
 export interface DevLogin {
   email: string;
   password: string;
+}
+
+/** How this session logged in: the password, or a one-time code (only for the apps that allow it, never with admin rights). */
+export type LoginMethod = 'password' | 'otp';
+
+/** Where a one-time login code is sent. */
+export type OtpChannel = 'email' | 'sms';
+
+export interface OtpRequestResult {
+  resendInSeconds: number;
+  expiresInSeconds: number;
+}
+
+/** The account's mobile number, address and company, shown on the SnapKhata profile (and on its PDFs). */
+export interface ProfileDetails {
+  city: string | null;
+  state: string | null;
+  mobile: string | null;
+  country: string | null;
+  postalCode: string | null;
+  companyName: string | null;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  companyEmail: string | null;
+  companyPhone: string | null;
+  companyTaxId: string | null;
+  companyAddress: string | null;
 }

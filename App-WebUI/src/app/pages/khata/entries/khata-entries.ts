@@ -5,6 +5,7 @@ import { I18nService } from '../../../core/i18n.service';
 import { groupByMonth } from '../../../core/khata-format';
 import { KhataTxRow } from '../ui/khata-tx-row/khata-tx-row';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { KhataExport } from '../ui/khata-export/khata-export';
 import { KhataMissing } from '../ui/khata-missing/khata-missing';
 import { KhataApiService } from '../../../core/khata-api.service';
 import { KhataSkeleton } from '../ui/khata-skeleton/khata-skeleton';
@@ -19,7 +20,7 @@ import { KhataBook, KhataEntry, KhataEntryPage, KhataEntryQuery } from '../../..
   selector: 'app-khata-entries',
   templateUrl: './khata-entries.html',
   styleUrl: './khata-entries.scss',
-  imports: [RouterLink, KhataIcon, KhataTxRow, KhataEmptyArt, KhataSkeleton, KhataMissing, KhataMoneyPipe, KhataEntryToolbar],
+  imports: [RouterLink, KhataIcon, KhataTxRow, KhataEmptyArt, KhataSkeleton, KhataMissing, KhataMoneyPipe, KhataEntryToolbar, KhataExport],
 })
 
 export class KhataEntries {

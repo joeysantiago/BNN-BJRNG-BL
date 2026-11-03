@@ -6,6 +6,7 @@ import { I18nService } from '../../../core/i18n.service';
 import { contactErrors } from '../../../core/khata-format';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { KhataAvatar } from '../ui/khata-avatar/khata-avatar';
+import { KhataExport } from '../ui/khata-export/khata-export';
 import { KhataStatus } from '../ui/khata-status/khata-status';
 import { KhataUiService } from '../../../core/khata-ui.service';
 import { KhataMissing } from '../ui/khata-missing/khata-missing';
@@ -21,7 +22,7 @@ import { KHATA_CUSTOMER, KHATA_SUPPLIER, KhataBookContacts, KhataContactType, Kh
   selector: 'app-khata-parties',
   templateUrl: './khata-parties.html',
   styleUrl: './khata-parties.scss',
-  imports: [RouterLink, KhataIcon, KhataAvatar, KhataStatus, KhataEmptyArt, KhataSkeleton, KhataMissing, KhataMoneyPipe, KhataDatePipe],
+  imports: [RouterLink, KhataIcon, KhataAvatar, KhataStatus, KhataEmptyArt, KhataSkeleton, KhataMissing, KhataMoneyPipe, KhataDatePipe, KhataExport],
 })
 
 export class KhataParties {

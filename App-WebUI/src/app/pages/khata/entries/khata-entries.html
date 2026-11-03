@@ -7,7 +7,10 @@
         <h1>{{ i18n.t('khata.nav.entries') }}</h1>
         <p>{{ i18n.t('khata.en.lead', { book: book()!.name }) }}</p>
       </div>
-      <a class="k-btn pri" [routerLink]="['/khata/app/b', bookId(), 'new']"><svg kIco="plus" [size]="18"></svg>{{ i18n.t('khata.nav.newEntry') }}</a>
+      <div class="k-head-acts">
+        <app-khata-export [path]="'/khata/books/' + bookId() + '/transactions'" [query]="query()" fileName="entries" />
+        <a class="k-btn pri" [routerLink]="['/khata/app/b', bookId(), 'new']"><svg kIco="plus" [size]="18"></svg>{{ i18n.t('khata.nav.newEntry') }}</a>
+      </div>
     </div>
 
     <div class="k-sumbar">

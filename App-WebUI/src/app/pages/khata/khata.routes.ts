@@ -22,6 +22,7 @@ export const KHATA_ROUTES: Routes = [
       { path: '', loadComponent: () => import('./home/khata-home').then((m) => m.KhataHome) },
       { path: 'books', loadComponent: () => import('./books/khata-books').then((m) => m.KhataBooks) },
       { path: 'profile', loadComponent: () => import('./profile/khata-profile').then((m) => m.KhataProfile) },
+      { path: 'settings', loadComponent: () => import('./settings/khata-settings').then((m) => m.KhataSettings) },
       { path: 'b/:bookId', loadComponent: () => import('./dashboard/khata-dashboard').then((m) => m.KhataDashboard) },
       { path: 'b/:bookId/new', loadComponent: () => import('./entry-form/khata-entry-form').then((m) => m.KhataEntryForm) },
       { path: 'b/:bookId/parties', loadComponent: () => import('./parties/khata-parties').then((m) => m.KhataParties) },

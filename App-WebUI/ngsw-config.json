@@ -7,7 +7,7 @@
       "name": "app",
       "installMode": "prefetch",
       "resources": {
-        "files": ["/favicon.ico", "/index.csr.html", "/manifest.webmanifest", "/khata.webmanifest", "/*.css", "/*.js"]
+        "files": ["/favicon.ico", "/index.csr.html", "/manifest.webmanifest", "/*.css", "/*.js"]
       }
     },
     {

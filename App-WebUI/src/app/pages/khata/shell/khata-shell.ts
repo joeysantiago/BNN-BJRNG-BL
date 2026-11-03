@@ -1,19 +1,20 @@
 import { filter, map } from 'rxjs';
+import { Lang } from '../../../core/site';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { KhataIcon } from '../ui/khata-icon/khata-icon';
 import { AuthService } from '../../../core/auth.service';
 import { I18nService } from '../../../core/i18n.service';
+import { UserAvatar } from '../../../shared/user-avatar';
 import { ThemeService } from '../../../core/theme.service';
 import { ThemeMode } from '../../../core/models/theme.model';
 import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
-import { KhataAvatar } from '../ui/khata-avatar/khata-avatar';
 import { KhataUiService } from '../../../core/khata-ui.service';
 import { KhataPwaService } from '../../../core/khata-pwa.service';
 import { KhataStateService } from '../../../core/khata-state.service';
 import { KhataStyleService } from '../../../core/khata-style.service';
-import { KhataIconName, KhataNavItem } from '../../../core/models/khata.model';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
-import { Component, ElementRef, OnDestroy, afterNextRender, computed, effect, inject, viewChild } from '@angular/core';
+import { KhataIconName, KhataMenu, KhataNavItem } from '../../../core/models/khata.model';
+import { Component, ElementRef, OnDestroy, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
 
 const SWIPE_PX = 50;
 const THEME_FADE_MS = 450;
@@ -30,8 +31,8 @@ const MODE_ICONS: Record<ThemeMode, KhataIconName> = { light: 'sun', dark: 'moon
   selector: 'app-khata-shell',
   templateUrl: './khata-shell.html',
   styleUrl: './khata-shell.scss',
-  host: { '(document:keydown)': 'key($event)' },
-  imports: [RouterOutlet, RouterLink, NgTemplateOutlet, KhataIcon, KhataAvatar],
+  host: { '(document:keydown)': 'key($event)', '(document:click)': 'outside($event)' },
+  imports: [RouterOutlet, RouterLink, NgTemplateOutlet, KhataIcon, UserAvatar],
 })
 
 export class KhataShell implements OnDestroy {
@@ -47,6 +48,8 @@ export class KhataShell implements OnDestroy {
   protected readonly theme = inject(ThemeService);
   protected readonly state = inject(KhataStateService);
   protected readonly style = inject(KhataStyleService);
+  /** The open top-bar menu (language or theme), if any. */
+  protected readonly menu = signal<KhataMenu | null>(null);
   private readonly root = viewChild<ElementRef<HTMLElement>>('root');
   protected readonly bookId = computed(() => this.state.current()?.id ?? 0);
   private readonly sheet = viewChild<ElementRef<HTMLDialogElement>>('sheet');
@@ -67,6 +70,8 @@ export class KhataShell implements OnDestroy {
       return 'books';
     if (/^\/khata\/app\/profile/.test(path))
       return 'profile';
+    if (/^\/khata\/app\/settings/.test(path))
+      return 'settings';
     if (/^\/khata\/app\/b\/\d+\/?$/.test(path))
       return 'home';
     if (/^\/khata\/app\/b\/\d+\/(parties|contact)/.test(path))
@@ -80,14 +85,14 @@ export class KhataShell implements OnDestroy {
     const items: KhataNavItem[] = [{ id: 'home', key: 'khata.nav.home', link: id ? `/khata/app/b/${id}` : '/khata/app', icon: 'home' }];
     if (id)
       items.push({ id: 'parties', key: 'khata.nav.parties', link: `/khata/app/b/${id}/parties`, icon: 'users' }, { id: 'entries', key: 'khata.nav.entries', link: `/khata/app/b/${id}/entries`, icon: 'list' });
-    items.push({ id: 'books', key: 'khata.nav.books', link: '/khata/app/books', icon: 'book' }, { id: 'profile', key: 'khata.nav.profile', link: '/khata/app/profile', icon: 'user' });
+    items.push({ id: 'books', key: 'khata.nav.books', link: '/khata/app/books', icon: 'book' }, { id: 'profile', key: 'khata.nav.profile', link: '/khata/app/profile', icon: 'user' }, { id: 'settings', key: 'khata.nav.settings', link: '/khata/app/settings', icon: 'settings' });
     return items;
   });
 
   constructor() {
     this.style.load();
     afterNextRender(() => {
-      this.pwa.enter(this.i18n.t('khata.app.name'));
+      this.pwa.enter();
       void this.state.loadBooks().catch(() => null);
     });
     // The browser's address-bar colour follows the SnapKhata theme.
@@ -99,22 +104,33 @@ export class KhataShell implements OnDestroy {
 
   // #region Public Methods
 
-  cycleMode(): void {
-    this.setMode(MODES[(MODES.indexOf(this.theme.activeMode()) + 1) % MODES.length]);
-  }
-
   ngOnDestroy(): void {
     this.pwa.leave();
     this.ui.answer(false);
     this.ui.closeViewer();
   }
 
+  setLang(lang: Lang): void {
+    this.i18n.set(lang);
+    this.menu.set(null);
+  }
+
   /** Left / Right step through the photo viewer; in Arabic they swap, like the layout. */
   key(ev: KeyboardEvent): void {
+    if (ev.key === 'Escape' && this.menu()) {
+      this.menu.set(null);
+      return;
+    }
     if (!this.ui.viewer() || (ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft'))
       return;
     ev.preventDefault();
     this.ui.step((ev.key === 'ArrowRight') !== (this.i18n.dir() === 'rtl') ? 1 : -1);
+  }
+
+  /** A click outside the open top-bar menu closes it. */
+  outside(ev: MouseEvent): void {
+    if (this.menu() && !(ev.target as Element | null)?.closest('.k-menu'))
+      this.menu.set(null);
   }
 
   setMode(mode: ThemeMode): void {
@@ -135,6 +151,10 @@ export class KhataShell implements OnDestroy {
     this.swipeX = null;
     if (Math.abs(dx) > SWIPE_PX)
       this.ui.step((dx < 0) !== (this.i18n.dir() === 'rtl') ? 1 : -1);
+  }
+
+  toggleMenu(menu: KhataMenu): void {
+    this.menu.set(this.menu() === menu ? null : menu);
   }
 
   swipeStart(ev: PointerEvent): void {

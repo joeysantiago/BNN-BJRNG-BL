@@ -9,7 +9,10 @@
         <h1>{{ i18n.t('khata.nav.parties') }}</h1>
         <p>{{ i18n.t('khata.c.lead', { n: counts().all }) }}</p>
       </div>
-      <button type="button" class="k-btn pri" [attr.aria-expanded]="adding()" (click)="toggleAdd()"><svg [kIco]="adding() ? 'x' : 'plus'" [size]="18"></svg>{{ i18n.t(adding() ? 'khata.cancel' : 'khata.c.add') }}</button>
+      <div class="k-head-acts">
+        <app-khata-export [path]="'/khata/books/' + d.book.id + '/contacts'" fileName="parties" />
+        <button type="button" class="k-btn pri" [attr.aria-expanded]="adding()" (click)="toggleAdd()"><svg [kIco]="adding() ? 'x' : 'plus'" [size]="18"></svg>{{ i18n.t(adding() ? 'khata.cancel' : 'khata.c.add') }}</button>
+      </div>
     </div>
 
     @if (adding()) {

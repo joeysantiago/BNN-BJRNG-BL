@@ -2,7 +2,7 @@ import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { I18nService } from './i18n.service';
 import { Injectable, inject } from '@angular/core';
-import { KhataAttachment, KhataBook, KhataBookContacts, KhataBookRequest, KhataBookSummary, KhataContact, KhataContactRequest, KhataCurrency, KhataCurrencyRequest, KhataEntry, KhataEntryDetail, KhataEntryHistory, KhataEntryPage, KhataEntryQuery, KhataEntryRequest, KhataUpload } from './models/khata.model';
+import { KhataAttachment, KhataBook, KhataBookContacts, KhataBookRequest, KhataBookSummary, KhataContact, KhataContactRequest, KhataCurrency, KhataCurrencyRequest, KhataEntry, KhataEntryDetail, KhataEntryHistory, KhataEntryPage, KhataEntryQuery, KhataEntryRequest, KhataUpload, KhataExportFormat, KhataNotify, KhataSettings, KhataStorage, KhataStorageRequest } from './models/khata.model';
 
 const TIMEOUT = 30000;
 const UPLOAD_TIMEOUT = 120000;
@@ -23,6 +23,18 @@ export class KhataApiService {
 
   books(): Promise<KhataBook[]> {
     return this.call('GET', '/khata/books');
+  }
+
+  testStorage(): Promise<string> {
+    return this.call('POST', '/khata/storage/test', {}, {}, true);
+  }
+
+  storage(): Promise<KhataStorage> {
+    return this.call('GET', '/khata/storage');
+  }
+
+  settings(): Promise<KhataSettings> {
+    return this.call('GET', '/khata/settings');
   }
 
   currencies(): Promise<KhataCurrency[]> {
@@ -70,6 +82,18 @@ export class KhataApiService {
     return this.call('GET', `/khata/transactions/${entryId}/history`);
   }
 
+  notifications(contactId: number): Promise<KhataNotify> {
+    return this.call('GET', `/khata/contacts/${contactId}/notifications`);
+  }
+
+  saveStorage(request: KhataStorageRequest): Promise<string> {
+    return this.call('PUT', '/khata/storage', request, {}, true);
+  }
+
+  saveSettings(notificationsEnabled: boolean): Promise<string> {
+    return this.call('PUT', '/khata/settings', { notificationsEnabled }, {}, true);
+  }
+
   /** The dashboard of a book. `today` is the browser's own date, so "this month" is the reader's month. */
   summary(bookId: number, today: string): Promise<KhataBookSummary> {
     return this.call('GET', `/khata/books/${bookId}/summary?today=${today}`);
@@ -103,6 +127,10 @@ export class KhataApiService {
     return this.call('PUT', `/khata/transactions/${entryId}`, request);
   }
 
+  setNotifications(contactId: number, notify: KhataNotify): Promise<KhataNotify> {
+    return this.call('PUT', `/khata/contacts/${contactId}/notifications`, notify);
+  }
+
   updateContact(contactId: number, request: KhataContactRequest): Promise<KhataContact> {
     return this.call('PUT', `/khata/contacts/${contactId}`, request);
   }
@@ -117,6 +145,12 @@ export class KhataApiService {
 
   addEntry(contactId: number, request: KhataEntryRequest, key: string): Promise<KhataEntry> {
     return this.call('POST', `/khata/contacts/${contactId}/transactions`, request, { [IDEMPOTENCY]: key });
+  }
+
+  /** A PDF, Excel or CSV file of a list, built by the API from the same filters as the screen (every page). `path` is the list's address, such as /khata/books/1/transactions. */
+  exportFile(path: string, format: KhataExportFormat, query?: KhataEntryQuery): Promise<Blob> {
+    const params = query ? this.query(query) + '&' : '';
+    return this.api.blob(`${path}/export?${params}format=${format}`, { headers: this.headers() }, UPLOAD_TIMEOUT);
   }
 
   createContact(bookId: number, request: KhataContactRequest, key: string): Promise<KhataContact> {

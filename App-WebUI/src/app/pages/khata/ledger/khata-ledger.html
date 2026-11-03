@@ -44,7 +44,10 @@
       <div><small>{{ i18n.t('khata.nav.entries') }}</small><b class="k-num">{{ p.total }}</b></div>
     </div>
 
-    <h2 class="k-group k-group-h">{{ i18n.t('khata.e.historyAll') }}</h2>
+    <div class="k-row-h">
+      <h2 class="k-group k-group-h">{{ i18n.t('khata.e.historyAll') }}</h2>
+      <app-khata-export [path]="'/khata/contacts/' + contactId() + '/transactions'" [query]="query()" fileName="ledger" />
+    </div>
     @if (contact()!.lastEntryOn || filtered()) {
       <app-khata-entry-toolbar [(query)]="query" />
     }

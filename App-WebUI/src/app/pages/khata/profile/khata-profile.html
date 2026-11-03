@@ -1,56 +1,168 @@
-<div class="k-set k-stagger">
-  <div class="k-head">
-    <div><h1>{{ i18n.t('khata.p.title') }}</h1><p>{{ i18n.t('khata.p.lead') }}</p></div>
-  </div>
+@if (auth.user(); as u) {
+  <div class="k-page k-stagger">
+    <div class="k-head">
+      <div><h1>{{ i18n.t('khata.p.title') }}</h1><p>{{ i18n.t('khata.p.lead') }}</p></div>
+      <a class="k-btn" routerLink="/khata/app/settings"><svg kIco="settings" [size]="18"></svg>{{ i18n.t('khata.nav.settings') }}</a>
+    </div>
 
-  <section class="k-card" [attr.aria-label]="i18n.t('khata.p.account')">
-    <div class="k-set-row">
-      <span class="t"><span kAvatar [name]="auth.user()?.displayName || 'S'" size="lg"></span><span><b>{{ auth.user()?.displayName }}</b><small>{{ auth.user()?.email }} · {{ i18n.t('khata.p.signedIn') }}</small></span></span>
-    </div>
-    <div class="k-set-row">
-      <span class="t"><span class="k-ib brand"><svg kIco="user" [size]="18"></svg></span><span><b>{{ i18n.t('khata.p.manage') }}</b><small>{{ i18n.t('khata.p.manageHint') }}</small></span></span>
-      <a class="k-btn sm" routerLink="/profile">{{ i18n.t('auth.profile') }}</a>
-    </div>
-  </section>
-
-  <section class="k-card" aria-labelledby="ap-h">
-    <div class="k-card-h"><div><h2 id="ap-h">{{ i18n.t('khata.p.appearance') }}</h2><p>{{ i18n.t('khata.p.appearanceLead') }}</p></div></div>
-    <div class="k-themes" role="group" [attr.aria-label]="i18n.t('khata.theme.label')">
-      @for (m of modes; track m) {
-        <button type="button" class="k-theme" [attr.aria-pressed]="theme.activeMode() === m" (click)="theme.setMode(m)">
-          <span class="pv" [class]="'pv ' + m" aria-hidden="true"><i></i><i></i></span>
-          <span class="nm"><svg [kIco]="modeIcons[m]" [size]="16"></svg>{{ i18n.t('khata.theme.' + m) }}</span>
-        </button>
-      }
-    </div>
-    <div class="k-set-row k-mt8">
-      <span class="t"><span class="k-ib brand"><svg kIco="globe" [size]="18"></svg></span><span><b>{{ i18n.t('khata.p.language') }}</b><small>{{ i18n.t('khata.p.languageHint') }}</small></span></span>
-      <label class="k-field k-lang">
-        <span class="sr-only">{{ i18n.t('khata.p.language') }}</span>
-        <select (change)="setLang($any($event.target).value)">
-          @for (l of i18n.languages; track l.code) {
-            <option [value]="l.code" [selected]="l.code === i18n.lang()" [attr.lang]="l.code">{{ l.native }}</option>
+    <div class="k-profile">
+      <section class="k-card k-id" aria-labelledby="kp-name">
+        <div class="k-photo">
+          <app-user-avatar [user]="u" [size]="112" [label]="u.displayName" />
+          <div class="k-photo-acts">
+            <label class="k-btn sm" [class.is-busy]="saving() === 'photo'">
+              <input #photo type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" [disabled]="saving() !== null" (change)="pickPhoto(photo)" />
+              <svg kIco="camera" [size]="16"></svg>{{ i18n.t(u.avatar ? 'auth.p.photo.change' : 'auth.p.photo.add') }}
+            </label>
+            @if (u.avatar) {
+              <button type="button" class="k-btn sm ghost" [disabled]="saving() !== null" (click)="removePhoto()">{{ i18n.t('auth.p.photo.remove') }}</button>
+            }
+          </div>
+          <small class="k-hint">{{ i18n.t('auth.p.photo.help') }}</small>
+          @if (photoNotice(); as n) {
+            <p [class]="n.error ? 'k-err' : 'k-okmsg'" [attr.role]="n.error ? 'alert' : 'status'"><span>{{ n.text }}</span></p>
           }
-        </select>
-      </label>
-    </div>
-  </section>
+        </div>
+        <h2 id="kp-name" class="k-id-name">{{ u.displayName }}</h2>
+        <p class="k-muted">{{ u.email }}</p>
+        <span class="k-badge brand">{{ u.roleName }}</span>
+        <dl class="k-dl">
+          <div><dt><svg kIco="calendar" [size]="16"></svg>{{ i18n.t('auth.p.since') }}</dt><dd>{{ since() }}</dd></div>
+          <div><dt><svg kIco="history" [size]="16"></svg>{{ i18n.t('auth.p.lastLogin') }}</dt><dd>{{ lastLogin() || i18n.t('auth.p.never') }}</dd></div>
+          <div><dt><svg kIco="lock" [size]="16"></svg>{{ i18n.t('khata.p.method') }}</dt><dd>{{ i18n.t(byCode() ? 'khata.p.methodOtp' : 'khata.p.methodPassword') }}</dd></div>
+          <div><dt><svg kIco="globe" [size]="16"></svg>{{ i18n.t('auth.p.language') }}</dt><dd>{{ i18n.info().native }}</dd></div>
+        </dl>
+        <div class="k-actions k-start">
+          <a class="k-btn sm" routerLink="/khata/app/settings"><svg kIco="settings" [size]="16"></svg>{{ i18n.t('khata.nav.settings') }}</a>
+          <button type="button" class="k-btn sm danger" (click)="logout()"><svg kIco="logout" [size]="16"></svg>{{ i18n.t('khata.pin.logout') }}</button>
+        </div>
+      </section>
 
-  <section class="k-card" aria-labelledby="data-h">
-    <div class="k-card-h k-m0"><h2 id="data-h">{{ i18n.t('khata.p.data') }}</h2></div>
-    @if (!install.installed() && (install.canPrompt() || install.showIosHint())) {
-      <div class="k-set-row">
-        <span class="t"><span class="k-ib get"><svg kIco="install" [size]="18"></svg></span><span><b>{{ i18n.t('khata.p.install') }}</b><small>{{ iosHelp() ? i18n.t('install.ios.text') : i18n.t('khata.p.installHint') }}</small></span></span>
-        @if (install.canPrompt()) {
-          <button type="button" class="k-btn sm pri" (click)="install.prompt()">{{ i18n.t('install.btn') }}</button>
-        } @else {
-          <button type="button" class="k-btn sm" [attr.aria-expanded]="iosHelp()" (click)="iosHelp.set(!iosHelp())">{{ i18n.t('install.btn') }}</button>
+      <div class="k-col">
+        <section class="k-card" aria-labelledby="kp-details">
+          <div class="k-card-h k-m0"><h2 id="kp-details">{{ i18n.t('auth.p.details') }}</h2></div>
+          <form #info class="k-form" [attr.aria-busy]="saving() === 'details'" (submit)="$event.preventDefault(); saveInfo(info)">
+            <div class="k-two">
+              <label class="k-field"><span class="lbl">{{ i18n.t('auth.name') }}</span><input name="displayName" type="text" autocomplete="name" maxlength="100" required [value]="u.displayName" [disabled]="saving() === 'details'" /></label>
+              <label class="k-field"><span class="lbl">{{ i18n.t('auth.p.language') }}</span>
+                <select name="language" [disabled]="saving() === 'details'">
+                  @for (l of i18n.languages; track l.code) {
+                    <option [value]="l.code" [attr.lang]="l.code" [selected]="l.code === (u.language || i18n.lang())">{{ l.native }}</option>
+                  }
+                </select>
+              </label>
+            </div>
+            <div class="k-actions">
+              @if (infoNotice(); as n) {
+                <p [class]="n.error ? 'k-err k-grow' : 'k-okmsg k-grow'" [attr.role]="n.error ? 'alert' : 'status'"><span>{{ n.text }}</span></p>
+              }
+              <button type="submit" class="k-btn pri" [class.is-busy]="saving() === 'details'" [disabled]="saving() !== null">{{ i18n.t('auth.p.save') }}</button>
+            </div>
+          </form>
+        </section>
+
+        @if (!install.installed() && (install.canPrompt() || install.showIosHint())) {
+          <section class="k-card" aria-labelledby="kp-install">
+            <div class="k-set-row">
+              <span class="t">
+                <span class="k-ib get"><svg kIco="install" [size]="18"></svg></span>
+                <span><b id="kp-install">{{ i18n.t('khata.p.install') }}</b><small>{{ iosHelp() ? i18n.t('install.ios.text') : i18n.t('khata.p.installHint') }}</small></span>
+              </span>
+              @if (install.canPrompt()) {
+                <button type="button" class="k-btn sm pri" (click)="install.prompt()">{{ i18n.t('install.btn') }}</button>
+              } @else {
+                <button type="button" class="k-btn sm" [attr.aria-expanded]="iosHelp()" (click)="iosHelp.set(!iosHelp())">{{ i18n.t('install.btn') }}</button>
+              }
+            </div>
+          </section>
         }
       </div>
-    }
-    <div class="k-set-row">
-      <span class="t"><span class="k-ib give"><svg kIco="logout" [size]="18"></svg></span><span><b>{{ i18n.t('khata.pin.logout') }}</b><small>{{ i18n.t('khata.p.logoutHint') }}</small></span></span>
-      <button type="button" class="k-btn sm danger" (click)="logout()">{{ i18n.t('khata.pin.logout') }}</button>
+
+      <section class="k-card k-wide" aria-labelledby="kp-address">
+        <div class="k-card-h"><div><h2 id="kp-address">{{ i18n.t('khata.p.address') }}</h2><p>{{ i18n.t('khata.p.addressLead') }}</p></div></div>
+        @if (loaded()) {
+          <form #address class="k-form" novalidate [attr.aria-busy]="saving() === 'address'" (submit)="$event.preventDefault(); saveAddress(address)">
+            <fieldset class="k-plain k-form">
+              <legend class="k-legend-h">{{ i18n.t('khata.p.personal') }}</legend>
+              <div class="k-two">
+                <label class="k-field ico">
+                  <span class="lbl">{{ i18n.t('khata.p.mobile') }}</span>
+                  <svg kIco="phone" [size]="18"></svg>
+                  <input name="mobile" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" [value]="details()?.mobile ?? ''" />
+                </label>
+                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.line1') }}</span><input name="addressLine1" type="text" autocomplete="address-line1" maxlength="200" [value]="details()?.addressLine1 ?? ''" /></label>
+                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.line2') }}</span><input name="addressLine2" type="text" autocomplete="address-line2" maxlength="200" [value]="details()?.addressLine2 ?? ''" /></label>
+                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.city') }}</span><input name="city" type="text" autocomplete="address-level2" maxlength="100" [value]="details()?.city ?? ''" /></label>
+                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.state') }}</span><input name="state" type="text" autocomplete="address-level1" maxlength="100" [value]="details()?.state ?? ''" /></label>
+                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.postalCode') }}</span><input name="postalCode" type="text" autocomplete="postal-code" maxlength="20" [value]="details()?.postalCode ?? ''" /></label>
+                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.country') }}</span><input name="country" type="text" autocomplete="country-name" maxlength="100" [value]="details()?.country ?? ''" /></label>
+              </div>
+            </fieldset>
+            <fieldset class="k-plain k-form">
+              <legend class="k-legend-h">{{ i18n.t('khata.p.company') }}</legend>
+              <div class="k-two">
+                <label class="k-field ico">
+                  <span class="lbl">{{ i18n.t('khata.p.companyName') }}</span>
+                  <svg kIco="store" [size]="18"></svg>
+                  <input name="companyName" type="text" autocomplete="organization" maxlength="200" [value]="details()?.companyName ?? ''" />
+                </label>
+                <label class="k-field ico">
+                  <span class="lbl">{{ i18n.t('khata.p.companyTaxId') }}</span>
+                  <svg kIco="hash" [size]="18"></svg>
+                  <input name="companyTaxId" type="text" autocomplete="off" maxlength="30" [value]="details()?.companyTaxId ?? ''" />
+                </label>
+                <label class="k-field ico">
+                  <span class="lbl">{{ i18n.t('khata.p.companyEmail') }}</span>
+                  <svg kIco="mail" [size]="18"></svg>
+                  <input name="companyEmail" type="email" inputmode="email" autocomplete="off" maxlength="200" [value]="details()?.companyEmail ?? ''" />
+                </label>
+                <label class="k-field ico">
+                  <span class="lbl">{{ i18n.t('khata.p.companyPhone') }}</span>
+                  <svg kIco="phone" [size]="18"></svg>
+                  <input name="companyPhone" type="tel" inputmode="tel" autocomplete="off" maxlength="20" [value]="details()?.companyPhone ?? ''" />
+                </label>
+              </div>
+              <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.companyAddress') }}</span><textarea name="companyAddress" maxlength="400" [value]="details()?.companyAddress ?? ''"></textarea></label>
+            </fieldset>
+            <div class="k-actions">
+              @if (addressNotice(); as n) {
+                <p [class]="n.error ? 'k-err k-grow' : 'k-okmsg k-grow'" [attr.role]="n.error ? 'alert' : 'status'"><span>{{ n.text }}</span></p>
+              }
+              <button type="submit" class="k-btn pri" [class.is-busy]="saving() === 'address'" [disabled]="saving() !== null"><svg kIco="check" [size]="18"></svg>{{ i18n.t('auth.p.save') }}</button>
+            </div>
+          </form>
+        } @else {
+          <span class="k-sk sk-chart"></span>
+        }
+      </section>
+
+      @if (!byCode()) {
+        <section class="k-card k-wide" aria-labelledby="kp-pw">
+          <div class="k-card-h k-m0"><h2 id="kp-pw">{{ i18n.t('auth.p.pw.h') }}</h2></div>
+          <form #pw class="k-form" [attr.aria-busy]="saving() === 'password'" (submit)="$event.preventDefault(); changePassword(pw)">
+            <!-- The e-mail lets password managers file the new password under the right account. -->
+            <input type="email" name="username" autocomplete="username" [value]="u.email" hidden />
+            <div class="k-two">
+              <label class="k-field">
+                <span class="lbl">{{ i18n.t('auth.p.pw.current') }}</span>
+                <input name="currentPassword" [type]="show() ? 'text' : 'password'" autocomplete="current-password" required [disabled]="saving() === 'password'" />
+              </label>
+              <label class="k-field">
+                <span class="lbl">{{ i18n.t('auth.p.pw.new') }}</span>
+                <input name="newPassword" [type]="show() ? 'text' : 'password'" autocomplete="new-password" aria-describedby="kp-pw-hint" required [disabled]="saving() === 'password'" />
+              </label>
+            </div>
+            <p id="kp-pw-hint" class="k-hint">{{ i18n.t('auth.pwHint') }}</p>
+            <label class="k-check"><input type="checkbox" [checked]="show()" (change)="show.set(!show())" /><span>{{ i18n.t('auth.show') }}</span></label>
+            <div class="k-actions">
+              @if (pwNotice(); as n) {
+                <p [class]="n.error ? 'k-err k-grow' : 'k-okmsg k-grow'" [attr.role]="n.error ? 'alert' : 'status'"><span>{{ n.text }}</span></p>
+              }
+              <button type="submit" class="k-btn pri" [class.is-busy]="saving() === 'password'" [disabled]="saving() !== null">{{ i18n.t('auth.p.pw.btn') }}</button>
+            </div>
+          </form>
+        </section>
+      }
     </div>
-  </section>
-</div>
+  </div>
+}

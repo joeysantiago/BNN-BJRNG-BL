@@ -5,8 +5,8 @@ import { SettingsService } from './settings.service';
 import { environment } from '../../environments/environment';
 import { PageCode, PermissionAction } from './models/role.model';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
-import { AuthResult, AuthTabMessage, AuthUser } from './models/auth.model';
 import { Injectable, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
+import { AuthResult, AuthTabMessage, AuthUser, OtpChannel, OtpRequestResult, ProfileDetails } from './models/auth.model';
 
 const TIMEOUT = environment.timings.authCallMs;
 const HELLO_WAIT_MS = environment.timings.tabHelloMs;
@@ -109,6 +109,11 @@ export class AuthService {
     return this.restoring;
   }
 
+  /** The mobile number, address and company of this account. */
+  details(): Promise<ProfileDetails> {
+    return this.api.send<ProfileDetails>('GET', '/auth/me/details', this.init(), TIMEOUT);
+  }
+
   async removeAvatar(): Promise<string> {
     const res = await this.api.sendFull<AuthUser>('DELETE', '/auth/avatar', this.init(), TIMEOUT);
     this.patchUser(res.data);
@@ -136,6 +141,12 @@ export class AuthService {
     return res.message ?? '';
   }
 
+  /** Saves the mobile number, address and company. Resolves with the server's message. */
+  async saveDetails(details: ProfileDetails): Promise<string> {
+    const res = await this.api.sendFull<ProfileDetails>('PUT', '/auth/me/details', this.init(details), TIMEOUT);
+    return res.message ?? '';
+  }
+
   /** A right of the user's role on a Settings page; a super admin has every right. The API checks the same rule. */
   can(page: PageCode, action: PermissionAction = 'view'): boolean {
     return this.isSuperAdmin() || (this.user()?.permissions ?? []).includes(`${page}:${action}`);
@@ -159,6 +170,16 @@ export class AuthService {
 
   async register(email: string, password: string, displayName: string): Promise<AuthUser> {
     return this.signIn(await this.api.send<AuthResult>('POST', '/auth/register', this.init({ email, password, displayName }), TIMEOUT));
+  }
+
+  /** Sends a one-time login code by e-mail or SMS, for an app that allows code login (SnapKhata, SnapTracker). */
+  otpRequest(channel: OtpChannel, destination: string, app: string): Promise<OtpRequestResult> {
+    return this.api.send<OtpRequestResult>('POST', '/auth/otp/request', this.init({ channel, destination, app }), TIMEOUT);
+  }
+
+  /** Logs in with a one-time code; the session is the same common login, limited to the apps that allow code login. */
+  async otpVerify(channel: OtpChannel, destination: string, code: string, app: string): Promise<AuthUser> {
+    return this.signIn(await this.api.send<AuthResult>('POST', '/auth/otp/verify', this.init({ channel, destination, code, app }), TIMEOUT));
   }
 
   // #endregion

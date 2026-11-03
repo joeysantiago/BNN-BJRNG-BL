@@ -6,6 +6,7 @@ import { groupByMonth } from '../../../core/khata-format';
 import { KhataTxRow } from '../ui/khata-tx-row/khata-tx-row';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { KhataAvatar } from '../ui/khata-avatar/khata-avatar';
+import { KhataExport } from '../ui/khata-export/khata-export';
 import { KhataStatus } from '../ui/khata-status/khata-status';
 import { KhataMissing } from '../ui/khata-missing/khata-missing';
 import { KhataApiService } from '../../../core/khata-api.service';
@@ -25,7 +26,7 @@ import { KHATA_CUSTOMER, KHATA_GAVE, KHATA_GOT, KhataBook, KhataContact, KhataEn
   selector: 'app-khata-ledger',
   templateUrl: './khata-ledger.html',
   styleUrl: './khata-ledger.scss',
-  imports: [RouterLink, KhataIcon, KhataTxRow, KhataAvatar, KhataStatus, KhataEmptyArt, KhataSkeleton, KhataMissing, KhataMoneyPipe, KhataCountDirective, KhataEntryToolbar],
+  imports: [RouterLink, KhataIcon, KhataTxRow, KhataAvatar, KhataStatus, KhataEmptyArt, KhataSkeleton, KhataMissing, KhataMoneyPipe, KhataCountDirective, KhataEntryToolbar, KhataExport],
 })
 
 export class KhataLedger {

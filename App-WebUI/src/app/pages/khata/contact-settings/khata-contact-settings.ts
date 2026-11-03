@@ -10,7 +10,7 @@ import { KhataSkeleton } from '../ui/khata-skeleton/khata-skeleton';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { KhataStateService } from '../../../core/khata-state.service';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
-import { KHATA_CUSTOMER, KHATA_SUPPLIER, KhataContact, KhataContactType } from '../../../core/models/khata.model';
+import { KHATA_CUSTOMER, KHATA_SUPPLIER, KhataContact, KhataContactType, KhataNotify } from '../../../core/models/khata.model';
 
 /** /khata/app/b/:bookId/contact/:contactId/settings: a party's details, the "can add entries" switch and "Delete contact" (both ask to confirm). */
 @Component({
@@ -33,8 +33,10 @@ export class KhataContactSettings {
   private readonly api = inject(KhataApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly state = inject(KhataStateService);
+  protected readonly notify = signal<KhataNotify | null>(null);
   protected readonly contact = signal<KhataContact | null>(null);
   protected readonly invalid = signal<Record<string, boolean>>({});
+  protected readonly channels: (keyof KhataNotify)[] = ['app', 'sms', 'email'];
   protected readonly bookId = computed(() => Number(this.params().get('bookId')));
   protected readonly contactId = computed(() => Number(this.params().get('contactId')));
   private readonly params = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
@@ -96,6 +98,30 @@ export class KhataContactSettings {
     box.checked = this.contact()?.allowContactEntries ?? false;
   }
 
+  /**
+   * Turns one way of telling this party about entries on or off. Email needs the party's email and SMS their mobile number: when it is missing
+   * the switch goes back at once and the reader is told what to add (the API checks the same).
+   */
+  async toggleChannel(channel: keyof KhataNotify, box: HTMLInputElement): Promise<void> {
+    const contact = this.contact();
+    const current = this.notify();
+    const on = box.checked;
+    if (!contact || !current)
+      return;
+    const missing = on && ((channel === 'email' && !contact.email) || (channel === 'sms' && !contact.mobile));
+    if (missing) {
+      box.checked = false;
+      this.info.set('');
+      this.error.set(this.i18n.t(channel === 'email' ? 'khata.cs.notifyNeedEmail' : 'khata.cs.notifyNeedMobile', { name: contact.name }));
+      return;
+    }
+    await this.run(async () => {
+      this.notify.set(await this.api.setNotifications(contact.id, { ...current, [channel]: on }));
+      this.info.set(this.i18n.t(on ? 'khata.cs.notifyOn' : 'khata.cs.notifyOff', { name: contact.name, channel: this.i18n.t('khata.cs.ch.' + channel) }));
+    });
+    box.checked = this.notify()?.[channel] ?? false;
+  }
+
   // #endregion
 
   // #region Private Methods
@@ -124,6 +150,8 @@ export class KhataContactSettings {
       this.contact.set(contact);
       if (!contact)
         this.missing.set(this.i18n.t('khata.nf.lead'));
+      else
+        this.notify.set(contact.notify ?? (await this.api.notifications(contact.id)));
     } catch (e) {
       const err = e as Error & { status?: number };
       (err.status === 404 ? this.missing : this.error).set(err.message);

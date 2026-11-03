@@ -88,6 +88,7 @@ export interface KhataContact {
   shareStatus: number;
   balanceMinor: number;
   lastEntryOn?: string;
+  notify?: KhataNotify;
   allowContactEntries: boolean;
   contactType: KhataContactType;
 }
@@ -311,4 +312,53 @@ export interface KhataDelta {
 export interface KhataLandingFeature {
   key: string;
   icon: KhataIconName;
+}
+
+/** Which channels tell a party about a new or changed entry. Email needs the party's email, SMS their mobile number. */
+export interface KhataNotify {
+  app: boolean;
+  sms: boolean;
+  email: boolean;
+}
+
+export type KhataStorageProvider = 'local' | 'azure';
+
+/** The reader's own SnapKhata settings. */
+export interface KhataSettings {
+  notificationsEnabled: boolean;
+  storage: { provider: KhataStorageProvider };
+}
+
+/** Where bill photos are kept, for the whole site. Only a super admin logged in with a password sees and changes it; the key is never sent back. */
+export interface KhataStorage {
+  hasKey: boolean;
+  enabled: boolean;
+  accountName: string;
+  containerName: string;
+  provider: KhataStorageProvider;
+}
+
+export interface KhataStorageRequest {
+  enabled: boolean;
+  accountName: string;
+  containerName: string;
+  connectionString?: string;
+  provider: KhataStorageProvider;
+}
+
+export type KhataExportFormat = 'pdf' | 'xlsx' | 'csv';
+
+/** A tab of the SnapKhata settings screen. */
+export type KhataSettingsTab = 'general' | 'notifications' | 'storage';
+
+/** A menu of the SnapKhata top bar. */
+export type KhataMenu = 'lang' | 'theme';
+
+/** Which form of the SnapKhata profile is saving. */
+export type KhataProfileForm = 'photo' | 'details' | 'address' | 'password';
+
+/** The result line under a form: the server's message, or its error. */
+export interface KhataNotice {
+  text: string;
+  error: boolean;
 }
