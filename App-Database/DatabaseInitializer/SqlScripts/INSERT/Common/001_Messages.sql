@@ -86,6 +86,11 @@ BEGIN
         ('KHATA_ENTRY_DELETED', N'{"en":"The entry has been deleted.","hi":"एंट्री हटा दी गई है।","ar":"تم حذف القيد."}'),
         ('KHATA_CHANGED_ELSEWHERE', N'{"en":"This was changed by someone else. Reload and try again.","hi":"इसे किसी और ने बदल दिया है। फिर से लोड करें और दोबारा प्रयास करें।","ar":"قام شخص آخر بتغيير هذا. أعد التحميل وحاول مرة أخرى."}'),
         ('KHATA_REQUEST_IN_PROGRESS', N'{"en":"This request is already being processed.","hi":"यह अनुरोध पहले से प्रोसेस हो रहा है।","ar":"هذا الطلب قيد المعالجة بالفعل."}'),
-        ('KHATA_REQUEST_KEY_REUSED', N'{"en":"This request key was already used for a different request.","hi":"यह अनुरोध कुंजी किसी दूसरे अनुरोध के लिए पहले ही उपयोग हो चुकी है।","ar":"تم استخدام مفتاح الطلب هذا بالفعل لطلب مختلف."}');
+        ('KHATA_REQUEST_KEY_REUSED', N'{"en":"This request key was already used for a different request.","hi":"यह अनुरोध कुंजी किसी दूसरे अनुरोध के लिए पहले ही उपयोग हो चुकी है।","ar":"تم استخدام مفتاح الطلب هذا بالفعل لطلب مختلف."}'),
+        ('KHATA_QUERY_INVALID', N'{"en":"Some of the filters are not valid.","hi":"कुछ फ़िल्टर मान्य नहीं हैं।","ar":"بعض عوامل التصفية غير صالحة."}'),
+        ('KHATA_PHOTO_INVALID', N'{"en":"Add JPG, PNG, WebP or GIF photos of up to {0} MB each.","hi":"हर फ़ोटो {0} MB तक की JPG, PNG, WebP या GIF होनी चाहिए।","ar":"أضف صور JPG أو PNG أو WebP أو GIF لا يزيد حجم كل منها عن {0} ميغابايت."}'),
+        ('KHATA_PHOTO_LIMIT', N'{"en":"An entry can have up to {0} photos.","hi":"एक एंट्री में अधिकतम {0} फ़ोटो हो सकती हैं।","ar":"يمكن أن يحتوي القيد على {0} صور كحد أقصى."}'),
+        ('KHATA_ATTACHMENT_NOT_FOUND', N'{"en":"This photo was not found.","hi":"यह फ़ोटो नहीं मिली।","ar":"لم يتم العثور على هذه الصورة."}'),
+        ('KHATA_ATTACHMENT_DELETED', N'{"en":"The photo has been removed.","hi":"फ़ोटो हटा दी गई है।","ar":"تمت إزالة الصورة."}');
 END
 GO
