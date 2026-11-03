@@ -4,6 +4,7 @@ import { ApiService } from '../../../core/api.service';
 import { FEATURE_APPS } from '../../../feature-routes';
 import { AuthService } from '../../../core/auth.service';
 import { I18nService } from '../../../core/i18n.service';
+import { UserAvatar } from '../../../shared/user-avatar';
 import { RoleInfo } from '../../../core/models/role.model';
 import { AuthUser, UserAccess } from '../../../core/models/auth.model';
 import { Component, afterNextRender, computed, inject, signal } from '@angular/core';
@@ -18,6 +19,7 @@ const NEW = 0;
  */
 @Component({
   selector: 'app-users-tab',
+  imports: [UserAvatar],
   templateUrl: './users-tab.html',
   styleUrl: './users-tab.scss',
 })
@@ -29,6 +31,8 @@ export class UsersTab {
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
   protected readonly busy = signal<number | null>(null);
+  /** The user whose row is open for editing. */
+  protected readonly editing = signal<number | null>(null);
   protected readonly access = signal<UserAccess | null>(null);
   protected readonly confirming = signal<number | null>(null);
   protected readonly notice = signal<UserNotice | null>(null);
@@ -48,6 +52,11 @@ export class UsersTab {
 
   // #region Public Methods
 
+  toggleEdit(id: number): void {
+    this.notice.set(null);
+    this.editing.update((e) => (e === id ? null : id));
+  }
+
   appName(code: string): string {
     return this.i18n.t(appLink(code).name);
   }
@@ -59,6 +68,11 @@ export class UsersTab {
 
   roleName(role: RoleInfo): string {
     return role.isDefault ? this.i18n.t('usr.role.default', { name: role.name }) : role.name;
+  }
+
+  /** The apps of this branch the user may open, as tags in the row. */
+  appTags(user: AuthUser): string[] {
+    return user.apps.filter((c) => FEATURE_APPS.includes(c)).map((c) => this.appName(c));
   }
 
   /** Adds a user with the chosen role. The form is read before its fields are disabled (disabled fields are not sent). */
@@ -102,6 +116,7 @@ export class UsersTab {
     await this.run(user.id, async () => {
       const res = await this.api.sendFull<AuthUser>('PUT', `/admin/users/${user.id}`, this.api.json(body));
       this.access.update((a) => (a ? { ...a, users: a.users.map((u) => (u.id === user.id ? res.data : u)) } : a));
+      this.editing.set(null);
       return res.message ?? '';
     });
   }

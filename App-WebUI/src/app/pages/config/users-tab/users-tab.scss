@@ -1,15 +1,15 @@
 @use '../config';
 
-.add {
+:host {
   display: grid;
-  gap: 12px;
-  padding: 16px;
-  margin-block-start: 12px;
 }
-.add h3 {
-  margin: 0 0 8px;
-  font-size: 1.05rem;
+.txt b small {
+  margin-inline-start: 6px;
+  font-weight: 500;
 }
-.apps {
-  margin-block-start: 8px;
+.row-note {
+  padding-block-end: 10px;
+}
+.add .apps {
+  margin-block-start: 4px;
 }

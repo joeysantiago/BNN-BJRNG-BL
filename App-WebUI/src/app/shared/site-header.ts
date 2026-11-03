@@ -1,8 +1,9 @@
 import { filter, map } from 'rxjs';
+import { UserAvatar } from './user-avatar';
 import { Lang, langInfo } from '../core/site';
 import { featureBuilt } from '../core/features';
 import { FEATURE_APPS } from '../feature-routes';
-import { Skin } from '../core/models/theme.model';
+import { Skin, ThemeMode } from '../core/models/theme.model';
 import { AuthService } from '../core/auth.service';
 import { I18nService } from '../core/i18n.service';
 import { ThemeService } from '../core/theme.service';
@@ -16,7 +17,7 @@ const SPEED_PATHS = new Set(['/', '/hi', '/ar']);
 
 @Component({
   selector: 'app-site-header',
-  imports: [RouterLink],
+  imports: [RouterLink, UserAvatar],
   templateUrl: './site-header.html',
   styleUrl: './site-header.scss',
 })
@@ -65,6 +66,11 @@ export class SiteHeader {
   protected pick(skin: Skin): void {
     this.theme.set(skin);
     this.themeOpen.set(false);
+  }
+
+  /** Dark, Light or System; the menu stays open so a skin can be picked next. */
+  protected pickMode(mode: ThemeMode): void {
+    this.theme.setMode(mode);
   }
 
   private path(url: string): string {

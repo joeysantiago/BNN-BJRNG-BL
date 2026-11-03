@@ -56,12 +56,12 @@ export class PermissionsTab {
     return this.i18n.t(`perm.page.${code}` as TranslationKey);
   }
 
-  /** Gives the chosen role a page with the ticked rights. */
+  /** Gives the chosen role the chosen page with View; the other rights are switched on in its row. */
   async create(ev: Event): Promise<void> {
     ev.preventDefault();
     const form = ev.target as HTMLFormElement;
     const data = new FormData(form);
-    const body = { roleId: this.roleId(), pageId: Number(data.get('pageId')), ...this.flags(data) };
+    const body = { roleId: this.roleId(), pageId: Number(data.get('pageId')), canView: true, canAdd: false, canEdit: false, canDelete: false };
     await this.run(NEW, async () => {
       const res = await this.api.sendFull<RolePermission>('POST', '/admin/role-permissions', this.api.json(body));
       this.list.update((l) => (l ? { ...l, permissions: this.ordered(l, [...l.permissions, res.data]) } : l));
@@ -93,13 +93,21 @@ export class PermissionsTab {
     });
   }
 
-  async save(ev: Event, row: RolePermission): Promise<void> {
-    ev.preventDefault();
-    const body = { roleId: row.roleId, pageId: row.pageId, ...this.flags(new FormData(ev.target as HTMLFormElement)) };
+  /** One switch saves at once. Switching View off takes the other rights too (every right includes View); the server answers with the rights it kept. */
+  async toggle(row: RolePermission, key: keyof RightFlags, ev: Event): Promise<void> {
+    const on = (ev.target as HTMLInputElement).checked;
+    const next: RightFlags = { canView: row.canView, canAdd: row.canAdd, canEdit: row.canEdit, canDelete: row.canDelete, [key]: on };
+    const body = key === 'canView' && !on ? { canView: false, canAdd: false, canEdit: false, canDelete: false } : next;
     await this.run(row.id, async () => {
-      const res = await this.api.sendFull<RolePermission>('PUT', `/admin/role-permissions/${row.id}`, this.api.json(body));
-      this.list.update((l) => (l ? { ...l, permissions: l.permissions.map((r) => (r.id === row.id ? res.data : r)) } : l));
-      return res.message ?? '';
+      try {
+        const res = await this.api.sendFull<RolePermission>('PUT', `/admin/role-permissions/${row.id}`, this.api.json({ roleId: row.roleId, pageId: row.pageId, ...body }));
+        this.replace(res.data);
+        return res.message ?? '';
+      } catch (e) {
+        // Put the switch back as it was saved (the binding did not change, so the box itself is reset).
+        (ev.target as HTMLInputElement).checked = !on;
+        throw e;
+      }
     });
   }
 
@@ -112,8 +120,8 @@ export class PermissionsTab {
     return (e as { status?: number }).status !== undefined ? (e as Error).message : this.i18n.t('auth.serverDown');
   }
 
-  private flags(data: FormData): RightFlags {
-    return { canView: data.get('canView') !== null, canAdd: data.get('canAdd') !== null, canEdit: data.get('canEdit') !== null, canDelete: data.get('canDelete') !== null };
+  private replace(row: RolePermission): void {
+    this.list.update((l) => (l ? { ...l, permissions: l.permissions.map((r) => (r.id === row.id ? row : r)) } : l));
   }
 
   private async loadRights(roleId: number): Promise<void> {
