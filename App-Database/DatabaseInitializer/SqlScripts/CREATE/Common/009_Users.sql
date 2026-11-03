@@ -8,6 +8,7 @@ BEGIN
         DisplayName      NVARCHAR(100)     NOT NULL CONSTRAINT DF_Users_DisplayName DEFAULT (N'')           ,
         Language         VARCHAR(5)        NOT NULL CONSTRAINT DF_Users_Language DEFAULT ('en')             ,
         RoleId           INT               NOT NULL                                                         ,
+        AvatarFile       NVARCHAR(100)     NULL                                                             ,
         FailedLoginCount INT               NOT NULL CONSTRAINT DF_Users_FailedLoginCount DEFAULT (0)        ,
         LockedUntil      DATETIME2         NULL                                                             ,
         LastLoginOn      DATETIME2         NULL                                                             ,

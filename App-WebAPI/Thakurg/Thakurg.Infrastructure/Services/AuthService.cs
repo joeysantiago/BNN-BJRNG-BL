@@ -245,7 +245,7 @@ public class AuthService : IAuthService
         var apps = await _authRepository.GetAppCodesAsync(user.Id, cancellationToken);
         var hidden = await _authRepository.GetHiddenFeaturesAsync(user.Id, cancellationToken);
 
-        return new UserDto { Id = user.Id, Email = user.Email, DisplayName = user.DisplayName, Language = user.Language, RoleId = role.Id, RoleCode = role.Code, RoleName = role.Name, IsAdmin = RoleCodes.IsAdmin(role.Code), Apps = apps, Permissions = rights.SelectMany(PermissionNames.Expand).ToList(), HiddenFeatures = hidden };
+        return new UserDto { Id = user.Id, Email = user.Email, DisplayName = user.DisplayName, Language = user.Language, Avatar = user.AvatarFile, CreatedOn = user.CreatedOn, LastLoginOn = user.LastLoginOn, RoleId = role.Id, RoleCode = role.Code, RoleName = role.Name, IsAdmin = RoleCodes.IsAdmin(role.Code), Apps = apps, Permissions = rights.SelectMany(PermissionNames.Expand).ToList(), HiddenFeatures = hidden };
     }
 
     private async Task<SignInDto> StartSessionAsync(User user, AuthCallerDto caller, DateTime now, CancellationToken cancellationToken)

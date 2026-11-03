@@ -4,6 +4,7 @@ import { TranslationKey } from './i18n.model';
 /**
  * The logged-in account, as the API returns it (UserDto). `apps` holds the app codes the user may open; administrators (super admins and admins) may open every app.
  * `permissions` are the rights of the user's role ("settings.users:edit"); a super admin has every right. `hiddenFeatures` are the options the user switched off for themselves.
+ * `avatar` is the file name of the profile picture (null = none); it changes with every upload.
  */
 export interface AuthUser {
   id: number;
@@ -14,9 +15,12 @@ export interface AuthUser {
   language: string;
   roleCode: string;
   roleName: string;
+  createdOn: string;
   displayName: string;
+  avatar: string | null;
   permissions: string[];
   hiddenFeatures: string[];
+  lastLoginOn: string | null;
 }
 
 /** Answer of login, sign-up and refresh. The access token is kept in memory only; the refresh token is an HttpOnly cookie. */
