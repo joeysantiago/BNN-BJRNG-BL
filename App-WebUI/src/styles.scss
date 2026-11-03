@@ -21,6 +21,16 @@
   }
 }
 
+/* Phones and tablets: an app with its own bottom tab bar (Khata) owns the bottom edge, so the site footer steps aside and frees the space. */
+@media (max-width: 1023px) {
+  body:has(.khata .k-tabs) app-site-footer {
+    display: none;
+  }
+  body:has(.khata .k-tabs) main {
+    padding-block-end: 0;
+  }
+}
+
 /* ---------- Skin: Glassmorphism (default) ---------- */
 :root,
 :root[data-skin='glass'] {
