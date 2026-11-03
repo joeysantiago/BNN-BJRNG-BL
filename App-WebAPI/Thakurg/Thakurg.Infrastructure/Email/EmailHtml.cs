@@ -11,7 +11,7 @@ public static class EmailHtml
     {
         var paragraphs = string.Concat(texts.Select(text => "<p>" + WebUtility.HtmlEncode(text) + "</p>"));
 
-        return "<!DOCTYPE html><html dir=\"" + (rightToLeft ? "rtl" : "ltr") + "\"><body style=\"font-family:Arial,sans-serif;font-size:15px\">" + paragraphs + "</body></html>";
+        return "<!DOCTYPE html><html dir=\"" + (rightToLeft ? "rtl" : "ltr") + "\"><body>" + paragraphs + "</body></html>";
     }
 
     #endregion

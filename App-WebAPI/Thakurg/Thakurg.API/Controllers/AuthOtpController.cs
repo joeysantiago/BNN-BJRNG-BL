@@ -37,7 +37,7 @@ public class AuthOtpController : ControllerBase
     }
 
     [HttpPost("verify")]
-    [EnableRateLimiting(SecurityExtensions.AuthLoginPolicy)]
+    [EnableRateLimiting(SecurityExtensions.AuthOtpPolicy)]
     public async Task<ActionResult<ApiResponse<AuthResultDto>>> VerifyCode([FromBody] OtpVerifyRequestDto request, CancellationToken cancellationToken)
     {
         var signIn = await _otpService.VerifyAsync(request, HttpContext.AuthCaller(), cancellationToken);

@@ -5,8 +5,6 @@ public static partial class MessageCodes
 {
     public const string AuthOtpSent = "AUTH_OTP_SENT";
 
-    public const string AuthOtpWait = "AUTH_OTP_WAIT";
-
     public const string AuthOtpInvalid = "AUTH_OTP_INVALID";
 
     public const string AuthOtpSmsText = "AUTH_OTP_SMS_TEXT";
@@ -22,6 +20,8 @@ public static partial class MessageCodes
     public const string EmailNotConfigured = "EMAIL_NOT_CONFIGURED";
 
     public const string ProfileMobileTaken = "PROFILE_MOBILE_TAKEN";
+
+    public const string OtpTooManyRequests = "OTP_TOO_MANY_REQUESTS";
 
     public const string ExportFormatInvalid = "EXPORT_FORMAT_INVALID";
 

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Net.Http.Headers;
 using Thakurg.API.Extensions;
 using Thakurg.API.Filters;
 using Thakurg.Application.Services;
@@ -59,11 +60,14 @@ public class KhataExportController : ControllerBase
 
     #region Private Methods
 
+    // filename = only the ASCII letters, digits, dots and dashes of the name (statement-20261103.pdf); filename* = the whole name in UTF-8.
     private FileContentResult Download(ExportFileDto file)
     {
+        var ascii = string.Join("-", new string(file.FileName.Select(c => char.IsAsciiLetterOrDigit(c) || c == '.' ? c : '-').ToArray()).Split('-', StringSplitOptions.RemoveEmptyEntries));
         Response.Headers.CacheControl = "no-store";
+        Response.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = ascii, FileNameStar = file.FileName }.ToString();
 
-        return File(file.Content, file.ContentType, file.FileName);
+        return File(file.Content, file.ContentType);
     }
 
     #endregion

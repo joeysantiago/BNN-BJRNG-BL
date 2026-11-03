@@ -14,8 +14,6 @@ namespace Thakurg.Infrastructure.Services;
 // Books (P9): a user's separate khatas, each with one money type that is fixed after its first entry (P10).
 public class KhataBookService : IKhataBookService
 {
-    private const int MaxNameLength = 100;
-
     private readonly KhataLimitsOptions _limits;
 
     private readonly IKhataCommonServices _common;
@@ -28,7 +26,8 @@ public class KhataBookService : IKhataBookService
 
     private readonly IKhataTransactionRepository _transactionRepository;
 
-    public KhataBookService(IOptions<KhataOptions> options, IKhataCommonServices common, IKhataUserRepository userRepository, IKhataBookRepository bookRepository, IKhataContactRepository contactRepository, IKhataTransactionRepository transactionRepository)
+    public KhataBookService(IOptions<KhataOptions> options, IKhataCommonServices common, IKhataUserRepository userRepository, IKhataBookRepository bookRepository,
+        IKhataContactRepository contactRepository, IKhataTransactionRepository transactionRepository)
     {
         _limits = options.Value.Limits;
         _common = common;
@@ -143,8 +142,8 @@ public class KhataBookService : IKhataBookService
     private async Task<string> ValidateAsync(KhataCallerDto caller, BookRequestDto request, int? exceptBookId, CancellationToken cancellationToken)
     {
         var name = request.Name.Trim();
-        if (name.Length is 0 or > MaxNameLength)
-            throw new BusinessException(MessageCodes.KhataBookNameInvalid, 400, MaxNameLength);
+        if (name.Length == 0 || name.Length > _limits.BookNameLength)
+            throw new BusinessException(MessageCodes.KhataBookNameInvalid, 400, _limits.BookNameLength);
 
         if (await _bookRepository.GetCurrencyAsync(request.CurrencyId, caller.UserId, cancellationToken) is null)
             throw new BusinessException(MessageCodes.KhataCurrencyNotFound, 404);

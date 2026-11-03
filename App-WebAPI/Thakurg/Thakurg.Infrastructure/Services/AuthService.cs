@@ -12,7 +12,7 @@ using Thakurg.Infrastructure.Common;
 
 namespace Thakurg.Infrastructure.Services;
 
-// The common login: e-mail + password sign-up and login, refresh-token sessions, profile, password change and the user's own page options.
+// The common login: e-mail + password sign-up and login, one-time code login (OtpService), refresh-token sessions, profile, password change and the user's own page options.
 public class AuthService : IAuthService
 {
     private const int DeviceIdLength = 64;
@@ -57,7 +57,15 @@ public class AuthService : IAuthService
     {
         var user = await RequireUserAsync(userId, cancellationToken);
 
-        return await BuildUserAsync(user, cancellationToken);
+        return await BuildUserAsync(user, null, cancellationToken);
+    }
+
+    // The logged-in user as this session sees it: with its login method, and limited when it logged in with a one-time code.
+    public async Task<UserDto> GetMeAsync(AuthCallerDto caller, CancellationToken cancellationToken)
+    {
+        var user = await RequireUserAsync(caller.UserId, cancellationToken);
+
+        return await BuildUserAsync(user, caller.LoginMethod, cancellationToken);
     }
 
     public async Task<string> LogoutAsync(AuthCallerDto caller, CancellationToken cancellationToken)
@@ -93,7 +101,7 @@ public class AuthService : IAuthService
         session.ExpiresOn = now.AddDays(_options.Jwt.RefreshDays);
         session.ModifiedOn = now;
         await _authRepository.SaveChangesAsync(cancellationToken);
-        var dto = await BuildUserAsync(user, cancellationToken);
+        var dto = await BuildUserAsync(user, session.LoginMethod, cancellationToken);
 
         return new SignInDto { Auth = _tokenService.CreateResult(dto, session.Id), RefreshToken = newToken, RefreshExpiresOn = session.ExpiresOn };
     }
@@ -124,7 +132,7 @@ public class AuthService : IAuthService
         user.LockedUntil = null;
         user.LastLoginOn = now;
 
-        return await StartSessionAsync(user, caller, now, cancellationToken);
+        return await StartSessionAsync(user, caller, LoginMethods.Password, now, cancellationToken);
     }
 
     // Self sign-up: the account gets the sign-up role (Roles.IsDefault, the Standard User) and the apps marked AutoGrant (Khata, SnapTracker); the others wait for an administrator.
@@ -137,19 +145,14 @@ public class AuthService : IAuthService
             throw new BusinessException(MessageCodes.AuthEmailTaken, 409);
 
         var now = DateTime.UtcNow;
-        var isOwner = _options.AdminEmails.Any(a => string.Equals(a.Trim(), email, StringComparison.OrdinalIgnoreCase));
         var displayName = string.IsNullOrWhiteSpace(request.DisplayName) ? email[..email.IndexOf('@')] : request.DisplayName.Trim();
 
         if (displayName.Length > MaxDisplayNameLength)
             throw new BusinessException(MessageCodes.AuthProfileInvalid, 400, MaxDisplayNameLength);
 
-        var role = (isOwner ? await _authRepository.GetRoleByCodeAsync(RoleCodes.SuperAdmin, cancellationToken) : await _authRepository.GetDefaultRoleAsync(cancellationToken)) ?? throw new BusinessException(MessageCodes.RoleNotFound, 500);
-        var user = new User { Email = email, PasswordHash = HashNewPassword(request.Password), DisplayName = displayName, Language = Languages[0], RoleId = role.Id, LastLoginOn = now };
-        await _authRepository.AddUserAsync(user, cancellationToken);
-        var apps = isOwner ? await _authRepository.GetAllAppsAsync(cancellationToken) : await _authRepository.GetAutoGrantAppsAsync(cancellationToken);
-        await _authRepository.AddAccessAsync(apps.Select(a => new UserAppAccess { UserId = user.Id, AppId = a.Id, CreatedBy = user.Id }), cancellationToken);
+        var user = await CreateAccountAsync(email, displayName, HashNewPassword(request.Password), now, cancellationToken);
 
-        return await StartSessionAsync(user, caller, now, cancellationToken);
+        return await StartSessionAsync(user, caller, LoginMethods.Password, now, cancellationToken);
     }
 
     // The other sessions of the user end, so a changed password logs out every other device.
@@ -171,9 +174,31 @@ public class AuthService : IAuthService
         return await _messageService.GetAsync(MessageCodes.AuthPasswordChanged);
     }
 
-    public async Task<ServiceResultDto<UserDto>> UpdateProfileAsync(int userId, ProfileUpdateDto request, CancellationToken cancellationToken)
+    // A verified one-time code logs in to the account with that e-mail address or mobile number (UserProfiles). Without one, an account is made as a sign-up does,
+    // with no password: the e-mail's name part or the number becomes the display name, and a mobile-only account gets a placeholder e-mail on Auth:Otp:PhoneEmailDomain.
+    public async Task<SignInDto> OtpSignInAsync(string channel, string destination, AuthCallerDto caller, CancellationToken cancellationToken)
     {
-        var user = await RequireUserAsync(userId, cancellationToken);
+        var now = DateTime.UtcNow;
+        var isSms = channel == OtpChannels.Sms;
+        var email = isSms ? destination.TrimStart('+') + "@" + _options.Otp.PhoneEmailDomain : destination;
+        var user = (isSms ? await _authRepository.FindByMobileAsync(destination, cancellationToken) : null) ?? await _authRepository.FindByEmailAsync(email, cancellationToken);
+
+        if (user is null)
+        {
+            user = await CreateAccountAsync(email, isSms ? destination : email[..email.IndexOf('@')], string.Empty, now, cancellationToken);
+
+            if (isSms)
+                await _authRepository.AddProfileAsync(new UserProfile { UserId = user.Id, Mobile = destination, CreatedBy = user.Id }, cancellationToken);
+        }
+
+        user.LastLoginOn = now;
+
+        return await StartSessionAsync(user, caller, LoginMethods.Otp, now, cancellationToken);
+    }
+
+    public async Task<ServiceResultDto<UserDto>> UpdateProfileAsync(AuthCallerDto caller, ProfileUpdateDto request, CancellationToken cancellationToken)
+    {
+        var user = await RequireUserAsync(caller.UserId, cancellationToken);
         var displayName = (request.DisplayName ?? string.Empty).Trim();
 
         if (displayName.Length is 0 or > MaxDisplayNameLength || !Languages.Contains(request.Language))
@@ -184,16 +209,16 @@ public class AuthService : IAuthService
         user.ModifiedBy = user.Id;
         user.ModifiedOn = DateTime.UtcNow;
         await _authRepository.SaveChangesAsync(cancellationToken);
-        var dto = await BuildUserAsync(user, cancellationToken);
+        var dto = await BuildUserAsync(user, caller.LoginMethod, cancellationToken);
 
         return new ServiceResultDto<UserDto> { Data = dto, Message = await _messageService.GetAsync(MessageCodes.AuthProfileSaved) };
     }
 
     // The options of their own pages the user switched off for themselves. Only options of the header, the speed test and the apps they can open are accepted.
-    public async Task<ServiceResultDto<UserDto>> UpdateFeaturesAsync(int userId, FeaturePreferencesDto request, CancellationToken cancellationToken)
+    public async Task<ServiceResultDto<UserDto>> UpdateFeaturesAsync(AuthCallerDto caller, FeaturePreferencesDto request, CancellationToken cancellationToken)
     {
-        var user = await RequireUserAsync(userId, cancellationToken);
-        var dto = await BuildUserAsync(user, cancellationToken);
+        var user = await RequireUserAsync(caller.UserId, cancellationToken);
+        var dto = await BuildUserAsync(user, caller.LoginMethod, cancellationToken);
         var features = await _authRepository.GetFeaturesAsync(cancellationToken);
         var codes = (request.Hidden ?? []).Distinct().ToList();
         var unknown = codes.FirstOrDefault(c => !IsOwnFeature(c, dto) || features.All(f => f.Code != c));
@@ -237,23 +262,38 @@ public class AuthService : IAuthService
         return await _authRepository.GetUserAsync(userId, cancellationToken) ?? throw new BusinessException(MessageCodes.AuthSessionInvalid, 401);
     }
 
-    // The account as the site sees it: role, the role's rights, apps and the options the user switched off.
-    private async Task<UserDto> BuildUserAsync(User user, CancellationToken cancellationToken)
+    // The account as the site sees it: role, the role's rights, apps and the options the user switched off; a one-time code session sees only what it may open (LoginMethodAccess).
+    private async Task<UserDto> BuildUserAsync(User user, string? loginMethod, CancellationToken cancellationToken)
     {
         var role = await _authRepository.GetRoleAsync(user.RoleId, cancellationToken) ?? throw new BusinessException(MessageCodes.AuthSessionInvalid, 401);
         var rights = await _authRepository.GetPermissionsAsync(role.Id, cancellationToken);
         var apps = await _authRepository.GetAppCodesAsync(user.Id, cancellationToken);
         var hidden = await _authRepository.GetHiddenFeaturesAsync(user.Id, cancellationToken);
 
-        return new UserDto { Id = user.Id, Email = user.Email, DisplayName = user.DisplayName, Language = user.Language, Avatar = user.AvatarFile, CreatedOn = user.CreatedOn, LastLoginOn = user.LastLoginOn, RoleId = role.Id, RoleCode = role.Code, RoleName = role.Name, IsAdmin = RoleCodes.IsAdmin(role.Code), Apps = apps, Permissions = rights.SelectMany(PermissionNames.Expand).ToList(), HiddenFeatures = hidden };
+        var dto = new UserDto { Id = user.Id, Email = user.Email, DisplayName = user.DisplayName, Language = user.Language, Avatar = user.AvatarFile, CreatedOn = user.CreatedOn, LastLoginOn = user.LastLoginOn, RoleId = role.Id, RoleCode = role.Code, RoleName = role.Name, IsAdmin = RoleCodes.IsAdmin(role.Code), Apps = apps, Permissions = rights.SelectMany(PermissionNames.Expand).ToList(), HiddenFeatures = hidden, LoginMethod = loginMethod ?? string.Empty };
+
+        return LoginMethodAccess.Limit(dto, _options.Otp.Apps);
     }
 
-    private async Task<SignInDto> StartSessionAsync(User user, AuthCallerDto caller, DateTime now, CancellationToken cancellationToken)
+    // Super admins come from Auth:AdminEmails and get every app; everyone else gets the sign-up role and the AutoGrant apps.
+    private async Task<User> CreateAccountAsync(string email, string displayName, string passwordHash, DateTime now, CancellationToken cancellationToken)
+    {
+        var isOwner = _options.AdminEmails.Any(a => string.Equals(a.Trim(), email, StringComparison.OrdinalIgnoreCase));
+        var role = (isOwner ? await _authRepository.GetRoleByCodeAsync(RoleCodes.SuperAdmin, cancellationToken) : await _authRepository.GetDefaultRoleAsync(cancellationToken)) ?? throw new BusinessException(MessageCodes.RoleNotFound, 500);
+        var user = new User { Email = email, PasswordHash = passwordHash, DisplayName = displayName, Language = Languages[0], RoleId = role.Id, LastLoginOn = now };
+        await _authRepository.AddUserAsync(user, cancellationToken);
+        var apps = isOwner ? await _authRepository.GetAllAppsAsync(cancellationToken) : await _authRepository.GetAutoGrantAppsAsync(cancellationToken);
+        await _authRepository.AddAccessAsync(apps.Select(a => new UserAppAccess { UserId = user.Id, AppId = a.Id, CreatedBy = user.Id }), cancellationToken);
+
+        return user;
+    }
+
+    private async Task<SignInDto> StartSessionAsync(User user, AuthCallerDto caller, string loginMethod, DateTime now, CancellationToken cancellationToken)
     {
         var refreshToken = _tokenService.NewSecret();
-        var session = new UserSession { UserId = user.Id, RefreshTokenHash = _tokenService.Hash(refreshToken), DeviceId = Truncate(caller.DeviceId, DeviceIdLength) ?? _tokenService.NewSecret()[..16], UserAgent = Truncate(caller.UserAgent, UserAgentLength), LoggedInOn = now, ExpiresOn = now.AddDays(_options.Jwt.RefreshDays) };
+        var session = new UserSession { UserId = user.Id, LoginMethod = loginMethod, RefreshTokenHash = _tokenService.Hash(refreshToken), DeviceId = Truncate(caller.DeviceId, DeviceIdLength) ?? _tokenService.NewSecret()[..16], UserAgent = Truncate(caller.UserAgent, UserAgentLength), LoggedInOn = now, ExpiresOn = now.AddDays(_options.Jwt.RefreshDays) };
         await _authRepository.AddSessionAsync(session, cancellationToken);
-        var dto = await BuildUserAsync(user, cancellationToken);
+        var dto = await BuildUserAsync(user, loginMethod, cancellationToken);
 
         return new SignInDto { Auth = _tokenService.CreateResult(dto, session.Id), RefreshToken = refreshToken, RefreshExpiresOn = session.ExpiresOn };
     }

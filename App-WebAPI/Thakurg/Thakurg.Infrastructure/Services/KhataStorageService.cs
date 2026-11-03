@@ -1,8 +1,10 @@
 using System.Text.RegularExpressions;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Thakurg.Application.Repositories;
 using Thakurg.Application.Services;
+using Thakurg.Contracts.Configurations;
 using Thakurg.Contracts.Exceptions;
 using Thakurg.Contracts.Khata;
 using Thakurg.Contracts.Messages;
@@ -16,7 +18,7 @@ namespace Thakurg.Infrastructure.Services;
 // The connection string (or the account key, turned into one) is encrypted at rest and never returned.
 public class KhataStorageService : IKhataStorageService
 {
-    private const int MaxSecretLength = 2000;
+    private readonly KhataStorageOptions _storage;
 
     private readonly IMessageService _messageService;
 
@@ -24,16 +26,15 @@ public class KhataStorageService : IKhataStorageService
 
     private readonly ILogger<KhataStorageService> _logger;
 
-    private const string EndpointSuffix = "core.windows.net";
-
     private readonly IKhataStorageRepository _storageRepository;
 
     private static readonly Regex AccountPattern = new("^[a-z0-9]{3,24}$", RegexOptions.Compiled);
 
     private static readonly Regex ContainerPattern = new("^(?=.{3,63}$)[a-z0-9]+(-[a-z0-9]+)*$", RegexOptions.Compiled);
 
-    public KhataStorageService(IKhataStorageRepository storageRepository, IKhataSecretProtector protector, IMessageService messageService, ILogger<KhataStorageService> logger)
+    public KhataStorageService(IOptions<KhataOptions> options, IKhataStorageRepository storageRepository, IKhataSecretProtector protector, IMessageService messageService, ILogger<KhataStorageService> logger)
     {
+        _storage = options.Value.Storage;
         _storageRepository = storageRepository;
         _protector = protector;
         _messageService = messageService;
@@ -54,7 +55,7 @@ public class KhataStorageService : IKhataStorageService
 
         try
         {
-            var container = KhataStorageRules.Container(_protector.Unprotect(setting.SecretProtected), setting.ContainerName);
+            var container = KhataStorageRules.Container(_protector.Unprotect(setting.SecretProtected), setting.ContainerName, _storage);
             exists = await container.ExistsAsync(cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -84,14 +85,14 @@ public class KhataStorageService : IKhataStorageService
         var containerName = Optional(request.ContainerName);
         var secret = (request.ConnectionString ?? string.Empty).Trim();
 
-        if ((accountName is not null && !AccountPattern.IsMatch(accountName)) || (containerName is not null && !ContainerPattern.IsMatch(containerName)) || secret.Length > MaxSecretLength)
+        if ((accountName is not null && !AccountPattern.IsMatch(accountName)) || (containerName is not null && !ContainerPattern.IsMatch(containerName)) || secret.Length > _storage.SecretLength)
             throw Invalid();
 
         var setting = await _storageRepository.GetAsync(cancellationToken) ?? new KhataStorageSetting { CreatedBy = accountUserId };
 
         if (secret.Length > 0)
         {
-            var connectionString = ConnectionString(secret, accountName) ?? throw Invalid();
+            var connectionString = ConnectionString(secret, accountName, _storage.EndpointSuffix) ?? throw Invalid();
             accountName = new BlobServiceClient(connectionString).AccountName;
             setting.SecretProtected = _protector.Protect(connectionString);
         }
@@ -130,9 +131,9 @@ public class KhataStorageService : IKhataStorageService
     }
 
     // A full connection string is checked by parsing it; anything else is taken as the account key of AccountName.
-    private static string? ConnectionString(string secret, string? accountName)
+    private static string? ConnectionString(string secret, string? accountName, string endpointSuffix)
     {
-        var connectionString = secret.Contains('=') && secret.Contains(';') ? secret : accountName is not null && Convert.TryFromBase64String(secret, new byte[secret.Length], out _) ? $"DefaultEndpointsProtocol=https;AccountName={accountName};AccountKey={secret};EndpointSuffix={EndpointSuffix}" : null;
+        var connectionString = secret.Contains('=') && secret.Contains(';') ? secret : accountName is not null && Convert.TryFromBase64String(secret, new byte[secret.Length], out _) ? $"DefaultEndpointsProtocol=https;AccountName={accountName};AccountKey={secret};EndpointSuffix={endpointSuffix}" : null;
 
         try
         {

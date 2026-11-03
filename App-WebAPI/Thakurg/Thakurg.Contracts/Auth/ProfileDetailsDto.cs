@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Auth;
 
-// GET / PUT api/auth/me/details: the user's mobile number, postal address and company. Every field is optional.
+// GET / PUT api/auth/me/details: the user's mobile number, postal address and company. Every field is optional. Limits (answers only, ignored on PUT) are the longest text each field may have.
 public class ProfileDetailsDto
 {
     public string? City { get; set; }
@@ -26,4 +26,6 @@ public class ProfileDetailsDto
     public string? CompanyTaxId { get; set; }
 
     public string? CompanyAddress { get; set; }
+
+    public ProfileLimitsDto? Limits { get; set; }
 }

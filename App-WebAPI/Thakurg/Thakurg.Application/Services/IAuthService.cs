@@ -5,6 +5,8 @@ namespace Thakurg.Application.Services;
 
 public interface IAuthService
 {
+    Task<UserDto> GetMeAsync(int userId, CancellationToken cancellationToken);
+
     Task<UserDto> GetMeAsync(AuthCallerDto caller, CancellationToken cancellationToken);
 
     Task<string> LogoutAsync(AuthCallerDto caller, CancellationToken cancellationToken);

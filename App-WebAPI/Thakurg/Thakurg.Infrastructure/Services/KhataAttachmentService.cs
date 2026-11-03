@@ -19,8 +19,6 @@ namespace Thakurg.Infrastructure.Services;
 // Anyone who can see an entry can see its photos; only whoever added the entry may add or remove them.
 public class KhataAttachmentService : IKhataAttachmentService
 {
-    private const int MaxFileNameLength = 260;
-
     private readonly KhataLimitsOptions _limits;
 
     private readonly IKhataCommonServices _common;
@@ -161,12 +159,12 @@ public class KhataAttachmentService : IKhataAttachmentService
     }
 
     // The original name without folders or characters a file name can't hold, cut to the column size; the extension follows the real type.
-    private static string SafeFileName(string fileName, string contentType)
+    private string SafeFileName(string fileName, string contentType)
     {
         var invalid = Path.GetInvalidFileNameChars();
         var name = new string(Path.GetFileNameWithoutExtension(Path.GetFileName(fileName.Replace('\\', '/'))).Where(c => !char.IsControl(c) && !invalid.Contains(c)).ToArray()).Trim();
         var extension = Extensions[contentType];
-        name = name.Length == 0 ? "photo" : name[..Math.Min(name.Length, MaxFileNameLength - extension.Length)];
+        name = name.Length == 0 ? "photo" : name[..Math.Min(name.Length, _limits.PhotoFileNameLength - extension.Length)];
 
         return name + extension;
     }

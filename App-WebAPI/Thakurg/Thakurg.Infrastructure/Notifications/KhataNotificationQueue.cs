@@ -1,15 +1,21 @@
 using System.Threading.Channels;
+using Microsoft.Extensions.Options;
 using Thakurg.Application.Services;
+using Thakurg.Contracts.Configurations;
 using Thakurg.Contracts.Khata;
 
 namespace Thakurg.Infrastructure.Notifications;
 
-// In-memory queue between the entry save and KhataNotificationWorker. When it is full (the senders are far behind) a new message is dropped rather than slowing the save.
+// In-memory queue between the entry save and KhataNotificationWorker, at most Khata:Notifications:QueueCapacity long. When it is full (the senders are far behind)
+// a new message is dropped rather than slowing the save.
 public class KhataNotificationQueue : IKhataNotificationQueue
 {
-    private const int Capacity = 1000;
+    private readonly Channel<KhataNotificationJobDto> _channel;
 
-    private readonly Channel<KhataNotificationJobDto> _channel = Channel.CreateBounded<KhataNotificationJobDto>(new BoundedChannelOptions(Capacity) { FullMode = BoundedChannelFullMode.DropWrite, SingleReader = true });
+    public KhataNotificationQueue(IOptions<KhataOptions> options)
+    {
+        _channel = Channel.CreateBounded<KhataNotificationJobDto>(new BoundedChannelOptions(options.Value.Notifications.QueueCapacity) { FullMode = BoundedChannelFullMode.DropWrite, SingleReader = true });
+    }
 
     #region Public Methods
 

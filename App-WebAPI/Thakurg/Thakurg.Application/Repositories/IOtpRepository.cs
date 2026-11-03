@@ -12,9 +12,9 @@ public interface IOtpRepository
 
     Task<bool> TryConsumeAsync(int codeId, DateTime now, CancellationToken cancellationToken);
 
-    Task<DateTime?> GetLastSentOnAsync(string destination, CancellationToken cancellationToken);
-
-    Task<int> CountSinceAsync(string destination, DateTime since, CancellationToken cancellationToken);
+    Task<List<DateTime>> GetSentOnAsync(string destination, DateTime since, CancellationToken cancellationToken);
 
     Task<OneTimeCode?> GetLatestAsync(string destination, string channel, string appCode, CancellationToken cancellationToken);
+
+    Task<List<DateTime>> GetFailedOnAsync(string destination, DateTime since, int maxAttempts, CancellationToken cancellationToken);
 }

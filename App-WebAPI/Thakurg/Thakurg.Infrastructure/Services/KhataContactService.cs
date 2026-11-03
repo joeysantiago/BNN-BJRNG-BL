@@ -15,12 +15,6 @@ namespace Thakurg.Infrastructure.Services;
 // Contacts (customers and suppliers) of one book. The balance is never set here: only entries change it (design S3).
 public class KhataContactService : IKhataContactService
 {
-    private const int MaxNameLength = 100;
-
-    private const int MaxNoteLength = 500;
-
-    private const int MaxAddressLength = 300;
-
     private readonly KhataLimitsOptions _limits;
 
     private readonly IKhataCommonServices _common;
@@ -150,31 +144,31 @@ public class KhataContactService : IKhataContactService
 
     #region Private Methods
 
-    private static string? Optional(string? value, int maxLength)
+    private string? Optional(string? value, int maxLength)
     {
         var text = value?.Trim();
         if (text is { Length: > 0 } && text.Length > maxLength)
-            throw new BusinessException(MessageCodes.KhataContactInvalid, 400);
+            throw new BusinessException(MessageCodes.KhataContactInvalid, 400, _limits.ContactNameLength);
 
         return string.IsNullOrEmpty(text) ? null : text;
     }
 
     // An empty mobile or email is allowed; a filled one must be valid (same rules as login, so the contact can be linked when they log in).
-    private static void Apply(KhataContact contact, ContactRequestDto request)
+    private void Apply(KhataContact contact, ContactRequestDto request)
     {
         var name = request.Name.Trim();
         var mobile = string.IsNullOrWhiteSpace(request.Mobile) ? null : KhataIdentifier.Mobile(request.Mobile);
         var email = string.IsNullOrWhiteSpace(request.Email) ? null : KhataIdentifier.Email(request.Email);
         var invalidMobile = !string.IsNullOrWhiteSpace(request.Mobile) && mobile is null;
         var invalidEmail = !string.IsNullOrWhiteSpace(request.Email) && email is null;
-        if (name.Length is 0 or > MaxNameLength || invalidMobile || invalidEmail || !Enum.IsDefined(request.ContactType))
-            throw new BusinessException(MessageCodes.KhataContactInvalid, 400);
+        if (name.Length == 0 || name.Length > _limits.ContactNameLength || invalidMobile || invalidEmail || !Enum.IsDefined(request.ContactType))
+            throw new BusinessException(MessageCodes.KhataContactInvalid, 400, _limits.ContactNameLength);
 
         contact.Name = name;
         contact.Mobile = mobile;
         contact.Email = email;
-        contact.Address = Optional(request.Address, MaxAddressLength);
-        contact.Note = Optional(request.Note, MaxNoteLength);
+        contact.Address = Optional(request.Address, _limits.ContactAddressLength);
+        contact.Note = Optional(request.Note, _limits.NoteLength);
         contact.ContactType = (byte)request.ContactType;
     }
 

@@ -35,11 +35,6 @@ public class OtpRepository : IOtpRepository
         return _dbContext.OneTimeCodes.Where(c => c.Id == codeId).ExecuteUpdateAsync(u => u.SetProperty(c => c.Attempts, c => c.Attempts + 1).SetProperty(c => c.ModifiedOn, now), cancellationToken);
     }
 
-    public Task<DateTime?> GetLastSentOnAsync(string destination, CancellationToken cancellationToken)
-    {
-        return _dbContext.OneTimeCodes.AsNoTracking().WhereActive().Where(c => c.Destination == destination).MaxAsync(c => (DateTime?)c.CreatedOn, cancellationToken);
-    }
-
     // True only for the request that marks the code used; a second request with the same code gets false.
     public async Task<bool> TryConsumeAsync(int codeId, DateTime now, CancellationToken cancellationToken)
     {
@@ -48,15 +43,22 @@ public class OtpRepository : IOtpRepository
         return updated == 1;
     }
 
-    public Task<int> CountSinceAsync(string destination, DateTime since, CancellationToken cancellationToken)
+    // When each code still counting for the address was sent (a code that could not be sent is not counted).
+    public Task<List<DateTime>> GetSentOnAsync(string destination, DateTime since, CancellationToken cancellationToken)
     {
-        return _dbContext.OneTimeCodes.AsNoTracking().WhereActive().CountAsync(c => c.Destination == destination && c.CreatedOn >= since, cancellationToken);
+        return _dbContext.OneTimeCodes.AsNoTracking().WhereActive().Where(c => c.Destination == destination && c.CreatedOn >= since).Select(c => c.CreatedOn).ToListAsync(cancellationToken);
     }
 
     // Only the newest code of an address, channel and app is valid: asking for a new code replaces the old one.
     public Task<OneTimeCode?> GetLatestAsync(string destination, string channel, string appCode, CancellationToken cancellationToken)
     {
         return _dbContext.OneTimeCodes.AsNoTracking().WhereActive().Where(c => c.Destination == destination && c.Channel == channel && c.AppCode == appCode).OrderByDescending(c => c.Id).FirstOrDefaultAsync(cancellationToken);
+    }
+
+    // When each code of the address sent since then was used up by wrong tries (its last wrong try).
+    public Task<List<DateTime>> GetFailedOnAsync(string destination, DateTime since, int maxAttempts, CancellationToken cancellationToken)
+    {
+        return _dbContext.OneTimeCodes.AsNoTracking().WhereActive().Where(c => c.Destination == destination && c.CreatedOn >= since && c.Attempts >= maxAttempts).Select(c => c.ModifiedOn ?? c.CreatedOn).ToListAsync(cancellationToken);
     }
 
     #endregion

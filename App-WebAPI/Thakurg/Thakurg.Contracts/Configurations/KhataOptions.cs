@@ -8,5 +8,11 @@ public class KhataOptions
 
     public KhataNewUserOptions NewUser { get; set; } = new();
 
+    public KhataStorageOptions Storage { get; set; } = new();
+
+    public KhataManifestOptions Manifest { get; set; } = new();
+
     public KhataLocalFilesOptions LocalFiles { get; set; } = new();
+
+    public KhataNotificationsOptions Notifications { get; set; } = new();
 }

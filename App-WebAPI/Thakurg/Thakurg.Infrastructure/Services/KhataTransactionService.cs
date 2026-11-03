@@ -16,8 +16,6 @@ namespace Thakurg.Infrastructure.Services;
 // and an entry stays editable by whoever added it (Q4).
 public class KhataTransactionService : IKhataTransactionService
 {
-    private const int MaxNoteLength = 500;
-
     private readonly KhataLimitsOptions _limits;
 
     private readonly IKhataCommonServices _common;
@@ -30,9 +28,8 @@ public class KhataTransactionService : IKhataTransactionService
 
     private readonly IKhataTransactionRepository _transactionRepository;
 
-    private static readonly DateOnly FirstAllowedDate = new(2000, 1, 1);
-
-    public KhataTransactionService(IOptions<KhataOptions> options, IKhataCommonServices common, IKhataBookRepository bookRepository, IKhataContactRepository contactRepository, IKhataTransactionRepository transactionRepository, IKhataAttachmentRepository attachmentRepository)
+    public KhataTransactionService(IOptions<KhataOptions> options, IKhataCommonServices common, IKhataBookRepository bookRepository, IKhataContactRepository contactRepository,
+        IKhataTransactionRepository transactionRepository, IKhataAttachmentRepository attachmentRepository)
     {
         _limits = options.Value.Limits;
         _common = common;
@@ -146,9 +143,9 @@ public class KhataTransactionService : IKhataTransactionService
     private void Validate(TransactionRequestDto request)
     {
         var latestAllowedDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1);
-        var noteTooLong = request.Note is not null && request.Note.Trim().Length > MaxNoteLength;
-        if (!Enum.IsDefined(request.EntryType) || request.AmountMinor <= 0 || request.AmountMinor > _limits.MaxAmountMinor || request.EntryDate < FirstAllowedDate || request.EntryDate > latestAllowedDate || noteTooLong)
-            throw new BusinessException(MessageCodes.KhataEntryInvalid, 400);
+        var noteTooLong = request.Note is not null && request.Note.Trim().Length > _limits.NoteLength;
+        if (!Enum.IsDefined(request.EntryType) || request.AmountMinor <= 0 || request.AmountMinor > _limits.MaxAmountMinor || request.EntryDate < _limits.FirstEntryDate || request.EntryDate > latestAllowedDate || noteTooLong)
+            throw new BusinessException(MessageCodes.KhataEntryInvalid, 400, _limits.NoteLength);
     }
 
     // The party is told in the background (KhataNotificationWorker), so the save never waits for e-mail or SMS.

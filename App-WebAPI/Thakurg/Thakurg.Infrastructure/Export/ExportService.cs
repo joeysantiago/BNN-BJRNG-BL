@@ -1,10 +1,12 @@
 using System.Globalization;
 using System.Text;
 using ClosedXML.Excel;
+using Microsoft.Extensions.Options;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using Thakurg.Application.Services;
+using Thakurg.Contracts.Configurations;
 using Thakurg.Contracts.Export;
 
 namespace Thakurg.Infrastructure.Export;
@@ -13,7 +15,7 @@ namespace Thakurg.Infrastructure.Export;
 // The PDF embeds Noto Sans with its Devanagari and Arabic families (Export/Fonts, OFL), so Hindi and Arabic text is drawn and shaped; RightToLeft mirrors the page.
 public class ExportService : IExportService
 {
-    private const int MaxSheetNameLength = 31;
+    private readonly ExportOptions _options;
 
     private const string CsvType = "text/csv";
 
@@ -28,6 +30,11 @@ public class ExportService : IExportService
     private static readonly string[] Fonts = ["Noto Sans", "Noto Sans Devanagari", "Noto Sans Arabic"];
 
     private const string XlsxType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+    public ExportService(IOptions<ExportOptions> options)
+    {
+        _options = options.Value;
+    }
 
     #region Public Methods
 
@@ -59,41 +66,27 @@ public class ExportService : IExportService
         return true;
     }
 
-    private static byte[] Csv(ExportTable table)
-    {
-        var csv = new StringBuilder();
-        CsvLine(csv, table.Columns.Select(c => c.Header));
-
-        foreach (var row in table.Rows)
-            CsvLine(csv, table.Columns.Select((column, i) => CsvCell(row.ElementAtOrDefault(i), column, table)));
-
-        if (table.Totals.Count > 0)
-            CsvLine(csv, table.Columns.Select((column, i) => CsvCell(table.Totals.ElementAtOrDefault(i), column, table)));
-
-        return [.. Encoding.UTF8.GetPreamble(), .. Encoding.UTF8.GetBytes(csv.ToString())];
-    }
-
-    private static byte[] Pdf(ExportTable table)
+    private byte[] Pdf(ExportTable table)
     {
         _ = PdfSetup.Value;
 
         return Document.Create(document => document.Page(page =>
         {
             page.Size(PageSizes.A4.Landscape());
-            page.Margin(24);
-            page.DefaultTextStyle(style => style.FontFamily(Fonts).FontSize(9));
+            page.Margin(_options.PdfMargin);
+            page.DefaultTextStyle(style => style.FontFamily(Fonts).FontSize(_options.PdfFontSize));
 
             if (table.RightToLeft)
                 page.ContentFromRightToLeft();
 
             page.Header().Column(column =>
             {
-                column.Item().Text(table.Title).FontSize(14).Bold();
+                column.Item().Text(table.Title).FontSize(_options.PdfTitleFontSize).Bold();
 
                 foreach (var line in table.Subtitles)
                     column.Item().Text(line).FontColor(Colors.Grey.Darken2);
             });
-            page.Content().PaddingTop(8).Table(grid => PdfTable(grid, table));
+            page.Content().PaddingTop(_options.PdfCellPadding * 2).Table(grid => PdfTable(grid, table));
             page.Footer().AlignCenter().Text(text =>
             {
                 text.CurrentPageNumber();
@@ -103,7 +96,7 @@ public class ExportService : IExportService
         })).GeneratePdf();
     }
 
-    private static byte[] Xlsx(ExportTable table)
+    private byte[] Xlsx(ExportTable table)
     {
         using var workbook = new XLWorkbook();
         var sheet = workbook.Worksheets.Add(SheetName(table.Title));
@@ -133,15 +126,29 @@ public class ExportService : IExportService
         return stream.ToArray();
     }
 
-    // Excel sheet names: at most 31 characters, none of : \ / ? * [ ].
-    private static string SheetName(string title)
+    // Excel sheet names: at most Export:SheetNameLength characters (Excel allows 31), none of : \ / ? * [ ].
+    private string SheetName(string title)
     {
         var name = new string(title.Select(c => ":\\/?*[]".Contains(c) ? '-' : c).ToArray()).Trim();
 
-        return name.Length == 0 ? "1" : name[..Math.Min(name.Length, MaxSheetNameLength)];
+        return name.Length == 0 ? "1" : name[..Math.Min(name.Length, _options.SheetNameLength)];
     }
 
-    private static void PdfTable(TableDescriptor grid, ExportTable table)
+    private static byte[] Csv(ExportTable table)
+    {
+        var csv = new StringBuilder();
+        CsvLine(csv, table.Columns.Select(c => c.Header));
+
+        foreach (var row in table.Rows)
+            CsvLine(csv, table.Columns.Select((column, i) => CsvCell(row.ElementAtOrDefault(i), column, table)));
+
+        if (table.Totals.Count > 0)
+            CsvLine(csv, table.Columns.Select((column, i) => CsvCell(table.Totals.ElementAtOrDefault(i), column, table)));
+
+        return [.. Encoding.UTF8.GetPreamble(), .. Encoding.UTF8.GetBytes(csv.ToString())];
+    }
+
+    private void PdfTable(TableDescriptor grid, ExportTable table)
     {
         grid.ColumnsDefinition(columns =>
         {
@@ -156,7 +163,7 @@ public class ExportService : IExportService
 
         foreach (var row in table.Rows)
             for (var i = 0; i < table.Columns.Count; i++)
-                PdfCell(grid.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2), table.Columns[i], Text(row.ElementAtOrDefault(i), table.Columns[i], table), false, table.RightToLeft);
+                PdfCell(grid.Cell().BorderBottom(_options.PdfLineWidth).BorderColor(Colors.Grey.Lighten2), table.Columns[i], Text(row.ElementAtOrDefault(i), table.Columns[i], table), false, table.RightToLeft);
 
         if (table.Totals.Count == 0)
             return;
@@ -226,9 +233,9 @@ public class ExportService : IExportService
     }
 
     // Start and End follow the reading direction, so in a right-to-left table Start is the right edge.
-    private static void PdfCell(IContainer container, ExportColumn column, string text, bool bold, bool rightToLeft)
+    private void PdfCell(IContainer container, ExportColumn column, string text, bool bold, bool rightToLeft)
     {
-        var padded = container.PaddingVertical(3).PaddingHorizontal(4);
+        var padded = container.Padding(_options.PdfCellPadding);
         var aligned = column.Align switch
         {
             ExportAlign.Center => padded.AlignCenter(),

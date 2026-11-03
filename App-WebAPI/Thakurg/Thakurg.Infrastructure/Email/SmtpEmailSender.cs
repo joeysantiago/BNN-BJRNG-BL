@@ -10,11 +10,9 @@ using Thakurg.Contracts.Messages;
 
 namespace Thakurg.Infrastructure.Email;
 
-// Sends mail through the SMTP server in Email:Smtp (MailKit). Port 465 uses TLS from the start, other ports upgrade with STARTTLS when UseSsl is on.
+// Sends mail through the SMTP server in Email:Smtp (MailKit). With UseSsl, ImplicitTls uses TLS from the start, otherwise the connection upgrades with STARTTLS.
 public class SmtpEmailSender : IEmailSender
 {
-    private const int ImplicitTlsPort = 465;
-
     private readonly EmailSmtpOptions _smtp;
 
     private readonly ILogger<SmtpEmailSender> _logger;
@@ -62,7 +60,7 @@ public class SmtpEmailSender : IEmailSender
         if (!_smtp.UseSsl)
             return SecureSocketOptions.None;
 
-        return _smtp.Port == ImplicitTlsPort ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
+        return _smtp.ImplicitTls ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
     }
 
     #endregion
