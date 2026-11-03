@@ -6,6 +6,7 @@ using Thakurg.Contracts.Configurations;
 using Thakurg.Contracts.Exceptions;
 using Thakurg.Contracts.Khata;
 using Thakurg.Contracts.Messages;
+using Thakurg.Contracts.Wrappers;
 using Thakurg.Domain.Entities;
 using Thakurg.Infrastructure.Common;
 
@@ -56,8 +57,16 @@ public class KhataContactService : IKhataContactService
         var books = await _bookRepository.GetBookSummariesAsync(caller.UserId, bookId, null, cancellationToken);
         var book = books.FirstOrDefault() ?? throw new BusinessException(MessageCodes.KhataBookNotFound, 404);
         var contacts = await _contactRepository.GetContactsAsync(bookId, cancellationToken);
+        var prefs = (await _contactRepository.GetNotificationPrefsAsync(bookId, cancellationToken)).ToDictionary(p => p.ContactId);
 
-        return new BookContactsDto { Book = book, Contacts = contacts.Select(c => KhataMapper.ToDto(c.Contact, c.LastEntryOn)).ToList() };
+        return new BookContactsDto { Book = book, Contacts = contacts.Select(c => KhataMapper.ToDto(c.Contact, c.LastEntryOn, prefs.GetValueOrDefault(c.Contact.Id))).ToList() };
+    }
+
+    public async Task<ContactNotifyDto> GetNotificationsAsync(KhataCallerDto caller, int contactId, CancellationToken cancellationToken)
+    {
+        await RequireContactAsync(caller, contactId, cancellationToken);
+
+        return KhataMapper.ToDto(await _contactRepository.GetNotificationPrefAsync(contactId, cancellationToken));
     }
 
     public async Task<ContactDto> UpdateAsync(KhataCallerDto caller, int contactId, ContactRequestDto request, CancellationToken cancellationToken)
@@ -68,7 +77,7 @@ public class KhataContactService : IKhataContactService
         if (!await _contactRepository.UpdateContactAsync(contact, KhataMapper.RowVersion(request.RowVersion), cancellationToken))
             throw new BusinessException(MessageCodes.KhataChangedElsewhere, 409);
 
-        return KhataMapper.ToDto(contact, null);
+        return KhataMapper.ToDto(contact, null, await _contactRepository.GetNotificationPrefAsync(contactId, cancellationToken));
     }
 
     public async Task<ContactDto> SetPermissionAsync(KhataCallerDto caller, int contactId, ContactPermissionRequestDto request, CancellationToken cancellationToken)
@@ -82,7 +91,7 @@ public class KhataContactService : IKhataContactService
             await _common.Audit.WriteAsync(request.AllowContactEntries ? KhataAuditActions.AllowEntriesOn : KhataAuditActions.AllowEntriesOff, caller.UserId, caller, new { ContactId = contactId }, cancellationToken);
         }
 
-        return KhataMapper.ToDto(contact, null);
+        return KhataMapper.ToDto(contact, null, await _contactRepository.GetNotificationPrefAsync(contactId, cancellationToken));
     }
 
     public async Task<ContactDto> CreateAsync(KhataCallerDto caller, int bookId, ContactRequestDto request, Guid? idempotencyKey, CancellationToken cancellationToken)
@@ -99,8 +108,42 @@ public class KhataContactService : IKhataContactService
             Apply(contact, request);
             await _contactRepository.AddContactAsync(contact, cancellationToken);
 
-            return KhataMapper.ToDto(contact, null);
+            return KhataMapper.ToDto(contact, null, null);
         }, cancellationToken);
+    }
+
+    // E-mail messages need the party's e-mail address and SMS their mobile number. Who changed the choice and when is kept (consent) and audited.
+    public async Task<ServiceResultDto<ContactNotifyDto>> SetNotificationsAsync(KhataCallerDto caller, int contactId, ContactNotifyDto request, CancellationToken cancellationToken)
+    {
+        var contact = await RequireContactAsync(caller, contactId, cancellationToken);
+
+        if (request.Email && contact.Email is null)
+            throw new BusinessException(MessageCodes.KhataNotifyEmailMissing, 400);
+
+        if (request.Sms && contact.Mobile is null)
+            throw new BusinessException(MessageCodes.KhataNotifyMobileMissing, 400);
+
+        var now = DateTime.UtcNow;
+        var pref = await _contactRepository.GetNotificationPrefAsync(contactId, cancellationToken) ?? new KhataNotificationPref { ContactId = contactId };
+        pref.NotifyPush = request.App;
+        pref.NotifySms = request.Sms;
+        pref.NotifyEmail = request.Email;
+        pref.ConsentChangedByUserId = caller.UserId;
+        pref.ConsentChangedOn = now;
+
+        if (pref.Id == 0)
+        {
+            await _contactRepository.AddNotificationPrefAsync(pref, cancellationToken);
+        }
+        else
+        {
+            pref.ModifiedOn = now;
+            await _contactRepository.SaveChangesAsync(cancellationToken);
+        }
+
+        await _common.Audit.WriteAsync(KhataAuditActions.NotifyChanged, caller.UserId, caller, new { ContactId = contactId, request.App, request.Sms, request.Email }, cancellationToken);
+
+        return new ServiceResultDto<ContactNotifyDto> { Data = KhataMapper.ToDto(pref), Message = await _common.Messages.GetAsync(MessageCodes.KhataNotifySaved) };
     }
 
     #endregion

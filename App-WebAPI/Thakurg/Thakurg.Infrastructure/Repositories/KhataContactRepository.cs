@@ -46,6 +46,12 @@ public class KhataContactRepository : IKhataContactRepository
         return _dbContext.KhataContacts.WhereActive().FirstOrDefaultAsync(c => c.Id == contactId && c.OwnerUserId == userId && books.Any(b => b.Id == c.BookId), cancellationToken);
     }
 
+    public async Task AddNotificationPrefAsync(KhataNotificationPref pref, CancellationToken cancellationToken)
+    {
+        _dbContext.KhataNotificationPrefs.Add(pref);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     // Contacts of the book that you will get from (balance above 0) and that you will give to (below 0).
     public async Task<(int ToGet, int ToGive)> CountBalancesAsync(int bookId, CancellationToken cancellationToken)
     {
@@ -54,6 +60,19 @@ public class KhataContactRepository : IKhataContactRepository
         var toGive = await contacts.CountAsync(c => c.BalanceMinor < 0, cancellationToken);
 
         return (toGet, toGive);
+    }
+
+    public Task<KhataNotificationPref?> GetNotificationPrefAsync(int contactId, CancellationToken cancellationToken)
+    {
+        return _dbContext.KhataNotificationPrefs.WhereActive().FirstOrDefaultAsync(p => p.ContactId == contactId, cancellationToken);
+    }
+
+    // The notification choices of the book's contacts (contacts without a row have every channel off).
+    public Task<List<KhataNotificationPref>> GetNotificationPrefsAsync(int bookId, CancellationToken cancellationToken)
+    {
+        var contacts = _dbContext.KhataContacts.Where(c => c.BookId == bookId);
+
+        return _dbContext.KhataNotificationPrefs.AsNoTracking().WhereActive().Where(p => contacts.Any(c => c.Id == p.ContactId)).ToListAsync(cancellationToken);
     }
 
     // False when someone else changed the contact since the caller read it (RowVersion no longer matches).

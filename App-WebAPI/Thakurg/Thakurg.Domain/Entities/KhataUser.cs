@@ -36,6 +36,8 @@ public class KhataUser : BaseEntity
 
     public TimeOnly DailySummaryTime { get; set; }
 
+    public bool NotificationsEnabled { get; set; }
+
     public bool? DeletionDeleteFiles { get; set; }
 
     public DateTime? StorageSkippedOn { get; set; }

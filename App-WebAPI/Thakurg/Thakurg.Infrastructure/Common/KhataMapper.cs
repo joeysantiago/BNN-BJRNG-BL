@@ -32,6 +32,12 @@ public static class KhataMapper
         return new AttachmentDto { Id = attachment.Id, FileName = attachment.FileName, ContentType = attachment.ContentType, SizeBytes = attachment.SizeBytes };
     }
 
+    // No row yet = every channel off.
+    public static ContactNotifyDto ToDto(KhataNotificationPref? pref)
+    {
+        return new ContactNotifyDto { App = pref?.NotifyPush ?? false, Sms = pref?.NotifySms ?? false, Email = pref?.NotifyEmail ?? false };
+    }
+
     public static TransactionSnapshotDto Snapshot(KhataTransaction entry)
     {
         return new TransactionSnapshotDto { EntryType = (KhataEntryType)entry.EntryType, AmountMinor = entry.AmountMinor, Note = entry.Note, EntryDate = entry.EntryDate };
@@ -47,9 +53,9 @@ public static class KhataMapper
         return new TransactionHistoryDto { Version = history.Version, ChangeType = (KhataChangeType)history.ChangeType, Snapshot = JsonSerializer.Deserialize<TransactionSnapshotDto>(history.SnapshotJson) ?? new(), ChangedByUserId = history.ChangedByUserId, ChangedOn = history.CreatedOn };
     }
 
-    public static ContactDto ToDto(KhataContact contact, DateOnly? lastEntryOn)
+    public static ContactDto ToDto(KhataContact contact, DateOnly? lastEntryOn, KhataNotificationPref? pref)
     {
-        return new ContactDto { Id = contact.Id, BookId = contact.BookId, Name = contact.Name, Mobile = contact.Mobile, Email = contact.Email, Address = contact.Address, Note = contact.Note, ContactType = (KhataContactType)contact.ContactType, AllowContactEntries = contact.AllowContactEntries, ShareStatus = (KhataShareStatus)contact.ShareStatus, BalanceMinor = contact.BalanceMinor, DueDate = contact.DueDate, LastEntryOn = lastEntryOn, RowVersion = Convert.ToBase64String(contact.RowVersion) };
+        return new ContactDto { Id = contact.Id, BookId = contact.BookId, Name = contact.Name, Mobile = contact.Mobile, Email = contact.Email, Address = contact.Address, Note = contact.Note, ContactType = (KhataContactType)contact.ContactType, AllowContactEntries = contact.AllowContactEntries, ShareStatus = (KhataShareStatus)contact.ShareStatus, BalanceMinor = contact.BalanceMinor, DueDate = contact.DueDate, LastEntryOn = lastEntryOn, RowVersion = Convert.ToBase64String(contact.RowVersion), Notify = ToDto(pref) };
     }
 
     // An entry as the lists and the details show it: with its contact name, photo count and the contact balance right after it.

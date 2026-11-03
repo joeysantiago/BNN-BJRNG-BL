@@ -70,9 +70,23 @@ public class AuthRepository : IAuthRepository
         return _dbContext.Roles.AsNoTracking().WhereActive().FirstOrDefaultAsync(r => r.Code == code, cancellationToken);
     }
 
+    // The account whose profile (UserProfiles) holds this mobile number, in E.164 form.
+    public Task<User?> FindByMobileAsync(string mobile, CancellationToken cancellationToken)
+    {
+        var profiles = _dbContext.UserProfiles.WhereActive();
+
+        return _dbContext.Users.WhereActive().FirstOrDefaultAsync(u => profiles.Any(p => p.UserId == u.Id && p.Mobile == mobile), cancellationToken);
+    }
+
     public async Task AddSessionAsync(UserSession session, CancellationToken cancellationToken)
     {
         _dbContext.UserSessions.Add(session);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task AddProfileAsync(UserProfile profile, CancellationToken cancellationToken)
+    {
+        _dbContext.UserProfiles.Add(profile);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 

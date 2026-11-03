@@ -12,9 +12,15 @@ public interface IKhataContactRepository
 
     Task<DateOnly?> GetLastEntryOnAsync(int contactId, CancellationToken cancellationToken);
 
+    Task AddNotificationPrefAsync(KhataNotificationPref pref, CancellationToken cancellationToken);
+
     Task<(int ToGet, int ToGive)> CountBalancesAsync(int bookId, CancellationToken cancellationToken);
 
     Task<KhataContact?> GetContactAsync(int contactId, int userId, CancellationToken cancellationToken);
+
+    Task<KhataNotificationPref?> GetNotificationPrefAsync(int contactId, CancellationToken cancellationToken);
+
+    Task<List<KhataNotificationPref>> GetNotificationPrefsAsync(int bookId, CancellationToken cancellationToken);
 
     Task<bool> UpdateContactAsync(KhataContact contact, byte[] expectedRowVersion, CancellationToken cancellationToken);
 

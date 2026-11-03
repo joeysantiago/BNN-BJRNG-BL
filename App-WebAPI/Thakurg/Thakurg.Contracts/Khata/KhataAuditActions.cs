@@ -14,6 +14,8 @@ public static class KhataAuditActions
 
     public const string PhotoDeleted = "PhotoDeleted";
 
+    public const string NotifyChanged = "NotifyChanged";
+
     public const string AllowEntriesOn = "AllowEntriesOn";
 
     public const string ContactDeleted = "ContactDeleted";

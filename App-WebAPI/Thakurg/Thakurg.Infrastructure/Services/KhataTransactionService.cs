@@ -53,6 +53,7 @@ public class KhataTransactionService : IKhataTransactionService
         entry.IsSoftDeleted = true;
         await SaveChangeAsync(caller, entry, rowVersion, KhataChangeType.Deleted, balanceDelta, cancellationToken);
         await _common.Audit.WriteAsync(KhataAuditActions.EntryDeleted, caller.UserId, caller, new { TransactionId = transactionId, entry.Version }, cancellationToken);
+        Notify(caller, entry, KhataChangeType.Deleted);
 
         return await _common.Messages.GetAsync(MessageCodes.KhataEntryDeleted);
     }
@@ -67,8 +68,9 @@ public class KhataTransactionService : IKhataTransactionService
 
         var attachments = await _attachmentRepository.GetAttachmentsAsync(transactionId, cancellationToken);
         var lastEntryOn = await _contactRepository.GetLastEntryOnAsync(contact.Id, cancellationToken);
+        var pref = await _contactRepository.GetNotificationPrefAsync(contact.Id, cancellationToken);
 
-        return new TransactionDetailDto { Entry = await EntryAsync(caller, transactionId, cancellationToken), BookId = entry.BookId, Contact = KhataMapper.ToDto(contact, lastEntryOn), Attachments = attachments.Select(KhataMapper.ToDto).ToList() };
+        return new TransactionDetailDto { Entry = await EntryAsync(caller, transactionId, cancellationToken), BookId = entry.BookId, Contact = KhataMapper.ToDto(contact, lastEntryOn, pref), Attachments = attachments.Select(KhataMapper.ToDto).ToList() };
     }
 
     public async Task<List<TransactionHistoryDto>> GetHistoryAsync(KhataCallerDto caller, int transactionId, CancellationToken cancellationToken)
@@ -112,6 +114,7 @@ public class KhataTransactionService : IKhataTransactionService
         entry.EntryDate = request.EntryDate;
         await SaveChangeAsync(caller, entry, KhataMapper.RowVersion(request.RowVersion), KhataChangeType.Edited, balanceDelta, cancellationToken);
         await _common.Audit.WriteAsync(KhataAuditActions.EntryEdited, caller.UserId, caller, new { TransactionId = transactionId, entry.Version }, cancellationToken);
+        Notify(caller, entry, KhataChangeType.Edited);
 
         return await EntryAsync(caller, transactionId, cancellationToken);
     }
@@ -125,6 +128,7 @@ public class KhataTransactionService : IKhataTransactionService
             var entry = new KhataTransaction { BookId = contact.BookId, ContactId = contactId, EntryType = (byte)request.EntryType, AmountMinor = request.AmountMinor, Note = Note(request.Note), EntryDate = request.EntryDate, AddedByUserId = caller.UserId, Version = 1, Source = (byte)KhataEntrySource.App };
             var history = NewHistory(caller, entry, KhataChangeType.Created);
             await _transactionRepository.AddAsync(entry, history, KhataMapper.Signed(entry.EntryType, entry.AmountMinor), cancellationToken);
+            Notify(caller, entry, KhataChangeType.Created);
 
             return await EntryAsync(caller, entry.Id, cancellationToken);
         }, cancellationToken);
@@ -145,6 +149,12 @@ public class KhataTransactionService : IKhataTransactionService
         var noteTooLong = request.Note is not null && request.Note.Trim().Length > MaxNoteLength;
         if (!Enum.IsDefined(request.EntryType) || request.AmountMinor <= 0 || request.AmountMinor > _limits.MaxAmountMinor || request.EntryDate < FirstAllowedDate || request.EntryDate > latestAllowedDate || noteTooLong)
             throw new BusinessException(MessageCodes.KhataEntryInvalid, 400);
+    }
+
+    // The party is told in the background (KhataNotificationWorker), so the save never waits for e-mail or SMS.
+    private void Notify(KhataCallerDto caller, KhataTransaction entry, KhataChangeType changeType)
+    {
+        _common.Notifications.Enqueue(new KhataNotificationJobDto { UserId = caller.UserId, ContactId = entry.ContactId, TransactionId = entry.Id, ChangeType = changeType });
     }
 
     private async Task<TransactionDto> EntryAsync(KhataCallerDto caller, int transactionId, CancellationToken cancellationToken)

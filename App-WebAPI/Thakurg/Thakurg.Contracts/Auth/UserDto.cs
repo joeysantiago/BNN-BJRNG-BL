@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Auth;
 
-// An account. Avatar is the picture's file name (null = none; it changes with every upload, so the picture URL can be cached). Permissions ("settings.users:edit") are the rights of its role; a super admin has every right. HiddenFeatures are the options the user switched off for themselves.
+// An account. Avatar is the picture's file name (null = none; it changes with every upload, so the picture URL can be cached). Permissions ("settings.users:edit") are the rights of its role; a super admin has every right. HiddenFeatures are the options the user switched off for themselves. LoginMethod is how this session logged in (LoginMethods: password or otp).
 public class UserDto
 {
     public int Id { get; set; }
@@ -30,4 +30,6 @@ public class UserDto
     public List<string> HiddenFeatures { get; set; } = [];
 
     public string DisplayName { get; set; } = string.Empty;
+
+    public string LoginMethod { get; set; } = string.Empty;
 }

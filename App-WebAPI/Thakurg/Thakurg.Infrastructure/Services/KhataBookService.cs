@@ -97,8 +97,9 @@ public class KhataBookService : IKhataBookService
         var recentFilter = new TransactionFilterDto { BookId = bookId, Kind = KhataEntryKind.Live, Sort = KhataEntrySort.Newest, Page = 1, PageSize = _limits.SummaryRecent };
         var (recent, _, _, _) = await _transactionRepository.GetPageAsync(recentFilter, caller.UserId, cancellationToken);
         var entryCount = await _transactionRepository.CountLiveEntriesAsync(bookId, cancellationToken);
+        var prefs = (await _contactRepository.GetNotificationPrefsAsync(bookId, cancellationToken)).ToDictionary(p => p.ContactId);
 
-        return new BookSummaryDto { Book = book, ToGetCount = toGet, ToGiveCount = toGive, EntryCount = entryCount, Months = Months(firstMonth, totals), TopContacts = topContacts.Select(c => KhataMapper.ToDto(c.Contact, c.LastEntryOn)).ToList(), Recent = recent };
+        return new BookSummaryDto { Book = book, ToGetCount = toGet, ToGiveCount = toGive, EntryCount = entryCount, Months = Months(firstMonth, totals), TopContacts = topContacts.Select(c => KhataMapper.ToDto(c.Contact, c.LastEntryOn, prefs.GetValueOrDefault(c.Contact.Id))).ToList(), Recent = recent };
     }
 
     public async Task<BookDto> CreateAsync(KhataCallerDto caller, BookRequestDto request, Guid? idempotencyKey, CancellationToken cancellationToken)

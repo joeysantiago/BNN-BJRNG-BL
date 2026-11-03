@@ -5,6 +5,7 @@ BEGIN
         Id                INT IDENTITY(1,1) NOT NULL                                                                        ,
         UserId            INT               NULL                                                                            ,
         ContactId         INT               NULL                                                                            ,
+        TransactionId     INT               NULL                                                                            ,
         Channel           TINYINT           NOT NULL                                                                        ,
         Template          VARCHAR(50)       NOT NULL                                                                        ,
         Status            TINYINT           NOT NULL                                                                        ,
@@ -20,7 +21,8 @@ BEGIN
 
         CONSTRAINT PK_KhataNotificationLog PRIMARY KEY CLUSTERED (Id),
         CONSTRAINT FK_KhataNotificationLog_KhataUsers_UserId FOREIGN KEY (UserId) REFERENCES KhataUsers (Id),
-        CONSTRAINT FK_KhataNotificationLog_KhataContacts_ContactId FOREIGN KEY (ContactId) REFERENCES KhataContacts (Id)
+        CONSTRAINT FK_KhataNotificationLog_KhataContacts_ContactId FOREIGN KEY (ContactId) REFERENCES KhataContacts (Id),
+        CONSTRAINT FK_KhataNotificationLog_KhataTransactions_TransactionId FOREIGN KEY (TransactionId) REFERENCES KhataTransactions (Id)
     );
 
     CREATE INDEX IX_KhataNotificationLog_UserId_CreatedOn ON KhataNotificationLog (UserId, CreatedOn);

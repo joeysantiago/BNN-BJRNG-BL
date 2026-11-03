@@ -12,10 +12,13 @@ public class KhataCommonServices : IKhataCommonServices
 
     public IKhataIdempotencyService Idempotency { get; }
 
-    public KhataCommonServices(IMessageService messages, IKhataAuditService audit, IKhataIdempotencyService idempotency)
+    public IKhataNotificationQueue Notifications { get; }
+
+    public KhataCommonServices(IMessageService messages, IKhataAuditService audit, IKhataIdempotencyService idempotency, IKhataNotificationQueue notifications)
     {
         Messages = messages;
         Audit = audit;
         Idempotency = idempotency;
+        Notifications = notifications;
     }
 }

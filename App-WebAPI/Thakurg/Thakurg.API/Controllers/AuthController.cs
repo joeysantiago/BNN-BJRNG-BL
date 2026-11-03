@@ -32,7 +32,7 @@ public class AuthController : ControllerBase
     [Authorize(Policy = AuthPolicies.User)]
     public async Task<ActionResult<ApiResponse<UserDto>>> Me(CancellationToken cancellationToken)
     {
-        var user = await _authService.GetMeAsync(HttpContext.AuthCaller().UserId, cancellationToken);
+        var user = await _authService.GetMeAsync(HttpContext.AuthCaller(), cancellationToken);
 
         return Ok(ApiResponse<UserDto>.SuccessResponse(user));
     }
@@ -72,7 +72,7 @@ public class AuthController : ControllerBase
     [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
     public async Task<ActionResult<ApiResponse<UserDto>>> UpdateProfile([FromBody] ProfileUpdateDto request, CancellationToken cancellationToken)
     {
-        var result = await _authService.UpdateProfileAsync(HttpContext.AuthCaller().UserId, request, cancellationToken);
+        var result = await _authService.UpdateProfileAsync(HttpContext.AuthCaller(), request, cancellationToken);
 
         return Ok(ApiResponse<UserDto>.SuccessResponse(result.Data, result.Message));
     }
@@ -103,7 +103,7 @@ public class AuthController : ControllerBase
     [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
     public async Task<ActionResult<ApiResponse<UserDto>>> UpdateFeatures([FromBody] FeaturePreferencesDto request, CancellationToken cancellationToken)
     {
-        var result = await _authService.UpdateFeaturesAsync(HttpContext.AuthCaller().UserId, request, cancellationToken);
+        var result = await _authService.UpdateFeaturesAsync(HttpContext.AuthCaller(), request, cancellationToken);
 
         return Ok(ApiResponse<UserDto>.SuccessResponse(result.Data, result.Message));
     }

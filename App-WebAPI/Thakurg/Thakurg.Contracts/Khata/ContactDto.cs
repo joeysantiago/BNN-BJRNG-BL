@@ -28,5 +28,7 @@ public class ContactDto
 
     public KhataShareStatus ShareStatus { get; set; }
 
+    public ContactNotifyDto Notify { get; set; } = new();
+
     public string RowVersion { get; set; } = string.Empty;
 }

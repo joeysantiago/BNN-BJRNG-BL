@@ -23,9 +23,13 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
 
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
 
+    public DbSet<OneTimeCode> OneTimeCodes => Set<OneTimeCode>();
+
     public DbSet<ServiceItem> ServiceItems => Set<ServiceItem>();
 
     public DbSet<UserFeature> UserFeatures => Set<UserFeature>();
+
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
 
     public DbSet<UserSession> UserSessions => Set<UserSession>();
 
@@ -88,6 +92,8 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
         modelBuilder.Entity<Message>().ToTable("Messages");
         modelBuilder.Entity<PageName>().ToTable("PageNames");
         modelBuilder.Entity<AppSetting>().ToTable("AppSettings");
+        modelBuilder.Entity<UserProfile>().ToTable("UserProfiles");
+        modelBuilder.Entity<OneTimeCode>().ToTable("OneTimeCodes");
         modelBuilder.Entity<ServiceItem>().ToTable("ServiceItems");
         modelBuilder.Entity<UserSession>().ToTable("UserSessions");
         modelBuilder.Entity<UserFeature>().ToTable("UserFeatures");

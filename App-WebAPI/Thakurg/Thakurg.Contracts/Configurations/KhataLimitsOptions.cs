@@ -8,6 +8,8 @@ public class KhataLimitsOptions
 
     public int MaxPageSize { get; set; }
 
+    public int MaxExportRows { get; set; }
+
     public int SummaryMonths { get; set; }
 
     public int SummaryRecent { get; set; }
