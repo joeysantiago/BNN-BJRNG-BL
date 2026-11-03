@@ -138,7 +138,7 @@ public class UserAccessService : IUserAccessService
 
     private static UserDto ToDto(User user, Role? role, List<string> apps)
     {
-        return new UserDto { Id = user.Id, Email = user.Email, DisplayName = user.DisplayName, Language = user.Language, RoleId = user.RoleId, RoleCode = role?.Code ?? string.Empty, RoleName = role?.Name ?? string.Empty, IsAdmin = RoleCodes.IsAdmin(role?.Code), Apps = apps };
+        return new UserDto { Id = user.Id, Email = user.Email, DisplayName = user.DisplayName, Language = user.Language, Avatar = user.AvatarFile, CreatedOn = user.CreatedOn, LastLoginOn = user.LastLoginOn, RoleId = user.RoleId, RoleCode = role?.Code ?? string.Empty, RoleName = role?.Name ?? string.Empty, IsAdmin = RoleCodes.IsAdmin(role?.Code), Apps = apps };
     }
 
     // Every ticked app must exist; the answer keeps the order of the Apps table.

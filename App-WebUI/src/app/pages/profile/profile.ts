@@ -1,19 +1,21 @@
 import { Lang } from '../../core/site';
-import { Router, RouterLink } from '@angular/router';
 import { SeoService } from '../../core/seo.service';
 import { APP_LINKS, appLink } from '../../core/apps';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
+import { UserAvatar } from '../../shared/user-avatar';
 import { ProfileForm, ProfileNotice } from './profile.model';
+import { formatDate, formatDateTimeWithZone } from '../../core/date-format';
 import { Component, WritableSignal, computed, effect, inject, signal } from '@angular/core';
 
 /**
- * /profile: every logged-in user's account page. Display name and language, change password, log out, and the apps this account may open
- * (other apps are given by an administrator on the master page). Prerendered as an empty shell; the guard asks for the login in the browser.
+ * /profile: every logged-in user's account page, laid out side by side so it fits one screen on a desktop: the profile card (picture, name, role, member since,
+ * last login, apps), name and language with the apps this account may open, and the password. Prerendered as an empty shell; the guard asks for the login in the browser.
  */
 @Component({
   selector: 'app-profile',
-  imports: [RouterLink],
+  imports: [RouterLink, UserAvatar],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -27,6 +29,9 @@ export class Profile {
   protected readonly saving = signal<ProfileForm | null>(null);
   protected readonly pwNotice = signal<ProfileNotice | null>(null);
   protected readonly infoNotice = signal<ProfileNotice | null>(null);
+  protected readonly photoNotice = signal<ProfileNotice | null>(null);
+  protected readonly since = computed(() => formatDate(this.auth.user()?.createdOn));
+  protected readonly lastLogin = computed(() => formatDateTimeWithZone(this.auth.user()?.lastLoginOn));
   /** A feature branch may not have every app's pages: an app whose page is not routed here is listed without a link. */
   protected readonly apps = computed(() => (this.auth.isAdmin() ? APP_LINKS : this.auth.apps().map(appLink)).map((a) => (a.path && this.router.config.some((r) => r.path === a.path!.split('/')[1]) ? a : { ...a, path: null })));
 
@@ -48,6 +53,20 @@ export class Profile {
 
   async logout(): Promise<void> {
     await this.auth.logout();
+  }
+
+  async removePhoto(): Promise<void> {
+    await this.run('photo', this.photoNotice, () => this.auth.removeAvatar());
+  }
+
+  /** Uploads the chosen picture at once; the server checks its type and size. */
+  async pickPhoto(ev: Event): Promise<void> {
+    const input = ev.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file)
+      return;
+    await this.run('photo', this.photoNotice, () => this.auth.uploadAvatar(file));
+    input.value = '';
   }
 
   /** Saves the display name and language; the chosen language is applied to the site at once. */

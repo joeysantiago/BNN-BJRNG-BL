@@ -20,6 +20,8 @@ public static partial class MessageCodes
 
     public const string AuthAccessSaved = "AUTH_ACCESS_SAVED";
 
+    public const string AuthAvatarSaved = "AUTH_AVATAR_SAVED";
+
     public const string AuthUserCreated = "AUTH_USER_CREATED";
 
     public const string AuthUserDeleted = "AUTH_USER_DELETED";
@@ -34,6 +36,10 @@ public static partial class MessageCodes
 
     public const string AuthUserNotFound = "AUTH_USER_NOT_FOUND";
 
+    public const string AuthAvatarInvalid = "AUTH_AVATAR_INVALID";
+
+    public const string AuthAvatarRemoved = "AUTH_AVATAR_REMOVED";
+
     public const string AuthFeaturesSaved = "AUTH_FEATURES_SAVED";
 
     public const string AuthPasswordWrong = "AUTH_PASSWORD_WRONG";
@@ -43,6 +49,8 @@ public static partial class MessageCodes
     public const string AuthProfileInvalid = "AUTH_PROFILE_INVALID";
 
     public const string AuthSessionInvalid = "AUTH_SESSION_INVALID";
+
+    public const string AuthAvatarNotFound = "AUTH_AVATAR_NOT_FOUND";
 
     public const string AuthPasswordChanged = "AUTH_PASSWORD_CHANGED";
 }
