@@ -1,193 +1,401 @@
+/* Settings page (and its tabs, which @use this file): a title, then one panel with underlined tabs. Each section is rows of
+   "label and help on the left, control on the right" with thin separators, its Save button on its own below, and lists that are
+   compact rows with small icon actions and an add row at the end. Tap targets stay 44px; everything wraps at 320px. */
+
 .page {
   display: grid;
-  gap: 20px;
+  gap: 18px;
   padding-block: 24px 0;
 }
-h1 {
-  font-family: var(--font-display);
-  font-size: clamp(1.8rem, 5vw, 2.6rem);
-  font-weight: 600;
+
+/* Title with the short accent line above it. */
+.head {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
 }
-h2 {
-  margin-block-end: 6px;
+.head::before {
+  content: '';
+  width: 28px;
+  height: 3px;
+  margin-block-end: 10px;
+  border-radius: 2px;
+  background: var(--accent, currentColor);
+}
+h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4.5vw, 2.2rem);
+  font-weight: 600;
 }
 .lead,
 .note,
 .help {
+  margin: 0;
   color: var(--muted);
 }
-.bar {
+.help {
+  margin-block-end: 6px;
+  font-size: 14px;
+}
+
+/* One panel: tabs on top, the open tab below. */
+.shell {
+  padding: 0;
+  overflow: hidden;
+}
+.tabs {
   display: flex;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  padding: 6px 12px 0;
+  border-block-end: 1px solid var(--line, rgba(128, 128, 128, 0.25));
+}
+.tab {
+  position: relative;
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tab:hover {
+  color: var(--text);
+}
+.tab[aria-selected='true'] {
+  color: var(--accent-ink, var(--text));
+}
+.tab[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  inset-inline: 8px;
+  inset-block-end: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent, currentColor);
+}
+.tab:focus-visible {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: -4px;
+  border-radius: 8px;
+}
+.panel {
+  display: grid;
+  padding: 8px clamp(14px, 3vw, 24px) 24px;
+}
+
+/* Sections inside the open tab. */
+.sec {
+  display: grid;
+  gap: 4px;
+  padding-block: 18px;
+}
+.sec + .sec {
+  border-block-start: 1px solid var(--line, rgba(128, 128, 128, 0.25));
+}
+.sec-h {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+.bare {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.bare:disabled {
+  opacity: 0.75;
+}
+
+/* Switch rows: label and help on the left, the switch on the right; two columns on wide screens. */
+.opts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+  column-gap: 32px;
+}
+.opt,
+.field-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding-block: 10px;
+  border-block-end: 1px solid var(--line, rgba(128, 128, 128, 0.18));
+  cursor: pointer;
+}
+.field-row {
+  cursor: default;
+}
+.lead-opt {
+  margin-block-end: 4px;
+}
+.txt {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.txt b {
+  font-weight: 600;
+}
+.txt small {
+  color: var(--muted);
+  font-size: 13px;
+}
+.txt small.bad,
+.status.bad {
+  color: var(--bad, #c0392b);
+}
+.diff .txt b::after {
+  content: ' •';
+  color: var(--accent, currentColor);
+}
+
+/* The switch: a pill with a knob, from a plain checkbox (role="switch"). */
+.switch {
+  appearance: none;
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 24px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--inset-bg, rgba(128, 128, 128, 0.3));
+  box-shadow: inset 0 0 0 1px var(--line, rgba(128, 128, 128, 0.4));
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.switch::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 3px;
+  inset-inline-start: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--muted, #999);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.switch:checked {
+  background: var(--accent, #c9a24a);
+  box-shadow: none;
+}
+.switch:checked::before {
+  background: var(--accent-contrast, #1a1020);
+  transform: translateX(20px);
+}
+:host-context([dir='rtl']) .switch:checked::before {
+  transform: translateX(-20px);
+}
+.switch:focus-visible {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: 3px;
+}
+.switch:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Text fields on the right of a row. */
+select,
+input[type='text'],
+input[type='email'],
+input[type='number'],
+input[type='password'],
+textarea {
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid var(--line, rgba(128, 128, 128, 0.35));
+  border-radius: 10px;
+  background: var(--inset-bg, transparent);
+  color: inherit;
+  font: inherit;
+  box-sizing: border-box;
+}
+.field-row > input,
+.field-row > select {
+  width: min(100%, 280px);
+  flex: none;
+}
+textarea {
+  width: 100%;
+  margin-block-start: 8px;
+  direction: ltr;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13px;
+  resize: vertical;
+}
+
+/* Save button on its own line under the section, with the server's answer next to it. */
+/* Buttons sit at the end of the row (right, or left in Arabic); the first button in the markup (Save) is the outermost, the server's answer sits before it. */
+.foot {
+  display: flex;
+  flex-direction: row-reverse;
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   margin-block-start: 16px;
 }
 .status {
   margin: 0;
   font-weight: 600;
 }
-.status.bad,
-.was.bad {
-  color: var(--bad, #c0392b);
-}
-.rows {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
-  gap: 10px;
-  margin: 12px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.rows li {
-  padding: 10px 14px;
-}
-.rows label:not(.stack) {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  min-height: 44px;
-  cursor: pointer;
-}
-.rows input[type='checkbox'] {
-  flex: none;
-  width: 22px;
-  height: 22px;
-  accent-color: var(--accent, currentColor);
-}
-.txt {
-  display: grid;
-  flex: 1;
-  min-width: 0;
-}
-.txt small,
-.was {
-  color: var(--muted);
-}
-.pill {
-  flex: none;
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--muted);
-}
-.pill.on {
-  color: var(--text);
-}
-.diff {
-  outline: 2px solid var(--accent, currentColor);
-  outline-offset: -2px;
-}
-.stack {
-  display: grid;
-  gap: 6px;
-}
-.setup {
-  display: grid;
-  gap: 14px;
-  padding: 16px;
-  margin-block-start: 16px;
-}
-.setup label {
-  font-weight: 700;
-  font-size: 14px;
-}
-.setup-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-select,
-input[type='text'],
-input[type='number'],
-input[type='password'],
-input[type='url'],
-textarea {
-  width: 100%;
-  min-height: 44px;
-  padding: 8px 12px;
-  border: 1px solid var(--line, rgba(128, 128, 128, 0.4));
-  border-radius: 10px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-}
-textarea {
-  direction: ltr;
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  font-size: 13px;
-  resize: vertical;
-}
-.sechead {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-}
-.sechead h2 {
-  margin: 0;
-  min-width: 0;
-}
-.topbar {
-  display: grid;
-  gap: 12px;
-}
-.topbar .bar {
-  margin-block-start: 0;
-}
-.acts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-}
 .status:empty {
   display: none;
 }
+.acts {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Unsaved site changes: one slim bar at the top of the tab. */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-start: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--inset-bg, rgba(128, 128, 128, 0.12));
+}
 @media (min-width: 900px) {
-  /* stays in view while you scroll through the sections; the site header is about 70px tall */
   .topbar {
     position: sticky;
     inset-block-start: 76px;
     z-index: 5;
   }
 }
-.users {
+
+/* Compact lists (users, roles, page rights): one row each, icon actions at the end, then an add row. */
+.list {
   display: grid;
-  gap: 10px;
-  margin: 12px 0 0;
+  margin: 8px 0 0;
   padding: 0;
   list-style: none;
 }
-.users li {
-  padding: 12px 14px;
+.item {
+  border-block-end: 1px solid var(--line, rgba(128, 128, 128, 0.18));
 }
-.user .who {
+.row {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 10px;
-  align-items: baseline;
-  margin: 0 0 8px;
+  gap: 8px 14px;
+  align-items: center;
+  min-height: 56px;
+  padding-block: 8px;
 }
-.user .who small,
-.user .mail {
-  color: var(--muted);
+.row .txt {
+  flex: 1 1 200px;
 }
-.user .mail {
+.mono {
+  direction: ltr;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+}
+.mail {
   direction: ltr;
   overflow-wrap: anywhere;
 }
-.apps {
+.tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 18px;
-  margin: 0;
-  padding: 0;
+  gap: 6px;
+}
+.tag {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--inset-bg, rgba(128, 128, 128, 0.15));
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.tag.on {
+  color: var(--accent-ink, var(--text));
+}
+.icons {
+  display: flex;
+  gap: 2px;
+  margin-inline-start: auto;
+}
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
   border: 0;
-  min-width: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--accent-ink, var(--text));
+  cursor: pointer;
+}
+.icon-btn:hover {
+  background: var(--inset-bg, rgba(128, 128, 128, 0.15));
+}
+.icon-btn:focus-visible {
+  outline: 2px solid var(--accent, currentColor);
+}
+.icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.icon-btn.danger {
+  color: var(--bad, #e05a5a);
+}
+.icon-btn.sure {
+  background: var(--bad, #e05a5a);
+  color: #fff;
+}
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* The inline edit area under a row. */
+.edit {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--inset-bg, rgba(128, 128, 128, 0.1));
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 12px;
+  align-items: start;
+}
+/* Label above its box. Boxes keep one height and normal-weight text, so fields with and without a hint line up. */
+.stack {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.stack > input,
+.stack > select {
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  font-weight: 500;
+  font-size: 15px;
+}
+.stack small {
+  font-weight: 500;
+  color: var(--muted);
 }
 .chk {
   display: inline-flex;
@@ -197,103 +405,64 @@ textarea {
   cursor: pointer;
 }
 .chk input {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   accent-color: var(--accent, currentColor);
 }
-.chk.admin {
-  font-weight: 700;
-}
-.user .bar {
-  margin-block-start: 8px;
-}
-/* Tabs: one row that wraps on small screens, so the page never scrolls sideways. */
-.tabbar {
-  padding: 10px;
-}
-.tabs {
+.apps {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 0 18px;
 }
-.tab {
-  min-height: 44px;
-  padding: 8px 14px;
-  border: 0;
-  border-radius: 12px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
+
+/* Add row: the fields and "+ Add" side by side, wrapping on phones. */
+.addrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+  margin-block-start: 16px;
 }
-.tab[aria-selected='true'] {
-  background: var(--inset-bg);
-  box-shadow: var(--inset-shadow);
-  color: var(--accent-ink, var(--text));
-}
-.tab:focus-visible {
-  outline: 2px solid var(--accent, currentColor);
-  outline-offset: 2px;
-}
-.panel {
-  display: grid;
-  gap: 20px;
-}
-.bare {
-  margin: 0;
-  padding: 0;
-  border: 0;
+.addrow > input,
+.addrow > select {
+  flex: 1 1 180px;
   min-width: 0;
 }
-/* Forms and lists of the Users, Roles and Role rights tabs. */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
-  gap: 12px;
+.addrow > .btn {
+  flex: none;
+  min-height: 42px;
 }
-.grid .stack span {
+.btn .plus {
+  margin-inline-end: 6px;
   font-weight: 700;
-  font-size: 14px;
 }
-.list {
-  display: grid;
-  gap: 10px;
-  margin: 12px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.list > li {
-  padding: 12px 14px;
-}
-.who {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 10px;
-  align-items: baseline;
-  margin: 0 0 8px;
-}
-.who small,
-.mail,
-.tag {
-  color: var(--muted);
-}
-.mail {
-  direction: ltr;
-  overflow-wrap: anywhere;
-}
-.tag {
-  padding: 1px 8px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 700;
-  outline: 1px solid currentColor;
-}
-.btn.danger {
-  color: var(--bad, #c0392b);
-}
-.rights {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 18px;
+
+/* Phones: a row's control goes under its label, and list rows keep their icons on the first line with the tags below the name. */
+@media (max-width: 640px) {
+  .field-row {
+    flex-wrap: wrap;
+  }
+  .field-row > input,
+  .field-row > select {
+    width: 100%;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 6px 12px;
+  }
+  .row.plain {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .row > .icons {
+    grid-row: 1;
+    grid-column: -2;
+  }
+  .row > .tags {
+    grid-row: 2;
+    grid-column: 2 / -1;
+  }
+  .row.plain > .tags {
+    grid-column: 1 / -1;
+  }
 }

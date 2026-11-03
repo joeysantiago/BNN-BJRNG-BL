@@ -25,6 +25,8 @@ export class RolesTab {
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
   protected readonly busy = signal<number | null>(null);
+  /** The role whose row is open for editing. */
+  protected readonly editing = signal<number | null>(null);
   protected readonly roles = signal<RoleInfo[] | null>(null);
   protected readonly confirming = signal<number | null>(null);
   protected readonly notice = signal<UserNotice | null>(null);
@@ -37,6 +39,11 @@ export class RolesTab {
   }
 
   // #region Public Methods
+
+  toggleEdit(id: number): void {
+    this.notice.set(null);
+    this.editing.update((e) => (e === id ? null : id));
+  }
 
   /** The super admin role, for a caller who is not a super admin: shown, but not changeable. */
   locked(role: RoleInfo): boolean {
@@ -81,6 +88,7 @@ export class RolesTab {
       const res = await this.api.sendFull<RoleInfo>('PUT', `/admin/roles/${role.id}`, this.api.json(body));
       // Making a role the sign-up role takes the mark from the others, so the whole list is read again.
       await this.load();
+      this.editing.set(null);
       return res.message ?? '';
     });
   }

@@ -1,14 +1,15 @@
 @use '../config';
 
-.add {
+:host {
   display: grid;
-  gap: 12px;
-  padding: 16px;
-  margin-block-start: 12px;
 }
-.add h3 {
-  margin: 0 0 8px;
-  font-size: 1.05rem;
+.code {
+  margin-inline-start: 6px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.row-note {
+  padding-block-end: 10px;
 }
 input[readonly] {
   opacity: 0.7;

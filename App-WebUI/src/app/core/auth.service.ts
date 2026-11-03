@@ -109,6 +109,26 @@ export class AuthService {
     return this.restoring;
   }
 
+  async removeAvatar(): Promise<string> {
+    const res = await this.api.sendFull<AuthUser>('DELETE', '/auth/avatar', this.init(), TIMEOUT);
+    this.patchUser(res.data);
+    return res.message ?? '';
+  }
+
+  /** The address of a user's profile picture, or null when they have none. The file name in ?v= changes with every upload, so the browser may keep the picture. */
+  avatarUrl(user: AuthUser | null): string | null {
+    return user?.avatar ? this.api.url(`/auth/avatar/${user.id}?v=${encodeURIComponent(user.avatar)}`) : null;
+  }
+
+  /** Uploads a new profile picture (JPG, PNG or WebP; the server checks the size and the file). Resolves with the server's message. */
+  async uploadAvatar(file: File): Promise<string> {
+    const body = new FormData();
+    body.append('file', file);
+    const res = await this.api.sendFull<AuthUser>('PUT', '/auth/avatar', { ...this.init(), body }, TIMEOUT);
+    this.patchUser(res.data);
+    return res.message ?? '';
+  }
+
   /** Saves the options of their own pages the user switched off. Resolves with the server's message. */
   async updateFeatures(hidden: string[]): Promise<string> {
     const res = await this.api.sendFull<AuthUser>('PUT', '/auth/me/features', this.init({ hidden }), TIMEOUT);

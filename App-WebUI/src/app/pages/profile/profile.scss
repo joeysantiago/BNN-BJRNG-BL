@@ -1,13 +1,16 @@
 .page {
   display: grid;
   gap: 20px;
-  max-width: 720px;
-  padding-block: 24px 0;
+  padding-block: 20px 0;
 }
 h1 {
   font-family: var(--font-display);
   font-size: clamp(1.7rem, 5vw, 2.4rem);
   font-weight: 600;
+}
+h2 {
+  margin: 0 0 14px;
+  font-size: 1.1rem;
 }
 .lead,
 .note,
@@ -19,9 +22,121 @@ h1 {
   unicode-bidi: plaintext;
   overflow-wrap: anywhere;
 }
+
+/* Side by side on a desktop (profile card | details and apps | password), so the whole page fits one screen; one column on phones. */
+.layout {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+@media (min-width: 760px) {
+  .layout {
+    grid-template-columns: minmax(240px, 300px) 1fr;
+  }
+  .layout > :last-child {
+    grid-column: 2;
+  }
+}
+@media (min-width: 1100px) {
+  .layout {
+    grid-template-columns: minmax(260px, 300px) 1fr 1fr;
+  }
+  .layout > :last-child {
+    grid-column: auto;
+  }
+}
+.col {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* The profile card. */
+.id {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+}
+.photo {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-block-end: 6px;
+}
+.photo-acts,
+.id-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.photo-acts .btn {
+  min-height: 36px;
+  cursor: pointer;
+}
+.photo-acts label.btn:focus-within {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: 2px;
+}
+.is-busy {
+  opacity: 0.6;
+  pointer-events: none;
+}
+.btn.ghost {
+  background: transparent;
+  box-shadow: none;
+}
+.name {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  overflow-wrap: anywhere;
+}
+.mail {
+  margin: 0;
+  color: var(--muted);
+  direction: ltr;
+  overflow-wrap: anywhere;
+}
+.badge {
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--inset-bg);
+  box-shadow: var(--inset-shadow);
+  color: var(--accent-ink, var(--text));
+  font-size: 13px;
+  font-weight: 700;
+}
+.facts {
+  display: grid;
+  width: 100%;
+  margin: 12px 0 6px;
+  text-align: start;
+}
+.facts div {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 9px 2px;
+  border-block-end: 1px solid var(--line, rgba(128, 128, 128, 0.25));
+  font-size: 14px;
+}
+.facts div:last-child {
+  border-block-end: 0;
+}
+.facts dt {
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: end;
+}
+
 .form {
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 .field {
   display: grid;
@@ -32,7 +147,7 @@ h1 {
 .field input,
 .field select {
   width: 100%;
-  min-height: 48px;
+  min-height: 46px;
   padding: 10px 14px;
   border: var(--inset-border);
   border-radius: 14px;
@@ -41,10 +156,6 @@ h1 {
   color: var(--inset-text);
   font: 500 16px var(--font-body);
   box-sizing: border-box;
-}
-.field select option {
-  color: #111;
-  background: #fff;
 }
 .field input:disabled,
 .field select:disabled {
@@ -65,11 +176,14 @@ h1 {
   height: 20px;
   accent-color: var(--accent, currentColor);
 }
+/* The Save button sits at the end of the row (right, or left in Arabic), the server's answer before it. */
 .bar {
   display: flex;
+  flex-direction: row-reverse;
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
+  justify-content: flex-start;
 }
 .status {
   margin: 0;
@@ -81,16 +195,27 @@ h1 {
 .apps {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin: 0 0 16px;
+  gap: 8px;
+  margin: 0 0 12px;
   padding: 0;
   list-style: none;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--inset-bg);
+  box-shadow: var(--inset-shadow);
+  color: var(--inset-text, var(--text));
+  font-weight: 600;
+  text-decoration: none;
+}
+a.chip:hover {
+  color: var(--accent-ink, var(--text));
 }
 .inert {
   cursor: default;
   opacity: 0.75;
-}
-.inert:hover {
-  transform: none;
-  box-shadow: var(--btn-shadow);
 }
