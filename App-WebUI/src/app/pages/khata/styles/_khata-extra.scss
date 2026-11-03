@@ -538,3 +538,155 @@
 .khata .k-photo-act:disabled {
   cursor: default;
 }
+
+/* Settings > Users (super admin): one row per account, actions on the end; Edit opens the name and role form inside the row. */
+.khata .k-users {
+  display: grid;
+  gap: 14px;
+}
+
+.khata .k-user-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.khata .k-user {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid var(--k-line);
+  background: var(--k-surface);
+  transition: opacity 0.2s, border-color 0.2s;
+}
+
+.khata .k-user.is-archived {
+  border-style: dashed;
+}
+
+.khata .k-user.is-archived .k-user-main > app-user-avatar,
+.khata .k-user.is-archived .k-user-txt {
+  opacity: 0.6;
+}
+
+.khata .k-user.is-busy {
+  opacity: 0.7;
+}
+
+.khata .k-user-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.khata .k-user-txt {
+  flex: 1 1 200px;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.khata .k-user-txt b {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+}
+
+.khata .k-user-txt small {
+  color: var(--k-muted);
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-user-txt .mail {
+  direction: ltr;
+  text-align: start;
+}
+
+.khata .k-user-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-inline-start: auto;
+}
+
+.khata .k-user-acts .k-btn {
+  min-height: 44px;
+}
+
+.khata .k-user-acts .ok {
+  color: var(--k-get);
+}
+
+.khata .k-user-acts .del {
+  color: var(--k-give);
+}
+
+.khata .k-user-edit {
+  padding-top: 12px;
+  border-top: 1px solid var(--k-line);
+}
+
+/* On a phone the action buttons are icons only, with the text kept for screen readers through aria-label. */
+@media (max-width: 599px) {
+  .khata .k-user-acts {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .khata .k-user-acts .k-btn span {
+    display: none;
+  }
+
+  .khata .k-user-acts .k-btn {
+    min-width: 44px;
+  }
+}
+
+/* Profile > Delete my account. */
+.khata .k-danger-zone {
+  border-color: color-mix(in srgb, var(--k-give) 45%, var(--k-line));
+}
+
+.khata .k-danger-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.khata .k-danger-row h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+/* Settings > Users: the All / Active / Archived / Deleted switch, the same control as the file storage switch, with the chosen part in the brand colour. */
+.khata .k-typeseg.k-seg4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.khata .k-typeseg label.pick {
+  min-width: 0;
+  padding-inline: 8px;
+  white-space: nowrap;
+}
+
+.khata .k-typeseg label.pick:has(input:checked) {
+  background: var(--k-brand-grad);
+  color: var(--k-on-brand);
+  box-shadow: var(--k-shadow-sm);
+}
+
+@media (max-width: 419px) {
+  .khata .k-typeseg.k-seg4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

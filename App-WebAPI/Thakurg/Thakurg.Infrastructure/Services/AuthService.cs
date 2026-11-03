@@ -83,6 +83,26 @@ public class AuthService : IAuthService
         return await _messageService.GetAsync(MessageCodes.AuthLoggedOut);
     }
 
+    // The user deletes their own account (soft delete): every session ends at once and the e-mail can no longer log in. The last super admin cannot.
+    public async Task<string> DeleteAccountAsync(AuthCallerDto caller, CancellationToken cancellationToken)
+    {
+        var user = await RequireUserAsync(caller.UserId, cancellationToken);
+        var role = await _authRepository.GetRoleAsync(user.RoleId, cancellationToken);
+
+        if (role?.Code == RoleCodes.SuperAdmin && await _authRepository.CountUsersInRoleAsync(role.Id, cancellationToken) <= 1)
+            throw new BusinessException(MessageCodes.AuthLastAdmin, 409);
+
+        var now = DateTime.UtcNow;
+        user.IsSoftDeleted = true;
+        user.ModifiedBy = user.Id;
+        user.ModifiedOn = now;
+        await _authRepository.SaveChangesAsync(cancellationToken);
+        await _authRepository.RevokeSessionsAsync(user.Id, null, now, cancellationToken);
+        _sessionCache.Forget(user.Id);
+
+        return await _messageService.GetAsync(MessageCodes.AuthAccountDeleted);
+    }
+
     // Every app open starts here: the refresh token is rotated and a new access token is issued.
     public async Task<SignInDto> RefreshAsync(string? refreshToken, AuthCallerDto caller, CancellationToken cancellationToken)
     {
@@ -112,6 +132,9 @@ public class AuthService : IAuthService
         var now = DateTime.UtcNow;
         var email = EmailAddress.Normalize(request.Email);
         var user = email is null ? null : await _authRepository.FindByEmailAsync(email, cancellationToken);
+
+        if (user is null && email is not null)
+            await RefuseInactiveAsync(email, request.Password ?? string.Empty, cancellationToken);
 
         if (user is null)
             throw new BusinessException(MessageCodes.AuthLoginInvalid, 401);
@@ -182,6 +205,10 @@ public class AuthService : IAuthService
         var isSms = channel == OtpChannels.Sms;
         var email = isSms ? destination.TrimStart('+') + "@" + _options.Otp.PhoneEmailDomain : destination;
         var user = (isSms ? await _authRepository.FindByMobileAsync(destination, cancellationToken) : null) ?? await _authRepository.FindByEmailAsync(email, cancellationToken);
+
+        // An archived or deleted account is never re-created here (its e-mail stays taken); the code proved the owner, so they are told why.
+        if (user is null)
+            await RefuseInactiveAsync(email, null, cancellationToken);
 
         if (user is null)
         {
@@ -262,6 +289,18 @@ public class AuthService : IAuthService
         return await _authRepository.GetUserAsync(userId, cancellationToken) ?? throw new BusinessException(MessageCodes.AuthSessionInvalid, 401);
     }
 
+    // When the e-mail belongs to an archived or deleted account, says so ("your account is archived"), but only to someone who proved they own it:
+    // the right password, or a verified one-time code (password = null). Anyone else gets the usual "wrong e-mail or password", so no e-mail is revealed.
+    private async Task RefuseInactiveAsync(string email, string? password, CancellationToken cancellationToken)
+    {
+        var inactive = await _authRepository.FindInactiveByEmailAsync(email, cancellationToken);
+
+        if (inactive is null || (password is not null && !_passwordHasher.Verify(password, inactive.PasswordHash)))
+            return;
+
+        throw new BusinessException(inactive.IsSoftDeleted ? MessageCodes.AuthAccountClosed : MessageCodes.AuthAccountArchived, 403);
+    }
+
     // The account as the site sees it: role, the role's rights, apps and the options the user switched off; a one-time code session sees only what it may open (LoginMethodAccess).
     private async Task<UserDto> BuildUserAsync(User user, string? loginMethod, CancellationToken cancellationToken)
     {
@@ -274,6 +313,7 @@ public class AuthService : IAuthService
 
         return LoginMethodAccess.Limit(dto, _options.Otp.Apps);
     }
+
 
     // Super admins come from Auth:AdminEmails and get every app; everyone else gets the sign-up role and the AutoGrant apps.
     private async Task<User> CreateAccountAsync(string email, string displayName, string passwordHash, DateTime now, CancellationToken cancellationToken)

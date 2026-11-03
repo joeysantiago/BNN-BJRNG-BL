@@ -9,7 +9,11 @@ public class UserDto
 
     public bool IsAdmin { get; set; }
 
+    public bool IsDeleted { get; set; }
+
     public string? Avatar { get; set; }
+
+    public bool IsArchived { get; set; }
 
     public DateTime CreatedOn { get; set; }
 

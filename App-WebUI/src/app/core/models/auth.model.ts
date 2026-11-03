@@ -17,6 +17,8 @@ export interface AuthUser {
   roleName: string;
   createdOn: string;
   displayName: string;
+  isDeleted?: boolean;
+  isArchived?: boolean;
   avatar: string | null;
   permissions: string[];
   hiddenFeatures: string[];

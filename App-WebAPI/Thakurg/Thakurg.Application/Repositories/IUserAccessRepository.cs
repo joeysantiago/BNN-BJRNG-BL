@@ -12,8 +12,6 @@ public interface IUserAccessRepository
 
     Task<List<Role>> GetRolesAsync(CancellationToken cancellationToken);
 
-    Task<List<User>> GetUsersAsync(CancellationToken cancellationToken);
-
     Task<Role?> GetRoleAsync(int roleId, CancellationToken cancellationToken);
 
     Task<User?> GetUserAsync(int userId, CancellationToken cancellationToken);
@@ -22,7 +20,11 @@ public interface IUserAccessRepository
 
     Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken);
 
+    Task<User?> GetDeletedUserAsync(int userId, CancellationToken cancellationToken);
+
     Task<int> CountUsersInRoleAsync(int roleId, CancellationToken cancellationToken);
+
+    Task<List<User>> GetUsersAsync(string? status, CancellationToken cancellationToken);
 
     Task RevokeSessionsAsync(int userId, DateTime now, CancellationToken cancellationToken);
 

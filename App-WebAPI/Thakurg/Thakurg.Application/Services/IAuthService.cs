@@ -11,6 +11,8 @@ public interface IAuthService
 
     Task<string> LogoutAsync(AuthCallerDto caller, CancellationToken cancellationToken);
 
+    Task<string> DeleteAccountAsync(AuthCallerDto caller, CancellationToken cancellationToken);
+
     Task<SignInDto> RefreshAsync(string? refreshToken, AuthCallerDto caller, CancellationToken cancellationToken);
 
     Task<SignInDto> LoginAsync(LoginRequestDto request, AuthCallerDto caller, CancellationToken cancellationToken);

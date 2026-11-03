@@ -122,6 +122,18 @@ export class AuthService {
     return res.message ?? '';
   }
 
+  /**
+   * Deletes the logged-in user's own account; the server ends every session and clears the login cookies. Then this tab and the others log out.
+   * Unlike logout, a refusal (such as the last super admin) is thrown so the page can show it, and the user stays logged in.
+   */
+  async deleteAccount(): Promise<string> {
+    const text = await this.api.message('DELETE', '/auth/me', this.init(), TIMEOUT);
+    this.clear();
+    this.post({ type: 'logout' });
+    this.leaveGuardedPage();
+    return text;
+  }
+
   /** The address of a user's profile picture, or null when they have none. The file name in ?v= changes with every upload, so the browser may keep the picture. */
   avatarUrl(user: AuthUser | null): string | null {
     return user?.avatar ? this.api.url(`/auth/avatar/${user.id}?v=${encodeURIComponent(user.avatar)}`) : null;

@@ -178,6 +178,20 @@
           </form>
         </section>
       }
+
+      <section class="k-card k-wide k-danger-zone" aria-labelledby="kp-delete">
+        <div class="k-danger-row">
+          <span class="k-ib give" aria-hidden="true"><svg kIco="trash" [size]="20"></svg></span>
+          <div class="k-grow">
+            <h2 id="kp-delete">{{ i18n.t('khata.p.delete.h') }}</h2>
+            <p class="k-hint k-m0">{{ i18n.t('khata.p.delete.lead') }}</p>
+          </div>
+          <button type="button" class="k-btn danger" [class.is-busy]="saving() === 'delete'" [disabled]="saving() !== null" (click)="deleteAccount()"><svg kIco="trash" [size]="16"></svg>{{ i18n.t('khata.p.delete.btn') }}</button>
+        </div>
+        @if (deleteNotice(); as n) {
+          <p [class]="n.error ? 'k-err' : 'k-okmsg'" [attr.role]="n.error ? 'alert' : 'status'"><span>{{ n.text }}</span></p>
+        }
+      </section>
     </div>
   </div>
 }

@@ -40,6 +40,7 @@ export class KhataProfile {
   protected readonly infoNotice = signal<KhataNotice | null>(null);
   protected readonly photoNotice = signal<KhataNotice | null>(null);
   protected readonly saving = signal<KhataProfileForm | null>(null);
+  protected readonly deleteNotice = signal<KhataNotice | null>(null);
   protected readonly addressNotice = signal<KhataNotice | null>(null);
   protected readonly since = computed(() => formatDate(this.auth.user()?.createdOn));
   protected readonly byCode = computed(() => this.auth.user()?.loginMethod === 'otp');
@@ -61,6 +62,17 @@ export class KhataProfile {
 
   async removePhoto(): Promise<void> {
     await this.run('photo', this.photoNotice, () => this.auth.removeAvatar());
+  }
+
+  /** Deletes the account after a confirmation: the server logs out every device, and the e-mail can no longer log in. A refusal stays on the page. */
+  async deleteAccount(): Promise<void> {
+    if (!(await this.ui.confirm(this.i18n.t('khata.p.delete.title'))))
+      return;
+    await this.run('delete', this.deleteNotice, async () => {
+      const text = await this.auth.deleteAccount();
+      void this.router.navigateByUrl('/khata', { replaceUrl: true });
+      return text;
+    });
   }
 
   /** Saves the display name and language; the language is applied at once. */

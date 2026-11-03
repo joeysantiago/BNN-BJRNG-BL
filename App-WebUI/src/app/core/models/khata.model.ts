@@ -351,13 +351,13 @@ export interface KhataStorageRequest {
 export type KhataExportFormat = 'pdf' | 'xlsx' | 'csv';
 
 /** A tab of the SnapKhata settings screen. */
-export type KhataSettingsTab = 'general' | 'notifications' | 'storage';
+export type KhataSettingsTab = 'general' | 'notifications' | 'storage' | 'users';
 
 /** A menu of the SnapKhata top bar. */
 export type KhataMenu = 'lang' | 'theme' | 'book';
 
 /** Which form of the SnapKhata profile is saving. */
-export type KhataProfileForm = 'photo' | 'details' | 'address' | 'password';
+export type KhataProfileForm = 'photo' | 'details' | 'address' | 'password' | 'delete';
 
 /** The result line under a form: the server's message, or its error. */
 export interface KhataNotice {
@@ -414,3 +414,6 @@ export interface KhataDateQuick {
   key: string;
   days: number;
 }
+
+/** Which users the Settings > Users tab lists (GET /admin/users?status=). */
+export type KhataUserStatus = 'all' | 'active' | 'archived' | 'deleted';

@@ -47,6 +47,18 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<object?>.SuccessResponse(null, message));
     }
 
+    // Deletes the caller's own account and logs them out (the login cookies are cleared, as on logout).
+    [HttpDelete("me")]
+    [Authorize(Policy = AuthPolicies.User)]
+    [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
+    public async Task<ActionResult<ApiResponse<object?>>> DeleteAccount(CancellationToken cancellationToken)
+    {
+        var message = await _authService.DeleteAccountAsync(HttpContext.AuthCaller(), cancellationToken);
+        Response.DeleteAuthCookies(_auth);
+
+        return Ok(ApiResponse<object?>.SuccessResponse(null, message));
+    }
+
     [HttpPost("refresh")]
     [EnableRateLimiting(SecurityExtensions.AuthRefreshPolicy)]
     public async Task<ActionResult<ApiResponse<AuthResultDto>>> Refresh(CancellationToken cancellationToken)
