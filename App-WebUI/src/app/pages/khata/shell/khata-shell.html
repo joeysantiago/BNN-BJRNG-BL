@@ -1,23 +1,150 @@
-<div class="khata" [attr.dir]="i18n.dir()">
-  <header class="bar">
-    <a class="brand" routerLink="/khata/app">{{ i18n.t('khata.app.name') }}</a>
-    @if (state.books().length) {
-      <label class="switch">
-        <span class="sr-only">{{ i18n.t('khata.app.book') }}</span>
-        <select [value]="bookId() || ''" (change)="switchBook($any($event.target).value)">
-          @if (!bookId()) {
-            <option value="" disabled>{{ i18n.t('khata.app.chooseBook') }}</option>
+<div #root class="khata" [style.visibility]="style.ready() ? null : 'hidden'" [attr.data-kt]="theme.brightness()" [attr.data-ks]="theme.skin()" [attr.dir]="i18n.dir()" [attr.lang]="i18n.info().code">
+  <div class="k-app">
+    <aside class="k-rail" [attr.aria-label]="i18n.t('khata.app.menu')">
+      <a class="k-logo" routerLink="/khata/app"><span class="mark"><svg kIco="logo" [stroke]="2.2"></svg></span><span>{{ i18n.t('khata.app.name') }}</span></a>
+      <ng-container *ngTemplateOutlet="picker; context: { $implicit: 'rail' }" />
+      @if (bookId()) {
+        <a class="k-btn pri k-new" [routerLink]="['/khata/app/b', bookId(), 'new']" [queryParams]="newEntryQuery()"><svg kIco="plus" [size]="18"></svg>{{ i18n.t('khata.nav.newEntry') }}</a>
+      }
+      <nav>
+        @for (n of nav(); track n.id) {
+          @if (n.id !== 'profile') {
+            <a class="k-nav" [routerLink]="n.link" [attr.aria-current]="section() === n.id ? 'page' : null"><svg [kIco]="n.icon"></svg>{{ i18n.t(n.key) }}</a>
           }
-          @for (book of state.books(); track book.id) {
-            <option [value]="book.id" [selected]="book.id === bookId()">{{ book.name }} · {{ book.currency.symbol }}</option>
+        }
+      </nav>
+      <span class="grow"></span>
+      <div class="foot">
+        <a class="k-who" routerLink="/khata/app/profile" [attr.aria-current]="section() === 'profile' ? 'page' : null">
+          <app-user-avatar [user]="auth.user()" [size]="40" />
+          <span><b>{{ i18n.t('khata.p.title') }}</b><small>{{ auth.user()?.email }}</small></span>
+        </a>
+      </div>
+    </aside>
+
+    <div class="k-mainwrap">
+      <header class="k-top">
+        <a class="k-logo" routerLink="/khata/app" [attr.aria-label]="i18n.t('khata.app.name')"><span class="mark"><svg kIco="logo" [stroke]="2.2"></svg></span><span>{{ i18n.t('khata.app.name') }}</span></a>
+        <ng-container *ngTemplateOutlet="picker; context: { $implicit: 'top' }" />
+        <span class="crumb">{{ state.title() }}</span>
+        <div class="k-top-actions">
+          <div class="k-menu">
+            <button type="button" class="k-btn ghost icon" aria-haspopup="true" aria-controls="k-lang-menu" [attr.aria-expanded]="menu() === 'lang'" [title]="i18n.t('lang.label')" [attr.aria-label]="i18n.t('lang.label')" (click)="toggleMenu('lang')">
+              <svg kIco="globe"></svg>
+            </button>
+            @if (menu() === 'lang') {
+              <div id="k-lang-menu" class="k-pop" role="group" [attr.aria-label]="i18n.t('lang.label')">
+                @for (l of i18n.languages; track l.code) {
+                  <button type="button" class="k-pop-opt" [attr.lang]="l.code" [attr.aria-pressed]="i18n.lang() === l.code" (click)="setLang(l.code)">{{ l.native }}@if (i18n.lang() === l.code) {<svg kIco="check" [size]="16"></svg>}</button>
+                }
+              </div>
+            }
+          </div>
+          <div class="k-menu">
+            <button type="button" class="k-btn ghost icon" aria-haspopup="true" aria-controls="k-theme-menu" [attr.aria-expanded]="menu() === 'theme'" [title]="i18n.t('khata.theme.menu')"
+              [attr.aria-label]="i18n.t('khata.theme.menu')" (click)="toggleMenu('theme')"><svg kIco="palette"></svg></button>
+            @if (menu() === 'theme') {
+              <div id="k-theme-menu" class="k-pop" role="group" [attr.aria-label]="i18n.t('khata.theme.menu')">
+                <div class="k-pop-modes" role="group" [attr.aria-label]="i18n.t('khata.theme.mode')">
+                  @for (m of modes; track m) {
+                    <button type="button" class="k-pop-opt" [attr.aria-pressed]="theme.activeMode() === m" [title]="i18n.t('khata.theme.' + m)" [attr.aria-label]="i18n.t('khata.theme.' + m)" (click)="setMode(m)">
+                      <svg [kIco]="modeIcons[m]" [size]="18"></svg>
+                    </button>
+                  }
+                </div>
+                <div class="k-pop-skins" role="group" [attr.aria-label]="i18n.t('khata.theme.skins')">
+                  @for (s of theme.skins; track s.id) {
+                    <button type="button" class="k-pop-opt" [attr.aria-pressed]="theme.skin() === s.id" (click)="setSkin(s.id)"><span [class]="'k-swatch ' + s.id" aria-hidden="true"></span>{{ i18n.t(s.labelKey) }}</button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </header>
+      <div class="k-content k-enter">
+        <router-outlet />
+      </div>
+    </div>
+
+    @if (bookId()) {
+      <nav class="k-tabs" [attr.aria-label]="i18n.t('khata.app.menu')">
+        @for (n of nav(); track n.id) {
+          @if (n.id === 'entries') {
+            <a class="k-fab" [routerLink]="['/khata/app/b', bookId(), 'new']" [queryParams]="newEntryQuery()" [attr.aria-label]="i18n.t('khata.nav.newEntry')"><svg kIco="plus" [size]="26" [stroke]="2.6"></svg></a>
           }
-          <option value="books">{{ i18n.t('khata.app.manageBooks') }}</option>
-        </select>
-      </label>
+          @if (n.id !== 'books' && n.id !== 'settings') {
+            <a class="k-tab" [routerLink]="n.link" [attr.aria-current]="section() === n.id ? 'page' : null"><svg [kIco]="n.icon" [size]="22"></svg><span>{{ i18n.t(n.key) }}</span></a>
+          }
+        }
+      </nav>
     }
-    <nav class="actions" [attr.aria-label]="i18n.t('khata.app.menu')">
-      <a class="k-btn link" routerLink="/profile">{{ i18n.t('khata.app.profile') }}</a>
-    </nav>
-  </header>
-  <router-outlet />
+  </div>
+
+  <dialog #sheet class="k-sheet" aria-labelledby="k-sheet-h" (cancel)="$event.preventDefault(); ui.answer(false)">
+    @if (ui.sheet(); as s) {
+      <h2 id="k-sheet-h">{{ s.title }}</h2>
+      <p class="k-muted">{{ i18n.t('khata.confirm.lead') }}</p>
+      <div class="k-sheet-actions">
+        <button type="button" class="k-btn" (click)="ui.answer(false)">{{ i18n.t('khata.cancel') }}</button>
+        <button type="button" class="k-btn gave" (click)="ui.answer(true)">{{ i18n.t('khata.confirm.ok') }}</button>
+      </div>
+    }
+  </dialog>
+
+  <dialog #viewer class="k-viewer" [attr.aria-label]="i18n.t('khata.ph.viewer')" (cancel)="$event.preventDefault(); ui.closeViewer()" (pointerdown)="swipeStart($event)" (pointerup)="swipeEnd($event)">
+    @if (ui.viewer(); as v) {
+      <div class="bar">
+        <span>{{ i18n.t('khata.ph.count', { n: v.index + 1, total: v.items.length }) }}</span>
+        <span class="k-viewer-tools">
+          @if (viewerItem()?.url; as url) {
+            <a class="k-btn icon" [href]="url" [download]="viewerItem()?.name || 'bill.webp'" [title]="i18n.t('khata.ph.download')" [attr.aria-label]="i18n.t('khata.ph.download')"><svg kIco="download"></svg></a>
+          }
+          <button type="button" class="k-btn icon" [title]="i18n.t('khata.close')" [attr.aria-label]="i18n.t('khata.close')" (click)="ui.closeViewer()"><svg kIco="x"></svg></button>
+        </span>
+      </div>
+      <div class="stage">
+        @if (viewerItem()?.url; as url) {
+          <img [src]="url" [alt]="i18n.t('khata.ph.alt', { n: v.index + 1 })" />
+        } @else {
+          <span class="k-spin" role="status" [attr.aria-label]="i18n.t('khata.loading')"></span>
+        }
+      </div>
+      @if (v.items.length > 1) {
+        <button type="button" class="k-btn icon nav prev" [attr.aria-label]="i18n.t('khata.ph.prev')" (click)="ui.step(-1)"><svg kIco="chevL" [size]="24"></svg></button>
+        <button type="button" class="k-btn icon nav next" [attr.aria-label]="i18n.t('khata.ph.next')" (click)="ui.step(1)"><svg kIco="chev" [size]="24"></svg></button>
+        <div class="dots" aria-hidden="true">
+          @for (item of v.items; track $index) {
+            <i [class.on]="$index === v.index"></i>
+          }
+        </div>
+      }
+    }
+  </dialog>
+
+  @if (ui.toast(); as toast) {
+    <div class="k-toast" role="status"><div><svg kIco="check" [size]="18"></svg>{{ toast.text }}</div></div>
+  }
 </div>
+
+<ng-template #picker let-where>
+  @if (state.books().length) {
+    <div class="k-menu k-bookpick">
+      <button type="button" class="k-bookpick-btn" aria-haspopup="true" [attr.aria-controls]="'k-book-menu-' + where" [attr.aria-expanded]="menu() === 'book'" (click)="toggleMenu('book')">
+        <span class="sr-only">{{ i18n.t('khata.app.book') }}:</span>
+        <span class="name">{{ state.current()?.name }} · {{ state.current()?.currency?.symbol }}</span>
+        <svg kIco="chevD" [size]="18"></svg>
+      </button>
+      @if (menu() === 'book') {
+        <div class="k-pop k-book-pop" role="group" [id]="'k-book-menu-' + where" [attr.aria-label]="i18n.t('khata.app.book')">
+          @for (book of state.books(); track book.id) {
+            <button type="button" class="k-pop-opt" [attr.aria-pressed]="book.id === bookId()" (click)="switchBook(book.id)">
+              <span class="name">{{ book.name }} · {{ book.currency.symbol }}</span>@if (book.id === bookId()) {<svg kIco="check" [size]="16"></svg>}
+            </button>
+          }
+          <button type="button" class="k-pop-opt manage" (click)="switchBook(0)"><svg kIco="book" [size]="18"></svg>{{ i18n.t('khata.app.manageBooks') }}</button>
+        </div>
+      }
+    </div>
+  }
+</ng-template>

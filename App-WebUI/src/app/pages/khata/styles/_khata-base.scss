@@ -1,0 +1,640 @@
+/* SnapKhata buttons, cards, chips, form fields and motion. Ported from App-Prototype/assets/css/khata.css. */
+
+/* ---------- Buttons ---------- */
+.khata .k-btn {
+  --b-bg: var(--k-surface-solid);
+  --b-fg: var(--k-text);
+  --b-bd: var(--k-line-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--b-bd);
+  background: var(--b-bg);
+  color: var(--b-fg);
+  font: 700 14.5px/1.2 var(--k-font);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: var(--k-shadow-sm);
+  transition: transform 0.18s var(--k-ease), box-shadow 0.25s var(--k-ease), background-color 0.25s, filter 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.khata[data-kt=dark] .k-btn {
+  --b-bg: rgba(255, 255, 255, 0.07);
+}
+
+.khata .k-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--k-shadow);
+}
+
+.khata .k-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.khata .k-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.khata .k-btn.pri {
+  --b-bg: var(--k-brand-grad);
+  --b-fg: var(--k-on-brand);
+  --b-bd: transparent;
+  background: var(--k-brand-grad);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--k-brand) 35%, transparent);
+}
+
+.khata .k-btn.pri:hover {
+  filter: brightness(1.05);
+}
+
+.khata .k-btn.gave {
+  --b-bg: var(--k-give);
+  --b-fg: #ffffff;
+  --b-bd: transparent;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--k-give) 30%, transparent);
+}
+
+.khata .k-btn.got {
+  --b-bg: var(--k-get);
+  --b-fg: #ffffff;
+  --b-bd: transparent;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--k-get) 30%, transparent);
+}
+
+.khata[data-kt=dark] .k-btn.gave,
+.khata[data-kt=dark] .k-btn.got {
+  --b-fg: #0e0b19;
+}
+
+.khata .k-btn.ghost {
+  --b-bg: transparent;
+  --b-bd: transparent;
+  box-shadow: none;
+}
+
+.khata .k-btn.ghost:hover {
+  --b-bg: var(--k-surface-3);
+}
+
+.khata .k-btn.danger {
+  --b-fg: var(--k-give);
+  --b-bd: color-mix(in srgb, var(--k-give) 35%, transparent);
+}
+
+.khata .k-btn.sm {
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 11px;
+  font-size: 13.5px;
+}
+
+.khata .k-btn.lg {
+  min-height: 54px;
+  padding: 14px 24px;
+  border-radius: 16px;
+  font-size: 16px;
+}
+
+.khata .k-btn.icon {
+  min-width: 44px;
+  padding: 0;
+}
+
+.khata .k-btn.wide {
+  width: 100%;
+}
+
+.khata .k-btn.is-busy {
+  pointer-events: none;
+}
+
+.khata .k-spin {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2.5px solid currentColor;
+  border-inline-end-color: transparent;
+  animation: k-spin 0.7s linear infinite;
+}
+
+@keyframes k-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Cards, chips, badges ---------- */
+.khata .k-card {
+  background: var(--k-surface);
+  -webkit-backdrop-filter: var(--k-glass);
+  backdrop-filter: var(--k-glass);
+  border: 1px solid var(--k-line);
+  border-radius: var(--k-r-lg);
+  box-shadow: var(--k-shadow);
+  padding: 20px;
+}
+
+.khata .k-card.lift {
+  transition: transform 0.25s var(--k-ease), box-shadow 0.25s var(--k-ease);
+}
+
+.khata .k-card.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--k-shadow-lg);
+}
+
+.khata .k-card-h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.khata .k-card-h h2 {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.khata .k-card-h p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--k-muted);
+}
+
+.khata .k-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
+  white-space: nowrap;
+  background: var(--k-surface-3);
+  color: var(--k-muted);
+}
+
+.khata .k-badge.get {
+  background: var(--k-get-soft);
+  color: var(--k-get);
+}
+
+.khata .k-badge.give {
+  background: var(--k-give-soft);
+  color: var(--k-give);
+}
+
+.khata .k-badge.warn {
+  background: var(--k-warn-soft);
+  color: var(--k-warn);
+}
+
+.khata .k-badge.brand {
+  background: var(--k-brand-soft);
+  color: var(--k-brand);
+}
+
+.khata .k-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.khata .k-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px;
+  margin: -2px;
+}
+
+.khata .k-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.khata .k-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--k-line-strong);
+  background: var(--k-surface);
+  color: var(--k-muted);
+  font: 700 13.5px/1 var(--k-font);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.khata .k-chip:hover {
+  color: var(--k-text);
+}
+
+.khata .k-chip:active {
+  transform: scale(0.96);
+}
+
+.khata .k-chip[aria-pressed=true] {
+  background: var(--k-text);
+  border-color: var(--k-text);
+  color: var(--k-bg);
+}
+
+.khata .k-chip .n {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.khata .k-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  padding: 4px;
+  gap: 4px;
+  border-radius: 14px;
+  background: var(--k-surface-3);
+  box-shadow: var(--k-neu-in);
+}
+
+.khata .k-seg button {
+  min-height: 38px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--k-muted);
+  font: 700 13.5px/1 var(--k-font);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.khata .k-seg button[aria-pressed=true] {
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  box-shadow: var(--k-shadow-sm), var(--k-shadow);
+}
+
+/* ---------- Form fields ---------- */
+.khata .k-form {
+  display: grid;
+  gap: 14px;
+}
+
+.khata .k-field {
+  position: relative;
+  display: block;
+}
+
+.khata .k-field > .lbl {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-input,
+.khata .k-field input,
+.khata .k-field select,
+.khata .k-field textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: 500 15.5px/1.3 var(--k-font);
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.khata[data-kt=dark] .k-field input,
+.khata[data-kt=dark] .k-field select,
+.khata[data-kt=dark] .k-field textarea,
+.khata[data-kt=dark] .k-input {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.khata .k-field textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.khata .k-field input:hover,
+.khata .k-field select:hover,
+.khata .k-field textarea:hover {
+  border-color: color-mix(in srgb, var(--k-brand) 40%, var(--k-line-strong));
+}
+
+.khata .k-field input:focus,
+.khata .k-field select:focus,
+.khata .k-field textarea:focus,
+.khata .k-input:focus {
+  outline: none;
+  border-color: var(--k-brand);
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-field [aria-invalid=true] {
+  border-color: var(--k-give);
+}
+
+.khata .k-field.ico input {
+  padding-inline-start: 46px;
+}
+
+.khata .k-field.ico > .k-ico {
+  position: absolute;
+  inset-inline-start: 15px;
+  bottom: 14px;
+  color: var(--k-faint);
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+.khata .k-field.ico:focus-within > .k-ico {
+  color: var(--k-brand);
+}
+
+/* Floating label: the label sits inside the field and moves up when it has focus or a value. */
+.khata .k-float {
+  position: relative;
+  display: block;
+}
+
+.khata .k-float input {
+  width: 100%;
+  min-height: 58px;
+  padding: 24px 16px 8px 48px;
+  border-radius: 16px;
+  border: 1.5px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: 600 16px/1.2 var(--k-font);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+[dir=rtl] .khata .k-float input,
+.khata[dir=rtl] .k-float input {
+  padding: 24px 48px 8px 16px;
+}
+
+.khata[data-kt=dark] .k-float input {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.khata .k-float input:focus {
+  outline: none;
+  border-color: var(--k-brand);
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-float .fl {
+  position: absolute;
+  inset-inline-start: 48px;
+  top: 19px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--k-faint);
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform 0.2s var(--k-ease), color 0.2s, top 0.2s var(--k-ease);
+}
+
+.khata[dir=rtl] .k-float .fl {
+  transform-origin: right top;
+}
+
+.khata .k-float input:focus + .fl,
+.khata .k-float input:not(:placeholder-shown) + .fl {
+  top: 9px;
+  transform: scale(0.78);
+  color: var(--k-brand);
+}
+
+.khata .k-float > .k-ico {
+  position: absolute;
+  inset-inline-start: 16px;
+  top: 19px;
+  color: var(--k-faint);
+  transition: color 0.2s;
+}
+
+.khata .k-float:focus-within > .k-ico {
+  color: var(--k-brand);
+}
+
+.khata .k-float.bad input {
+  border-color: var(--k-give);
+  animation: k-shake 0.4s;
+}
+
+.khata .k-pw {
+  position: relative;
+}
+
+.khata .k-pw input {
+  padding-inline-end: 52px;
+}
+
+.khata .k-pw .eye {
+  position: absolute;
+  inset-inline-end: 4px;
+  bottom: 2px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: var(--k-muted);
+  border-radius: 12px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.khata .k-hint {
+  margin: 6px 2px 0;
+  font-size: 12.5px;
+  color: var(--k-muted);
+}
+
+.khata .k-err {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--k-give-soft);
+  color: var(--k-give);
+  font-weight: 700;
+  font-size: 14px;
+  animation: k-pop 0.3s var(--k-ease);
+}
+
+.khata .k-okmsg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--k-get-soft);
+  color: var(--k-get);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.khata .k-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 30px;
+  flex: none;
+}
+
+.khata .k-switch input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.khata .k-switch span {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--k-surface-3);
+  box-shadow: var(--k-neu-in);
+  transition: background-color 0.25s;
+}
+
+.khata .k-switch span::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s var(--k-ease);
+}
+
+.khata .k-switch input:checked + span {
+  background: var(--k-brand);
+}
+
+.khata .k-switch input:checked + span::after {
+  transform: translateX(20px);
+}
+
+.khata[dir=rtl] .k-switch input:checked + span::after {
+  transform: translateX(-20px);
+}
+
+.khata .k-switch input:focus-visible + span {
+  box-shadow: var(--k-focus);
+}
+
+/* ---------- Motion ---------- */
+@keyframes k-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes k-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes k-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes k-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-6px);
+  }
+  40%, 80% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes k-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes k-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.khata .k-enter .k-stagger > * {
+  animation: k-up 0.5s var(--k-ease) both;
+}
+
+.khata .k-enter .k-stagger > *:nth-child(2) { animation-delay: 0.05s; }
+.khata .k-enter .k-stagger > *:nth-child(3) { animation-delay: 0.1s; }
+.khata .k-enter .k-stagger > *:nth-child(4) { animation-delay: 0.15s; }
+.khata .k-enter .k-stagger > *:nth-child(5) { animation-delay: 0.2s; }
+.khata .k-enter .k-stagger > *:nth-child(6) { animation-delay: 0.25s; }
+.khata .k-enter .k-stagger > *:nth-child(n+7) { animation-delay: 0.3s; }
+
+.khata .k-sk {
+  border-radius: 12px;
+  background: var(--k-skeleton);
+  background-size: 200% 100%;
+  animation: k-shimmer 1.3s linear infinite;
+}
+

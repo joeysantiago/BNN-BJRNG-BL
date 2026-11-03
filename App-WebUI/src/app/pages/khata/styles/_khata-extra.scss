@@ -1,0 +1,707 @@
+/* SnapKhata: small helpers used by the Angular screens in place of the prototype's inline styles. */
+.khata .k-pad-14 {
+  padding: 14px;
+}
+
+.khata .k-pad-16 {
+  padding: 16px;
+}
+
+.khata .k-pad-top {
+  padding: 6px 0 0;
+}
+
+.khata .k-m0 {
+  margin: 0;
+}
+
+.khata .k-mt8 {
+  margin-top: 8px;
+}
+
+.khata .k-minw0 {
+  min-width: 0;
+}
+
+.khata .k-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.khata .k-inline {
+  display: inline;
+}
+
+.khata .k-struck {
+  text-decoration: line-through;
+}
+
+.khata .k-empty-h1 {
+  font-size: 20px;
+}
+
+.khata .k-narrow-sm {
+  width: min(560px, 100%);
+  margin-inline: auto;
+}
+
+.khata .k-narrow {
+  width: min(760px, 100%);
+  margin-inline: auto;
+}
+
+.khata .k-narrow-lg {
+  width: min(820px, 100%);
+  margin-inline: auto;
+}
+
+.khata .k-center-x {
+  margin-inline: auto;
+}
+
+.khata .k-actions.k-center {
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.khata .k-actions.k-start {
+  justify-content: flex-start;
+}
+
+.khata .k-seg.k-seg-start {
+  justify-self: start;
+}
+
+.khata .k-plain {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.khata .k-key-give {
+  background: var(--k-chart-give);
+}
+
+.khata .k-key-get {
+  background: var(--k-chart-get);
+}
+
+.khata .k-hbars .fill {
+  display: block;
+}
+
+.khata .k-group-h {
+  margin-top: 4px;
+}
+
+.khata .k-more {
+  justify-self: center;
+}
+
+.khata .k-brand-ink {
+  color: var(--k-brand);
+}
+
+.khata .k-tx-ico.k-tx-ico-lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+}
+
+.khata .k-row-link.k-static {
+  min-height: 56px;
+  cursor: default;
+}
+
+.khata .k-status-line {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.khata .k-photos {
+  display: grid;
+  gap: 12px;
+}
+
+.khata .k-head-who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.khata .k-danger-card {
+  border-color: color-mix(in srgb, var(--k-give) 30%, transparent);
+}
+
+.khata .k-lang {
+  min-width: 150px;
+}
+
+.khata .k-sheet-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.khata .k-viewer-tools {
+  display: flex;
+  gap: 8px;
+}
+
+.khata .k-viewer .stage .k-spin {
+  color: #ffffff;
+}
+
+/* Loading skeleton blocks, in the layout of the screen that is loading. */
+.khata .k-sk {
+  display: block;
+}
+
+.khata .sk-title { width: 220px; height: 28px; max-width: 100%; }
+.khata .sk-lead { width: 160px; height: 14px; margin-top: 10px; }
+.khata .sk-eyebrow { width: 120px; height: 14px; }
+.khata .sk-big { width: 60%; height: 42px; margin-top: 12px; }
+.khata .sk-split { width: 100%; height: 64px; margin-top: 20px; border-radius: 18px; }
+.khata .sk-label { width: 60%; height: 12px; }
+.khata .sk-value { width: 80%; height: 22px; }
+.khata .sk-h2 { width: 40%; height: 16px; }
+.khata .sk-chart { width: 100%; height: 180px; margin-top: 16px; }
+.khata .sk-bar { width: 100%; height: 48px; border-radius: 16px; }
+.khata .sk-row { pointer-events: none; }
+.khata .sk-avatar { width: 42px; height: 42px; border-radius: 14px; flex: none; }
+.khata .sk-name { width: 55%; height: 14px; }
+.khata .sk-sub { width: 35%; height: 11px; margin-top: 8px; }
+.khata .sk-amount { width: 70px; height: 16px; }
+
+
+/* Public page: the sample ledger rows keep space between the name and the amount; on the narrowest phones the top bar shows only the logo mark. */
+.khata.k-land .kl-mock .rows div {
+  gap: 10px;
+}
+
+@media (max-width: 380px) {
+  .khata.k-land .kl-top .k-logo span:last-child {
+    display: none;
+  }
+}
+
+/* The site's dropdown styles (styles.scss: option, ::picker(select)) read the skin's colours; inside SnapKhata they follow its own theme. */
+.khata {
+  --bg: var(--k-surface-solid);
+  --text: var(--k-text);
+  --line: var(--k-line-strong);
+  --muted: var(--k-muted);
+  --accent: var(--k-brand);
+  // styles.scss writes the chosen option in --accent-ink on the list's own background, so it must be the brand colour, not the ink on a brand button.
+  --accent-ink: var(--k-brand);
+}
+
+/* Top-bar menus (language, theme), like the site header's menus. */
+.khata .k-menu {
+  position: relative;
+}
+
+.khata .k-pop {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 8px);
+  inset-inline-end: 0;
+  display: grid;
+  gap: 4px;
+  min-width: 180px;
+  padding: 6px;
+  border-radius: 16px;
+  background: var(--k-surface-solid);
+  border: 1px solid var(--k-line-strong);
+  box-shadow: var(--k-shadow-lg);
+  animation: k-pop 0.18s var(--k-ease);
+}
+
+.khata .k-pop-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--k-text);
+  font: 600 14.5px var(--k-font);
+  text-align: start;
+  cursor: pointer;
+}
+
+.khata .k-pop-opt:hover {
+  background: var(--k-surface-3);
+}
+
+.khata .k-pop-opt[aria-pressed=true] {
+  color: var(--k-brand);
+  background: var(--k-brand-soft);
+}
+
+.khata .k-pop-opt .k-ico:last-child:not(:first-child) {
+  margin-inline-start: auto;
+}
+
+/* Profile: the identity card beside the details on wide screens, everything stacked on a phone. */
+.khata .k-profile {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.khata .k-profile .k-col {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.khata .k-id {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.khata .k-id .k-dl {
+  width: 100%;
+  text-align: start;
+}
+
+.khata .k-id .k-actions {
+  justify-content: center;
+}
+
+.khata .k-photo {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.khata .k-photo-acts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.khata .k-photo-acts label {
+  cursor: pointer;
+}
+
+.khata .k-id-name {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.khata .k-legend-h {
+  padding: 0;
+  margin-bottom: 4px;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.khata .k-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.khata .k-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--k-brand);
+}
+
+@media (min-width: 900px) {
+  .khata .k-profile {
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+
+  .khata .k-profile .k-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Settings tabs: the segmented control, scrolling sideways on a narrow phone instead of wrapping. */
+.khata .k-tabs-bar {
+  justify-self: start;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.khata .k-tabs-bar button {
+  white-space: nowrap;
+}
+
+/* Buttons beside a page title (export, new) and beside a section title. */
+.khata .k-head-acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.khata .k-row-h {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.khata .k-pop .k-err {
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+
+/* An open menu sits above the cards that follow it. The page blocks animate in (k-stagger), which gives each its own stacking layer,
+   so the block that holds the open menu is lifted, or the next cards would cover the menu and take its taps. */
+.khata .k-stagger > *:has(.k-pop),
+.khata .k-head:has(.k-pop),
+.khata .k-row-h:has(.k-pop) {
+  position: relative;
+  z-index: 35;
+}
+
+.khata .k-pop {
+  isolation: isolate;
+  background-color: var(--k-surface-solid);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+
+/* Export: one download icon; the file types (PDF red, Excel green, CSV in the brand colour) slide out beside it on hover, focus or tap. */
+.khata .k-xwrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+
+.khata .k-xgroup {
+  display: inline-flex;
+  gap: 6px;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  padding-block: 4px;
+  transition: max-width 0.25s var(--k-ease), opacity 0.2s, margin 0.25s var(--k-ease), visibility 0s 0.25s;
+}
+
+.khata .k-xwrap.open .k-xgroup,
+.khata .k-xwrap:not(.off):focus-within .k-xgroup {
+  max-width: 170px;
+  opacity: 1;
+  visibility: visible;
+  margin-inline-start: 6px;
+  padding-inline: 2px;
+  transition: max-width 0.25s var(--k-ease), opacity 0.2s, margin 0.25s var(--k-ease), visibility 0s;
+}
+
+@media (hover: hover) {
+  .khata .k-xwrap:not(.off):hover .k-xgroup {
+    max-width: 170px;
+    opacity: 1;
+    visibility: visible;
+    margin-inline-start: 6px;
+    padding-inline: 2px;
+    transition: max-width 0.25s var(--k-ease), opacity 0.2s, margin 0.25s var(--k-ease), visibility 0s;
+  }
+}
+
+.khata .k-xwrap.open .k-x-main {
+  color: var(--k-brand);
+  border-color: color-mix(in srgb, var(--k-brand) 40%, transparent);
+}
+
+.khata .k-x {
+  --b-fg: var(--x-color);
+  --b-bd: color-mix(in srgb, var(--x-color) 35%, transparent);
+  --b-bg: color-mix(in srgb, var(--x-color) 10%, var(--k-surface-solid));
+}
+
+.khata .k-x-pdf {
+  --x-color: var(--k-give);
+}
+
+.khata .k-x-xlsx {
+  --x-color: var(--k-get);
+}
+
+.khata .k-x-csv {
+  --x-color: var(--k-brand);
+}
+
+.khata .k-x-err {
+  margin: 6px 0 0;
+  font-size: 13px;
+}
+
+/* A party's profile picture fills the round badge. */
+.khata .k-av.has-photo {
+  overflow: hidden;
+  padding: 0;
+}
+
+.khata .k-av img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Contact settings: the picture with its buttons. */
+.khata .k-photo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.khata .k-photo-row .k-av.lg {
+  width: 72px;
+  height: 72px;
+  font-size: 24px;
+}
+
+.khata .k-photo-row label {
+  cursor: pointer;
+}
+
+.khata .k-photo-row .k-hint {
+  flex: 1;
+  min-width: 180px;
+}
+
+/* New party: the picture with round icon buttons on it (+ / edit at the bottom corner, delete at the top corner). */
+.khata .k-photo-pick {
+  position: relative;
+  flex: none;
+}
+
+.khata .k-photo-pick.is-busy {
+  opacity: 0.6;
+}
+
+.khata .k-photo-act {
+  position: absolute;
+  inset-inline-end: -8px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--k-surface-solid);
+  box-shadow: var(--k-shadow-sm);
+  cursor: pointer;
+  transition: transform 0.15s var(--k-ease);
+}
+
+/* The visible badge is small; the tap area around it is 44 px. */
+.khata .k-photo-act::before {
+  content: '';
+  position: absolute;
+  inset: -7px;
+}
+
+.khata .k-photo-act:hover {
+  transform: scale(1.08);
+}
+
+.khata .k-photo-act:focus-within {
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-photo-act.edit {
+  bottom: -8px;
+  color: var(--k-on-brand);
+  background: var(--k-brand-grad);
+}
+
+.khata .k-photo-act.del {
+  top: -8px;
+  color: var(--k-on-brand);
+  background: var(--k-give);
+}
+
+.khata .k-photo-act:disabled {
+  cursor: default;
+}
+
+/* Settings > Users (super admin): one row per account, actions on the end; Edit opens the name and role form inside the row. */
+.khata .k-users {
+  display: grid;
+  gap: 14px;
+}
+
+.khata .k-user-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.khata .k-user {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid var(--k-line);
+  background: var(--k-surface);
+  transition: opacity 0.2s, border-color 0.2s;
+}
+
+.khata .k-user.is-archived {
+  border-style: dashed;
+}
+
+.khata .k-user.is-archived .k-user-main > app-user-avatar,
+.khata .k-user.is-archived .k-user-txt {
+  opacity: 0.6;
+}
+
+.khata .k-user.is-busy {
+  opacity: 0.7;
+}
+
+.khata .k-user-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.khata .k-user-txt {
+  flex: 1 1 200px;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.khata .k-user-txt b {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+}
+
+.khata .k-user-txt small {
+  color: var(--k-muted);
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-user-txt .mail {
+  direction: ltr;
+  text-align: start;
+}
+
+.khata .k-user-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-inline-start: auto;
+}
+
+.khata .k-user-acts .k-btn {
+  min-height: 44px;
+}
+
+.khata .k-user-acts .ok {
+  color: var(--k-get);
+}
+
+.khata .k-user-acts .del {
+  color: var(--k-give);
+}
+
+.khata .k-user-edit {
+  padding-top: 12px;
+  border-top: 1px solid var(--k-line);
+}
+
+/* On a phone the action buttons are icons only, with the text kept for screen readers through aria-label. */
+@media (max-width: 599px) {
+  .khata .k-user-acts {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .khata .k-user-acts .k-btn span {
+    display: none;
+  }
+
+  .khata .k-user-acts .k-btn {
+    min-width: 44px;
+  }
+}
+
+/* Profile > Delete my account. */
+.khata .k-danger-zone {
+  border-color: color-mix(in srgb, var(--k-give) 45%, var(--k-line));
+}
+
+.khata .k-danger-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.khata .k-danger-row h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+/* Settings > Users: the All / Active / Archived / Deleted switch, the same control as the file storage switch, with the chosen part in the brand colour. */
+.khata .k-typeseg.k-seg4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.khata .k-typeseg label.pick {
+  min-width: 0;
+  padding-inline: 8px;
+  white-space: nowrap;
+}
+
+.khata .k-typeseg label.pick:has(input:checked) {
+  background: var(--k-brand-grad);
+  color: var(--k-on-brand);
+  box-shadow: var(--k-shadow-sm);
+}
+
+@media (max-width: 419px) {
+  .khata .k-typeseg.k-seg4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Settings > Mail: one card per mail server, with its icon beside the title; the security choice is the same switch as file storage. */
+.khata .k-mail-h {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.khata .k-mail-h h2 {
+  margin: 0;
+}
+
+.khata .k-typeseg.k-seg3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}

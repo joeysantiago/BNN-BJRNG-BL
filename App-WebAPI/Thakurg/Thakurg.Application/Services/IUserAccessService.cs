@@ -5,9 +5,13 @@ namespace Thakurg.Application.Services;
 
 public interface IUserAccessService
 {
-    Task<UserAccessDto> GetAsync(CancellationToken cancellationToken);
+    Task<UserAccessDto> GetAsync(string? status, CancellationToken cancellationToken);
 
     Task<string> DeleteAsync(AuthCallerDto caller, int userId, CancellationToken cancellationToken);
+
+    Task<string> RestoreAsync(AuthCallerDto caller, int userId, CancellationToken cancellationToken);
+
+    Task<string> SetActiveAsync(AuthCallerDto caller, int userId, bool active, CancellationToken cancellationToken);
 
     Task<ServiceResultDto<UserDto>> CreateAsync(AuthCallerDto caller, UserCreateDto request, CancellationToken cancellationToken);
 

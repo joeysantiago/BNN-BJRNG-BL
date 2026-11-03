@@ -5,8 +5,8 @@ import { SettingsService } from './settings.service';
 import { environment } from '../../environments/environment';
 import { PageCode, PermissionAction } from './models/role.model';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
-import { AuthResult, AuthTabMessage, AuthUser } from './models/auth.model';
 import { Injectable, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
+import { AuthResult, AuthTabMessage, AuthUser, OtpChannel, OtpRequestResult, ProfileDetails } from './models/auth.model';
 
 const TIMEOUT = environment.timings.authCallMs;
 const HELLO_WAIT_MS = environment.timings.tabHelloMs;
@@ -90,8 +90,10 @@ export class AuthService {
   patchUser(user: AuthUser): void {
     if (this.user()?.id !== user.id)
       return;
-    this.user.set(user);
-    this.post({ type: 'session', token: this.token ?? undefined, expiresAt: this.expiresAt, user });
+    // Some answers (the avatar endpoints) do not say how this session logged in; keep what is already known.
+    const patched = { ...user, loginMethod: user.loginMethod || this.user()?.loginMethod };
+    this.user.set(patched);
+    this.post({ type: 'session', token: this.token ?? undefined, expiresAt: this.expiresAt, user: patched });
   }
 
   /** A fresh access token now, for example after an audio packet was refused. False when the session is over (then every tab logs out). */
@@ -109,10 +111,27 @@ export class AuthService {
     return this.restoring;
   }
 
+  /** The mobile number, address and company of this account. */
+  details(): Promise<ProfileDetails> {
+    return this.api.send<ProfileDetails>('GET', '/auth/me/details', this.init(), TIMEOUT);
+  }
+
   async removeAvatar(): Promise<string> {
     const res = await this.api.sendFull<AuthUser>('DELETE', '/auth/avatar', this.init(), TIMEOUT);
     this.patchUser(res.data);
     return res.message ?? '';
+  }
+
+  /**
+   * Deletes the logged-in user's own account; the server ends every session and clears the login cookies. Then this tab and the others log out.
+   * Unlike logout, a refusal (such as the last super admin) is thrown so the page can show it, and the user stays logged in.
+   */
+  async deleteAccount(): Promise<string> {
+    const text = await this.api.message('DELETE', '/auth/me', this.init(), TIMEOUT);
+    this.clear();
+    this.post({ type: 'logout' });
+    this.leaveGuardedPage();
+    return text;
   }
 
   /** The address of a user's profile picture, or null when they have none. The file name in ?v= changes with every upload, so the browser may keep the picture. */
@@ -133,6 +152,12 @@ export class AuthService {
   async updateFeatures(hidden: string[]): Promise<string> {
     const res = await this.api.sendFull<AuthUser>('PUT', '/auth/me/features', this.init({ hidden }), TIMEOUT);
     this.patchUser(res.data);
+    return res.message ?? '';
+  }
+
+  /** Saves the mobile number, address and company. Resolves with the server's message. */
+  async saveDetails(details: ProfileDetails): Promise<string> {
+    const res = await this.api.sendFull<ProfileDetails>('PUT', '/auth/me/details', this.init(details), TIMEOUT);
     return res.message ?? '';
   }
 
@@ -159,6 +184,16 @@ export class AuthService {
 
   async register(email: string, password: string, displayName: string): Promise<AuthUser> {
     return this.signIn(await this.api.send<AuthResult>('POST', '/auth/register', this.init({ email, password, displayName }), TIMEOUT));
+  }
+
+  /** Sends a one-time login code by e-mail or SMS, for an app that allows code login (SnapKhata, SnapTracker). */
+  otpRequest(channel: OtpChannel, destination: string, app: string): Promise<OtpRequestResult> {
+    return this.api.send<OtpRequestResult>('POST', '/auth/otp/request', this.init({ channel, destination, app }), TIMEOUT);
+  }
+
+  /** Logs in with a one-time code; the session is the same common login, limited to the apps that allow code login. */
+  async otpVerify(channel: OtpChannel, destination: string, code: string, app: string): Promise<AuthUser> {
+    return this.signIn(await this.api.send<AuthResult>('POST', '/auth/otp/verify', this.init({ channel, destination, code, app }), TIMEOUT));
   }
 
   // #endregion

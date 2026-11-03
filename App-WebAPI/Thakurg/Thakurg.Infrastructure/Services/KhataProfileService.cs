@@ -32,10 +32,14 @@ public class KhataProfileService : IKhataProfileService
             return profile.Id;
 
         var account = await _authRepository.GetUserAsync(accountUserId, cancellationToken);
-        profile = new KhataUser { UserId = accountUserId, DisplayName = account?.DisplayName ?? string.Empty, Language = _options.NewUser.Language, TimeZone = _options.NewUser.TimeZone, DailySummaryTime = _options.NewUser.DailySummaryTime, CreatedBy = accountUserId };
-        await _userRepository.AddUserAsync(profile, cancellationToken);
+        profile = new KhataUser { UserId = accountUserId, DisplayName = account?.DisplayName ?? string.Empty, Language = _options.NewUser.Language, TimeZone = _options.NewUser.TimeZone, DailySummaryTime = _options.NewUser.DailySummaryTime, NotificationsEnabled = _options.NewUser.NotificationsEnabled, CreatedBy = accountUserId };
+        if (await _userRepository.TryAddUserAsync(profile, cancellationToken))
+            return profile.Id;
 
-        return profile.Id;
+        // A parallel request created the profile first; use that one.
+        profile = await _userRepository.FindByAccountAsync(accountUserId, cancellationToken);
+
+        return profile!.Id;
     }
 
     #endregion

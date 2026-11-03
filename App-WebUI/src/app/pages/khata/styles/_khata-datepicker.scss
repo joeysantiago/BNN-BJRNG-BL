@@ -1,0 +1,440 @@
+/* ---------- Date picker (ui/khata-date-picker) ----------
+   A button with the date(s) and a hint; the calendar opens below it as a card, or as a bottom sheet on a phone. */
+.khata .k-dp {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+/* The block holding an open picker sits above the cards that follow it (see the k-pop rule in _khata-extra.scss). */
+.khata .k-stagger > *:has(.k-dp.is-open),
+.khata .k-card:has(.k-dp.is-open) {
+  position: relative;
+  z-index: 35;
+}
+
+.khata .k-dp-trigger {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 12px 7px 8px;
+  border-radius: 14px;
+  border: 1.5px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.khata[data-kt=dark] .k-dp-trigger {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.khata .k-dp-trigger:hover {
+  border-color: color-mix(in srgb, var(--k-brand) 40%, var(--k-line-strong));
+}
+
+.khata .k-dp-trigger:focus-visible,
+.khata .k-dp.is-open .k-dp-trigger {
+  outline: none;
+  border-color: var(--k-brand);
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-dp-trigger[aria-invalid=true] {
+  border-color: var(--k-give);
+}
+
+.khata .k-dp-trigger .ic {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--k-brand);
+  background: var(--k-brand-soft);
+}
+
+.khata .k-dp-trigger .txt {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.khata .k-dp-trigger b,
+.khata .k-dp-trigger small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-dp-trigger b {
+  font: 700 15px/1.2 var(--k-font);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.khata .k-dp-trigger small {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--k-muted);
+}
+
+.khata .k-dp-trigger .chev {
+  flex: none;
+  color: var(--k-muted);
+  transition: transform 0.2s var(--k-ease);
+}
+
+.khata .k-dp.is-open .k-dp-trigger .chev {
+  transform: rotate(180deg);
+}
+
+/* ---- The calendar card ---- */
+.khata .k-dp-pop {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 8px);
+  inset-inline-start: 0;
+  width: 324px;
+  max-width: calc(100vw - 32px);
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 20px;
+  border: 1px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  box-shadow: var(--k-shadow-lg);
+  isolation: isolate;
+  animation: k-pop 0.18s var(--k-ease);
+  transform-origin: top;
+}
+
+.khata .k-dp-backdrop,
+.khata .k-dp-grab {
+  display: none;
+}
+
+.khata .k-dp-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.khata .k-dp-quick .k-chip {
+  min-height: 32px;
+  padding: 6px 11px;
+  font-size: 12.5px;
+}
+
+.khata .k-dp-quick .k-chip:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.khata .k-dp-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.khata .k-dp-nav,
+.khata .k-dp-title {
+  min-height: 38px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--k-text);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.khata .k-dp-nav {
+  flex: none;
+  width: 38px;
+  display: grid;
+  place-items: center;
+  color: var(--k-muted);
+}
+
+.khata .k-dp-title {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font: 800 15px var(--k-font);
+}
+
+.khata .k-dp-title .k-ico {
+  color: var(--k-muted);
+}
+
+.khata .k-dp-nav:hover:not(:disabled),
+.khata .k-dp-title:hover:not(:disabled) {
+  color: var(--k-text);
+  background: var(--k-surface-3);
+}
+
+.khata .k-dp-nav:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.khata .k-dp-title:disabled {
+  cursor: default;
+}
+
+.khata .k-dp-week,
+.khata .k-dp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.khata .k-dp-week span {
+  padding: 2px 0 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--k-faint);
+  overflow: hidden;
+}
+
+.khata .k-dp-grid {
+  row-gap: 2px;
+}
+
+/* A day: a round button. A range is a soft band through the days between the two ends; the ends are filled. */
+.khata .k-dp-day {
+  position: relative;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--k-text);
+  font: 600 14px var(--k-font);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  z-index: 0;
+}
+
+.khata .k-dp-day::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  z-index: -1;
+  margin: auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: background-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.khata .k-dp-day:hover:not(:disabled)::before {
+  background: var(--k-surface-3);
+}
+
+.khata .k-dp-day:focus-visible {
+  box-shadow: none;
+}
+
+.khata .k-dp-day:focus-visible::before {
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-dp-day.out {
+  color: var(--k-faint);
+}
+
+.khata .k-dp-day.today {
+  font-weight: 800;
+  color: var(--k-brand);
+}
+
+.khata .k-dp-day.today::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.khata .k-dp-day.in,
+.khata .k-dp-day.start:not(.end),
+.khata .k-dp-day.end:not(.start) {
+  background: var(--k-brand-soft);
+}
+
+.khata .k-dp-day.start:not(.end) {
+  border-start-start-radius: 20px;
+  border-end-start-radius: 20px;
+}
+
+.khata .k-dp-day.end:not(.start) {
+  border-start-end-radius: 20px;
+  border-end-end-radius: 20px;
+}
+
+.khata .k-dp-day.sel {
+  color: var(--k-on-brand);
+}
+
+.khata .k-dp-day.sel::before,
+.khata .k-dp-day.sel:hover:not(:disabled)::before {
+  background: var(--k-brand-grad);
+  box-shadow: var(--k-shadow-sm);
+}
+
+.khata .k-dp-day.sel.today::after {
+  background: var(--k-on-brand);
+}
+
+.khata .k-dp-day:disabled {
+  color: var(--k-faint);
+  opacity: 0.4;
+  cursor: default;
+}
+
+.khata .k-dp-day:active:not(:disabled)::before {
+  transform: scale(0.92);
+}
+
+/* Month and year views: a 3 x 4 grid of pills. */
+.khata .k-dp-picks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.khata .k-dp-pick {
+  min-height: 52px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: var(--k-surface);
+  color: var(--k-text);
+  font: 700 14px var(--k-font);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.khata .k-dp-pick:hover:not(:disabled) {
+  background: var(--k-surface-3);
+}
+
+.khata .k-dp-pick.today {
+  border-color: var(--k-brand);
+  color: var(--k-brand);
+}
+
+.khata .k-dp-pick[aria-pressed=true] {
+  color: var(--k-on-brand);
+  background: var(--k-brand-grad);
+  border-color: transparent;
+}
+
+.khata .k-dp-pick:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.khata .k-dp-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--k-line);
+}
+
+/* The entry list's range picker: as wide as its content needs, not the whole row. */
+.khata .k-dates .k-dp {
+  flex: 0 1 320px;
+}
+
+/* ---- Phone: the calendar is a bottom sheet over a dimmed page, with bigger days to tap. ---- */
+@media (max-width: 599px) {
+  .khata .k-dp-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: var(--k-overlay);
+    animation: k-fade 0.2s ease;
+  }
+
+  .khata .k-dp-pop {
+    position: fixed;
+    z-index: 91;
+    top: auto;
+    bottom: 0;
+    inset-inline: 0;
+    width: auto;
+    max-width: none;
+    max-height: 88dvh;
+    overflow-y: auto;
+    padding: 10px 16px calc(16px + env(safe-area-inset-bottom));
+    border-radius: 24px 24px 0 0;
+    border-bottom: 0;
+    animation: k-dp-up 0.25s var(--k-ease);
+  }
+
+  .khata .k-dp-grab {
+    display: block;
+    justify-self: center;
+    width: 40px;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--k-line-strong);
+  }
+
+  .khata .k-dp-quick {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .khata .k-dp-day {
+    height: 46px;
+    font-size: 15px;
+  }
+
+  .khata .k-dp-day::before {
+    width: 42px;
+    height: 42px;
+  }
+
+  .khata .k-dp-nav,
+  .khata .k-dp-title {
+    min-height: 44px;
+  }
+
+  .khata .k-dp-nav {
+    width: 44px;
+  }
+
+  .khata .k-dates .k-dp {
+    flex: 1 1 100%;
+  }
+}
+
+@keyframes k-dp-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}

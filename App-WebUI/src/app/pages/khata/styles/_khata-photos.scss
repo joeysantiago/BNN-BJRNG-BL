@@ -1,0 +1,141 @@
+/* SnapKhata bill photo thumbnails and drop area. Ported from App-Prototype/assets/css/khata.css; loaded by the screen that uses it. */
+/* ---------- Photos ---------- */
+.khata .k-drop {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 18px;
+  border-radius: 20px;
+  border: 2px dashed var(--k-line-strong);
+  background: var(--k-surface-2);
+  text-align: center;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.khata .k-drop.over {
+  border-color: var(--k-brand);
+  background: var(--k-brand-soft);
+}
+
+.khata .k-drop .btns {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.khata .k-drop p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--k-muted);
+}
+
+.khata .k-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.khata .k-thumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.khata .k-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--k-surface-3);
+  border: 1px solid var(--k-line);
+  animation: k-pop 0.3s var(--k-ease);
+}
+
+.khata .k-thumb > button.open {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.khata .k-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s var(--k-ease), opacity 0.3s;
+}
+
+.khata .k-thumb img:not([src]),
+.khata .k-thumb img[src=''] {
+  opacity: 0;
+}
+
+.khata .k-thumb:has(img:not([src])) {
+  background: var(--k-skeleton);
+  background-size: 200% 100%;
+  animation: k-shimmer 1.3s linear infinite;
+}
+
+.khata .k-thumb:hover img {
+  transform: scale(1.05);
+}
+
+.khata .k-thumb .tools {
+  position: absolute;
+  inset-inline-end: 6px;
+  top: 6px;
+  display: flex;
+  gap: 4px;
+}
+
+.khata .k-thumb .tools button {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.62);
+  color: #ffffff;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.khata .k-thumb .tools button:hover {
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.khata .k-thumb .size {
+  position: absolute;
+  inset-inline-start: 6px;
+  bottom: 6px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.62);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.khata .k-thumb .new {
+  position: absolute;
+  inset-inline-start: 6px;
+  top: 6px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: var(--k-brand);
+  color: var(--k-on-brand);
+  font-size: 11px;
+  font-weight: 800;
+}

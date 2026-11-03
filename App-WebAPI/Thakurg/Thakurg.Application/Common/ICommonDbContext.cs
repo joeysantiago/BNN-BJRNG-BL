@@ -21,6 +21,12 @@ public partial interface ICommonDbContext
 
     DbSet<Message> Messages { get; }
 
+    DbSet<UserProfile> UserProfiles { get; }
+
+    DbSet<MailSetting> MailSettings { get; }
+
+    DbSet<OneTimeCode> OneTimeCodes { get; }
+
     DbSet<PageName> PageNames { get; }
 
     DbSet<AppSetting> AppSettings { get; }

@@ -30,6 +30,11 @@ public class ExceptionMiddleware
         catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
         {
         }
+        catch (RetryAfterException ex)
+        {
+            context.Response.Headers.RetryAfter = ex.RetryAfterSeconds.ToString();
+            await WriteAsync(context, messageService, ex.StatusCode, ex.Code, ex.Arguments, new RetryAfterDto { RetryAfterSeconds = ex.RetryAfterSeconds });
+        }
         catch (BusinessException ex)
         {
             await WriteAsync(context, messageService, ex.StatusCode, ex.Code, ex.Arguments);
@@ -45,7 +50,7 @@ public class ExceptionMiddleware
 
     #region Private Methods
 
-    private static async Task WriteAsync(HttpContext context, IMessageService messageService, int statusCode, string code, object[] arguments)
+    private static async Task WriteAsync(HttpContext context, IMessageService messageService, int statusCode, string code, object[] arguments, object? data = null)
     {
         if (context.Response.HasStarted)
         {
@@ -56,7 +61,9 @@ public class ExceptionMiddleware
 
         var message = await messageService.GetAsync(code, arguments);
         context.Response.StatusCode = statusCode;
-        await context.Response.WriteAsJsonAsync(ApiResponse<object?>.FailureResponse(message));
+        var response = ApiResponse<object?>.FailureResponse(message);
+        response.Data = data;
+        await context.Response.WriteAsJsonAsync(response);
     }
 
     #endregion

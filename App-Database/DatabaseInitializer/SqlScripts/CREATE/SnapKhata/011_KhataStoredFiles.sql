@@ -32,8 +32,9 @@ BEGIN
         CONSTRAINT FK_KhataStoredFiles_KhataGoogleConnections_GoogleConnectionId FOREIGN KEY (GoogleConnectionId) REFERENCES KhataGoogleConnections (Id)
     );
 
-    -- Circular reference: KhataUsers is created before KhataStoredFiles, so this foreign key can only be added here.
+    -- Circular references: KhataUsers and KhataContacts are created before KhataStoredFiles, so these foreign keys can only be added here.
     ALTER TABLE KhataUsers ADD CONSTRAINT FK_KhataUsers_KhataStoredFiles_UpiQrStoredFileId FOREIGN KEY (UpiQrStoredFileId) REFERENCES KhataStoredFiles (Id);
+    ALTER TABLE KhataContacts ADD CONSTRAINT FK_KhataContacts_KhataStoredFiles_PhotoStoredFileId FOREIGN KEY (PhotoStoredFileId) REFERENCES KhataStoredFiles (Id);
 
     CREATE INDEX IX_KhataStoredFiles_SyncStatus ON KhataStoredFiles (SyncStatus);
     CREATE INDEX IX_KhataStoredFiles_UserId ON KhataStoredFiles (UserId);

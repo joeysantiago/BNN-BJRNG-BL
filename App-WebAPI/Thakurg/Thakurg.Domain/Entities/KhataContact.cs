@@ -28,6 +28,8 @@ public class KhataContact : BaseEntity
 
     public long BalanceMinor { get; set; }
 
+    public int? PhotoStoredFileId { get; set; }
+
     public byte[] RowVersion { get; set; } = [];
 
     public DateTime? LastReminderOn { get; set; }

@@ -1,5 +1,5 @@
 import { Lang, langInfo } from './site';
-import { KhataCurrency } from './models/khata.model';
+import { KhataCurrency, KhataEntry, KhataEntryGroup } from './models/khata.model';
 
 /** Amounts travel as whole smallest units (paise). Typed text is turned into those units digit by digit, never through floating point. */
 export const toMinor = (text: string, decimals: number): number | null => {
@@ -39,7 +39,34 @@ export const formatDate = (iso?: string | null): string => {
 };
 
 /** Today in the browser's own time zone, as YYYY-MM-DD for the API and for date inputs. */
-export const todayIso = (): string => {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+export const todayIso = (): string => isoDay(new Date());
+
+const locale = (lang: Lang): string => langInfo(lang).locale.replace('_', '-');
+
+/** "Mar" or "March 2026" for a month key "2026-03", in the reader's language. */
+export const monthName = (key: string, long: boolean, lang: Lang): string => new Intl.DateTimeFormat(locale(lang), long ? { month: 'long', year: 'numeric' } : { month: 'short' }).format(new Date(Number(key.slice(0, 4)), Number(key.slice(5, 7)) - 1, 1));
+
+/** Short chart axis amount such as 12K, in the reader's language. */
+export const compactAmount = (minor: number, currency: KhataCurrency, lang: Lang): string => new Intl.NumberFormat(locale(lang), { notation: 'compact', maximumFractionDigits: 1 }).format(minor / 10 ** currency.decimals);
+
+/** YYYY-MM-DD of a date in the browser's time zone. */
+export const isoDay = (date: Date): string => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+/** Field checks of the party form, so the wrong field can be marked: a name of 1 to 100 characters; mobile and email optional but valid when given. */
+export const contactErrors = (name: string, mobile: string, email: string): Record<string, boolean> => ({
+  name: !name || name.length > 100,
+  mobile: !!mobile && !/^\+?[\d\s-]{7,16}$/.test(mobile),
+  email: !!email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+});
+
+/** Puts entries under a heading per month ("March 2026"), in the order they come. */
+export const groupByMonth = (entries: KhataEntry[], lang: Lang): KhataEntryGroup[] => {
+  const groups: KhataEntryGroup[] = [];
+  for (const e of entries) {
+    const key = e.entryDate.slice(0, 7);
+    if (groups.at(-1)?.key !== key)
+      groups.push({ key, label: monthName(key, true, lang), entries: [] });
+    groups.at(-1)!.entries.push(e);
+  }
+  return groups;
 };

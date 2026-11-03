@@ -1,14 +1,16 @@
 import { Router } from '@angular/router';
-import { SeoService } from '../../../core/seo.service';
+import { KhataIcon } from '../ui/khata-icon/khata-icon';
 import { I18nService } from '../../../core/i18n.service';
 import { KhataApiService } from '../../../core/khata-api.service';
 import { KhataStateService } from '../../../core/khata-state.service';
+import { KhataEmptyArt } from '../ui/khata-empty-art/khata-empty-art';
 import { Component, afterNextRender, effect, inject, signal } from '@angular/core';
 
 /** /khata/app: opens the last used book. A new user first creates a book and picks its money type (fixed after the first entry). */
 @Component({
   selector: 'app-khata-home',
   templateUrl: './khata-home.html',
+  imports: [KhataIcon, KhataEmptyArt],
   styleUrl: './khata-home.scss',
 })
 
@@ -17,14 +19,13 @@ export class KhataHome {
   protected readonly busy = signal(false);
   private readonly router = inject(Router);
   protected readonly ready = signal(false);
-  private readonly seo = inject(SeoService);
   protected readonly i18n = inject(I18nService);
   private readonly api = inject(KhataApiService);
   private readonly requestKey = crypto.randomUUID();
   protected readonly state = inject(KhataStateService);
 
   constructor() {
-    effect(() => this.seo.set({ title: this.i18n.t('khata.app.name'), description: this.i18n.t('seo.khata.desc'), path: '/khata/', image: 'default', lang: this.i18n.lang(), noindex: true }));
+    effect(() => this.state.screen(this.i18n.t('khata.book.firstTitle')));
     afterNextRender(() => void this.start());
   }
 

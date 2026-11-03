@@ -6,9 +6,15 @@ public static class KhataAuditActions
 
     public const string EntryEdited = "EntryEdited";
 
+    public const string PhotosAdded = "PhotosAdded";
+
     public const string RateLimited = "RateLimited";
 
     public const string EntryDeleted = "EntryDeleted";
+
+    public const string PhotoDeleted = "PhotoDeleted";
+
+    public const string NotifyChanged = "NotifyChanged";
 
     public const string AllowEntriesOn = "AllowEntriesOn";
 
@@ -16,5 +22,9 @@ public static class KhataAuditActions
 
     public const string AllowEntriesOff = "AllowEntriesOff";
 
+    public const string ContactPhotoSet = "ContactPhotoSet";
+
     public const string CurrencyDeleted = "CurrencyDeleted";
+
+    public const string ContactPhotoRemoved = "ContactPhotoRemoved";
 }

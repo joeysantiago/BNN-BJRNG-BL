@@ -1,0 +1,505 @@
+/* SnapKhata public landing page (/khata). Ported from App-Prototype/assets/css/khata.css. */
+.khata.k-land {
+  --kl-max: 1160px;
+  overflow-x: hidden;
+}
+
+.khata.k-land .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.khata.k-land .kl-in {
+  width: min(var(--kl-max), 100% - 32px);
+  margin-inline: auto;
+}
+
+/* ---------- Top bar ---------- */
+.khata.k-land .kl-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--k-bg) 72%, transparent);
+  -webkit-backdrop-filter: var(--k-glass);
+  backdrop-filter: var(--k-glass);
+  border-block-end: 1px solid var(--k-line);
+}
+
+.khata.k-land .kl-top .kl-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 60px;
+}
+
+.khata.k-land .kl-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.khata.k-land .kl-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding-inline: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--k-line);
+  background: var(--k-surface);
+  color: var(--k-muted);
+}
+
+.khata.k-land .kl-lang select {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--k-text);
+  font: 700 14px var(--k-font);
+  cursor: pointer;
+  outline: none;
+  min-height: 38px;
+}
+
+.khata.k-land .kl-lang select option {
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+}
+
+.khata.k-land .kl-lang:focus-within {
+  box-shadow: var(--k-focus);
+}
+
+/* ---------- Hero ---------- */
+.khata.k-land .kl-hero {
+  padding-block: 28px 8px;
+}
+
+.khata.k-land .kl-hero-in {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 32px;
+  align-items: center;
+  padding: 36px 24px;
+  border-radius: var(--k-r-xl);
+  background: var(--k-brand-grad);
+  color: #fff;
+  box-shadow: var(--k-shadow-lg);
+}
+
+@media (min-width: 900px) {
+  .khata.k-land .kl-hero-in {
+    grid-template-columns: 1.15fr 1fr;
+    padding: 56px;
+    min-height: 460px;
+  }
+}
+
+.khata.k-land .blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.32), transparent 65%);
+}
+
+.khata.k-land .kl-hero .b1 {
+  width: 420px;
+  height: 420px;
+  inset-block-start: -160px;
+  inset-inline-end: -120px;
+}
+
+.khata.k-land .kl-hero .b2 {
+  width: 360px;
+  height: 360px;
+  inset-block-end: -200px;
+  inset-inline-start: -120px;
+  opacity: 0.7;
+}
+
+.khata.k-land .kl-copy,
+.khata.k-land .kl-visual {
+  position: relative;
+  z-index: 1;
+}
+
+.khata.k-land h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.1rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+.khata.k-land .kl-lead {
+  margin: 16px 0 0;
+  max-width: 560px;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  opacity: 0.92;
+}
+
+.khata.k-land .kl-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.khata.k-land .kl-open {
+  gap: 8px;
+  background: #fff;
+  color: #1b1530;
+  border-color: transparent;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+}
+
+.khata.k-land .kl-open:hover {
+  transform: translateY(-1px);
+}
+
+.khata.k-land .kl-ghost {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.khata.k-land .kl-ghost:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.khata.k-land .kl-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 22px 0 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.khata.k-land .kl-trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Mock ledger card with two floating entries */
+.khata.k-land .kl-visual {
+  display: grid;
+  justify-items: center;
+  padding-block: 64px;
+}
+
+.khata.k-land .kl-mock {
+  width: min(380px, 100%);
+  padding: 20px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  transform: rotate(-2deg);
+}
+
+.khata.k-land .kl-mock small {
+  font-size: 12.5px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.khata.k-land .kl-mock b {
+  display: block;
+  margin-top: 2px;
+  font-size: 34px;
+  letter-spacing: -0.02em;
+}
+
+.khata.k-land .kl-mock .rows {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.khata.k-land .kl-mock .rows div {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.khata.k-land .kl-float {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+  font-size: 13px;
+}
+
+.khata.k-land .kl-float small {
+  display: block;
+  color: var(--k-muted);
+  font-weight: 650;
+}
+
+.khata.k-land .kl-float b {
+  font-size: 14px;
+}
+
+.khata.k-land .kl-float .ic {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+}
+
+.khata.k-land .kl-float.gave {
+  inset-block-start: 0;
+  inset-inline-start: 0;
+}
+
+.khata.k-land .kl-float.gave .ic {
+  background: var(--k-give-soft);
+  color: var(--k-give);
+}
+
+.khata.k-land .kl-float.got {
+  inset-block-end: 0;
+  inset-inline-end: 0;
+}
+
+.khata.k-land .kl-float.got .ic {
+  background: var(--k-get-soft);
+  color: var(--k-get);
+}
+
+/* ---------- Sections ---------- */
+.khata.k-land .kl-sec {
+  padding-block: 40px 0;
+}
+
+.khata.k-land .kl-sec h2 {
+  margin: 0 0 18px;
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.khata.k-land .kl-card {
+  border-radius: var(--k-r-lg);
+  background: var(--k-surface);
+  border: 1px solid var(--k-line);
+  -webkit-backdrop-filter: var(--k-glass);
+  backdrop-filter: var(--k-glass);
+  box-shadow: var(--k-shadow);
+}
+
+.khata.k-land .kl-feats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+}
+
+@media (min-width: 900px) {
+  .khata.k-land .kl-feats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.khata.k-land .kl-feats .kl-card {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  padding: 20px;
+  transition: transform 0.2s var(--k-ease), border-color 0.2s;
+}
+
+.khata.k-land .kl-feats .kl-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--k-line-strong);
+}
+
+.khata.k-land .kl-feats p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.khata.k-land .kl-ic {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--k-brand-soft);
+  color: var(--k-brand);
+}
+
+.khata.k-land .kl-why .kl-ic {
+  background: var(--k-brand-grad);
+  color: #fff;
+}
+
+.khata.k-land .kl-faq {
+  display: grid;
+  gap: 10px;
+}
+
+.khata.k-land .kl-faq details {
+  padding: 0 20px;
+}
+
+.khata.k-land .kl-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.khata.k-land .kl-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.khata.k-land .kl-faq summary svg {
+  flex: none;
+  color: var(--k-muted);
+  transition: transform 0.2s var(--k-ease);
+}
+
+.khata.k-land .kl-faq details[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.khata.k-land .kl-faq details p {
+  margin: 0 0 18px;
+  color: var(--k-muted);
+  line-height: 1.6;
+}
+
+/* Closing call to action */
+.khata.k-land .kl-band {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 32px;
+  border-radius: var(--k-r-xl);
+  background: var(--k-brand-grad);
+  color: #fff;
+  box-shadow: var(--k-shadow-lg);
+}
+
+.khata.k-land .kl-band .b1 {
+  width: 360px;
+  height: 360px;
+  inset-block-start: -180px;
+  inset-inline-end: 10%;
+}
+
+.khata.k-land .kl-band > div {
+  position: relative;
+  max-width: 620px;
+}
+
+.khata.k-land .kl-band h2 {
+  margin: 0 0 6px;
+}
+
+.khata.k-land .kl-band p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.khata.k-land .kl-band .kl-open {
+  position: relative;
+}
+
+/* Footer */
+.khata.k-land .kl-foot {
+  padding-block: 40px 28px;
+}
+
+.khata.k-land .kl-foot .kl-in {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px 18px;
+  text-align: center;
+  color: var(--k-muted);
+  font-size: 13px;
+}
+
+.khata.k-land .kl-foot nav {
+  display: flex;
+  gap: 2px;
+}
+
+.khata.k-land .kl-foot a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 8px;
+  color: var(--k-text);
+  font-weight: 650;
+  font-size: 14px;
+}
+
+.khata.k-land .kl-foot p {
+  margin: 0;
+}
+
+@media (max-width: 520px) {
+  .khata.k-land .kl-login {
+    display: none;
+  }
+
+  .khata.k-land .kl-hero-in {
+    padding: 28px 20px;
+  }
+
+  .khata.k-land .kl-visual {
+    padding-block: 8px;
+  }
+
+  .khata.k-land .kl-float {
+    position: static;
+    width: min(380px, 100%);
+    margin-top: 10px;
+  }
+
+  .khata.k-land .kl-mock {
+    transform: none;
+  }
+
+  .khata.k-land .kl-band {
+    padding: 24px 20px;
+  }
+}
+

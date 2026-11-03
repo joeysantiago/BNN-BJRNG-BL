@@ -1,0 +1,177 @@
+@if (missing()) {
+  <app-khata-missing [message]="missing()" />
+} @else if (error()) {
+  <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
+} @else if (data(); as d) {
+  <div class="k-dash k-stagger">
+    <div class="k-head">
+      <div>
+        <h1>{{ greeting() }}</h1>
+        <p>{{ i18n.t('khata.d.lead', { book: d.book.name }) }}</p>
+      </div>
+      <span class="k-badge"><svg kIco="calendar" [size]="13"></svg>{{ today }}</span>
+    </div>
+
+    <div class="k-dash-top">
+      <section class="k-hero" aria-labelledby="net-h">
+        <span class="eyebrow" id="net-h"><svg kIco="wallet" [size]="16"></svg>{{ i18n.t('khata.d.net') }}</span>
+        <b class="big k-num" [class.k-get]="net() > 0" [class.k-give]="net() < 0" [kCount]="net()" [currency]="currency()" [lang]="i18n.lang()"></b>
+        <span class="k-muted">{{ i18n.t(net() > 0 ? 'khata.d.netGet' : net() < 0 ? 'khata.d.netGive' : 'khata.d.netZero') }}</span>
+        <div class="split">
+          <div class="pill">
+            <span class="k-ib get"><svg kIco="got" [size]="18" [stroke]="2.4"></svg></span>
+            <span class="k-minw0"><small>{{ i18n.t('khata.c.willGet') }}</small><b class="k-num k-get">{{ d.book.youWillGetMinor | kMoney: currency() : i18n.lang() }}</b><small>{{ i18n.t('khata.d.parties', { n: d.toGetCount }) }}</small></span>
+          </div>
+          <div class="pill">
+            <span class="k-ib give"><svg kIco="gave" [size]="18" [stroke]="2.4"></svg></span>
+            <span class="k-minw0"><small>{{ i18n.t('khata.c.willGive') }}</small><b class="k-num k-give">{{ d.book.youWillGiveMinor | kMoney: currency() : i18n.lang() }}</b><small>{{ i18n.t('khata.d.parties', { n: d.toGiveCount }) }}</small></span>
+          </div>
+        </div>
+      </section>
+      <nav class="k-quick" [attr.aria-label]="i18n.t('khata.d.quick')">
+        <a class="k-qa" [routerLink]="['/khata/app/b', d.book.id, 'new']" [queryParams]="{ type: gave }"><span class="k-ib give"><svg kIco="gave" [stroke]="2.4"></svg></span>{{ i18n.t('khata.e.gave') }}</a>
+        <a class="k-qa" [routerLink]="['/khata/app/b', d.book.id, 'new']" [queryParams]="{ type: got }"><span class="k-ib get"><svg kIco="got" [stroke]="2.4"></svg></span>{{ i18n.t('khata.e.got') }}</a>
+        <a class="k-qa" [routerLink]="['/khata/app/b', d.book.id, 'parties']" [queryParams]="{ add: 1 }"><span class="k-ib brand"><svg kIco="users"></svg></span>{{ i18n.t('khata.c.add') }}</a>
+        <a class="k-qa" [routerLink]="['/khata/app/b', d.book.id, 'entries']"><span class="k-ib warn"><svg kIco="list"></svg></span>{{ i18n.t('khata.d.allEntries') }}</a>
+      </nav>
+    </div>
+
+    <div class="k-stats">
+      <div class="k-card k-stat lift">
+        <div class="top"><span class="lbl">{{ i18n.t('khata.d.collectedM') }}</span><span class="k-ib get"><svg kIco="got" [size]="18"></svg></span></div>
+        <b class="val k-num" [kCount]="thisMonth()?.gotMinor ?? 0" [currency]="currency()" [lang]="i18n.lang()"></b>
+        <ng-container *ngTemplateOutlet="deltaLine; context: { $implicit: gotDelta() }" />
+      </div>
+      <div class="k-card k-stat lift">
+        <div class="top"><span class="lbl">{{ i18n.t('khata.d.givenM') }}</span><span class="k-ib give"><svg kIco="gave" [size]="18"></svg></span></div>
+        <b class="val k-num" [kCount]="thisMonth()?.gaveMinor ?? 0" [currency]="currency()" [lang]="i18n.lang()"></b>
+        <ng-container *ngTemplateOutlet="deltaLine; context: { $implicit: gaveDelta() }" />
+      </div>
+      <div class="k-card k-stat lift">
+        <div class="top"><span class="lbl">{{ i18n.t('khata.d.partiesT') }}</span><span class="k-ib brand"><svg kIco="users" [size]="18"></svg></span></div>
+        <b class="val k-num">{{ d.book.contactCount }}</b>
+        <span class="k-delta flat">{{ i18n.t('khata.d.pending', { n: d.toGetCount + d.toGiveCount }) }}</span>
+      </div>
+      <div class="k-card k-stat lift">
+        <div class="top"><span class="lbl">{{ i18n.t('khata.d.entriesM') }}</span><span class="k-ib warn"><svg kIco="note" [size]="18"></svg></span></div>
+        <b class="val k-num">{{ thisMonth()?.entryCount ?? 0 }}</b>
+        <span class="k-delta flat">{{ i18n.t('khata.d.total', { n: d.entryCount }) }}</span>
+      </div>
+    </div>
+
+    @if (!d.book.contactCount) {
+      <div class="k-card k-empty">
+        <svg kEmptyArt="users"></svg>
+        <h2>{{ i18n.t('khata.d.emptyTitle') }}</h2>
+        <p>{{ i18n.t('khata.d.emptyLead') }}</p>
+        <a class="k-btn pri" [routerLink]="['/khata/app/b', d.book.id, 'parties']" [queryParams]="{ add: 1 }"><svg kIco="plus" [size]="18"></svg>{{ i18n.t('khata.c.add') }}</a>
+      </div>
+    } @else {
+      <div class="k-grid2">
+        <section class="k-card" aria-labelledby="flow-h">
+          <div class="k-card-h">
+            <div><h2 id="flow-h">{{ i18n.t('khata.d.flowTitle') }}</h2><p>{{ i18n.t('khata.d.flowLead') }}</p></div>
+          </div>
+          @if (hasFlow() && chart(); as c) {
+            <ul class="k-legend">
+              <li><i class="k-key-give"></i>{{ i18n.t('khata.e.gave') }} <b class="k-num">{{ gaveTotal() | kMoney: currency() : i18n.lang() }}</b></li>
+              <li><i class="k-key-get"></i>{{ i18n.t('khata.e.got') }} <b class="k-num">{{ gotTotal() | kMoney: currency() : i18n.lang() }}</b></li>
+            </ul>
+            <div #chartWrap class="k-chart">
+              <svg #svg [attr.viewBox]="'0 0 ' + c.width + ' ' + c.height" direction="ltr" role="group" [attr.aria-label]="i18n.t('khata.d.flowTitle')">
+                @for (t of c.ticks; track $index) {
+                  <svg:line class="gl" [attr.x1]="c.plotLeft" [attr.x2]="c.plotRight" [attr.y1]="t.y" [attr.y2]="t.y" />
+                  <svg:text class="ax" [attr.x]="c.plotLeft - 8" [attr.y]="t.y + 4" text-anchor="end">{{ t.label }}</svg:text>
+                }
+                @for (b of c.bars; track b.key) {
+                  <svg:g class="bars">
+                    @if (b.gavePath) {
+                      <svg:path class="b-give" [attr.d]="b.gavePath" />
+                    }
+                    @if (b.gotPath) {
+                      <svg:path class="b-get" [attr.d]="b.gotPath" />
+                    }
+                  </svg:g>
+                  <svg:text class="ax" [attr.x]="b.x" [attr.y]="c.height - 8" text-anchor="middle">{{ b.label }}</svg:text>
+                  <svg:rect class="hit" rx="10" tabindex="0" [attr.x]="b.x - c.groupWidth / 2 + 2" [attr.y]="c.plotTop" [attr.width]="c.groupWidth - 4" [attr.height]="c.plotHeight" [attr.aria-label]="b.ariaLabel" (pointerenter)="showTip(b, svg)"
+                    (focus)="showTip(b, svg)" (pointerleave)="hideTip()" (blur)="hideTip()" />
+                }
+              </svg>
+              @if (tip(); as t) {
+                <div class="k-tip" [style.left.px]="t.left" [style.top.px]="t.top">
+                  <b>{{ t.bar.longLabel }}</b>
+                  <span><i class="k-key-give"></i>{{ i18n.t('khata.e.gave') }}<em>{{ t.bar.gaveText }}</em></span>
+                  <span><i class="k-key-get"></i>{{ i18n.t('khata.e.got') }}<em>{{ t.bar.gotText }}</em></span>
+                </div>
+              }
+            </div>
+            <details class="k-table">
+              <summary>{{ i18n.t('khata.d.asTable') }}</summary>
+              <table>
+                <thead>
+                  <tr><th scope="col">{{ i18n.t('khata.d.month') }}</th><th scope="col">{{ i18n.t('khata.e.gave') }}</th><th scope="col">{{ i18n.t('khata.e.got') }}</th></tr>
+                </thead>
+                <tbody>
+                  @for (b of c.bars; track b.key) {
+                    <tr><th scope="row">{{ b.longLabel }}</th><td class="k-num">{{ b.gaveText }}</td><td class="k-num">{{ b.gotText }}</td></tr>
+                  }
+                </tbody>
+              </table>
+            </details>
+          } @else {
+            <div class="k-empty"><svg kEmptyArt="list"></svg><p>{{ i18n.t('khata.d.noFlow') }}</p></div>
+          }
+        </section>
+
+        <section class="k-card" aria-labelledby="top-h">
+          <div class="k-card-h">
+            <div><h2 id="top-h">{{ i18n.t('khata.d.topTitle') }}</h2><p>{{ i18n.t('khata.d.topLead') }}</p></div>
+            <a class="k-btn ghost sm" [routerLink]="['/khata/app/b', d.book.id, 'parties']">{{ i18n.t('khata.d.seeAll') }}</a>
+          </div>
+          @if (d.topContacts.length) {
+            <ol class="k-hbars">
+              @for (c of d.topContacts; track c.id) {
+                <li>
+                  <a [routerLink]="['/khata/app/b', d.book.id, 'contact', c.id]">
+                    <span class="row"><span>{{ c.name }}</span><span class="k-num" [class.k-get]="c.balanceMinor > 0" [class.k-give]="c.balanceMinor < 0">{{ c.balanceMinor | kMoney: currency() : i18n.lang() }}</span></span>
+                    <span class="track"><span class="fill" [class.get]="c.balanceMinor > 0" [class.give]="c.balanceMinor < 0" [style.width]="topWidth(c.balanceMinor)"></span></span>
+                    <small class="k-muted">{{ i18n.t(c.balanceMinor > 0 ? 'khata.c.youGet' : 'khata.c.youGive') }}</small>
+                  </a>
+                </li>
+              }
+            </ol>
+          } @else {
+            <div class="k-empty"><svg kEmptyArt="users"></svg><p>{{ i18n.t('khata.d.allSettled') }}</p></div>
+          }
+        </section>
+      </div>
+
+      <section class="k-card" aria-labelledby="recent-h">
+        <div class="k-card-h">
+          <div><h2 id="recent-h">{{ i18n.t('khata.d.recent') }}</h2><p>{{ i18n.t('khata.d.recentLead') }}</p></div>
+          <a class="k-btn ghost sm" [routerLink]="['/khata/app/b', d.book.id, 'entries']">{{ i18n.t('khata.d.seeAll') }}</a>
+        </div>
+        @if (d.recent.length && currency(); as cur) {
+          <ul class="k-list">
+            @for (e of d.recent; track e.id) {
+              <li [kTxRow]="e" [currency]="cur" [bookId]="d.book.id" [party]="true"></li>
+            }
+          </ul>
+        } @else {
+          <div class="k-empty"><svg kEmptyArt="list"></svg><p>{{ i18n.t('khata.e.none') }}</p></div>
+        }
+      </section>
+    }
+  </div>
+} @else {
+  <app-khata-skeleton kind="dash" />
+}
+
+<ng-template #deltaLine let-d>
+  <span [class]="'k-delta ' + d.tone">
+    @if (d.icon) {
+      <svg [kIco]="d.icon" [size]="14" [stroke]="2.6"></svg>
+    }
+    {{ d.text }}
+  </span>
+</ng-template>

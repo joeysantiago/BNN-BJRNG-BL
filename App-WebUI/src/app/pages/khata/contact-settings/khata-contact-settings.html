@@ -1,37 +1,106 @@
-<section class="k-page" aria-labelledby="cs-h1">
-  <a class="k-btn link back" [routerLink]="['/khata/app/b', bookId, 'contact', contactId]">← {{ i18n.t('khata.back') }}</a>
-  <h1 id="cs-h1" class="k-title">{{ i18n.t('khata.cs.title') }}</h1>
-
-  @if (contact(); as c) {
-    <form class="k-card k-form" (submit)="$event.preventDefault(); save(name.value, mobile.value, email.value, address.value, note.value, type.value)">
-      <label>{{ i18n.t('khata.c.name') }}<input #name type="text" maxlength="100" required [value]="c.name" [disabled]="busy()" /></label>
-      <label>{{ i18n.t('khata.c.mobile') }}<input #mobile type="tel" inputmode="tel" [value]="c.mobile ?? ''" [disabled]="busy()" /></label>
-      <label>{{ i18n.t('khata.c.email') }}<input #email type="email" [value]="c.email ?? ''" [disabled]="busy()" /></label>
-      <label>{{ i18n.t('khata.cs.address') }}<input #address type="text" maxlength="300" [value]="c.address ?? ''" [disabled]="busy()" /></label>
-      <label>{{ i18n.t('khata.cs.note') }}<input #note type="text" maxlength="500" [value]="c.note ?? ''" [disabled]="busy()" /></label>
-      <label>{{ i18n.t('khata.c.type') }}
-        <select #type [disabled]="busy()">
-          <option value="1" [selected]="c.contactType === 1">{{ i18n.t('khata.c.customer') }}</option>
-          <option value="2" [selected]="c.contactType === 2">{{ i18n.t('khata.c.supplier') }}</option>
-        </select>
-      </label>
-      <button type="submit" class="k-btn pri" [disabled]="busy()">{{ i18n.t('khata.save') }}</button>
-    </form>
-
-    <div class="k-card k-form">
-      <label class="toggle"><input #allowBox type="checkbox" [checked]="c.allowContactEntries" [disabled]="busy()" (change)="toggle(allowBox)" />{{ i18n.t('khata.cs.allow', { name: c.name }) }}</label>
-      <p class="k-muted">{{ i18n.t('khata.cs.allowHint') }}</p>
+@if (missing()) {
+  <app-khata-missing [message]="missing()" />
+} @else if (contact(); as c) {
+  <div class="k-set k-stagger k-center-x">
+    <a class="k-back" [routerLink]="['/khata/app/b', bookId(), 'contact', c.id]"><svg kIco="back" [size]="18"></svg>{{ c.name }}</a>
+    <div class="k-head">
+      <div class="k-head-who">
+        <span kAvatar [name]="c.name" [contactId]="c.id" [photo]="c.photo" size="lg"></span>
+        <div><h1>{{ i18n.t('khata.cs.title') }}</h1><p>{{ c.name }}</p></div>
+      </div>
     </div>
 
-    <button type="button" class="k-btn danger" [disabled]="busy()" (click)="remove()">{{ i18n.t('khata.cs.delete') }}</button>
-  } @else if (!busy() && !error()) {
-    <p class="k-muted">{{ i18n.t('khata.loading') }}</p>
-  }
+    @if (info()) {
+      <p class="k-okmsg" role="status"><svg kIco="check" [size]="18"></svg><span>{{ info() }}</span></p>
+    }
+    @if (error()) {
+      <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
+    }
 
-  @if (info()) {
-    <p class="k-ok" role="status">{{ info() }}</p>
-  }
-  @if (error()) {
-    <p class="k-error" role="alert">{{ error() }}</p>
-  }
-</section>
+    <section class="k-card" aria-labelledby="cs-photo">
+      <div class="k-card-h k-m0"><h2 id="cs-photo">{{ i18n.t('khata.cs.photo') }}</h2></div>
+      <div class="k-photo-row">
+        <span kAvatar [name]="c.name" [contactId]="c.id" [photo]="c.photo" size="lg"></span>
+        <div class="k-head-acts">
+          <label class="k-btn sm" [class.is-busy]="busy()">
+            <input #photo type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" [disabled]="busy()" (change)="pickPhoto(photo)" />
+            <svg kIco="camera" [size]="16"></svg>{{ i18n.t(c.photo ? 'khata.cs.photoChange' : 'khata.cs.photoAdd') }}
+          </label>
+          @if (c.photo) {
+            <button type="button" class="k-btn sm ghost" [disabled]="busy()" (click)="removePhoto()">{{ i18n.t('khata.cs.photoRemove') }}</button>
+          }
+        </div>
+      </div>
+      <p class="k-hint">{{ i18n.t('khata.cs.photoHint') }}</p>
+    </section>
+
+    <form #form class="k-card k-form" novalidate aria-labelledby="cs-d" (submit)="$event.preventDefault(); save(form)">
+      <div class="k-card-h k-m0"><h2 id="cs-d">{{ i18n.t('khata.cs.details') }}</h2></div>
+      <div class="k-two">
+        <label class="k-field ico">
+          <span class="lbl">{{ i18n.t('khata.c.name') }}</span>
+          <svg kIco="user" [size]="18"></svg>
+          <input name="name" type="text" maxlength="100" required autocomplete="off" [value]="c.name" [attr.aria-invalid]="!!invalid()['name']" [disabled]="busy()" />
+        </label>
+        <label class="k-field"><span class="lbl">{{ i18n.t('khata.c.type') }}</span>
+          <select name="type" [disabled]="busy()">
+            <option [value]="customer" [selected]="c.contactType === customer">{{ i18n.t('khata.c.customer') }}</option>
+            <option [value]="supplier" [selected]="c.contactType === supplier">{{ i18n.t('khata.c.supplier') }}</option>
+          </select>
+        </label>
+        <label class="k-field ico">
+          <span class="lbl">{{ i18n.t('khata.c.mobile') }}</span>
+          <svg kIco="phone" [size]="18"></svg>
+          <input name="mobile" type="tel" inputmode="tel" autocomplete="off" [value]="c.mobile ?? ''" [attr.aria-invalid]="!!invalid()['mobile']" [disabled]="busy()" />
+        </label>
+        <label class="k-field ico">
+          <span class="lbl">{{ i18n.t('khata.c.email') }}</span>
+          <svg kIco="mail" [size]="18"></svg>
+          <input name="email" type="email" inputmode="email" autocomplete="off" [value]="c.email ?? ''" [attr.aria-invalid]="!!invalid()['email']" [disabled]="busy()" />
+        </label>
+      </div>
+      <label class="k-field"><span class="lbl">{{ i18n.t('khata.cs.address') }}</span><input name="address" type="text" maxlength="300" autocomplete="off" [value]="c.address ?? ''" [disabled]="busy()" /></label>
+      <label class="k-field"><span class="lbl">{{ i18n.t('khata.cs.note') }}</span><textarea name="note" maxlength="500" [value]="c.note ?? ''" [disabled]="busy()"></textarea></label>
+      <div class="k-actions"><button type="submit" class="k-btn pri" [class.is-busy]="busy()" [disabled]="busy()"><svg kIco="check" [size]="18"></svg>{{ i18n.t('khata.save') }}</button></div>
+    </form>
+
+    <section class="k-card" aria-labelledby="cs-share">
+      <div class="k-card-h k-m0"><h2 id="cs-share">{{ i18n.t('khata.cs.sharing') }}</h2></div>
+      <div class="k-set-row">
+        <span class="t"><span class="k-ib brand"><svg kIco="users" [size]="18"></svg></span><span><b>{{ i18n.t('khata.cs.allow', { name: c.name }) }}</b><small>{{ i18n.t('khata.cs.allowHint', { name: c.name }) }}</small></span></span>
+        <span class="k-switch"><input #allow type="checkbox" role="switch" [checked]="c.allowContactEntries" [disabled]="busy()" [attr.aria-label]="i18n.t('khata.cs.allow', { name: c.name })" (change)="toggle(allow)" /><span></span></span>
+      </div>
+    </section>
+
+    <section class="k-card" aria-labelledby="cs-notify">
+      <div class="k-card-h"><div><h2 id="cs-notify">{{ i18n.t('khata.cs.notifyTitle') }}</h2><p>{{ i18n.t('khata.cs.notifyLead', { name: c.name }) }}</p></div></div>
+      @if (notify(); as n) {
+        @for (ch of channels; track ch) {
+          <div class="k-set-row">
+            <span class="t">
+              <span class="k-ib brand"><svg [kIco]="ch === 'app' ? 'zap' : ch === 'sms' ? 'phone' : 'mail'" [size]="18"></svg></span>
+              <span>
+                <b>{{ i18n.t('khata.cs.ch.' + ch) }}</b>
+                <small>{{ ch === 'email' ? (c.email || i18n.t('khata.cs.noEmail')) : ch === 'sms' ? (c.mobile || i18n.t('khata.cs.noMobile')) : i18n.t('khata.cs.appHint') }}</small>
+              </span>
+            </span>
+            <span class="k-switch"><input #chBox type="checkbox" role="switch" [checked]="n[ch]" [disabled]="busy()" [attr.aria-label]="i18n.t('khata.cs.ch.' + ch)" (change)="toggleChannel(ch, chBox)" /><span></span></span>
+          </div>
+        }
+      } @else {
+        <span class="k-sk sk-bar"></span>
+      }
+    </section>
+
+    <section class="k-card k-danger-card" aria-labelledby="cs-danger">
+      <div class="k-set-row">
+        <span class="t"><span class="k-ib give"><svg kIco="trash" [size]="18"></svg></span><span><b id="cs-danger">{{ i18n.t('khata.cs.delete') }}</b><small>{{ i18n.t('khata.cs.deleteHint') }}</small></span></span>
+        <button type="button" class="k-btn danger sm" [disabled]="busy()" (click)="remove()">{{ i18n.t('khata.books.delete') }}</button>
+      </div>
+    </section>
+  </div>
+} @else if (error()) {
+  <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
+} @else {
+  <app-khata-skeleton />
+}

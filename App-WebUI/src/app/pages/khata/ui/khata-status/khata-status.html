@@ -1,0 +1,9 @@
+@if (balance() > 0) {
+  <span class="dot"></span>{{ i18n.t('khata.s.toCollect') }}
+} @else if (balance() < 0) {
+  <span class="dot"></span>{{ i18n.t('khata.s.toPay') }}
+} @else if (hasEntries()) {
+  <svg kIco="check" [size]="12" [stroke]="3"></svg>{{ i18n.t('khata.s.paid') }}
+} @else {
+  {{ i18n.t('khata.s.new') }}
+}

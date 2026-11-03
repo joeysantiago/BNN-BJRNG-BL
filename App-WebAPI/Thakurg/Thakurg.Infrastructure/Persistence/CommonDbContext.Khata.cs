@@ -15,9 +15,19 @@ public partial class CommonDbContext
 
     public DbSet<KhataCurrency> KhataCurrencies => Set<KhataCurrency>();
 
+    public DbSet<KhataAttachment> KhataAttachments => Set<KhataAttachment>();
+
+    public DbSet<KhataStoredFile> KhataStoredFiles => Set<KhataStoredFile>();
+
     public DbSet<KhataTransaction> KhataTransactions => Set<KhataTransaction>();
 
     public DbSet<KhataIdempotencyKey> KhataIdempotencyKeys => Set<KhataIdempotencyKey>();
+
+    public DbSet<KhataStorageSetting> KhataStorageSettings => Set<KhataStorageSetting>();
+
+    public DbSet<KhataNotificationLog> KhataNotificationLogs => Set<KhataNotificationLog>();
+
+    public DbSet<KhataNotificationPref> KhataNotificationPrefs => Set<KhataNotificationPref>();
 
     public DbSet<KhataTransactionHistory> KhataTransactionHistory => Set<KhataTransactionHistory>();
 
@@ -29,6 +39,11 @@ public partial class CommonDbContext
         modelBuilder.Entity<KhataUser>().ToTable("KhataUsers");
         modelBuilder.Entity<KhataAuditLog>().ToTable("KhataAuditLog");
         modelBuilder.Entity<KhataCurrency>().ToTable("KhataCurrencies");
+        modelBuilder.Entity<KhataStoredFile>().ToTable("KhataStoredFiles");
+        modelBuilder.Entity<KhataNotificationLog>().ToTable("KhataNotificationLog");
+        modelBuilder.Entity<KhataStorageSetting>().ToTable("KhataStorageSettings");
+        modelBuilder.Entity<KhataNotificationPref>().ToTable("KhataNotificationPrefs");
+        modelBuilder.Entity<KhataAttachment>().ToTable("KhataAttachments");
         modelBuilder.Entity<KhataIdempotencyKey>().ToTable("KhataIdempotencyKeys");
         modelBuilder.Entity<KhataTransactionHistory>().ToTable("KhataTransactionHistory");
         modelBuilder.Entity<KhataContact>().ToTable("KhataContacts").Property(c => c.RowVersion).IsRowVersion();

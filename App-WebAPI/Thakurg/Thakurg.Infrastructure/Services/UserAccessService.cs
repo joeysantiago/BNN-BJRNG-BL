@@ -44,11 +44,12 @@ public class UserAccessService : IUserAccessService
 
     #region Public Methods
 
-    public async Task<UserAccessDto> GetAsync(CancellationToken cancellationToken)
+    // status (UserStatuses) picks which users come back: active, archived, deleted or all; none = active and archived.
+    public async Task<UserAccessDto> GetAsync(string? status, CancellationToken cancellationToken)
     {
         var apps = await _accessRepository.GetAppsAsync(cancellationToken);
         var roles = await _accessRepository.GetRolesAsync(cancellationToken);
-        var users = await _accessRepository.GetUsersAsync(cancellationToken);
+        var users = await _accessRepository.GetUsersAsync(status, cancellationToken);
         var access = await _accessRepository.GetAccessAsync(cancellationToken);
         var codes = apps.ToDictionary(a => a.Id, a => a.Code);
 
@@ -78,6 +79,52 @@ public class UserAccessService : IUserAccessService
         _sessionCache.Forget(user.Id);
 
         return await _messageService.GetAsync(MessageCodes.AuthUserDeleted);
+    }
+
+    // Brings a deleted user back. Only IsSoftDeleted is cleared: a user who was archived before the delete stays archived until activated.
+    // Only a super admin restores a super admin.
+    public async Task<string> RestoreAsync(AuthCallerDto caller, int userId, CancellationToken cancellationToken)
+    {
+        var user = await _accessRepository.GetDeletedUserAsync(userId, cancellationToken) ?? throw new BusinessException(MessageCodes.AuthUserNotFound, 404);
+        var role = await _accessRepository.GetRoleAsync(user.RoleId, cancellationToken);
+
+        await GuardSuperAdminAsync(caller, null, role, cancellationToken);
+        user.IsSoftDeleted = false;
+        user.ModifiedBy = caller.UserId;
+        user.ModifiedOn = DateTime.UtcNow;
+        await _accessRepository.SaveChangesAsync(cancellationToken);
+        _sessionCache.Forget(user.Id);
+
+        return await _messageService.GetAsync(MessageCodes.AuthUserRestored);
+    }
+
+    // Archives (active = false) or activates a user. An archived user cannot log in and is logged out everywhere at once; activating lets them log in again.
+    // Nobody archives themselves, only a super admin archives or activates a super admin, and the last active super admin cannot be archived.
+    public async Task<string> SetActiveAsync(AuthCallerDto caller, int userId, bool active, CancellationToken cancellationToken)
+    {
+        var user = await _accessRepository.GetUserAsync(userId, cancellationToken) ?? throw new BusinessException(MessageCodes.AuthUserNotFound, 404);
+        var role = await _accessRepository.GetRoleAsync(user.RoleId, cancellationToken);
+        var code = active ? MessageCodes.AuthUserActivated : MessageCodes.AuthUserArchived;
+
+        if (user.Id == caller.UserId)
+            throw new BusinessException(MessageCodes.AuthOwnAccount, 409);
+
+        if (user.IsActive == active)
+            return await _messageService.GetAsync(code);
+
+        await GuardSuperAdminAsync(caller, active ? null : role, active ? role : null, cancellationToken);
+        var now = DateTime.UtcNow;
+        user.IsActive = active;
+        user.ModifiedBy = caller.UserId;
+        user.ModifiedOn = now;
+        await _accessRepository.SaveChangesAsync(cancellationToken);
+
+        if (!active)
+            await _accessRepository.RevokeSessionsAsync(user.Id, now, cancellationToken);
+
+        _sessionCache.Forget(user.Id);
+
+        return await _messageService.GetAsync(code);
     }
 
     public async Task<ServiceResultDto<UserDto>> CreateAsync(AuthCallerDto caller, UserCreateDto request, CancellationToken cancellationToken)
@@ -138,7 +185,7 @@ public class UserAccessService : IUserAccessService
 
     private static UserDto ToDto(User user, Role? role, List<string> apps)
     {
-        return new UserDto { Id = user.Id, Email = user.Email, DisplayName = user.DisplayName, Language = user.Language, Avatar = user.AvatarFile, CreatedOn = user.CreatedOn, LastLoginOn = user.LastLoginOn, RoleId = user.RoleId, RoleCode = role?.Code ?? string.Empty, RoleName = role?.Name ?? string.Empty, IsAdmin = RoleCodes.IsAdmin(role?.Code), Apps = apps };
+        return new UserDto { Id = user.Id, Email = user.Email, DisplayName = user.DisplayName, Language = user.Language, Avatar = user.AvatarFile, IsArchived = !user.IsActive && !user.IsSoftDeleted, IsDeleted = user.IsSoftDeleted, CreatedOn = user.CreatedOn, LastLoginOn = user.LastLoginOn, RoleId = user.RoleId, RoleCode = role?.Code ?? string.Empty, RoleName = role?.Name ?? string.Empty, IsAdmin = RoleCodes.IsAdmin(role?.Code), Apps = apps };
     }
 
     // Every ticked app must exist; the answer keeps the order of the Apps table.

@@ -8,6 +8,10 @@ public class TransactionPageDto
 
     public int PageSize { get; set; }
 
+    public long GotMinor { get; set; }
+
+    public long GaveMinor { get; set; }
+
     public long BalanceMinor { get; set; }
 
     public List<TransactionDto> Items { get; set; } = [];

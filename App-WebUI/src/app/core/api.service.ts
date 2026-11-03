@@ -36,6 +36,14 @@ export class ApiService {
     return { headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body) };
   }
 
+  /** A file from the API (for example a bill photo), sent with the login token like every other call. An error response throws its message. */
+  async blob(path: string, init: RequestInit = {}, ms = 30000): Promise<Blob> {
+    const res = await this.request(path, init, ms);
+    if (!res.ok)
+      await this.parse(res);
+    return res.blob();
+  }
+
   /** Same as `get` but for any method and body, with extra headers. */
   async send<T>(method: string, path: string, init: RequestInit = {}, ms = 120000): Promise<T> {
     return this.unwrap<T>(await this.request(path, { ...init, method }, ms));

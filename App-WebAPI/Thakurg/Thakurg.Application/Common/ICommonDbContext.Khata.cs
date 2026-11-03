@@ -15,9 +15,19 @@ public partial interface ICommonDbContext
 
     DbSet<KhataCurrency> KhataCurrencies { get; }
 
+    DbSet<KhataAttachment> KhataAttachments { get; }
+
+    DbSet<KhataStoredFile> KhataStoredFiles { get; }
+
     DbSet<KhataTransaction> KhataTransactions { get; }
 
     DbSet<KhataIdempotencyKey> KhataIdempotencyKeys { get; }
 
     DbSet<KhataTransactionHistory> KhataTransactionHistory { get; }
+
+    DbSet<KhataStorageSetting> KhataStorageSettings { get; }
+
+    DbSet<KhataNotificationLog> KhataNotificationLogs { get; }
+
+    DbSet<KhataNotificationPref> KhataNotificationPrefs { get; }
 }

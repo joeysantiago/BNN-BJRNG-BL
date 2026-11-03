@@ -5,6 +5,8 @@ public class KhataNewUserOptions
 {
     public TimeOnly DailySummaryTime { get; set; }
 
+    public bool NotificationsEnabled { get; set; }
+
     public string Language { get; set; } = string.Empty;
 
     public string TimeZone { get; set; } = string.Empty;

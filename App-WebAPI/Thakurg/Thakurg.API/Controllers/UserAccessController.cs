@@ -22,15 +22,6 @@ public class UserAccessController : ControllerBase
 
     #region Public Methods
 
-    [HttpGet]
-    [HasPermission(PageCodes.Users, PermissionActions.View)]
-    public async Task<ActionResult<ApiResponse<UserAccessDto>>> List(CancellationToken cancellationToken)
-    {
-        var access = await _accessService.GetAsync(cancellationToken);
-
-        return Ok(ApiResponse<UserAccessDto>.SuccessResponse(access));
-    }
-
     [HttpDelete("{userId:int}")]
     [HasPermission(PageCodes.Users, PermissionActions.Delete)]
     [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
@@ -39,6 +30,47 @@ public class UserAccessController : ControllerBase
         var message = await _accessService.DeleteAsync(HttpContext.AuthCaller(), userId, cancellationToken);
 
         return Ok(ApiResponse<object?>.SuccessResponse(null, message));
+    }
+
+    // An archived user cannot log in until activated again.
+    [HttpPut("{userId:int}/archive")]
+    [HasPermission(PageCodes.Users, PermissionActions.Edit)]
+    [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
+    public async Task<ActionResult<ApiResponse<object?>>> Archive(int userId, CancellationToken cancellationToken)
+    {
+        var message = await _accessService.SetActiveAsync(HttpContext.AuthCaller(), userId, false, cancellationToken);
+
+        return Ok(ApiResponse<object?>.SuccessResponse(null, message));
+    }
+
+    // Brings a deleted user back (an archived one stays archived).
+    [HttpPut("{userId:int}/restore")]
+    [HasPermission(PageCodes.Users, PermissionActions.Edit)]
+    [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
+    public async Task<ActionResult<ApiResponse<object?>>> Restore(int userId, CancellationToken cancellationToken)
+    {
+        var message = await _accessService.RestoreAsync(HttpContext.AuthCaller(), userId, cancellationToken);
+
+        return Ok(ApiResponse<object?>.SuccessResponse(null, message));
+    }
+
+    [HttpPut("{userId:int}/activate")]
+    [HasPermission(PageCodes.Users, PermissionActions.Edit)]
+    [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
+    public async Task<ActionResult<ApiResponse<object?>>> Activate(int userId, CancellationToken cancellationToken)
+    {
+        var message = await _accessService.SetActiveAsync(HttpContext.AuthCaller(), userId, true, cancellationToken);
+
+        return Ok(ApiResponse<object?>.SuccessResponse(null, message));
+    }
+
+    [HttpGet]
+    [HasPermission(PageCodes.Users, PermissionActions.View)]
+    public async Task<ActionResult<ApiResponse<UserAccessDto>>> List([FromQuery] string? status, CancellationToken cancellationToken)
+    {
+        var access = await _accessService.GetAsync(status, cancellationToken);
+
+        return Ok(ApiResponse<UserAccessDto>.SuccessResponse(access));
     }
 
     [HttpPost]
