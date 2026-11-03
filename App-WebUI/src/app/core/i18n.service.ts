@@ -18,6 +18,8 @@ export class I18nService {
   readonly lang = signal<Lang>('en');
   readonly info = computed(() => langInfo(this.lang()));
   readonly dir = computed(() => this.info().dir);
+  /** Texts of lazily loaded areas (SnapKhata), added by extend() when their pages load. A signal, so templates update when they arrive. */
+  private readonly extra = signal<Record<Lang, Record<string, string>>>({ en: {}, hi: {}, ar: {} });
 
   // #region Public Methods
 
@@ -36,6 +38,11 @@ export class I18nService {
     return APP_SETTINGS.pageNames[id][this.lang()] ?? APP_SETTINGS.pageNames[id].en;
   }
 
+  /** Adds the texts of an area that loads later (SnapKhata), so the main bundle does not carry them. */
+  extend(texts: Record<Lang, Record<string, string>>): void {
+    this.extra.update((all) => ({ en: { ...all.en, ...texts.en }, hi: { ...all.hi, ...texts.hi }, ar: { ...all.ar, ...texts.ar } }));
+  }
+
   /** Switch language. `persist` stores the choice so it is remembered on the next visit. */
   set(lang: Lang, persist = true): void {
     this.lang.set(lang);
@@ -51,9 +58,16 @@ export class I18nService {
       }
   }
 
-  /** Translate a key; an unknown key (an app code this build does not name) is shown as it is. Reads the language signal, so templates update when the language changes. */
-  t(key: TranslationKey, params?: Record<string, string | number>): string {
-    let text: string = DICTS[this.lang()][key] ?? EN[key] ?? key;
+  /**
+   * Translate a key; an unknown key (an app code this build does not name) is shown as it is. Reads the language signal, so templates update when the language changes.
+   * Besides the typed keys it takes the keys added by extend() (SnapKhata), whose screens also build keys at run time ('khata.f.' + kind), as in the API branches.
+   */
+  t(key: TranslationKey | (string & {}), params?: Record<string, string | number>): string {
+    const lang = this.lang();
+    const extra = this.extra();
+    let text: string = (DICTS[lang] as Record<string, string>)[key] ?? extra[lang][key] ?? (EN as Record<string, string>)[key] ?? extra.en[key] ?? key;
+    // "{page:khata}" in a text is that page's name (appSettings.ts pageNames), as in the API branches, so renaming an app renames it in every text.
+    text = text.replace(/\{page:(\w+)\}/g, (match, id: string) => (id in APP_SETTINGS.pageNames ? this.page(id as PageId) : match));
     if (params)
       for (const [k, v] of Object.entries(params)) text = text.replaceAll(`{${k}}`, String(v));
     return text;

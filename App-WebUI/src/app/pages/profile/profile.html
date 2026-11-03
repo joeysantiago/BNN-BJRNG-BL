@@ -108,6 +108,20 @@
           </div>
         </form>
       </section>
+
+      <section class="card danger-zone" aria-labelledby="profile-delete">
+        <h2 id="profile-delete">{{ i18n.t('auth.p.delete.h') }}</h2>
+        <p class="note">{{ i18n.t('auth.p.delete.lead') }}</p>
+        <div class="bar">
+          <button type="button" class="btn danger" [class.sure]="confirmDelete()" [disabled]="saving() !== null" (click)="deleteAccount()">{{ i18n.t(saving() === 'delete' ? 'auth.busy' : confirmDelete() ? 'auth.p.delete.sure' : 'auth.p.delete.btn') }}</button>
+          @if (confirmDelete()) {
+            <button type="button" class="btn ghost" (click)="confirmDelete.set(false)">{{ i18n.t('cfg.cancel') }}</button>
+          }
+          @if (deleteNotice(); as n) {
+            <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+          }
+        </div>
+      </section>
     </div>
   } @else {
     <section class="card head" aria-labelledby="profile-h1">

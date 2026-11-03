@@ -63,7 +63,8 @@
               "node_modules/@fontsource-variable/fraunces/wght-italic.css",
               "node_modules/@fontsource-variable/noto-sans-devanagari/wght.css",
               "node_modules/@fontsource-variable/noto-sans-arabic/wght.css",
-              "src/styles.scss"
+              "src/styles.scss",
+              { "input": "src/app/pages/khata/styles/khata.scss", "bundleName": "khata", "inject": false }
             ],
             "server": "src/main.server.ts",
             "outputMode": "static"

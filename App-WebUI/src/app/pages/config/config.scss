@@ -466,3 +466,78 @@ textarea {
     grid-column: 1 / -1;
   }
 }
+
+/* A full-width switch on an inset track, only the chosen part lit in the primary colours (Users: All / Active / Archived / Deleted; Mail: security). */
+.seg {
+  display: grid;
+  grid-template-columns: repeat(var(--seg-n, 2), minmax(0, 1fr));
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 5px;
+  border: var(--inset-border, 1px solid rgba(128, 128, 128, 0.2));
+  border-radius: var(--inset-radius, 18px);
+  background: var(--inset-bg, rgba(128, 128, 128, 0.15));
+  box-shadow: var(--inset-shadow, none);
+}
+.seg.seg3 {
+  --seg-n: 3;
+}
+.seg.seg4 {
+  --seg-n: 4;
+}
+.seg label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  color: var(--inset-muted, var(--muted));
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+}
+.seg label:hover {
+  color: var(--inset-text, var(--text));
+}
+.seg input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.seg label:has(input:checked) {
+  background: var(--pri-bg);
+  color: var(--pri-color);
+  border: var(--pri-border);
+  box-shadow: var(--pri-shadow);
+}
+.seg label:has(input:focus-visible) {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: 2px;
+}
+@media (max-width: 419px) {
+  .seg.seg4 {
+    --seg-n: 2;
+  }
+}
+
+/* Users: archived and deleted rows, their tags, and the Activate / Restore buttons. */
+.item.dim .row > app-user-avatar,
+.item.dim .row .txt {
+  opacity: 0.6;
+}
+.tag.warn {
+  color: var(--warn, #c98a00);
+}
+.tag.bad {
+  color: var(--danger, #e05a5a);
+}
+.icon-btn.ok {
+  color: var(--ok, #2e9e5b);
+}

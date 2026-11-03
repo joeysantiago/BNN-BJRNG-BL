@@ -219,3 +219,20 @@ a.chip:hover {
   cursor: default;
   opacity: 0.75;
 }
+
+/* Delete my account: a red outline, and a button that is tinted red when it asks for the second press. */
+.danger-zone {
+  border-color: color-mix(in srgb, var(--danger) 55%, transparent);
+}
+
+.btn.danger {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 60%, transparent);
+  background: transparent;
+}
+
+.btn.danger.sure {
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+  border-color: var(--danger);
+  font-weight: 800;
+}

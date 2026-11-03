@@ -25,6 +25,7 @@ export const FEATURES: FeatureInfo[] = [
   { id: 'page.about', group: 'pages', label: 'About', help: '/about' },
   { id: 'page.privacy', group: 'pages', label: 'Privacy', help: '/privacy' },
   { id: 'page.terms', group: 'pages', label: 'Terms', help: '/terms' },
+  { id: 'page.khata', group: 'pages', label: 'SnapKhata', help: '/khata and the whole SnapKhata app' },
 
   { id: 'speed.clock', group: 'speed', label: 'Clock and elapsed time', help: 'The two chips under the gauge.' },
   { id: 'speed.progress', group: 'speed', label: 'Progress bar', help: 'Whole-test progress.' },
@@ -68,10 +69,11 @@ const PAGE_FEATURES: Record<string, FeatureId> = {
   '/about': 'page.about',
   '/privacy': 'page.privacy',
   '/terms': 'page.terms',
+  '/khata': 'page.khata',
 };
 
 /** The apps this build holds (Mojito holds every app). The Settings page and the header show only their settings. */
-export const FEATURE_APPS: string[] = ['speedtest', 'youtube', 'creta', 'nexon', 'hr'];
+export const FEATURE_APPS: string[] = ['speedtest', 'youtube', 'creta', 'nexon', 'hr', 'khata'];
 
 /** The apps that own each app-only settings group and switch (FEATURE_APPS codes). Anything not listed is site-wide and always shown. */
 const FEATURE_OWNERS: Partial<Record<FeatureGroup | FeatureId, string[]>> = {
@@ -84,6 +86,7 @@ const FEATURE_OWNERS: Partial<Record<FeatureGroup | FeatureId, string[]>> = {
   'page.creta': ['creta'],
   'page.nexon': ['nexon'],
   'page.hr': ['hr'],
+  'page.khata': ['khata'],
 };
 
 /** True when the setting is site-wide or belongs to one of the apps this build holds (FEATURE_APPS). */
@@ -92,8 +95,8 @@ export function featureBuilt(id: FeatureGroup | FeatureId, apps: readonly string
   return !owners || owners.some((a) => apps.includes(a));
 }
 
-/** The switch that controls the page at this address, or null for pages that cannot be switched off (config, errors). */
+/** The switch that controls the page at this address, or null for pages that cannot be switched off (config, errors). Every SnapKhata screen follows page.khata. */
 export function pageFeature(url: string): FeatureId | null {
   const path = url.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
-  return PAGE_FEATURES[path] ?? null;
+  return PAGE_FEATURES[path] ?? (path.startsWith('/khata/') ? 'page.khata' : null);
 }

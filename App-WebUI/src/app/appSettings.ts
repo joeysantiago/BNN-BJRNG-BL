@@ -28,6 +28,7 @@ export const APP_SETTINGS: AppSettings = {
     'page.about': true,
     'page.privacy': true,
     'page.terms': true,
+    'page.khata': true,
     'speed.clock': true,
     'speed.progress': true,
     'speed.loaded': true,
@@ -66,6 +67,7 @@ export const APP_SETTINGS: AppSettings = {
     creta: { en: 'Creta audio', hi: 'क्रेटा ऑडियो', ar: 'مشغل كريتا' },
     nexon: { en: 'Nexon audio', hi: 'नेक्सॉन ऑडियो', ar: 'مشغل نيكسون' },
     hr: { en: 'Atrium HR', hi: 'एट्रियम एचआर', ar: 'أتريوم للموارد البشرية' },
+    khata: { en: 'SnapKhata', hi: 'स्नैपखाता', ar: 'سناب خاتا' },
   },
 
   // "Your connection details". Set a row to false to hide it, or enabled to false to hide the whole section.

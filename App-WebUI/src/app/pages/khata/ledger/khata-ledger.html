@@ -1,0 +1,94 @@
+@if (missing()) {
+  <app-khata-missing [message]="missing()" />
+} @else if (contact() && book() && page(); as p) {
+  <div class="k-page k-stagger">
+    <a class="k-back" [routerLink]="['/khata/app/b', bookId(), 'parties']"><svg kIco="back" [size]="18"></svg>{{ i18n.t('khata.nav.parties') }}</a>
+
+    <section class="k-card k-party" aria-labelledby="ledger-h1">
+      <div class="who">
+        <span kAvatar [name]="contact()!.name" [contactId]="contact()!.id" [photo]="contact()!.photo" size="lg"></span>
+        <div class="k-grow">
+          <h1 id="ledger-h1">{{ contact()!.name }}</h1>
+          <div class="meta">
+            <span class="k-badge"><svg [kIco]="contact()!.contactType === customer ? 'store' : 'truck'" [size]="12"></svg>{{ i18n.t(contact()!.contactType === customer ? 'khata.c.customer' : 'khata.c.supplier') }}</span>
+            @if (contact()!.mobile) {
+              <span class="k-badge"><svg kIco="phone" [size]="12"></svg>{{ contact()!.mobile }}</span>
+            }
+            @if (contact()!.email) {
+              <span class="k-badge"><svg kIco="mail" [size]="12"></svg>{{ contact()!.email }}</span>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="bal">
+        <div>
+          <span class="k-muted">{{ i18n.t(p.balanceMinor > 0 ? 'khata.e.balanceGet' : p.balanceMinor < 0 ? 'khata.e.balanceGive' : 'khata.e.balanceSettled') }}</span>
+          <b class="k-num" [class.k-get]="p.balanceMinor > 0" [class.k-give]="p.balanceMinor < 0" [kCount]="p.balanceMinor" [currency]="book()!.currency" [lang]="i18n.lang()"></b>
+        </div>
+        <span kStatus [balance]="p.balanceMinor" [hasEntries]="!!contact()!.lastEntryOn"></span>
+      </div>
+      <div class="tools">
+        @if (tel()) {
+          <a class="k-btn sm" [href]="'tel:' + tel()"><svg kIco="phone" [size]="16"></svg>{{ i18n.t('khata.e.call') }}</a>
+        }
+        @if (contact()!.email) {
+          <a class="k-btn sm" [href]="'mailto:' + contact()!.email"><svg kIco="mail" [size]="16"></svg>{{ i18n.t('khata.e.email') }}</a>
+        }
+        <a class="k-btn sm" [routerLink]="['/khata/app/b', bookId(), 'contact', contactId(), 'settings']"><svg kIco="settings" [size]="16"></svg>{{ i18n.t('khata.e.settings') }}</a>
+      </div>
+    </section>
+
+    <div class="k-sumbar">
+      <div><small>{{ i18n.t('khata.d.totalGave') }}</small><b class="k-num k-give">{{ p.gaveMinor | kMoney: book()!.currency : i18n.lang() }}</b></div>
+      <div><small>{{ i18n.t('khata.d.totalGot') }}</small><b class="k-num k-get">{{ p.gotMinor | kMoney: book()!.currency : i18n.lang() }}</b></div>
+      <div><small>{{ i18n.t('khata.nav.entries') }}</small><b class="k-num">{{ p.total }}</b></div>
+    </div>
+
+    <div class="k-row-h">
+      <h2 class="k-group k-group-h">{{ i18n.t('khata.e.historyAll') }}</h2>
+      <app-khata-export [path]="'/khata/contacts/' + contactId() + '/transactions'" [query]="query()" fileName="ledger" />
+    </div>
+    @if (contact()!.lastEntryOn || filtered()) {
+      <app-khata-entry-toolbar [(query)]="query" />
+    }
+
+    @if (error()) {
+      <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
+    }
+
+    @if (items().length) {
+      <ul class="k-list" [attr.aria-busy]="busy()">
+        @if (grouped()) {
+          @for (g of groups(); track g.key) {
+            <li class="k-group"><span>{{ g.label }}</span></li>
+            @for (e of g.entries; track e.id) {
+              <li [kTxRow]="e" [currency]="book()!.currency" [bookId]="bookId()" [running]="true"></li>
+            }
+          }
+        } @else {
+          @for (e of items(); track e.id) {
+            <li [kTxRow]="e" [currency]="book()!.currency" [bookId]="bookId()" [running]="true"></li>
+          }
+        }
+      </ul>
+      @if (items().length < p.total) {
+        <button type="button" class="k-btn k-more" [class.is-busy]="busy()" [disabled]="busy()" (click)="more()">{{ i18n.t('khata.e.more') }}</button>
+      }
+    } @else if (!busy()) {
+      <div class="k-card k-empty">
+        <svg [kEmptyArt]="filtered() ? 'search' : 'list'"></svg>
+        <h2>{{ i18n.t(filtered() ? 'khata.f.noMatch' : 'khata.e.noneTitle') }}</h2>
+        <p>{{ i18n.t(filtered() ? 'khata.f.noMatchLead' : 'khata.e.none') }}</p>
+      </div>
+    }
+
+    <div class="k-sticky">
+      <a class="k-btn gave lg" [routerLink]="['/khata/app/b', bookId(), 'new']" [queryParams]="{ contact: contactId(), type: gave }"><svg kIco="gave" [stroke]="2.4"></svg>{{ i18n.t('khata.e.gave') }}</a>
+      <a class="k-btn got lg" [routerLink]="['/khata/app/b', bookId(), 'new']" [queryParams]="{ contact: contactId(), type: got }"><svg kIco="got" [stroke]="2.4"></svg>{{ i18n.t('khata.e.got') }}</a>
+    </div>
+  </div>
+} @else if (error()) {
+  <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
+} @else {
+  <app-khata-skeleton />
+}

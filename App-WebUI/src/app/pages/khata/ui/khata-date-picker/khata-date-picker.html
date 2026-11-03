@@ -1,0 +1,73 @@
+<button type="button" class="k-dp-trigger" aria-haspopup="dialog" [attr.aria-expanded]="open()" [attr.aria-controls]="id" [attr.aria-invalid]="invalid() || null" [attr.aria-label]="(label() || i18n.t('khata.dp.choose')) + ': ' + display().main" (click)="toggle()">
+  <span class="ic"><svg kIco="calendar" [size]="18"></svg></span>
+  <span class="txt"><b>{{ display().main }}</b>
+    @if (display().sub) {
+      <small>{{ display().sub }}</small>
+    }
+  </span>
+  <svg class="chev" kIco="chevD" [size]="18"></svg>
+</button>
+
+@if (open()) {
+  <div class="k-dp-backdrop" aria-hidden="true" (click)="close(true)"></div>
+  <div class="k-dp-pop" role="dialog" [id]="id" [attr.aria-label]="label() || i18n.t('khata.dp.choose')">
+    <span class="k-dp-grab" aria-hidden="true"></span>
+    <div class="k-dp-quick" role="group" [attr.aria-label]="i18n.t(mode() === 'range' ? 'khata.dp.range' : 'khata.dp.choose')">
+      @if (mode() === 'range') {
+        @for (p of presets; track p) {
+          <button type="button" class="k-chip" [attr.aria-pressed]="activePreset() === p" (click)="choosePreset(p)">{{ i18n.t(p === 'all' ? 'khata.dp.allDates' : 'khata.dp.' + p) }}</button>
+        }
+      } @else {
+        @for (q of quickDays(); track q.key) {
+          <button type="button" class="k-chip" [attr.aria-pressed]="q.selected" [disabled]="q.disabled" (click)="quickPick(q.key)">{{ q.label }}</button>
+        }
+      }
+    </div>
+
+    <div class="k-dp-head">
+      <button type="button" class="k-dp-nav" [attr.aria-label]="i18n.t(view() === 'years' ? 'khata.dp.prevYears' : 'khata.dp.prevMonth')" [disabled]="!canPrev()" (click)="step(-1)"><svg kIco="chevL" [size]="18"></svg></button>
+      <button type="button" class="k-dp-title" aria-live="polite" [attr.aria-label]="title() + ' · ' + i18n.t('khata.dp.pickView')" [disabled]="view() === 'years'" (click)="zoomOut()">
+        {{ title() }}
+        @if (view() !== 'years') {
+          <svg kIco="chevD" [size]="16"></svg>
+        }
+      </button>
+      <button type="button" class="k-dp-nav" [attr.aria-label]="i18n.t(view() === 'years' ? 'khata.dp.nextYears' : 'khata.dp.nextMonth')" [disabled]="!canNext()" (click)="step(1)"><svg kIco="chev" [size]="18"></svg></button>
+    </div>
+
+    @switch (view()) {
+      @case ('days') {
+        <div class="k-dp-week" aria-hidden="true">
+          @for (w of weekdays(); track $index) {
+            <span>{{ w }}</span>
+          }
+        </div>
+        <div class="k-dp-grid" role="group" [attr.aria-label]="title()" (keydown)="key($event)" (mouseleave)="hover.set('')">
+          @for (c of cells(); track c.iso) {
+            <button type="button" class="k-dp-day" [attr.data-iso]="c.iso" [class.out]="c.outside" [class.today]="c.today" [class.sel]="c.selected" [class.in]="c.inRange" [class.start]="c.start" [class.end]="c.end" [attr.aria-pressed]="c.selected"
+              [attr.aria-current]="c.today ? 'date' : null" [attr.aria-label]="c.label" [tabindex]="c.iso === cursor() ? 0 : -1" [disabled]="c.disabled" (mouseenter)="hover.set(c.iso)" (click)="pick(c)">{{ c.day }}</button>
+          }
+        </div>
+      }
+      @case ('months') {
+        <div class="k-dp-picks">
+          @for (m of months(); track m.key) {
+            <button type="button" class="k-dp-pick" [class.today]="m.current" [attr.aria-pressed]="m.selected" [disabled]="m.disabled" (click)="pickMonth(m.key)">{{ m.label }}</button>
+          }
+        </div>
+      }
+      @case ('years') {
+        <div class="k-dp-picks">
+          @for (y of years(); track y.key) {
+            <button type="button" class="k-dp-pick" [class.today]="y.current" [attr.aria-pressed]="y.selected" [disabled]="y.disabled" (click)="pickYear(y.key)">{{ y.label }}</button>
+          }
+        </div>
+      }
+    }
+
+    <div class="k-dp-foot">
+      <span class="k-hint k-m0" aria-live="polite">{{ hint() }}</span>
+      <button type="button" class="k-btn sm ghost" (click)="close(true)">{{ i18n.t('khata.close') }}</button>
+    </div>
+  </div>
+}

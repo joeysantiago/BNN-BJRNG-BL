@@ -1,0 +1,171 @@
+@if (missing()) {
+  <app-khata-missing [message]="missing()" />
+} @else if (loadError()) {
+  <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ loadError() }}</span></p>
+} @else if (!ready()) {
+  <app-khata-skeleton />
+} @else if (cantEdit()) {
+  <div class="k-card k-empty">
+    <svg kEmptyArt="note"></svg>
+    <h1 class="k-empty-h1">{{ i18n.t('khata.e.cantEdit') }}</h1>
+    <a class="k-btn" [routerLink]="back()">{{ i18n.t('khata.back') }}</a>
+  </div>
+} @else if (!contacts().length) {
+  <div class="k-card k-empty">
+    <svg kEmptyArt="users"></svg>
+    <h1 class="k-empty-h1">{{ i18n.t('khata.d.emptyTitle') }}</h1>
+    <p>{{ i18n.t('khata.ef.needParty') }}</p>
+    <a class="k-btn pri" [routerLink]="['/khata/app/b', bookId(), 'parties']" [queryParams]="{ add: 1 }"><svg kIco="plus" [size]="18"></svg>{{ i18n.t('khata.c.add') }}</a>
+  </div>
+} @else {
+  <div class="k-page k-stagger k-narrow">
+    <a class="k-back" [routerLink]="back()"><svg kIco="back" [size]="18"></svg>{{ i18n.t('khata.back') }}</a>
+    <div class="k-head">
+      <div>
+        <h1 id="ef-h1">{{ i18n.t(entry() ? 'khata.e.editTitle' : 'khata.ef.title') }}</h1>
+        <p>{{ i18n.t(entry() ? 'khata.ef.editLead' : 'khata.ef.lead', { book: book()?.name ?? '' }) }}</p>
+      </div>
+    </div>
+
+    <form class="k-card k-entry" novalidate aria-labelledby="ef-h1" (submit)="$event.preventDefault(); save()">
+      <fieldset class="k-typeseg k-plain">
+        <legend class="sr-only">{{ i18n.t('khata.e.type') }}</legend>
+        <label class="gave"><input type="radio" name="type" [value]="gave" [checked]="type() === gave" (change)="type.set(gave)" /><svg kIco="gave" [size]="18" [stroke]="2.4"></svg>{{ i18n.t('khata.e.gave') }}</label>
+        <label class="got"><input type="radio" name="type" [value]="got" [checked]="type() === got" (change)="type.set(got)" /><svg kIco="got" [size]="18" [stroke]="2.4"></svg>{{ i18n.t('khata.e.got') }}</label>
+      </fieldset>
+
+      @if (entry() && party(); as p) {
+        <div class="k-field">
+          <span class="lbl">{{ i18n.t('khata.ef.party') }}</span>
+          <div class="k-row-link k-static"><span kAvatar [name]="p.name" [contactId]="p.id" [photo]="p.photo"></span><span class="mid"><b>{{ p.name }}</b></span></div>
+        </div>
+      } @else {
+        <label class="k-field">
+          <span class="lbl">{{ i18n.t('khata.ef.party') }}</span>
+          <select name="contact" required [attr.aria-invalid]="!!invalid()['contact']" (change)="contactId.set(+$any($event.target).value); clearInvalid('contact')">
+            <option value="" disabled [selected]="!contactId()">{{ i18n.t('khata.ef.choose') }}</option>
+            @if (customers().length) {
+              <optgroup [label]="i18n.t('khata.f.customers')">
+                @for (c of customers(); track c.id) {
+                  <option [value]="c.id" [selected]="c.id === contactId()">{{ c.name }}</option>
+                }
+              </optgroup>
+            }
+            @if (suppliers().length) {
+              <optgroup [label]="i18n.t('khata.f.suppliers')">
+                @for (c of suppliers(); track c.id) {
+                  <option [value]="c.id" [selected]="c.id === contactId()">{{ c.name }}</option>
+                }
+              </optgroup>
+            }
+          </select>
+          @if (invalid()['contact']) {
+            <p class="k-hint k-give">{{ i18n.t('khata.ef.partyRequired') }}</p>
+          }
+        </label>
+      }
+
+      <div class="k-amountbox">
+        <label class="lbl" for="k-amount">{{ i18n.t('khata.ef.amount') }}</label>
+        <div class="in">
+          <span class="sym" aria-hidden="true">{{ book()?.currency?.symbol }}</span>
+          <input id="k-amount" name="amount" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" [placeholder]="placeholder()" [value]="amount()" [attr.aria-invalid]="!!invalid()['amount']" aria-describedby="k-amount-hint"
+            (input)="amount.set($any($event.target).value); clearInvalid('amount')" />
+        </div>
+        <p id="k-amount-hint" class="k-hint k-m0" [class.k-give]="invalid()['amount']">{{ invalid()['amount'] ? i18n.t('khata.e.amountInvalid') : i18n.t('khata.ef.amountHint', { code: book()?.currency?.code ?? '', n: decimals() }) }}</p>
+      </div>
+
+      <div class="k-two">
+        <div class="k-field">
+          <span class="lbl" aria-hidden="true">{{ i18n.t('khata.e.date') }}</span>
+          <app-khata-date-picker [label]="i18n.t('khata.e.date')" [max]="today" [invalid]="!!invalid()['date']" [(value)]="date" (valueChange)="clearInvalid('date')" />
+          @if (invalid()['date']) {
+            <p class="k-hint k-give">{{ i18n.t('khata.ef.dateRule') }}</p>
+          }
+        </div>
+        <div class="k-field">
+          <span class="lbl">{{ i18n.t('khata.ef.status') }}</span>
+          <div class="k-status-line">
+            @if (entry(); as e) {
+              <span class="k-badge warn">{{ i18n.t('khata.e.version', { n: e.version }) }}</span>
+            } @else {
+              <span class="k-badge brand">{{ i18n.t('khata.ef.newEntry') }}</span>
+            }
+            <span class="k-hint k-m0">{{ i18n.t(entry() ? 'khata.ef.pinNote' : 'khata.ef.noPin') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <label class="k-field">
+        <span class="lbl">{{ i18n.t('khata.e.note') }}</span>
+        <textarea name="note" [attr.maxlength]="maxNote" [placeholder]="i18n.t('khata.ef.notePh')" [value]="note()" [attr.aria-invalid]="!!invalid()['note']" (input)="note.set($any($event.target).value); clearInvalid('note')"></textarea>
+      </label>
+
+      <section class="k-photos" aria-labelledby="ph-h">
+        <div class="k-card-h k-m0">
+          <div><h2 id="ph-h"><svg kIco="camera" [size]="18"></svg> {{ i18n.t('khata.ph.title') }}</h2><p>{{ i18n.t('khata.ph.lead', { max: maxPhotos }) }}</p></div>
+          <span class="k-badge" [class.warn]="photos().length >= maxPhotos">{{ photos().length }}/{{ maxPhotos }}</span>
+        </div>
+        @if (photos().length) {
+          <ul class="k-thumbs">
+            @for (p of photos(); track p.key; let i = $index) {
+              <li class="k-thumb">
+                <button type="button" class="open" [attr.aria-label]="i18n.t('khata.ph.alt', { n: i + 1 })" (click)="viewPhoto(i)">
+                  @if (p.url) {
+                    <img [src]="p.url" alt="" />
+                  } @else {
+                    <img alt="" />
+                  }
+                </button>
+                @if (p.file) {
+                  <span class="new">{{ i18n.t('khata.ph.new') }}</span>
+                }
+                <span class="size">{{ fileSize(p.size) }}</span>
+                <span class="tools">
+                  <button type="button" [title]="i18n.t('khata.ph.replaceShort')" [attr.aria-label]="i18n.t('khata.ph.replace', { n: i + 1 })" [disabled]="!!busy()" (click)="replace(i)"><svg kIco="swap" [size]="16"></svg></button>
+                  <button type="button" [title]="i18n.t('khata.ph.removeShort')" [attr.aria-label]="i18n.t('khata.ph.remove', { n: i + 1 })" [disabled]="!!busy()" (click)="removePhoto(i)"><svg kIco="x" [size]="16"></svg></button>
+                </span>
+              </li>
+            }
+          </ul>
+        }
+        @if (photos().length < maxPhotos) {
+          <div class="k-drop" [class.over]="dragging()" (dragenter)="dragOver($event)" (dragover)="dragOver($event)" (dragleave)="dragging.set(false)" (drop)="drop($event)">
+            @if (busy() === 'photos') {
+              <span class="k-spin k-brand-ink" aria-hidden="true"></span>
+              <p role="status">{{ i18n.t('khata.ph.working') }}</p>
+            } @else {
+              <span class="k-ib brand"><svg kIco="image"></svg></span>
+              <p>{{ i18n.t('khata.ph.drop') }}</p>
+              <div class="btns">
+                <button type="button" class="k-btn sm" (click)="pick('picker')"><svg kIco="image" [size]="16"></svg>{{ i18n.t('khata.ph.choose') }}</button>
+                <button type="button" class="k-btn sm" (click)="pick('camera')"><svg kIco="camera" [size]="16"></svg>{{ i18n.t('khata.ph.camera') }}</button>
+              </div>
+              <p>{{ i18n.t('khata.ph.rules', { mb: maxPickedMb }) }}</p>
+            }
+          </div>
+        } @else {
+          <p class="k-hint">{{ i18n.t('khata.ph.full', { max: maxPhotos }) }}</p>
+        }
+        <input #picker class="k-file" type="file" [accept]="types" multiple tabindex="-1" aria-hidden="true" (change)="picked(picker, false)" />
+        <input #camera class="k-file" type="file" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true" (change)="picked(camera, false)" />
+        <input #replacer class="k-file" type="file" [accept]="types" tabindex="-1" aria-hidden="true" (change)="picked(replacer, true)" />
+      </section>
+
+      @if (error()) {
+        <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
+      }
+
+      <div class="k-actions">
+        <a class="k-btn lg" [routerLink]="back()">{{ i18n.t('khata.cancel') }}</a>
+        <button type="submit" class="k-btn pri lg" [class.is-busy]="busy() === 'save'" [disabled]="!!busy()">
+          @if (busy() === 'save') {
+            <span class="k-spin" aria-hidden="true"></span>{{ i18n.t('khata.ef.saving') }}
+          } @else {
+            <svg kIco="check" [size]="18"></svg>{{ i18n.t(entry() ? 'khata.ef.saveEdit' : 'khata.ef.save') }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+}

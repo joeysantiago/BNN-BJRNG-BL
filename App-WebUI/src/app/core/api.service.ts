@@ -51,6 +51,14 @@ export class ApiService {
     return { headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body) };
   }
 
+  /** A file the backend answers with (SnapKhata's bill photos, party pictures and exports). A refusal is thrown with the backend's message, as `get` does. */
+  async blob(path: string, init: RequestInit = {}, ms = 30000): Promise<Blob> {
+    const res = await this.request(path, init, ms);
+    if (!res.ok)
+      await this.parse(res);
+    return res.blob();
+  }
+
   /** Same as `get` but for any method and body, with extra headers. */
   async send<T>(method: string, path: string, init: RequestInit = {}, ms = 120000): Promise<T> {
     return this.unwrap<T>(await this.request(path, { ...init, method }, ms));
@@ -96,6 +104,8 @@ export class ApiService {
     const body = typeof init.body === 'string' ? JSON.parse(init.body) : init.body;
     await new Promise((resolve) => setTimeout(resolve, Math.min(ms, environment.timings.demoDelayMs)));
     const reply = await this.backend.handle({ method: init.method ?? 'GET', path, body, token, lang: headers.get('Accept-Language') ?? this.i18n.lang() });
+    if (reply.file)
+      return new Response(reply.file, { status: reply.status, headers: { 'Content-Type': reply.file.type || 'application/octet-stream' } });
     return new Response(JSON.stringify(reply.body), { status: reply.status, headers: { 'Content-Type': 'application/json' } });
   }
 

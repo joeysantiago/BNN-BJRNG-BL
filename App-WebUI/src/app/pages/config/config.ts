@@ -1,3 +1,4 @@
+import { MailTab } from './mail-tab/mail-tab';
 import { TranslationKey } from '../../i18n/en';
 import { RolesTab } from './roles-tab/roles-tab';
 import { UsersTab } from './users-tab/users-tab';
@@ -24,6 +25,8 @@ const TABS: TabInfo[] = [
   { id: 'services', page: 'settings.services' },
   { id: 'youtube', page: 'settings.youtube' },
   { id: 'json', page: 'settings.json' },
+  // No role can be given this page (it has no Pages row), so only a super admin, who has every right, sees it, as in the API branches.
+  { id: 'mail', page: 'settings.mail' },
 ];
 
 /**
@@ -34,7 +37,7 @@ const TABS: TabInfo[] = [
  */
 @Component({
   selector: 'app-config',
-  imports: [RouterLink, AccountTab, UsersTab, RolesTab, PermissionsTab],
+  imports: [RouterLink, AccountTab, UsersTab, RolesTab, PermissionsTab, MailTab],
   templateUrl: './config.html',
   styleUrl: './config.scss',
 })

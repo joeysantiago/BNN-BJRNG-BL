@@ -1,0 +1,488 @@
+/* SnapKhata dashboard and money-flow chart. Ported from App-Prototype/assets/css/khata.css; loaded by the screen that uses it. */
+/* ---------- Dashboard ---------- */
+.khata .k-dash {
+  display: grid;
+  gap: 16px;
+}
+
+.khata .k-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  border-radius: var(--k-r-xl);
+  background: var(--k-hero);
+  border: 1px solid var(--k-line);
+  box-shadow: var(--k-shadow-lg);
+}
+
+.khata .k-hero::before,
+.khata .k-hero::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(2px);
+}
+
+.khata .k-hero::before {
+  width: 220px;
+  height: 220px;
+  inset-inline-end: -60px;
+  top: -80px;
+  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--k-brand-2) 45%, transparent), transparent 70%);
+  animation: k-float 9s ease-in-out infinite;
+}
+
+.khata .k-hero::after {
+  width: 160px;
+  height: 160px;
+  inset-inline-end: 90px;
+  bottom: -90px;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--k-brand) 40%, transparent), transparent 70%);
+  animation: k-float 11s ease-in-out infinite reverse;
+}
+
+.khata .k-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.khata .k-hero .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-hero .big {
+  display: block;
+  margin: 6px 0 4px;
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.khata .k-hero .split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.khata .k-hero .pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--k-surface-solid) 70%, transparent);
+  border: 1px solid var(--k-line);
+  min-width: 0;
+}
+
+.khata .k-hero .pill b {
+  display: block;
+  font-size: clamp(13.5px, 3.9vw, 15.5px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.khata .k-hero .pill small {
+  display: block;
+  font-size: 12px;
+  color: var(--k-muted);
+  font-weight: 700;
+}
+
+.khata .k-ib {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+}
+
+.khata .k-ib.get {
+  background: var(--k-get-soft);
+  color: var(--k-get);
+}
+
+.khata .k-ib.give {
+  background: var(--k-give-soft);
+  color: var(--k-give);
+}
+
+.khata .k-ib.brand {
+  background: var(--k-brand-soft);
+  color: var(--k-brand);
+}
+
+.khata .k-ib.warn {
+  background: var(--k-warn-soft);
+  color: var(--k-warn);
+}
+
+.khata .k-quick {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.khata .k-qa {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 14px 6px;
+  border-radius: 20px;
+  background: var(--k-surface);
+  border: 1px solid var(--k-line);
+  box-shadow: var(--k-neu);
+  color: var(--k-text);
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-align: center;
+  transition: transform 0.2s var(--k-ease), box-shadow 0.2s;
+}
+
+.khata .k-qa:hover {
+  transform: translateY(-3px);
+}
+
+.khata .k-qa:active {
+  box-shadow: var(--k-neu-in);
+  transform: none;
+}
+
+.khata .k-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.khata .k-stat {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+
+.khata .k-stat .top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.khata .k-stat .lbl {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-stat .val {
+  font-size: clamp(1.05rem, 4vw, 1.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.khata .k-delta.up {
+  color: var(--k-get);
+}
+
+.khata .k-delta.down {
+  color: var(--k-give);
+}
+
+.khata .k-delta.flat {
+  color: var(--k-muted);
+}
+
+.khata .k-grid2 {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 720px) {
+  .khata .k-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .khata .k-hero .split {
+    max-width: 520px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .khata .k-dash-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .khata .k-quick {
+    grid-template-columns: repeat(2, 1fr);
+    align-content: stretch;
+  }
+
+  .khata .k-qa {
+    align-content: center;
+  }
+
+  .khata .k-grid2 {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
+}
+
+/* ---------- Charts ---------- */
+.khata .k-chart {
+  position: relative;
+}
+
+.khata .k-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.khata .k-chart .gl {
+  stroke: var(--k-grid);
+  stroke-width: 1;
+}
+
+.khata .k-chart .ax {
+  fill: var(--k-faint);
+  font: 600 11px var(--k-font);
+}
+
+.khata .k-chart .b-get {
+  fill: var(--k-chart-get);
+}
+
+.khata .k-chart .b-give {
+  fill: var(--k-chart-give);
+}
+
+.khata .k-chart .hit {
+  fill: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.khata .k-chart .hit:hover,
+.khata .k-chart .hit:focus {
+  fill: var(--k-grid);
+}
+
+.khata .k-chart .bars rect,
+.khata .k-chart .bars path {
+  transform-box: fill-box;
+  transform-origin: bottom;
+}
+
+.khata .k-enter .k-chart .bars path {
+  animation: k-grow 0.7s var(--k-ease) both;
+}
+
+@keyframes k-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.khata .k-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.khata .k-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.khata .k-legend b {
+  color: var(--k-text);
+}
+
+.khata .k-tip {
+  position: absolute;
+  z-index: 5;
+  min-width: 150px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--k-surface-solid);
+  border: 1px solid var(--k-line-strong);
+  box-shadow: var(--k-shadow-lg);
+  font-size: 12.5px;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 10px));
+  animation: k-fade 0.15s;
+  white-space: nowrap;
+}
+
+.khata .k-tip b {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.khata .k-tip span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--k-muted);
+}
+
+.khata .k-tip span em {
+  font-style: normal;
+  margin-inline-start: auto;
+  padding-inline-start: 12px;
+  color: var(--k-text);
+  font-weight: 800;
+}
+
+.khata .k-tip i {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.khata .k-hbars {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.khata .k-hbars a {
+  display: grid;
+  gap: 6px;
+  color: var(--k-text);
+  text-decoration: none;
+  border-radius: 12px;
+  padding: 4px;
+  margin: -4px;
+}
+
+.khata .k-hbars a:hover {
+  background: var(--k-surface-3);
+}
+
+.khata .k-hbars .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.khata .k-hbars .row span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-hbars .track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--k-surface-3);
+  overflow: hidden;
+}
+
+.khata .k-hbars .fill {
+  height: 100%;
+  border-radius: 999px;
+  transform-origin: left;
+}
+
+.khata[dir=rtl] .k-hbars .fill {
+  transform-origin: right;
+}
+
+.khata .k-enter .k-hbars .fill {
+  animation: k-grow-x 0.8s var(--k-ease) both;
+}
+
+@keyframes k-grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.khata .k-hbars .fill.get {
+  background: var(--k-chart-get);
+}
+
+.khata .k-hbars .fill.give {
+  background: var(--k-chart-give);
+}
+
+.khata .k-table {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.khata .k-table summary {
+  cursor: pointer;
+  color: var(--k-muted);
+  font-weight: 700;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+}
+
+.khata .k-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
+}
+
+.khata .k-table th,
+.khata .k-table td {
+  padding: 7px 8px;
+  text-align: end;
+  border-bottom: 1px solid var(--k-line);
+}
+
+.khata .k-table th:first-child,
+.khata .k-table td:first-child {
+  text-align: start;
+}

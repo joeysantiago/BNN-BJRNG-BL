@@ -1,0 +1,158 @@
+/* SnapKhata design tokens (light and dark). Ported from App-Prototype/assets/css/khata.css. */
+/* SnapKhata app design system: every colour is a token on .khata, Light and Dark are two sets of the same tokens. */
+.khata {
+  --k-font: 'Manrope Variable', 'Noto Sans Devanagari Variable', 'Noto Sans Arabic Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --k-r-sm: 10px;
+  --k-r: 16px;
+  --k-r-lg: 24px;
+  --k-r-xl: 32px;
+  --k-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --k-rail: 264px;
+  --k-tabs: 68px;
+  color-scheme: light;
+  --k-bg: #eef1f7;
+  --k-bg-image: radial-gradient(700px 480px at 6% -4%, rgba(247, 200, 226, 0.55), transparent 62%), radial-gradient(640px 460px at 102% 6%, rgba(255, 221, 186, 0.55), transparent 60%), radial-gradient(900px 640px at 60% 112%, rgba(190, 210, 255, 0.6), transparent 62%);
+  --k-surface: rgba(255, 255, 255, 0.78);
+  --k-surface-solid: #ffffff;
+  --k-surface-2: #f4f6fb;
+  --k-surface-3: #e8ecf4;
+  --k-glass: blur(18px) saturate(160%);
+  --k-line: rgba(15, 23, 42, 0.08);
+  --k-line-strong: rgba(15, 23, 42, 0.16);
+  --k-text: #0f172a;
+  --k-muted: #556074;
+  --k-faint: #7a8498;
+  --k-brand: #2f5bea;
+  --k-brand-2: #6a5cff;
+  --k-brand-soft: rgba(47, 91, 234, 0.1);
+  --k-on-brand: #ffffff;
+  --k-brand-grad: linear-gradient(135deg, #3a66f5 0%, #5b5cf6 100%);
+  --k-hero: linear-gradient(140deg, #ffffff 0%, #f1f4ff 55%, #fbefff 100%);
+  --k-get: #0a7a4f;
+  --k-get-soft: rgba(10, 122, 79, 0.1);
+  --k-give: #c4302b;
+  --k-give-soft: rgba(196, 48, 43, 0.09);
+  --k-warn: #9a5b00;
+  --k-warn-soft: rgba(214, 140, 0, 0.13);
+  --k-chart-get: #087a55;
+  --k-chart-give: #f2705a;
+  --k-grid: rgba(15, 23, 42, 0.07);
+  --k-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --k-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 28px rgba(31, 45, 90, 0.08);
+  --k-shadow-lg: 0 2px 6px rgba(16, 24, 40, 0.06), 0 24px 56px rgba(31, 45, 90, 0.16);
+  --k-neu: 6px 6px 14px rgba(163, 177, 198, 0.45), -6px -6px 14px rgba(255, 255, 255, 0.9);
+  --k-neu-in: inset 3px 3px 7px rgba(163, 177, 198, 0.45), inset -3px -3px 7px rgba(255, 255, 255, 0.9);
+  --k-focus: 0 0 0 4px rgba(47, 91, 234, 0.22);
+  --k-skeleton: linear-gradient(90deg, rgba(15, 23, 42, 0.06) 0%, rgba(15, 23, 42, 0.12) 50%, rgba(15, 23, 42, 0.06) 100%);
+  --k-overlay: rgba(15, 23, 42, 0.45);
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--k-bg);
+  background-image: var(--k-bg-image);
+  background-attachment: fixed;
+  color: var(--k-text);
+  font: 15px/1.55 var(--k-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+.khata[data-kt=dark] {
+  color-scheme: dark;
+  --k-bg: #0e0b19;
+  --k-bg-image: radial-gradient(620px 460px at 0% 0%, rgba(176, 52, 150, 0.32), transparent 64%), radial-gradient(560px 460px at 100% 4%, rgba(255, 128, 64, 0.22), transparent 62%), radial-gradient(900px 640px at 55% 115%, rgba(78, 60, 200, 0.34), transparent 62%);
+  --k-surface: rgba(255, 255, 255, 0.06);
+  --k-surface-solid: #1a1628;
+  --k-surface-2: rgba(255, 255, 255, 0.045);
+  --k-surface-3: rgba(255, 255, 255, 0.09);
+  --k-glass: blur(22px) saturate(150%);
+  --k-line: rgba(255, 255, 255, 0.1);
+  --k-line-strong: rgba(255, 255, 255, 0.2);
+  --k-text: #f4f1fb;
+  --k-muted: #b2abc9;
+  --k-faint: #8e87a8;
+  --k-brand: #ff8a4c;
+  --k-brand-2: #ff5f8f;
+  --k-brand-soft: rgba(255, 138, 76, 0.14);
+  --k-on-brand: #1d0d04;
+  --k-brand-grad: linear-gradient(135deg, #ffa25a 0%, #ff6a88 100%);
+  --k-hero: linear-gradient(140deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%);
+  --k-get: #5fe0a5;
+  --k-get-soft: rgba(95, 224, 165, 0.13);
+  --k-give: #ff8c84;
+  --k-give-soft: rgba(255, 140, 132, 0.13);
+  --k-warn: #ffcf6b;
+  --k-warn-soft: rgba(255, 207, 107, 0.14);
+  --k-chart-get: #2aae7d;
+  --k-chart-give: #de4b43;
+  --k-grid: rgba(255, 255, 255, 0.08);
+  --k-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --k-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 14px 36px rgba(0, 0, 0, 0.36);
+  --k-shadow-lg: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 28px 64px rgba(0, 0, 0, 0.55);
+  --k-neu: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 8px 22px rgba(0, 0, 0, 0.35);
+  --k-neu-in: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+  --k-focus: 0 0 0 4px rgba(255, 138, 76, 0.28);
+  --k-skeleton: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.11) 50%, rgba(255, 255, 255, 0.05) 100%);
+  --k-overlay: rgba(4, 2, 10, 0.66);
+}
+
+/* Theme switch: the attribute changes on the live page, so these transitions run. */
+.khata.k-theming,
+.khata.k-theming * {
+  transition: background-color 0.4s var(--k-ease), color 0.4s var(--k-ease), border-color 0.4s var(--k-ease), box-shadow 0.4s var(--k-ease), fill 0.4s var(--k-ease) !important;
+}
+
+.khata *,
+.khata *::before,
+.khata *::after {
+  box-sizing: border-box;
+}
+
+.khata a {
+  color: var(--k-brand);
+}
+
+.khata h1,
+.khata h2,
+.khata h3 {
+  text-shadow: none;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.khata :focus-visible {
+  outline: none;
+  box-shadow: var(--k-focus);
+  border-radius: var(--k-r-sm);
+}
+
+.khata .k-ico {
+  flex: none;
+  display: block;
+}
+
+/* Arrows that point along the reading direction turn round in Arabic. */
+.khata[dir=rtl] .k-flip {
+  transform: scaleX(-1);
+}
+
+.khata .k-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+.khata .k-get {
+  color: var(--k-get);
+}
+
+.khata .k-give {
+  color: var(--k-give);
+}
+
+.khata .k-muted {
+  color: var(--k-muted);
+  margin: 0;
+}
+
+.khata .k-faint {
+  color: var(--k-faint);
+}

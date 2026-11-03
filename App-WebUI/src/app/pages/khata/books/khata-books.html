@@ -1,0 +1,109 @@
+<div class="k-page k-stagger">
+  <div class="k-head">
+    <div><h1>{{ i18n.t('khata.books.title') }}</h1><p>{{ i18n.t('khata.books.lead') }}</p></div>
+    <button type="button" class="k-btn pri" [attr.aria-expanded]="creating()" (click)="toggleCreate()"><svg [kIco]="creating() ? 'x' : 'plus'" [size]="18"></svg>{{ i18n.t(creating() ? 'khata.cancel' : 'khata.books.new') }}</button>
+  </div>
+
+  @if (creating()) {
+    <form class="k-card k-form k-addform" novalidate (submit)="$event.preventDefault(); create(newName.value, newCurrency.value)">
+      <div class="k-two">
+        <label class="k-field"><span class="lbl">{{ i18n.t('khata.book.name') }}</span><input #newName type="text" maxlength="100" required autocomplete="off" [disabled]="busy()" /></label>
+        <label class="k-field"><span class="lbl">{{ i18n.t('khata.book.currency') }}</span>
+          <select #newCurrency [disabled]="busy()">
+            @for (c of state.currencies(); track c.id) {
+              <option [value]="c.id">{{ c.symbol }} · {{ c.code }} · {{ c.name }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      <p class="k-hint">{{ i18n.t('khata.book.lockedHint') }}</p>
+      <div class="k-actions"><button type="submit" class="k-btn pri" [class.is-busy]="busy()" [disabled]="busy()">{{ i18n.t('khata.book.create') }}</button></div>
+    </form>
+  }
+
+  @if (info()) {
+    <p class="k-okmsg" role="status"><svg kIco="check" [size]="18"></svg><span>{{ info() }}</span></p>
+  }
+  @if (error()) {
+    <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
+  }
+
+  @if (state.books().length) {
+    <ul class="k-list k-bookcards">
+      @for (b of state.books(); track b.id) {
+        @if (editing() === b.id) {
+          <li class="k-card k-book">
+            <form class="k-form" novalidate (submit)="$event.preventDefault(); update(b, editName.value, editCurrency.value)">
+              <label class="k-field"><span class="lbl">{{ i18n.t('khata.book.name') }}</span><input #editName type="text" maxlength="100" required autocomplete="off" [value]="b.name" [disabled]="busy()" /></label>
+              <label class="k-field"><span class="lbl">{{ i18n.t('khata.book.currency') }}</span>
+                <select #editCurrency [disabled]="busy() || b.hasEntries">
+                  @for (c of state.currencies(); track c.id) {
+                    <option [value]="c.id" [selected]="c.id === b.currency.id">{{ c.symbol }} · {{ c.code }} · {{ c.name }}</option>
+                  }
+                </select>
+              </label>
+              @if (b.hasEntries) {
+                <p class="k-hint">{{ i18n.t('khata.book.lockedNow') }}</p>
+              }
+              <div class="k-actions">
+                <button type="button" class="k-btn" (click)="editing.set(null)">{{ i18n.t('khata.cancel') }}</button>
+                <button type="submit" class="k-btn pri" [class.is-busy]="busy()" [disabled]="busy()">{{ i18n.t('khata.save') }}</button>
+              </div>
+            </form>
+          </li>
+        } @else {
+          <li class="k-card k-book lift">
+            <div class="top">
+              <span class="k-ib brand"><svg kIco="book"></svg></span>
+              <a [routerLink]="['/khata/app/b', b.id]"><b>{{ b.name }}</b><small class="k-muted">{{ b.currency.symbol }} {{ b.currency.code }} · {{ i18n.t('khata.books.contacts', { n: b.contactCount }) }}</small></a>
+              @if (b.id === state.current()?.id) {
+                <span class="k-badge brand">{{ i18n.t('khata.books.current') }}</span>
+              }
+            </div>
+            <div class="nums">
+              <div><small>{{ i18n.t('khata.c.willGet') }}</small><b class="k-num k-get">{{ b.youWillGetMinor | kMoney: b.currency : i18n.lang() }}</b></div>
+              <div><small>{{ i18n.t('khata.c.willGive') }}</small><b class="k-num k-give">{{ b.youWillGiveMinor | kMoney: b.currency : i18n.lang() }}</b></div>
+            </div>
+            <div class="k-actions k-start">
+              <a class="k-btn sm" [routerLink]="['/khata/app/b', b.id]">{{ i18n.t('khata.books.open') }}</a>
+              <button type="button" class="k-btn sm" [disabled]="busy()" (click)="editing.set(b.id)"><svg kIco="edit" [size]="16"></svg>{{ i18n.t('khata.books.rename') }}</button>
+              <button type="button" class="k-btn sm danger" [disabled]="busy()" (click)="remove(b)"><svg kIco="trash" [size]="16"></svg>{{ i18n.t('khata.books.delete') }}</button>
+            </div>
+          </li>
+        }
+      }
+    </ul>
+  } @else if (state.loaded()) {
+    <div class="k-card k-empty"><svg kEmptyArt="book"></svg><h2>{{ i18n.t('khata.books.none') }}</h2></div>
+  }
+
+  <section class="k-card k-form" aria-labelledby="cur-h">
+    <div class="k-card-h"><div><h2 id="cur-h">{{ i18n.t('khata.cur.title') }}</h2><p>{{ i18n.t('khata.cur.lead') }}</p></div></div>
+    @if (custom().length) {
+      <div class="k-curs">
+        @for (c of custom(); track c.id) {
+          <div class="k-cur">
+            <span><b>{{ c.symbol }}</b> {{ c.code }} · {{ c.name }} · <span class="k-muted">{{ i18n.t('khata.cur.decimalsN', { n: c.decimals }) }}</span></span>
+            <button type="button" class="k-btn sm danger" [disabled]="busy()" (click)="removeCurrency(c)">{{ i18n.t('khata.cur.remove') }}</button>
+          </div>
+        }
+      </div>
+    }
+    <form #curForm class="k-form" novalidate (submit)="$event.preventDefault(); addCurrency(curForm, code.value, symbol.value, name.value, decimals.value)">
+      <div class="k-grid4">
+        <label class="k-field"><span class="lbl">{{ i18n.t('khata.cur.code') }}</span><input #code type="text" maxlength="10" required autocomplete="off" [disabled]="busy()" /></label>
+        <label class="k-field"><span class="lbl">{{ i18n.t('khata.cur.symbol') }}</span><input #symbol type="text" maxlength="10" required autocomplete="off" [disabled]="busy()" /></label>
+        <label class="k-field"><span class="lbl">{{ i18n.t('khata.cur.name') }}</span><input #name type="text" maxlength="50" required autocomplete="off" [disabled]="busy()" /></label>
+        <label class="k-field"><span class="lbl">{{ i18n.t('khata.cur.decimals') }}</span>
+          <select #decimals [disabled]="busy()">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+          </select>
+        </label>
+      </div>
+      <div class="k-actions"><button type="submit" class="k-btn" [disabled]="busy()"><svg kIco="plus" [size]="18"></svg>{{ i18n.t('khata.cur.add') }}</button></div>
+    </form>
+  </section>
+</div>

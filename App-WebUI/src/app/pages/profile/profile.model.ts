@@ -5,4 +5,4 @@ export interface ProfileNotice {
 }
 
 /** The form of the profile page that is being saved. */
-export type ProfileForm = 'details' | 'password' | 'photo';
+export type ProfileForm = 'details' | 'password' | 'photo' | 'delete';

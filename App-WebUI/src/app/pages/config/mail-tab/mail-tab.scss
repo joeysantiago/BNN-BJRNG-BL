@@ -1,0 +1,21 @@
+@use '../config';
+
+:host {
+  display: grid;
+}
+.mail-h {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.mail-h .sec-h {
+  margin: 0;
+}
+.stack .seg {
+  margin: 0;
+}
+.grid + .stack,
+.stack + .grid {
+  margin-block-start: 12px;
+}

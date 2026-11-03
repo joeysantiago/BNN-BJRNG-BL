@@ -1,4 +1,5 @@
 import { DemoDb, DemoRules } from './demo.model';
+import { MailSetting } from '../models/mail.model';
 
 /** Same values as appsettings.json of the API (Auth, Jwt and Avatars sections). */
 export const DEMO_RULES: DemoRules = {
@@ -11,7 +12,12 @@ export const DEMO_RULES: DemoRules = {
   passwordMinLength: 8,
   passwordMaxLength: 128,
   avatarTypes: ['.jpg', '.jpeg', '.png', '.webp'],
+  // Profile:Limits of the API (the SnapKhata profile's mobile number, address and company).
+  profileLimits: { cityLength: 100, stateLength: 100, mobileLength: 20, addressLength: 200, countryLength: 100, postalCodeLength: 20, companyNameLength: 150, companyEmailLength: 256, companyPhoneLength: 20, companyTaxIdLength: 30, companyAddressLength: 500 },
 };
+
+/** A mail server profile never saved starts from these, as the API starts from appsettings Email:Smtp (no host = mail is off). */
+export const DEMO_MAIL: Omit<MailSetting, 'purpose'> = { host: '', port: 587, enabled: false, fromName: 'Thakurg', userName: '', fromAddress: 'no-reply@thakurg.com', hasPassword: false, security: 'starttls' };
 
 /**
  * A fresh demo database, the same rows as the INSERT scripts of the API branches: 008_Roles, 009_Users, 011_Apps, 012_UserAppAccess, 013_Pages and 014_RolePermissions.

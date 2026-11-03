@@ -1,0 +1,242 @@
+/* SnapKhata styles, the same four as the site's theme menu: Glass (the tokens in _khata-tokens.scss), Clay, Skeu and Neu, each in light and dark.
+   A style only changes tokens (and a few surface details), so every screen follows it. data-ks on .khata is the style, data-kt the brightness. */
+
+/* ---------- Claymorphism: soft pastel, puffy and rounded ---------- */
+.khata[data-ks=clay]:not([data-kt=dark]) {
+  --k-r: 20px;
+  --k-r-lg: 28px;
+  --k-glass: none;
+  --k-bg: #f1e3fb;
+  --k-bg-image: radial-gradient(700px 480px at 0% 0%, rgba(255, 214, 236, 0.7), transparent 62%), radial-gradient(800px 560px at 100% 100%, rgba(206, 196, 255, 0.7), transparent 62%);
+  --k-surface: #fbf4ff;
+  --k-surface-solid: #fff8fe;
+  --k-surface-2: #f5e9fc;
+  --k-surface-3: #ead8f6;
+  --k-line: rgba(120, 80, 160, 0.1);
+  --k-line-strong: rgba(120, 80, 160, 0.2);
+  --k-text: #24163a;
+  --k-muted: #5d4a76;
+  --k-faint: #7c6a94;
+  --k-brand: #6a46f0;
+  --k-brand-2: #a855f7;
+  --k-brand-soft: rgba(106, 70, 240, 0.12);
+  --k-brand-grad: linear-gradient(135deg, #7c5cff 0%, #b77cf7 100%);
+  --k-hero: linear-gradient(140deg, #ffffff 0%, #f4e8ff 100%);
+  --k-shadow-sm: 3px 4px 10px rgba(120, 70, 170, 0.14), inset 2px 2px 4px rgba(255, 255, 255, 0.85);
+  --k-shadow: 8px 10px 22px rgba(120, 70, 170, 0.18), inset -4px -6px 10px rgba(150, 100, 200, 0.12), inset 4px 4px 10px rgba(255, 255, 255, 0.9);
+  --k-shadow-lg: 12px 16px 34px rgba(120, 70, 170, 0.24), inset -5px -7px 12px rgba(150, 100, 200, 0.12), inset 5px 5px 12px rgba(255, 255, 255, 0.9);
+  --k-focus: 0 0 0 4px rgba(106, 70, 240, 0.24);
+}
+
+.khata[data-ks=clay][data-kt=dark] {
+  --k-r: 20px;
+  --k-r-lg: 28px;
+  --k-glass: none;
+  --k-bg: #1d1530;
+  --k-bg-image: radial-gradient(700px 480px at 0% 0%, rgba(168, 85, 247, 0.22), transparent 62%), radial-gradient(800px 560px at 100% 100%, rgba(99, 102, 241, 0.22), transparent 62%);
+  --k-surface: #2a1f45;
+  --k-surface-solid: #2f2350;
+  --k-surface-2: #33264f;
+  --k-surface-3: #3c2d5c;
+  --k-line: rgba(255, 255, 255, 0.07);
+  --k-line-strong: rgba(255, 255, 255, 0.15);
+  --k-text: #f3edff;
+  --k-muted: #c2b5dd;
+  --k-faint: #9d8fbb;
+  --k-brand: #b9a2ff;
+  --k-brand-2: #f0abfc;
+  --k-brand-soft: rgba(185, 162, 255, 0.16);
+  --k-on-brand: #1d1530;
+  --k-brand-grad: linear-gradient(135deg, #a78bfa 0%, #f0abfc 100%);
+  --k-hero: linear-gradient(140deg, #34275a 0%, #2a1f45 100%);
+  --k-shadow-sm: 3px 4px 10px rgba(0, 0, 0, 0.4), inset 2px 2px 4px rgba(255, 255, 255, 0.06);
+  --k-shadow: 8px 10px 24px rgba(0, 0, 0, 0.45), inset -4px -6px 10px rgba(0, 0, 0, 0.25), inset 4px 4px 10px rgba(255, 255, 255, 0.07);
+  --k-shadow-lg: 12px 16px 36px rgba(0, 0, 0, 0.55), inset -5px -7px 12px rgba(0, 0, 0, 0.25), inset 5px 5px 12px rgba(255, 255, 255, 0.07);
+  --k-focus: 0 0 0 4px rgba(185, 162, 255, 0.3);
+}
+
+/* ---------- Skeuomorphism: real-world materials, bevels and gradients ---------- */
+.khata[data-ks=skeu]:not([data-kt=dark]) {
+  --k-r: 10px;
+  --k-r-lg: 14px;
+  --k-glass: none;
+  --k-bg: #c9ccd1;
+  --k-bg-image: linear-gradient(180deg, #d6d9dd 0%, #bfc3c8 100%);
+  --k-surface: linear-gradient(180deg, #fbfbfc 0%, #e9ebee 100%);
+  --k-surface-solid: #f4f5f7;
+  --k-surface-2: #eceef1;
+  --k-surface-3: #e1e4e8;
+  --k-line: rgba(0, 0, 0, 0.16);
+  --k-line-strong: rgba(0, 0, 0, 0.28);
+  --k-text: #1d2127;
+  --k-muted: #4a515b;
+  --k-faint: #6a717b;
+  --k-brand: #1769d6;
+  --k-brand-2: #0b4fb0;
+  --k-brand-soft: rgba(23, 105, 214, 0.12);
+  --k-brand-grad: linear-gradient(180deg, #4a90e8 0%, #1559b8 100%);
+  --k-hero: linear-gradient(180deg, #ffffff 0%, #e6e9ed 100%);
+  --k-shadow-sm: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --k-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.25), 0 8px 18px rgba(0, 0, 0, 0.15);
+  --k-shadow-lg: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 4px 8px rgba(0, 0, 0, 0.3), 0 18px 36px rgba(0, 0, 0, 0.22);
+  --k-focus: 0 0 0 4px rgba(23, 105, 214, 0.28);
+}
+
+.khata[data-ks=skeu][data-kt=dark] {
+  --k-r: 10px;
+  --k-r-lg: 14px;
+  --k-glass: none;
+  --k-bg: #2b2f35;
+  --k-bg-image: linear-gradient(180deg, #33383f 0%, #24282d 100%);
+  --k-surface: linear-gradient(180deg, #3a3f47 0%, #30343b 100%);
+  --k-surface-solid: #363b42;
+  --k-surface-2: #2f343a;
+  --k-surface-3: #3d434b;
+  --k-line: rgba(0, 0, 0, 0.45);
+  --k-line-strong: rgba(255, 255, 255, 0.14);
+  --k-text: #eef0f3;
+  --k-muted: #b8bec7;
+  --k-faint: #959ca6;
+  --k-brand: #5aa0ff;
+  --k-brand-2: #2a6fd0;
+  --k-brand-soft: rgba(90, 160, 255, 0.16);
+  --k-on-brand: #ffffff;
+  --k-brand-grad: linear-gradient(180deg, #5aa0ff 0%, #2a6fd0 100%);
+  --k-hero: linear-gradient(180deg, #41464f 0%, #33383f 100%);
+  --k-shadow-sm: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 2px rgba(0, 0, 0, 0.5);
+  --k-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.5), 0 10px 22px rgba(0, 0, 0, 0.35);
+  --k-shadow-lg: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 10px rgba(0, 0, 0, 0.55), 0 20px 40px rgba(0, 0, 0, 0.45);
+  --k-focus: 0 0 0 4px rgba(90, 160, 255, 0.32);
+}
+
+/* Buttons get a top light, like a pressed-metal or glossy key. */
+.khata[data-ks=skeu] .k-btn:not(.pri):not(.gave):not(.got) {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 60%);
+}
+
+.khata[data-ks=skeu][data-kt=dark] .k-btn:not(.pri):not(.gave):not(.got) {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 60%);
+}
+
+/* ---------- Neumorphism: one soft surface, shapes raised by light and shadow ---------- */
+.khata[data-ks=neu]:not([data-kt=dark]) {
+  --k-glass: none;
+  --k-bg: #e0e5ec;
+  --k-bg-image: none;
+  --k-surface: #e0e5ec;
+  --k-surface-solid: #e0e5ec;
+  --k-surface-2: #e6ebf2;
+  --k-surface-3: #d5dbe3;
+  --k-line: transparent;
+  --k-line-strong: rgba(163, 177, 198, 0.4);
+  --k-text: #2d3748;
+  --k-muted: #556070;
+  --k-faint: #6b7686;
+  --k-brand: #3f4fcf;
+  --k-brand-2: #5563e0;
+  --k-brand-soft: rgba(63, 79, 207, 0.12);
+  --k-brand-grad: linear-gradient(135deg, #5563e0 0%, #3f4fcf 100%);
+  --k-hero: #e0e5ec;
+  --k-shadow-sm: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff;
+  --k-shadow: 8px 8px 16px #a3b1c6, -8px -8px 16px #ffffff;
+  --k-shadow-lg: 12px 12px 24px #a3b1c6, -12px -12px 24px #ffffff;
+  --k-neu: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff;
+  --k-neu-in: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff;
+  --k-focus: 0 0 0 4px rgba(63, 79, 207, 0.25);
+}
+
+.khata[data-ks=neu][data-kt=dark] {
+  --k-glass: none;
+  --k-bg: #2a2f39;
+  --k-bg-image: none;
+  --k-surface: #2a2f39;
+  --k-surface-solid: #2a2f39;
+  --k-surface-2: #30353f;
+  --k-surface-3: #353b46;
+  --k-line: transparent;
+  --k-line-strong: rgba(255, 255, 255, 0.1);
+  --k-text: #e8ecf3;
+  --k-muted: #b3bccb;
+  --k-faint: #8f99aa;
+  --k-brand: #8f9bff;
+  --k-brand-2: #6c7bff;
+  --k-brand-soft: rgba(143, 155, 255, 0.14);
+  --k-on-brand: #12141a;
+  --k-brand-grad: linear-gradient(135deg, #a3adff 0%, #6c7bff 100%);
+  --k-hero: #2a2f39;
+  --k-shadow-sm: 4px 4px 8px #1d2028, -4px -4px 8px #373e4a;
+  --k-shadow: 8px 8px 16px #1d2028, -8px -8px 16px #373e4a;
+  --k-shadow-lg: 12px 12px 24px #1d2028, -12px -12px 24px #373e4a;
+  --k-neu: 6px 6px 12px #1d2028, -6px -6px 12px #373e4a;
+  --k-neu-in: inset 4px 4px 8px #1d2028, inset -4px -4px 8px #373e4a;
+  --k-focus: 0 0 0 4px rgba(143, 155, 255, 0.3);
+}
+
+/* Neu shapes have no outlines; the light and shadow draw them. */
+.khata[data-ks=neu] .k-btn:not(.pri):not(.gave):not(.got) {
+  --b-bg: var(--k-surface-solid);
+  --b-bd: transparent;
+}
+
+/* ---------- Theme menu: the style list with a swatch of each ---------- */
+.khata .k-pop-modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding-bottom: 6px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid var(--k-line-strong);
+}
+
+.khata .k-pop-modes .k-pop-opt {
+  justify-content: center;
+}
+
+.khata .k-swatch {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 9px;
+}
+
+.khata .k-swatch.glass {
+  background: linear-gradient(135deg, #5a2d55, #2a1530);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.khata .k-swatch.clay {
+  background: #ead6ff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(168, 85, 247, 0.45), inset -2px -3px 5px rgba(150, 100, 200, 0.3), inset 2px 2px 4px #ffffff;
+}
+
+.khata .k-swatch.skeu {
+  background: linear-gradient(180deg, #ffffff, #d4d7dc);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 1px 0 #ffffff, 0 2px 3px rgba(0, 0, 0, 0.3);
+}
+
+.khata .k-swatch.neu {
+  background: #e0e5ec;
+  box-shadow: 3px 3px 6px #a3b1c6, -3px -3px 6px #ffffff;
+}
+
+.khata .k-themes.k-skins .k-theme .pv {
+  height: 46px;
+}
+
+.khata .k-skin-pv {
+  display: grid;
+  place-items: center;
+}
+
+.khata .k-skin-pv .k-swatch {
+  width: 36px;
+  height: 36px;
+}
+
+@media (min-width: 640px) {
+  .khata .k-themes.k-skins {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

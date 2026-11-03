@@ -17,11 +17,18 @@ export interface AuthUser {
   roleName: string;
   createdOn: string;
   displayName: string;
+  isDeleted?: boolean;
+  isArchived?: boolean;
   avatar: string | null;
   permissions: string[];
   hiddenFeatures: string[];
+  /** How this session logged in. Mojito's demo logs in with a password only; SnapKhata's screens read it as the API branches do. */
+  loginMethod?: LoginMethod;
   lastLoginOn: string | null;
 }
+
+/** How a session logged in: e-mail and password, or a one-time code (the API branches; the Mojito demo has passwords only). */
+export type LoginMethod = 'password' | 'otp';
 
 /** Answer of login, sign-up and refresh. The access token is kept in memory only; the refresh token is an HttpOnly cookie. */
 export interface AuthResult {
@@ -68,4 +75,39 @@ export interface AuthHooks {
 export interface DevLogin {
   email: string;
   password: string;
+}
+
+/** Which users the Settings > Users tab lists (GET /admin/users?status=). */
+export type UserStatus = 'all' | 'active' | 'archived' | 'deleted';
+
+/** The account's mobile number, address and company, shown on the SnapKhata profile (and on its PDFs). */
+export interface ProfileDetails {
+  city: string | null;
+  state: string | null;
+  mobile: string | null;
+  country: string | null;
+  limits?: ProfileLimits;
+  postalCode: string | null;
+  companyName: string | null;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  companyEmail: string | null;
+  companyPhone: string | null;
+  companyTaxId: string | null;
+  companyAddress: string | null;
+}
+
+/** The longest each profile field may be, from the API's configuration (Profile:Limits), so the form and the server agree. */
+export interface ProfileLimits {
+  cityLength: number;
+  stateLength: number;
+  mobileLength: number;
+  addressLength: number;
+  countryLength: number;
+  postalCodeLength: number;
+  companyNameLength: number;
+  companyEmailLength: number;
+  companyPhoneLength: number;
+  companyTaxIdLength: number;
+  companyAddressLength: number;
 }

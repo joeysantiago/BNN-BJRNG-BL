@@ -1,0 +1,1145 @@
+/* SnapKhata app screens shared by every page: shell, page heads, avatars, lists, empty states, dialogs, settings. Ported from App-Prototype/assets/css/khata.css. */
+/* ---------- App shell ---------- */
+.khata .k-app {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.khata .k-rail {
+  display: none;
+}
+
+.khata .k-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  padding-top: max(10px, env(safe-area-inset-top));
+  background: color-mix(in srgb, var(--k-bg) 72%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  border-bottom: 1px solid var(--k-line);
+}
+
+.khata .k-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--k-text);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: -0.02em;
+}
+
+.khata .k-logo .mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: var(--k-brand-grad);
+  color: var(--k-on-brand);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--k-brand) 35%, transparent);
+}
+
+.khata .k-top .k-logo span:last-child {
+  display: none;
+}
+
+.khata .k-bookpick {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+/* The book picker: a button showing the open book; its list is the same pop-up menu as the language picker (k-pop / k-pop-opt). */
+.khata .k-bookpick-btn {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 8px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: 700 14.5px/1.2 var(--k-font);
+  text-align: start;
+  cursor: pointer;
+}
+
+.khata[data-kt=dark] .k-bookpick-btn {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.khata .k-bookpick .name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-bookpick-btn > .k-ico {
+  flex: none;
+  color: var(--k-muted);
+  transition: transform 0.2s var(--k-ease);
+}
+
+.khata .k-bookpick-btn[aria-expanded=true] > .k-ico {
+  transform: rotate(180deg);
+}
+
+.khata .k-book-pop {
+  inset-inline: 0;
+  min-width: 0;
+  max-height: min(360px, 60vh);
+  overflow-y: auto;
+}
+
+.khata .k-book-pop .manage {
+  margin-top: 2px;
+  border-top: 1px solid var(--k-line);
+  border-radius: 0 0 12px 12px;
+  color: var(--k-muted);
+}
+
+.khata .k-book-pop .manage:hover {
+  color: var(--k-text);
+}
+
+.khata .k-top-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.khata .k-content {
+  width: min(1120px, 100%);
+  margin-inline: auto;
+  padding: 18px 16px calc(var(--k-tabs) + 32px + env(safe-area-inset-bottom));
+}
+
+.khata .k-page {
+  display: grid;
+  gap: 16px;
+}
+
+/* Grid children may shrink below their content (long names, select options), so nothing pushes the page sideways. */
+.khata .k-page,
+.khata .k-dash,
+.khata .k-set,
+.khata .k-entry,
+.khata .k-form,
+.khata .k-party,
+.khata .k-toolbar,
+.khata .k-list,
+.khata .k-amountbox,
+.khata .k-hbars,
+.khata .k-auth-card {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.khata .k-mainwrap {
+  min-width: 0;
+}
+
+.khata .k-head > div {
+  min-width: 0;
+}
+
+.khata .k-tabs {
+  position: fixed;
+  inset-inline: 10px;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  z-index: 30;
+  height: var(--k-tabs);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  padding: 6px;
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--k-surface-solid) 82%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--k-line);
+  box-shadow: var(--k-shadow-lg);
+}
+
+.khata .k-tab {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-height: 52px;
+  padding: 6px 2px;
+  border-radius: 16px;
+  color: var(--k-faint);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 700;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.khata .k-tab[aria-current=page] {
+  color: var(--k-brand);
+  background: var(--k-brand-soft);
+}
+
+.khata .k-fab {
+  justify-self: center;
+  width: 56px;
+  height: 56px;
+  margin-top: -26px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: var(--k-brand-grad);
+  color: var(--k-on-brand);
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--k-brand) 45%, transparent);
+  border: 4px solid var(--k-bg);
+  text-decoration: none;
+  transition: transform 0.2s var(--k-ease);
+}
+
+.khata .k-fab:hover {
+  transform: translateY(-2px) rotate(90deg);
+}
+
+@media (min-width: 1024px) {
+  .khata .k-app {
+    display: grid;
+    grid-template-columns: var(--k-rail) minmax(0, 1fr);
+  }
+
+  .khata .k-rail {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 22px 16px;
+    border-inline-end: 1px solid var(--k-line);
+    background: color-mix(in srgb, var(--k-surface-solid) 55%, transparent);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+  }
+
+  .khata .k-rail .k-logo {
+    padding-inline: 6px;
+  }
+
+  .khata .k-rail .k-bookpick {
+    flex: none;
+  }
+
+  .khata .k-rail nav {
+    display: grid;
+    gap: 4px;
+  }
+
+  .khata .k-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 46px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    color: var(--k-muted);
+    text-decoration: none;
+    font-weight: 700;
+    transition: background-color 0.2s, color 0.2s, transform 0.2s var(--k-ease);
+  }
+
+  .khata .k-nav:hover {
+    color: var(--k-text);
+    background: var(--k-surface-3);
+    transform: translateX(2px);
+  }
+
+  .khata[dir=rtl] .k-nav:hover {
+    transform: translateX(-2px);
+  }
+
+  .khata .k-nav[aria-current=page] {
+    color: var(--k-text);
+    background: var(--k-surface-solid);
+    box-shadow: var(--k-shadow);
+  }
+
+  .khata .k-nav[aria-current=page] .k-ico {
+    color: var(--k-brand);
+  }
+
+  .khata .k-rail .grow {
+    flex: 1;
+  }
+
+  .khata .k-rail .k-new {
+    width: 100%;
+  }
+
+  .khata .k-rail .foot {
+    display: grid;
+    gap: 10px;
+  }
+
+  .khata .k-top {
+    padding-inline: 32px;
+  }
+
+  .khata .k-top .k-logo,
+  .khata .k-top .k-bookpick,
+  .khata .k-tabs {
+    display: none;
+  }
+
+  .khata .k-top .crumb {
+    flex: 1;
+    display: block;
+  }
+
+  .khata .k-content {
+    padding: 28px 32px 48px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .khata .k-top .crumb {
+    display: none;
+  }
+}
+
+.khata .k-top .crumb {
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 16px;
+  background: var(--k-surface);
+  border: 1px solid var(--k-line);
+  color: var(--k-text);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.khata .k-who:hover {
+  background: var(--k-surface-3);
+  border-color: var(--k-brand);
+}
+
+.khata .k-who[aria-current=page] {
+  background: var(--k-surface-solid);
+  border-color: var(--k-brand);
+  box-shadow: var(--k-shadow);
+}
+
+.khata .k-who small {
+  display: block;
+  color: var(--k-muted);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-who b {
+  font-size: 14px;
+}
+
+.khata .k-who > span:last-child {
+  min-width: 0;
+}
+
+/* ---------- Page heads ---------- */
+.khata .k-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.khata .k-head h1 {
+  font-size: clamp(1.45rem, 4.4vw, 1.95rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.khata .k-head p {
+  margin: 4px 0 0;
+  color: var(--k-muted);
+}
+
+.khata .k-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  color: var(--k-muted);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.khata .k-back:hover {
+  color: var(--k-text);
+}
+
+.khata[dir=rtl] .k-back .k-ico,
+.khata[dir=rtl] .k-row-link .chev {
+  transform: scaleX(-1);
+}
+
+/* ---------- Avatars ---------- */
+.khata .k-av {
+  --av: var(--k-brand);
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--av);
+  background: color-mix(in srgb, var(--av) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--av) 22%, transparent);
+}
+
+.khata .k-av.lg {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  font-size: 22px;
+}
+
+.khata .k-av.a1 { --av: #4f6bed; }
+.khata .k-av.a2 { --av: #c2410c; }
+.khata .k-av.a3 { --av: #0f8a6b; }
+.khata .k-av.a4 { --av: #a21caf; }
+.khata .k-av.a5 { --av: #0369a1; }
+.khata .k-av.a6 { --av: #b45309; }
+.khata[data-kt=dark] .k-av.a1 { --av: #9fb0ff; }
+.khata[data-kt=dark] .k-av.a2 { --av: #ffab7a; }
+.khata[data-kt=dark] .k-av.a3 { --av: #6fe3c0; }
+.khata[data-kt=dark] .k-av.a4 { --av: #f0a2ff; }
+.khata[data-kt=dark] .k-av.a5 { --av: #8fd3ff; }
+.khata[data-kt=dark] .k-av.a6 { --av: #ffd27a; }
+
+/* ---------- Lists (parties, transactions) ---------- */
+.khata .k-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.khata .k-row-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 68px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--k-surface);
+  border: 1px solid var(--k-line);
+  color: var(--k-text);
+  text-decoration: none;
+  text-align: start;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.2s var(--k-ease), box-shadow 0.2s, border-color 0.2s;
+}
+
+.khata .k-row-link:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--k-shadow);
+  border-color: var(--k-line-strong);
+}
+
+.khata .k-row-link:active {
+  transform: scale(0.99);
+}
+
+.khata .k-row-link .mid {
+  flex: 1;
+  min-width: 0;
+}
+
+.khata .k-row-link .mid b {
+  display: block;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-row-link .mid small {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  color: var(--k-muted);
+  font-size: 12.5px;
+}
+
+.khata .k-row-link .end {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  text-align: end;
+}
+
+.khata .k-row-link .amt {
+  font-size: 15.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.khata .k-row-link .chev {
+  color: var(--k-faint);
+}
+
+.khata .k-row-link.gone {
+  opacity: 0.6;
+}
+
+.khata .k-row-link.gone .amt {
+  text-decoration: line-through;
+}
+
+.khata .k-tx-ico {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+}
+
+.khata .k-tx-ico.give {
+  background: var(--k-give-soft);
+  color: var(--k-give);
+}
+
+.khata .k-tx-ico.get {
+  background: var(--k-get-soft);
+  color: var(--k-get);
+}
+
+.khata .k-group {
+  margin: 8px 4px 2px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--k-faint);
+}
+
+.khata .k-toolbar {
+  display: grid;
+  gap: 10px;
+}
+
+.khata .k-toolbar .line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.khata .k-search {
+  position: relative;
+  flex: 1 1 240px;
+}
+
+.khata .k-search input {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px 10px 44px;
+  border-radius: 16px;
+  border: 1.5px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: 600 15px var(--k-font);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.khata[dir=rtl] .k-search input {
+  padding: 10px 44px 10px 14px;
+}
+
+.khata[data-kt=dark] .k-search input {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.khata .k-search input:focus {
+  outline: none;
+  border-color: var(--k-brand);
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-search > .k-ico {
+  position: absolute;
+  inset-inline-start: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--k-faint);
+  pointer-events: none;
+}
+
+.khata .k-sort {
+  position: relative;
+}
+
+.khata .k-sort select {
+  min-height: 48px;
+  padding: 10px 36px 10px 40px;
+  border-radius: 16px;
+  border: 1.5px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: 700 14px var(--k-font);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.khata[data-kt=dark] .k-sort select {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.khata .k-sort select option {
+  color: var(--k-text);
+  background: var(--k-surface-solid);
+}
+
+.khata .k-sort > .k-ico {
+  position: absolute;
+  inset-inline-start: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--k-muted);
+  pointer-events: none;
+}
+
+.khata .k-sumbar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.khata .k-sumbar > div {
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--k-surface);
+  border: 1px solid var(--k-line);
+  min-width: 0;
+}
+
+.khata .k-sumbar small {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-sumbar b {
+  display: block;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.khata .k-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.khata .k-dates label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--k-muted);
+}
+
+.khata .k-dates input {
+  min-height: 42px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1.5px solid var(--k-line-strong);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  font: 600 14px var(--k-font);
+}
+
+.khata[data-kt=dark] .k-dates input {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ---------- Empty and not-found states ---------- */
+.khata .k-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 34px 20px;
+  text-align: center;
+}
+
+.khata .k-empty svg.art {
+  width: 140px;
+  height: 110px;
+}
+
+.khata .k-empty h2,
+.khata .k-empty h3 {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.khata .k-empty p {
+  margin: 0;
+  max-width: 360px;
+  color: var(--k-muted);
+}
+
+.khata .k-two {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+@media (min-width: 640px) {
+  .khata .k-two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.khata .k-formcard {
+  width: min(720px, 100%);
+}
+
+.khata .k-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ---------- Dialogs: PIN sheet, lightbox, toast ---------- */
+.khata .k-sheet {
+  width: min(400px, 100% - 24px);
+  max-height: calc(100dvh - 24px);
+  padding: 22px;
+  border-radius: 28px;
+  border: 1px solid var(--k-line);
+  background: var(--k-surface-solid);
+  color: var(--k-text);
+  box-shadow: var(--k-shadow-lg);
+  animation: k-pop 0.25s var(--k-ease);
+}
+
+.khata .k-sheet::backdrop {
+  background: var(--k-overlay);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.khata .k-sheet h2 {
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.khata .k-sheet .k-muted {
+  text-align: center;
+  margin: 6px 0 4px;
+}
+
+.khata .k-viewer {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(6, 4, 12, 0.94);
+  color: #ffffff;
+}
+
+.khata .k-viewer::backdrop {
+  background: rgba(6, 4, 12, 0.94);
+}
+
+.khata .k-viewer .stage {
+  position: absolute;
+  inset: 64px 0 64px;
+  display: grid;
+  place-items: center;
+  padding: 0 12px;
+}
+
+.khata .k-viewer .stage img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  animation: k-pop 0.3s var(--k-ease);
+  touch-action: pan-y;
+}
+
+.khata .k-viewer .bar {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  padding-top: max(10px, env(safe-area-inset-top));
+}
+
+.khata .k-viewer .bar span {
+  font-weight: 700;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.khata .k-viewer .nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.khata .k-viewer .nav.prev {
+  inset-inline-start: 10px;
+}
+
+.khata .k-viewer .nav.next {
+  inset-inline-end: 10px;
+}
+
+.khata .k-viewer .k-btn {
+  --b-bg: rgba(255, 255, 255, 0.12);
+  --b-fg: #ffffff;
+  --b-bd: rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.khata[dir=rtl] .k-viewer .nav .k-ico {
+  transform: scaleX(-1);
+}
+
+.khata .k-viewer .dots {
+  position: absolute;
+  inset-inline: 0;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.khata .k-viewer .dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.khata .k-viewer .dots i.on {
+  background: #ffffff;
+  width: 22px;
+  border-radius: 6px;
+}
+
+.khata .k-toast {
+  position: fixed;
+  z-index: 60;
+  inset-inline: 0;
+  bottom: calc(var(--k-tabs) + 26px + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.khata .k-toast div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--k-text);
+  color: var(--k-bg);
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: var(--k-shadow-lg);
+  animation: k-up 0.35s var(--k-ease);
+}
+
+@media (min-width: 1024px) {
+  .khata .k-toast {
+    bottom: 28px;
+  }
+}
+
+/* ---------- Settings / profile ---------- */
+.khata .k-set {
+  display: grid;
+  gap: 16px;
+  width: min(760px, 100%);
+}
+
+.khata .k-set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--k-line);
+}
+
+.khata .k-set-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.khata .k-set-row .t {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.khata .k-set-row .t b {
+  display: block;
+}
+
+.khata .k-set-row .t small {
+  display: block;
+  color: var(--k-muted);
+  font-size: 12.5px;
+}
+
+.khata .k-themes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.khata .k-theme {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 18px;
+  border: 2px solid var(--k-line);
+  background: var(--k-surface-2);
+  color: var(--k-text);
+  font: 700 13.5px var(--k-font);
+  cursor: pointer;
+  text-align: start;
+  transition: border-color 0.2s, transform 0.2s var(--k-ease);
+}
+
+.khata .k-theme:hover {
+  transform: translateY(-2px);
+}
+
+.khata .k-theme[aria-pressed=true] {
+  border-color: var(--k-brand);
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-theme .pv {
+  height: 64px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 5px;
+  padding: 6px;
+}
+
+.khata .k-theme .pv i {
+  border-radius: 6px;
+}
+
+.khata .k-theme .pv.light {
+  background: #eef1f7;
+}
+
+.khata .k-theme .pv.light i {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.khata .k-theme .pv.light i:last-child {
+  background: linear-gradient(135deg, #3a66f5, #5b5cf6);
+}
+
+.khata .k-theme .pv.dark {
+  background: #0e0b19;
+}
+
+.khata .k-theme .pv.dark i {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.khata .k-theme .pv.dark i:last-child {
+  background: linear-gradient(135deg, #ffa25a, #ff6a88);
+}
+
+.khata .k-theme .pv.system {
+  background: linear-gradient(90deg, #eef1f7 50%, #0e0b19 50%);
+}
+
+.khata .k-theme .pv.system i {
+  background: rgba(128, 128, 160, 0.4);
+}
+
+.khata .k-theme .pv.system i:last-child {
+  background: linear-gradient(90deg, #4a63f5 50%, #ff8a6a 50%);
+}
+
+.khata .k-theme .nm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.khata .k-bookcards {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 720px) {
+  .khata .k-bookcards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.khata .k-book {
+  display: grid;
+  gap: 14px;
+}
+
+.khata .k-book .top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.khata .k-book .top a {
+  flex: 1;
+  min-width: 0;
+  color: var(--k-text);
+  text-decoration: none;
+}
+
+.khata .k-book .top a b {
+  display: block;
+  font-size: 16px;
+}
+
+.khata .k-book .nums {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.khata .k-book .nums div {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--k-surface-2);
+}
+
+.khata .k-book .nums small {
+  display: block;
+  font-size: 12px;
+  color: var(--k-muted);
+  font-weight: 700;
+}
+
+.khata .k-grid4 {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .khata .k-grid4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.khata .k-curs {
+  display: grid;
+  gap: 8px;
+}
+
+.khata .k-cur {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--k-surface-2);
+}
+
+.khata .k-addform {
+  animation: k-pop 0.3s var(--k-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .khata *,
+  .khata *::before,
+  .khata *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .khata .k-quick {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .khata .k-sumbar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .khata .k-sumbar > div:last-child {
+    grid-column: span 2;
+  }
+
+  .khata .k-hero .split {
+    grid-template-columns: 1fr;
+  }
+}
+

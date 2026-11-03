@@ -5,8 +5,8 @@ import { SettingsService } from './settings.service';
 import { environment } from '../../environments/environment';
 import { PageCode, PermissionAction } from './models/role.model';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
-import { AuthResult, AuthTabMessage, AuthUser } from './models/auth.model';
 import { Injectable, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
+import { AuthResult, AuthTabMessage, AuthUser, ProfileDetails } from './models/auth.model';
 
 const TIMEOUT = environment.timings.authCallMs;
 const HELLO_WAIT_MS = environment.timings.tabHelloMs;
@@ -109,10 +109,27 @@ export class AuthService {
     return this.restoring;
   }
 
+  /** The account's mobile number, address and company, shown on the SnapKhata profile. */
+  details(): Promise<ProfileDetails> {
+    return this.api.send<ProfileDetails>('GET', '/auth/me/details', this.init(), TIMEOUT);
+  }
+
   async removeAvatar(): Promise<string> {
     const res = await this.api.sendFull<AuthUser>('DELETE', '/auth/avatar', this.init(), TIMEOUT);
     this.patchUser(res.data);
     return res.message ?? '';
+  }
+
+  /**
+   * Deletes the logged-in user's own account; the backend ends every session. Then this tab and the others log out.
+   * Unlike logout, a refusal (such as the last super admin) is thrown so the page can show it, and the user stays logged in.
+   */
+  async deleteAccount(): Promise<string> {
+    const text = await this.api.message('DELETE', '/auth/me', this.init(), TIMEOUT);
+    this.clear();
+    this.post({ type: 'logout' });
+    this.leaveGuardedPage();
+    return text;
   }
 
   /** The profile picture of a user, or null when they have none. Mojito keeps it in the demo backend as a data: URL. */
@@ -133,6 +150,11 @@ export class AuthService {
   async updateFeatures(hidden: string[]): Promise<string> {
     const res = await this.api.sendFull<AuthUser>('PUT', '/auth/me/features', this.init({ hidden }), TIMEOUT);
     this.patchUser(res.data);
+    return res.message ?? '';
+  }
+
+  async saveDetails(details: ProfileDetails): Promise<string> {
+    const res = await this.api.sendFull<ProfileDetails>('PUT', '/auth/me/details', this.init(details), TIMEOUT);
     return res.message ?? '';
   }
 

@@ -1,0 +1,107 @@
+/* SnapKhata entry details. Ported from App-Prototype/assets/css/khata.css; loaded by the screen that uses it. */
+/* ---------- Transaction details ---------- */
+.khata .k-detail-amt {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 26px 18px;
+  text-align: center;
+}
+
+.khata .k-detail-amt .big {
+  font-size: clamp(2.2rem, 9vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+
+.khata .k-dl {
+  display: grid;
+  margin: 0;
+}
+
+.khata .k-dl > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--k-line);
+}
+
+.khata .k-dl > div:last-child {
+  border-bottom: 0;
+}
+
+.khata .k-dl dt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--k-muted);
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+.khata .k-dl dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+
+.khata .k-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+
+.khata .k-timeline li {
+  position: relative;
+  padding: 0 0 18px 26px;
+}
+
+.khata[dir=rtl] .k-timeline li {
+  padding: 0 26px 18px 0;
+}
+
+.khata .k-timeline li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 5px;
+  top: 6px;
+  bottom: -6px;
+  width: 2px;
+  background: var(--k-line-strong);
+}
+
+.khata .k-timeline li:last-child::before {
+  display: none;
+}
+
+.khata .k-timeline li::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--k-surface-solid);
+  border: 3px solid var(--k-brand);
+}
+
+.khata .k-timeline li.del::after {
+  border-color: var(--k-give);
+}
+
+.khata .k-timeline b {
+  display: block;
+  font-size: 14px;
+}
+
+.khata .k-timeline small {
+  color: var(--k-muted);
+  font-size: 12.5px;
+}

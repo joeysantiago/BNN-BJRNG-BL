@@ -1,0 +1,31 @@
+@if (ready()) {
+  <div class="k-page k-stagger k-narrow-sm">
+    <form class="k-card k-form" novalidate (submit)="$event.preventDefault(); create(name.value, currency.value)">
+      <div class="k-empty k-pad-top">
+        <svg kEmptyArt="book"></svg>
+        <h1 class="k-empty-h1">{{ i18n.t('khata.book.firstTitle') }}</h1>
+        <p>{{ i18n.t('khata.book.firstLead') }}</p>
+      </div>
+      <label class="k-field"><span class="lbl">{{ i18n.t('khata.book.name') }}</span><input #name type="text" maxlength="100" required autocomplete="off" [value]="i18n.t('khata.book.defaultName')" [disabled]="busy()" /></label>
+      <label class="k-field"><span class="lbl">{{ i18n.t('khata.book.currency') }}</span>
+        <select #currency [disabled]="busy()">
+          @for (c of state.currencies(); track c.id) {
+            <option [value]="c.id">{{ c.symbol }} · {{ c.code }} · {{ c.name }}</option>
+          }
+        </select>
+      </label>
+      <p class="k-hint">{{ i18n.t('khata.book.lockedHint') }}</p>
+      @if (error()) {
+        <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
+      }
+      <button type="submit" class="k-btn pri lg" [class.is-busy]="busy()" [disabled]="busy()"><svg kIco="plus" [size]="18"></svg>{{ i18n.t('khata.book.create') }}</button>
+    </form>
+  </div>
+} @else if (error()) {
+  <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
+} @else {
+  <div class="k-page" aria-busy="true">
+    <h1 class="sr-only">{{ i18n.t('khata.app.name') }}</h1>
+    <p class="k-muted" role="status"><span class="k-spin k-brand-ink" aria-hidden="true"></span> {{ i18n.t('khata.loading') }}</p>
+  </div>
+}

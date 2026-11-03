@@ -1,0 +1,153 @@
+@if (missing()) {
+  <app-khata-missing [message]="missing()" />
+} @else if (error()) {
+  <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
+} @else if (data(); as d) {
+  <div class="k-page k-stagger">
+    <div class="k-head">
+      <div>
+        <h1>{{ i18n.t('khata.nav.parties') }}</h1>
+        <p>{{ i18n.t('khata.c.lead', { n: counts().all }) }}</p>
+      </div>
+      <div class="k-head-acts">
+        <app-khata-export [path]="'/khata/books/' + d.book.id + '/contacts'" fileName="parties" [disabled]="adding() || busy()" />
+        <button type="button" class="k-btn pri" [attr.aria-expanded]="adding()" (click)="toggleAdd()"><svg [kIco]="adding() ? 'x' : 'plus'" [size]="18"></svg>{{ i18n.t(adding() ? 'khata.cancel' : 'khata.c.add') }}</button>
+      </div>
+    </div>
+
+    @if (adding()) {
+      <form #form class="k-card k-form k-addform" novalidate aria-labelledby="add-h" (submit)="$event.preventDefault(); create(form)">
+        <div class="k-card-h">
+          <div><h2 id="add-h">{{ i18n.t('khata.c.addTitle') }}</h2><p>{{ i18n.t('khata.c.addLead') }}</p></div>
+        </div>
+        <div class="k-photo-row">
+          <div class="k-photo-pick" [class.is-busy]="busy()">
+            <span class="k-av lg a1" [class.has-photo]="!!preview()" aria-hidden="true">
+              @if (preview()) {
+                <img [src]="preview()" alt="" />
+              } @else {
+                <svg kIco="user" [size]="28"></svg>
+              }
+            </span>
+            <label class="k-photo-act edit" [title]="i18n.t(photo() ? 'khata.cs.photoChange' : 'khata.cs.photoAdd')">
+              <input #photoInput type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" [attr.aria-label]="i18n.t(photo() ? 'khata.cs.photoChange' : 'khata.cs.photoAdd')" [disabled]="busy()" (change)="pickPhoto(photoInput)" />
+              <svg [kIco]="photo() ? 'edit' : 'plus'" [size]="16" [stroke]="2.4"></svg>
+            </label>
+            @if (photo()) {
+              <button type="button" class="k-photo-act del" [title]="i18n.t('khata.cs.photoRemove')" [attr.aria-label]="i18n.t('khata.cs.photoRemove')" [disabled]="busy()" (click)="clearPhoto()"><svg kIco="trash" [size]="15"></svg></button>
+            }
+          </div>
+          <p class="k-hint k-m0">{{ i18n.t('khata.cs.photoHint') }}</p>
+        </div>
+        <div class="k-two">
+          <label class="k-field ico">
+            <span class="lbl">{{ i18n.t('khata.c.name') }}</span>
+            <svg kIco="user" [size]="18"></svg>
+            <input #nameInput name="name" type="text" maxlength="100" required autocomplete="off" [attr.aria-invalid]="!!invalid()['name']" [disabled]="busy()" />
+          </label>
+          <label class="k-field ico">
+            <span class="lbl">{{ i18n.t('khata.c.mobile') }}</span>
+            <svg kIco="phone" [size]="18"></svg>
+            <input name="mobile" type="tel" inputmode="tel" autocomplete="off" [attr.aria-invalid]="!!invalid()['mobile']" [disabled]="busy()" />
+          </label>
+          <label class="k-field ico">
+            <span class="lbl">{{ i18n.t('khata.c.email') }}</span>
+            <svg kIco="mail" [size]="18"></svg>
+            <input name="email" type="email" inputmode="email" autocomplete="off" [attr.aria-invalid]="!!invalid()['email']" [disabled]="busy()" />
+          </label>
+          <label class="k-field"><span class="lbl">{{ i18n.t('khata.c.type') }}</span>
+            <select name="type" [disabled]="busy()">
+              <option [value]="customer">{{ i18n.t('khata.c.customer') }}</option>
+              <option [value]="supplier">{{ i18n.t('khata.c.supplier') }}</option>
+            </select>
+          </label>
+        </div>
+        @if (formError()) {
+          <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ formError() }}</span></p>
+        }
+        <div class="k-actions">
+          <button type="button" class="k-btn" (click)="toggleAdd(false)">{{ i18n.t('khata.cancel') }}</button>
+          <button type="submit" class="k-btn pri" [class.is-busy]="busy()" [disabled]="busy()">
+            @if (busy()) {
+              <span class="k-spin" aria-hidden="true"></span>
+            } @else {
+              <svg kIco="check" [size]="18"></svg>
+            }
+            {{ i18n.t('khata.c.save') }}
+          </button>
+        </div>
+      </form>
+    }
+
+    <div class="k-sumbar">
+      <div><small>{{ i18n.t('khata.c.willGet') }}</small><b class="k-num k-get">{{ sums().get | kMoney: d.book.currency : i18n.lang() }}</b></div>
+      <div><small>{{ i18n.t('khata.c.willGive') }}</small><b class="k-num k-give">{{ sums().give | kMoney: d.book.currency : i18n.lang() }}</b></div>
+      <div><small>{{ i18n.t('khata.d.partiesT') }}</small><b class="k-num">{{ counts().all }}</b></div>
+    </div>
+
+    <div class="k-card k-toolbar k-pad-14">
+      <div class="line">
+        <label class="k-search">
+          <svg kIco="search" [size]="18"></svg>
+          <span class="sr-only">{{ i18n.t('khata.c.search') }}</span>
+          <input type="search" enterkeyhint="search" autocomplete="off" [placeholder]="i18n.t('khata.c.search')" [value]="q()" (input)="q.set($any($event.target).value)" />
+        </label>
+        <label class="k-sort">
+          <svg kIco="sort" [size]="18"></svg>
+          <span class="sr-only">{{ i18n.t('khata.sort.label') }}</span>
+          <select (change)="sort.set($any($event.target).value)">
+            @for (s of sorts; track s) {
+              <option [value]="s" [selected]="sort() === s">{{ i18n.t('khata.sort.' + s) }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      <div class="k-seg k-seg-start" role="group" [attr.aria-label]="i18n.t('khata.c.type')">
+        @for (k of kinds; track k) {
+          <button type="button" [attr.aria-pressed]="kind() === k" (click)="kind.set(k)">{{ kindLabel(k) }} <span class="k-faint">{{ counts()[k] }}</span></button>
+        }
+      </div>
+      <div class="k-chips" role="group" [attr.aria-label]="i18n.t('khata.f.status')">
+        @for (s of statuses; track s) {
+          <button type="button" class="k-chip" [attr.aria-pressed]="status() === s" (click)="status.set(s)">{{ statusLabel(s) }}</button>
+        }
+      </div>
+    </div>
+
+    @if (rows().length) {
+      <ul class="k-list" [attr.aria-label]="i18n.t('khata.nav.parties')">
+        @for (r of rows(); track r.contact.id) {
+          <li>
+            <a class="k-row-link" [routerLink]="['/khata/app/b', d.book.id, 'contact', r.contact.id]">
+              <span kAvatar [name]="r.contact.name" [contactId]="r.contact.id" [photo]="r.contact.photo"></span>
+              <span class="mid">
+                <b>{{ r.contact.name }}</b>
+                <small>
+                  <span class="k-badge"><svg [kIco]="r.contact.contactType === customer ? 'store' : 'truck'" [size]="12"></svg>{{ i18n.t(r.contact.contactType === customer ? 'khata.c.customer' : 'khata.c.supplier') }}</span>
+                  {{ r.last ? i18n.t('khata.c.lastEntry', { date: (r.last | kDate) }) : i18n.t('khata.c.noEntries') }}
+                </small>
+              </span>
+              <span class="end">
+                <span class="amt k-num" [class.k-get]="r.balance > 0" [class.k-give]="r.balance < 0">{{ r.balance | kMoney: d.book.currency : i18n.lang() }}</span>
+                <span kStatus [balance]="r.balance" [hasEntries]="!!r.last"></span>
+              </span>
+              <svg kIco="chev" [size]="18"></svg>
+            </a>
+          </li>
+        }
+      </ul>
+    } @else {
+      <div class="k-card k-empty">
+        <svg [kEmptyArt]="filtered() ? 'search' : 'users'"></svg>
+        <h2>{{ i18n.t(counts().all ? 'khata.c.noMatch' : 'khata.c.none') }}</h2>
+        @if (counts().all) {
+          <button type="button" class="k-btn" (click)="clearFilters()">{{ i18n.t('khata.f.clear') }}</button>
+        } @else {
+          <button type="button" class="k-btn pri" (click)="toggleAdd(true)"><svg kIco="plus" [size]="18"></svg>{{ i18n.t('khata.c.add') }}</button>
+        }
+      </div>
+    }
+  </div>
+} @else {
+  <app-khata-skeleton />
+}

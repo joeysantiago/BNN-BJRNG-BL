@@ -26,10 +26,13 @@ export class Profile {
   private readonly seo = inject(SeoService);
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
+  /** The first press of Delete my account asks again on the button; the second deletes. */
+  protected readonly confirmDelete = signal(false);
   protected readonly saving = signal<ProfileForm | null>(null);
   protected readonly pwNotice = signal<ProfileNotice | null>(null);
   protected readonly infoNotice = signal<ProfileNotice | null>(null);
   protected readonly photoNotice = signal<ProfileNotice | null>(null);
+  protected readonly deleteNotice = signal<ProfileNotice | null>(null);
   protected readonly since = computed(() => formatDate(this.auth.user()?.createdOn));
   protected readonly lastLogin = computed(() => formatDateTimeWithZone(this.auth.user()?.lastLoginOn));
   /** A feature branch may not have every app's pages: an app whose page is not routed here is listed without a link. */
@@ -57,6 +60,20 @@ export class Profile {
 
   async removePhoto(): Promise<void> {
     await this.run('photo', this.photoNotice, () => this.auth.removeAvatar());
+  }
+
+  /** The second press deletes the account (soft delete): every device is logged out and the e-mail can no longer log in. A refusal stays on the page. */
+  async deleteAccount(): Promise<void> {
+    if (!this.confirmDelete()) {
+      this.confirmDelete.set(true);
+      return;
+    }
+    this.confirmDelete.set(false);
+    await this.run('delete', this.deleteNotice, async () => {
+      const text = await this.auth.deleteAccount();
+      void this.router.navigateByUrl('/', { replaceUrl: true });
+      return text;
+    });
   }
 
   /** Uploads the chosen picture at once; the server checks its type and size. */

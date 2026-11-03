@@ -7,7 +7,7 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
  *
  * Redirects such as /hr and /Creta must not be prerendered: on a case-insensitive disk they would overwrite /HR and /creta.
  */
-const pages = ['', 'hi', 'ar', 'HR', 'creta', 'nexon', 'youtube', 'kunal', 'preetik', 'about', 'privacy', 'terms', 'master', 'offline', 'error', 'login', 'signup', 'profile'];
+const pages = ['', 'hi', 'ar', 'HR', 'creta', 'nexon', 'youtube', 'khata', 'kunal', 'preetik', 'about', 'privacy', 'terms', 'master', 'offline', 'error', 'login', 'signup', 'profile'];
 
 export const serverRoutes: ServerRoute[] = [
   ...pages.map((path): ServerRoute => ({ path, renderMode: RenderMode.Prerender })),

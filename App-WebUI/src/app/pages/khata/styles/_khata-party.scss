@@ -1,0 +1,72 @@
+/* SnapKhata party (ledger) header. Ported from App-Prototype/assets/css/khata.css; loaded by the screen that uses it. */
+/* ---------- Party (ledger) header ---------- */
+.khata .k-party {
+  display: grid;
+  gap: 16px;
+}
+
+.khata .k-party .who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.khata .k-party .who h1 {
+  font-size: clamp(1.3rem, 4.6vw, 1.7rem);
+  font-weight: 800;
+}
+
+.khata .k-party .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.khata .k-party .bal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--k-surface-2);
+  border: 1px solid var(--k-line);
+}
+
+.khata .k-party .bal b {
+  display: block;
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.khata .k-party .tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.khata .k-sticky {
+  position: sticky;
+  bottom: calc(var(--k-tabs) + 20px + env(safe-area-inset-bottom));
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--k-surface-solid) 80%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--k-line);
+  box-shadow: var(--k-shadow-lg);
+}
+
+@media (min-width: 1024px) {
+  .khata .k-sticky {
+    bottom: 20px;
+  }
+}

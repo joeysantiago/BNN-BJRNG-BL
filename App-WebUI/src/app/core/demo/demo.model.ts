@@ -1,4 +1,7 @@
 import { PageCode } from '../models/role.model';
+import { MailSetting } from '../models/mail.model';
+import { KhataDemoDb } from './khata-demo.model';
+import { ProfileDetails, ProfileLimits } from '../models/auth.model';
 import { SettingsOverrides } from '../models/app-settings.model';
 
 /** One text of the API's Messages table, in the three languages. */
@@ -11,7 +14,10 @@ export interface DemoText {
 /** Message code → texts (INSERT/Common/001_Messages.sql). */
 export type DemoMessages = Record<string, DemoText>;
 
-/** An account of the demo database (Users table). The password is kept as a SHA-256 hash; `avatarData` is the picture as a data: URL. */
+/**
+ * An account of the demo database (Users table). The password is kept as a SHA-256 hash; `avatarData` is the picture as a data: URL.
+ * `archived` = IsActive false (cannot log in until activated), `deleted` = IsSoftDeleted (gone, can be restored). Both are missing in data saved by older builds.
+ */
 export interface DemoUser {
   id: number;
   email: string;
@@ -20,12 +26,15 @@ export interface DemoUser {
   hidden: string[];
   language: string;
   createdOn: string;
+  deleted?: boolean;
+  archived?: boolean;
   passwordHash: string;
   displayName: string;
   failedLogins: number;
   avatar: string | null;
   lockedUntil: number | null;
   avatarData: string | null;
+  details?: ProfileDetails;
   lastLoginOn: string | null;
 }
 
@@ -72,13 +81,15 @@ export interface DemoSession {
   expiresAt: number;
 }
 
-/** The whole demo database, kept in this browser's storage. `settings` are the saved site settings (what differs from appSettings.ts). */
+/** The whole demo database, kept in this browser's storage. `settings` are the saved site settings (what differs from appSettings.ts); `mail` the saved mail servers. */
 export interface DemoDb {
   nextId: number;
   apps: DemoApp[];
   users: DemoUser[];
   roles: DemoRole[];
   pages: DemoPage[];
+  mail?: MailSetting[];
+  khata?: KhataDemoDb;
   sessions: DemoSession[];
   settings: SettingsOverrides;
   permissions: DemoPermission[];
@@ -97,6 +108,8 @@ export interface DemoRequest {
 export interface DemoReply {
   status: number;
   body: { success: boolean; message: string | null; data: unknown };
+  /** A file answer (photos, exports) instead of the JSON body. */
+  file?: Blob;
 }
 
 /** The demo login rules, the same values as appsettings.json of the API (Auth and Avatars sections). */
@@ -110,4 +123,5 @@ export interface DemoRules {
   passwordMinLength: number;
   passwordMaxLength: number;
   avatarTypes: string[];
+  profileLimits: ProfileLimits;
 }

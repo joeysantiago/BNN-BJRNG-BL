@@ -1,0 +1,118 @@
+<div class="k-set k-stagger">
+  <div class="k-head">
+    <div><h1>{{ i18n.t('khata.nav.settings') }}</h1><p>{{ i18n.t('khata.st.lead') }}</p></div>
+  </div>
+
+  <div class="k-seg k-tabs-bar" role="tablist" [attr.aria-label]="i18n.t('khata.st.tabs')">
+    @for (t of tabs(); track t) {
+      <button type="button" role="tab" [id]="'ks-tab-' + t" [attr.aria-selected]="tab() === t" [attr.aria-pressed]="tab() === t" [attr.aria-controls]="'ks-panel-' + t" [attr.tabindex]="tab() === t ? 0 : -1" (click)="open(t)"
+        (keydown)="tabKey($event)">
+        {{ i18n.t('khata.st.tab.' + t) }}
+      </button>
+    }
+  </div>
+
+  @if (notice(); as n) {
+    <p [class]="n.error ? 'k-err' : 'k-okmsg'" [attr.role]="n.error ? 'alert' : 'status'"><svg [kIco]="n.error ? 'alert' : 'check'" [size]="18"></svg><span>{{ n.text }}</span></p>
+  }
+
+  <div class="k-set" role="tabpanel" [id]="'ks-panel-' + tab()" [attr.aria-labelledby]="'ks-tab-' + tab()">
+    @switch (tab()) {
+      @case ('general') {
+        <section class="k-card" aria-labelledby="ks-ap">
+          <div class="k-card-h"><div><h2 id="ks-ap">{{ i18n.t('khata.p.appearance') }}</h2><p>{{ i18n.t('khata.p.appearanceLead') }}</p></div></div>
+          <div class="k-themes" role="group" [attr.aria-label]="i18n.t('khata.theme.label')">
+            @for (m of modes; track m) {
+              <button type="button" class="k-theme" [attr.aria-pressed]="theme.activeMode() === m" (click)="theme.setMode(m)">
+                <span [class]="'pv ' + m" aria-hidden="true"><i></i><i></i></span>
+                <span class="nm"><svg [kIco]="modeIcons[m]" [size]="16"></svg>{{ i18n.t('khata.theme.' + m) }}</span>
+              </button>
+            }
+          </div>
+          <h3 class="k-legend-h k-mt8">{{ i18n.t('khata.theme.skins') }}</h3>
+          <div class="k-themes k-skins" role="group" [attr.aria-label]="i18n.t('khata.theme.skins')">
+            @for (s of theme.skins; track s.id) {
+              <button type="button" class="k-theme" [attr.aria-pressed]="theme.skin() === s.id" (click)="theme.set(s.id)">
+                <span class="pv k-skin-pv" aria-hidden="true"><span [class]="'k-swatch ' + s.id"></span></span>
+                <span class="nm">{{ i18n.t(s.labelKey) }}</span>
+              </button>
+            }
+          </div>
+          <div class="k-set-row k-mt8">
+            <span class="t"><span class="k-ib brand"><svg kIco="globe" [size]="18"></svg></span><span><b>{{ i18n.t('khata.p.language') }}</b><small>{{ i18n.t('khata.p.languageHint') }}</small></span></span>
+            <label class="k-field k-lang">
+              <span class="sr-only">{{ i18n.t('khata.p.language') }}</span>
+              <select (change)="setLang($any($event.target).value)">
+                @for (l of i18n.languages; track l.code) {
+                  <option [value]="l.code" [attr.lang]="l.code" [selected]="l.code === i18n.lang()">{{ l.native }}</option>
+                }
+              </select>
+            </label>
+          </div>
+        </section>
+      }
+      @case ('notifications') {
+        <section class="k-card" aria-labelledby="ks-nt">
+          <div class="k-card-h k-m0"><h2 id="ks-nt">{{ i18n.t('khata.st.tab.notifications') }}</h2></div>
+          @if (notifications() !== null) {
+            <div class="k-set-row">
+              <span class="t"><span class="k-ib brand"><svg kIco="zap" [size]="18"></svg></span><span><b>{{ i18n.t('khata.st.notifyAll') }}</b><small>{{ i18n.t('khata.st.notifyAllHint') }}</small></span></span>
+              <span class="k-switch"><input #notify type="checkbox" role="switch" [checked]="notifications()" [disabled]="busy()" [attr.aria-label]="i18n.t('khata.st.notifyAll')" (change)="toggleNotifications(notify)" /><span></span></span>
+            </div>
+            <p class="k-hint">{{ i18n.t('khata.st.notifyParties') }}</p>
+          } @else {
+            <span class="k-sk sk-bar"></span>
+          }
+        </section>
+      }
+      @case ('storage') {
+        <section class="k-card" aria-labelledby="ks-fs">
+          <div class="k-card-h">
+            <div><h2 id="ks-fs">{{ i18n.t('khata.st.tab.storage') }}</h2><p>{{ i18n.t('khata.st.storageLead') }}</p></div>
+            <span class="k-badge warn"><svg kIco="shield" [size]="12"></svg>{{ i18n.t('khata.st.superOnly') }}</span>
+          </div>
+          @if (storage(); as s) {
+            <form #store class="k-form" novalidate (submit)="$event.preventDefault(); saveStorage(store)">
+              <fieldset class="k-typeseg k-plain">
+                <legend class="sr-only">{{ i18n.t('khata.st.provider') }}</legend>
+                <label class="got"><input type="radio" name="provider" value="local" [checked]="provider() === 'local'" (change)="provider.set('local')" /><svg kIco="book" [size]="18"></svg>{{ i18n.t('khata.st.local') }}</label>
+                <label class="got"><input type="radio" name="provider" value="azure" [checked]="provider() === 'azure'" (change)="provider.set('azure')" /><svg kIco="globe" [size]="18"></svg>{{ i18n.t('khata.st.azure') }}</label>
+              </fieldset>
+              @if (provider() === 'azure') {
+                <div class="k-set-row">
+                  <span class="t"><span class="k-ib brand"><svg kIco="swap" [size]="18"></svg></span><span><b>{{ i18n.t('khata.st.enabled') }}</b><small>{{ i18n.t('khata.st.enabledHint') }}</small></span></span>
+                  <span class="k-switch"><input name="enabled" type="checkbox" role="switch" [checked]="s.enabled" [attr.aria-label]="i18n.t('khata.st.enabled')" /><span></span></span>
+                </div>
+                <div class="k-two">
+                  <label class="k-field"><span class="lbl">{{ i18n.t('khata.st.account') }}</span><input name="accountName" type="text" autocomplete="off" maxlength="100" required [value]="s.accountName" /></label>
+                  <label class="k-field"><span class="lbl">{{ i18n.t('khata.st.container') }}</span><input name="containerName" type="text" autocomplete="off" maxlength="100" required [value]="s.containerName" /></label>
+                </div>
+                <label class="k-field">
+                  <span class="lbl">{{ i18n.t('khata.st.connection') }}</span>
+                  <input name="connectionString" type="password" autocomplete="off" spellcheck="false" [placeholder]="s.hasKey ? i18n.t('khata.st.keyKept') : ''" />
+                </label>
+                <p class="k-hint">{{ i18n.t(s.hasKey ? 'khata.st.keyStored' : 'khata.st.keyNone') }}</p>
+              } @else {
+                <p class="k-hint">{{ i18n.t('khata.st.localHint') }}</p>
+              }
+              <div class="k-actions">
+                @if (provider() === 'azure' && s.hasKey) {
+                  <button type="button" class="k-btn" [disabled]="busy()" (click)="testStorage()"><svg kIco="zap" [size]="18"></svg>{{ i18n.t('khata.st.test') }}</button>
+                }
+                <button type="submit" class="k-btn pri" [class.is-busy]="busy()" [disabled]="busy()"><svg kIco="check" [size]="18"></svg>{{ i18n.t('khata.save') }}</button>
+              </div>
+            </form>
+          } @else {
+            <span class="k-sk sk-chart"></span>
+          }
+        </section>
+      }
+      @case ('mail') {
+        <app-khata-mail />
+      }
+      @case ('users') {
+        <app-khata-users />
+      }
+    }
+  </div>
+</div>

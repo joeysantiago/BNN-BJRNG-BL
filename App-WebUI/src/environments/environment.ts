@@ -8,7 +8,7 @@ export const environment = {
   apiBaseUrl: '',
   // true: the login form is pre-filled with the first login below and all of them are shown as one-tap buttons (for testing).
   // false: no pre-fill and no login buttons, the form starts empty. Set this to false before deploying.
-  showDevLogins: false,
+  showDevLogins: true,
   devLogins: [
     { email: 'superadmin@thakurg.com', password: 'Super@1234' },
     { email: 'admin@thakurg.com', password: 'Admin@1234' },
@@ -20,5 +20,14 @@ export const environment = {
     tabHelloMs: 300,
     renewBeforeMs: 60000,
     demoDelayMs: 250
+  },
+  // SnapKhata bill photos, the same limits as the API branches (Khata:Limits:MaxPhotosPerEntry / MaxPhotoBytes). The demo keeps photos in this browser.
+  khata: {
+    maxPhotos: 3,
+    photoEdgePx: 1600,
+    maxPhotoBytes: 2097152,
+    maxPickedBytes: 10485760,
+    contactPhotoPx: 512,
+    maxContactPhotoBytes: 524288
   }
 };

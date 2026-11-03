@@ -29,6 +29,9 @@ export const routes: Routes = [
 
   { path: 'youtube', loadComponent: () => import('./pages/youtube/youtube').then((m) => m.Youtube), canActivate: [appGuard('youtube')] },
 
+  // SnapKhata: /khata is the public page, /khata/app the ledger (needs the login and the khata app). Loaded with its texts only when opened.
+  { path: 'khata', loadChildren: () => import('./pages/khata/khata.mojito.routes').then((m) => m.KHATA_MOJITO_ROUTES) },
+
   // The common login of every app. One page with two modes. Mojito has no API: the demo backend in the browser answers (core/demo).
   { path: 'login', loadComponent: auth, data: { mode: 'login' } },
   { path: 'signup', loadComponent: auth, data: { mode: 'signup' } },
