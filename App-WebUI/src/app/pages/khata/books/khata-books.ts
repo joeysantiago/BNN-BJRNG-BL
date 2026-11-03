@@ -1,18 +1,20 @@
 import { RouterLink } from '@angular/router';
-import { SeoService } from '../../../core/seo.service';
+import { KhataIcon } from '../ui/khata-icon/khata-icon';
+import { KhataMoneyPipe } from '../ui/khata-money.pipe';
 import { I18nService } from '../../../core/i18n.service';
-import { formatMoney } from '../../../core/khata-format';
+import { KhataUiService } from '../../../core/khata-ui.service';
 import { KhataApiService } from '../../../core/khata-api.service';
 import { KhataStateService } from '../../../core/khata-state.service';
+import { KhataEmptyArt } from '../ui/khata-empty-art/khata-empty-art';
 import { KhataBook, KhataCurrency } from '../../../core/models/khata.model';
 import { Component, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 
-/** /khata/app/books: all books (open, rename, delete, new book) and the user's own money types. */
+/** /khata/app/books: all books (open, edit, delete, new book) with what you will get and give in each, and the reader's own money types. */
 @Component({
   selector: 'app-khata-books',
-  imports: [RouterLink],
   templateUrl: './khata-books.html',
   styleUrl: './khata-books.scss',
+  imports: [RouterLink, KhataIcon, KhataEmptyArt, KhataMoneyPipe],
 })
 
 export class KhataBooks {
@@ -20,32 +22,35 @@ export class KhataBooks {
   protected readonly error = signal('');
   protected readonly busy = signal(false);
   private requestKey = crypto.randomUUID();
-  private readonly seo = inject(SeoService);
   protected readonly creating = signal(false);
+  private readonly ui = inject(KhataUiService);
   protected readonly i18n = inject(I18nService);
   private readonly api = inject(KhataApiService);
   protected readonly state = inject(KhataStateService);
-  protected readonly editing = signal<KhataBook | null>(null);
+  protected readonly editing = signal<number | null>(null);
   protected readonly custom = computed(() => this.state.currencies().filter((c) => c.isCustom));
 
   constructor() {
-    effect(() => this.seo.set({ title: this.i18n.t('khata.books.title'), description: this.i18n.t('seo.khata.desc'), path: '/khata/', image: 'default', lang: this.i18n.lang(), noindex: true }));
+    effect(() => this.state.screen(this.i18n.t('khata.books.title')));
     afterNextRender(() => void this.run(async () => void (await Promise.all([this.state.loadBooks(), this.state.loadCurrencies()]))));
   }
 
   // #region Public Methods
 
+  toggleCreate(): void {
+    this.creating.update((v) => !v);
+    this.error.set('');
+  }
+
   async remove(book: KhataBook): Promise<void> {
-    if (!confirm(this.i18n.t('khata.books.deleteTitle', { name: book.name })))
+    if (this.busy() || !(await this.ui.confirm(this.i18n.t('khata.books.deleteTitle', { name: book.name }))))
       return;
     await this.run(async () => {
       this.info.set(await this.api.deleteBook(book.id));
+      if (this.state.bookId() === book.id)
+        this.state.bookId.set(0);
       await this.state.loadBooks();
     });
-  }
-
-  money(minor: number, currency: KhataCurrency): string {
-    return formatMoney(minor, currency, this.i18n.lang());
   }
 
   async removeCurrency(currency: KhataCurrency): Promise<void> {
@@ -57,9 +62,10 @@ export class KhataBooks {
 
   async create(name: string, currencyId: string): Promise<void> {
     await this.run(async () => {
-      await this.api.createBook({ name: name.trim(), currencyId: Number(currencyId) }, this.requestKey);
+      const book = await this.api.createBook({ name: name.trim(), currencyId: Number(currencyId) }, this.requestKey);
       this.requestKey = crypto.randomUUID();
       this.creating.set(false);
+      this.ui.notify(this.i18n.t('khata.books.created', { name: book.name }));
       await this.state.loadBooks();
     });
   }
@@ -68,13 +74,15 @@ export class KhataBooks {
     await this.run(async () => {
       await this.api.updateBook(book.id, { name: name.trim(), currencyId: Number(currencyId) });
       this.editing.set(null);
+      this.ui.notify(this.i18n.t('khata.cs.saved'));
       await this.state.loadBooks();
     });
   }
 
-  async addCurrency(code: string, symbol: string, name: string, decimals: string): Promise<void> {
+  async addCurrency(form: HTMLFormElement, code: string, symbol: string, name: string, decimals: string): Promise<void> {
     await this.run(async () => {
-      await this.api.addCurrency({ code, symbol, name, decimals: Number(decimals) });
+      await this.api.addCurrency({ code: code.trim().toUpperCase(), symbol: symbol.trim(), name: name.trim(), decimals: Number(decimals) });
+      form.reset();
       await this.state.loadCurrencies();
     });
   }

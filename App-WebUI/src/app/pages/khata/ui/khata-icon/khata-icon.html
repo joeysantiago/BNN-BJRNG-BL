@@ -1,0 +1,16 @@
+@for (s of shapes(); track $index) {
+  @switch (s.tag) {
+    @case ('path') {
+      <svg:path [attr.d]="s.d" />
+    }
+    @case ('circle') {
+      <svg:circle [attr.cx]="s.cx" [attr.cy]="s.cy" [attr.r]="s.r" />
+    }
+    @case ('rect') {
+      <svg:rect [attr.x]="s.x" [attr.y]="s.y" [attr.width]="s.width" [attr.height]="s.height" [attr.rx]="s.rx" />
+    }
+    @case ('ellipse') {
+      <svg:ellipse [attr.cx]="s.cx" [attr.cy]="s.cy" [attr.rx]="s.rx" [attr.ry]="s.ry" />
+    }
+  }
+}

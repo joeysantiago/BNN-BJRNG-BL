@@ -17,5 +17,12 @@ export const environment = {
     settingsSaveMs: 15000,
     musicLoadMs: 120000,
     musicResumeGapMs: 60000
+  },
+  // SnapKhata bill photos. Keep maxPhotos and maxPhotoBytes in step with the API (Khata:Limits:MaxPhotosPerEntry / MaxPhotoBytes).
+  khata: {
+    maxPhotos: 3,
+    photoEdgePx: 1600,
+    maxPhotoBytes: 2097152,
+    maxPickedBytes: 10485760
   }
 };

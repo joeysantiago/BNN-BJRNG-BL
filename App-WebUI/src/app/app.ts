@@ -24,8 +24,8 @@ export class App {
   protected readonly i18n = inject(I18nService);
   private readonly cfg = inject(SettingsService);
 
-  /** The Atrium HR app and the SnapKhata app (/khata/app) bring their own navigation, so the site header and footer are hidden there. */
-  protected readonly bare = computed(() => /^\/(HR|khata\/app)(\/|$|[?#])/.test(this.url()));
+  /** The Atrium HR app and SnapKhata (its public page /khata and the app /khata/app) bring their own navigation, so the site header and footer are hidden there. */
+  protected readonly bare = computed(() => /^\/(HR|khata)(\/|$|[?#])/.test(this.url()));
   private readonly url = toSignal(
     this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),

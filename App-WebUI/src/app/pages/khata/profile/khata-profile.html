@@ -1,0 +1,56 @@
+<div class="k-set k-stagger">
+  <div class="k-head">
+    <div><h1>{{ i18n.t('khata.p.title') }}</h1><p>{{ i18n.t('khata.p.lead') }}</p></div>
+  </div>
+
+  <section class="k-card" [attr.aria-label]="i18n.t('khata.p.account')">
+    <div class="k-set-row">
+      <span class="t"><span kAvatar [name]="auth.user()?.displayName || 'S'" size="lg"></span><span><b>{{ auth.user()?.displayName }}</b><small>{{ auth.user()?.email }} · {{ i18n.t('khata.p.signedIn') }}</small></span></span>
+    </div>
+    <div class="k-set-row">
+      <span class="t"><span class="k-ib brand"><svg kIco="user" [size]="18"></svg></span><span><b>{{ i18n.t('khata.p.manage') }}</b><small>{{ i18n.t('khata.p.manageHint') }}</small></span></span>
+      <a class="k-btn sm" routerLink="/profile">{{ i18n.t('auth.profile') }}</a>
+    </div>
+  </section>
+
+  <section class="k-card" aria-labelledby="ap-h">
+    <div class="k-card-h"><div><h2 id="ap-h">{{ i18n.t('khata.p.appearance') }}</h2><p>{{ i18n.t('khata.p.appearanceLead') }}</p></div></div>
+    <div class="k-themes" role="group" [attr.aria-label]="i18n.t('khata.theme.label')">
+      @for (m of modes; track m) {
+        <button type="button" class="k-theme" [attr.aria-pressed]="theme.activeMode() === m" (click)="theme.setMode(m)">
+          <span class="pv" [class]="'pv ' + m" aria-hidden="true"><i></i><i></i></span>
+          <span class="nm"><svg [kIco]="modeIcons[m]" [size]="16"></svg>{{ i18n.t('khata.theme.' + m) }}</span>
+        </button>
+      }
+    </div>
+    <div class="k-set-row k-mt8">
+      <span class="t"><span class="k-ib brand"><svg kIco="globe" [size]="18"></svg></span><span><b>{{ i18n.t('khata.p.language') }}</b><small>{{ i18n.t('khata.p.languageHint') }}</small></span></span>
+      <label class="k-field k-lang">
+        <span class="sr-only">{{ i18n.t('khata.p.language') }}</span>
+        <select (change)="setLang($any($event.target).value)">
+          @for (l of i18n.languages; track l.code) {
+            <option [value]="l.code" [selected]="l.code === i18n.lang()" [attr.lang]="l.code">{{ l.native }}</option>
+          }
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="k-card" aria-labelledby="data-h">
+    <div class="k-card-h k-m0"><h2 id="data-h">{{ i18n.t('khata.p.data') }}</h2></div>
+    @if (!install.installed() && (install.canPrompt() || install.showIosHint())) {
+      <div class="k-set-row">
+        <span class="t"><span class="k-ib get"><svg kIco="install" [size]="18"></svg></span><span><b>{{ i18n.t('khata.p.install') }}</b><small>{{ iosHelp() ? i18n.t('install.ios.text') : i18n.t('khata.p.installHint') }}</small></span></span>
+        @if (install.canPrompt()) {
+          <button type="button" class="k-btn sm pri" (click)="install.prompt()">{{ i18n.t('install.btn') }}</button>
+        } @else {
+          <button type="button" class="k-btn sm" [attr.aria-expanded]="iosHelp()" (click)="iosHelp.set(!iosHelp())">{{ i18n.t('install.btn') }}</button>
+        }
+      </div>
+    }
+    <div class="k-set-row">
+      <span class="t"><span class="k-ib give"><svg kIco="logout" [size]="18"></svg></span><span><b>{{ i18n.t('khata.pin.logout') }}</b><small>{{ i18n.t('khata.p.logoutHint') }}</small></span></span>
+      <button type="button" class="k-btn sm danger" (click)="logout()">{{ i18n.t('khata.pin.logout') }}</button>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,37 @@
+<div class="k-card k-toolbar k-pad-14">
+  <div class="line">
+    <label class="k-search">
+      <svg kIco="search" [size]="18"></svg>
+      <span class="sr-only">{{ i18n.t(withParty() ? 'khata.f.searchAll' : 'khata.f.searchNote') }}</span>
+      <input type="search" enterkeyhint="search" autocomplete="off" [placeholder]="i18n.t(withParty() ? 'khata.f.searchAll' : 'khata.f.searchNote')" [value]="query().q" (input)="search($any($event.target).value)" />
+    </label>
+    <label class="k-sort">
+      <svg kIco="sort" [size]="18"></svg>
+      <span class="sr-only">{{ i18n.t('khata.sort.label') }}</span>
+      <select (change)="set({ sort: $any($event.target).value })">
+        @for (s of sorts; track s) {
+          <option [value]="s" [selected]="query().sort === s">{{ i18n.t('khata.sort.' + s) }}</option>
+        }
+      </select>
+    </label>
+  </div>
+  <div class="k-chips" role="group" [attr.aria-label]="i18n.t('khata.e.type')">
+    @for (k of kinds; track k) {
+      <button type="button" class="k-chip" [attr.aria-pressed]="query().kind === k" (click)="set({ kind: k })">
+        @if (k === 'photos') {
+          <svg kIco="clip" [size]="14"></svg>
+        }
+        {{ kindLabel(k) }}
+      </button>
+    }
+  </div>
+  @if (withParty()) {
+    <div class="k-dates">
+      <label>{{ i18n.t('khata.f.from') }}<input type="date" [max]="query().to || today" [value]="query().from" (change)="set({ from: $any($event.target).value })" /></label>
+      <label>{{ i18n.t('khata.f.to') }}<input type="date" [min]="query().from" [max]="today" [value]="query().to" (change)="set({ to: $any($event.target).value })" /></label>
+      @if (query().from || query().to) {
+        <button type="button" class="k-btn ghost sm" (click)="clear()">{{ i18n.t('khata.f.clear') }}</button>
+      }
+    </div>
+  }
+</div>

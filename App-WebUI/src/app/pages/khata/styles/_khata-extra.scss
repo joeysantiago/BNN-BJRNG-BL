@@ -1,0 +1,200 @@
+/* SnapKhata: small helpers used by the Angular screens in place of the prototype's inline styles. */
+.khata .k-pad-14 {
+  padding: 14px;
+}
+
+.khata .k-pad-16 {
+  padding: 16px;
+}
+
+.khata .k-pad-top {
+  padding: 6px 0 0;
+}
+
+.khata .k-m0 {
+  margin: 0;
+}
+
+.khata .k-mt8 {
+  margin-top: 8px;
+}
+
+.khata .k-minw0 {
+  min-width: 0;
+}
+
+.khata .k-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.khata .k-inline {
+  display: inline;
+}
+
+.khata .k-struck {
+  text-decoration: line-through;
+}
+
+.khata .k-empty-h1 {
+  font-size: 20px;
+}
+
+.khata .k-narrow-sm {
+  width: min(560px, 100%);
+  margin-inline: auto;
+}
+
+.khata .k-narrow {
+  width: min(760px, 100%);
+  margin-inline: auto;
+}
+
+.khata .k-narrow-lg {
+  width: min(820px, 100%);
+  margin-inline: auto;
+}
+
+.khata .k-center-x {
+  margin-inline: auto;
+}
+
+.khata .k-actions.k-center {
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.khata .k-actions.k-start {
+  justify-content: flex-start;
+}
+
+.khata .k-seg.k-seg-start {
+  justify-self: start;
+}
+
+.khata .k-plain {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.khata .k-key-give {
+  background: var(--k-chart-give);
+}
+
+.khata .k-key-get {
+  background: var(--k-chart-get);
+}
+
+.khata .k-hbars .fill {
+  display: block;
+}
+
+.khata .k-group-h {
+  margin-top: 4px;
+}
+
+.khata .k-more {
+  justify-self: center;
+}
+
+.khata .k-brand-ink {
+  color: var(--k-brand);
+}
+
+.khata .k-tx-ico.k-tx-ico-lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+}
+
+.khata .k-row-link.k-static {
+  min-height: 56px;
+  cursor: default;
+}
+
+.khata .k-status-line {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.khata .k-photos {
+  display: grid;
+  gap: 12px;
+}
+
+.khata .k-head-who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.khata .k-danger-card {
+  border-color: color-mix(in srgb, var(--k-give) 30%, transparent);
+}
+
+.khata .k-lang {
+  min-width: 150px;
+}
+
+.khata .k-sheet-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.khata .k-viewer-tools {
+  display: flex;
+  gap: 8px;
+}
+
+.khata .k-viewer .stage .k-spin {
+  color: #ffffff;
+}
+
+/* Loading skeleton blocks, in the layout of the screen that is loading. */
+.khata .k-sk {
+  display: block;
+}
+
+.khata .sk-title { width: 220px; height: 28px; max-width: 100%; }
+.khata .sk-lead { width: 160px; height: 14px; margin-top: 10px; }
+.khata .sk-eyebrow { width: 120px; height: 14px; }
+.khata .sk-big { width: 60%; height: 42px; margin-top: 12px; }
+.khata .sk-split { width: 100%; height: 64px; margin-top: 20px; border-radius: 18px; }
+.khata .sk-label { width: 60%; height: 12px; }
+.khata .sk-value { width: 80%; height: 22px; }
+.khata .sk-h2 { width: 40%; height: 16px; }
+.khata .sk-chart { width: 100%; height: 180px; margin-top: 16px; }
+.khata .sk-bar { width: 100%; height: 48px; border-radius: 16px; }
+.khata .sk-row { pointer-events: none; }
+.khata .sk-avatar { width: 42px; height: 42px; border-radius: 14px; flex: none; }
+.khata .sk-name { width: 55%; height: 14px; }
+.khata .sk-sub { width: 35%; height: 11px; margin-top: 8px; }
+.khata .sk-amount { width: 70px; height: 16px; }
+
+
+/* Public page: the sample ledger rows keep space between the name and the amount; on the narrowest phones the top bar shows only the logo mark. */
+.khata.k-land .kl-mock .rows div {
+  gap: 10px;
+}
+
+@media (max-width: 380px) {
+  .khata.k-land .kl-top .k-logo span:last-child {
+    display: none;
+  }
+}
+
+/* The site's dropdown styles (styles.scss: option, ::picker(select)) read the skin's colours; inside SnapKhata they follow its own theme. */
+.khata {
+  --bg: var(--k-surface-solid);
+  --text: var(--k-text);
+  --line: var(--k-line-strong);
+  --muted: var(--k-muted);
+  --accent: var(--k-brand);
+  --accent-ink: var(--k-on-brand);
+}

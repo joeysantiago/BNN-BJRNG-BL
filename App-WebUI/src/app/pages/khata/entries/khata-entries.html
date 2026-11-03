@@ -1,0 +1,58 @@
+@if (missing()) {
+  <app-khata-missing [message]="missing()" />
+} @else if (book() && page(); as p) {
+  <div class="k-page k-stagger">
+    <div class="k-head">
+      <div>
+        <h1>{{ i18n.t('khata.nav.entries') }}</h1>
+        <p>{{ i18n.t('khata.en.lead', { book: book()!.name }) }}</p>
+      </div>
+      <a class="k-btn pri" [routerLink]="['/khata/app/b', bookId(), 'new']"><svg kIco="plus" [size]="18"></svg>{{ i18n.t('khata.nav.newEntry') }}</a>
+    </div>
+
+    <div class="k-sumbar">
+      <div><small>{{ i18n.t('khata.e.gave') }}</small><b class="k-num k-give">{{ p.gaveMinor | kMoney: book()!.currency : i18n.lang() }}</b></div>
+      <div><small>{{ i18n.t('khata.e.got') }}</small><b class="k-num k-get">{{ p.gotMinor | kMoney: book()!.currency : i18n.lang() }}</b></div>
+      <div><small>{{ i18n.t('khata.en.shown') }}</small><b class="k-num">{{ p.total }}</b></div>
+    </div>
+
+    <app-khata-entry-toolbar [(query)]="query" [withParty]="true" />
+
+    @if (error()) {
+      <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
+    }
+
+    @if (items().length) {
+      <ul class="k-list" [attr.aria-busy]="busy()">
+        @if (grouped()) {
+          @for (g of groups(); track g.key) {
+            <li class="k-group"><span>{{ g.label }}</span></li>
+            @for (e of g.entries; track e.id) {
+              <li [kTxRow]="e" [currency]="book()!.currency" [bookId]="bookId()" [party]="true"></li>
+            }
+          }
+        } @else {
+          @for (e of items(); track e.id) {
+            <li [kTxRow]="e" [currency]="book()!.currency" [bookId]="bookId()" [party]="true"></li>
+          }
+        }
+      </ul>
+      @if (items().length < p.total) {
+        <button type="button" class="k-btn k-more" [class.is-busy]="busy()" [disabled]="busy()" (click)="more()">{{ i18n.t('khata.e.more') }}</button>
+      }
+    } @else if (!busy()) {
+      <div class="k-card k-empty">
+        <svg [kEmptyArt]="filtered() ? 'search' : 'list'"></svg>
+        <h2>{{ i18n.t(filtered() ? 'khata.f.noMatch' : 'khata.e.noneTitle') }}</h2>
+        <p>{{ i18n.t(filtered() ? 'khata.f.noMatchLead' : 'khata.en.none') }}</p>
+        @if (filtered()) {
+          <button type="button" class="k-btn" (click)="clear()">{{ i18n.t('khata.f.clear') }}</button>
+        }
+      </div>
+    }
+  </div>
+} @else if (error()) {
+  <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
+} @else {
+  <app-khata-skeleton />
+}

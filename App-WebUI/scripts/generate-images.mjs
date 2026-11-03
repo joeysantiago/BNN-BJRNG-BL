@@ -191,4 +191,20 @@ head.writeUInt32LE(png.length, 14);
 head.writeUInt32LE(22, 18);
 writeFileSync(join(root, 'public', 'favicon.ico'), Buffer.concat([head, png]));
 console.log('icons and favicon.ico');
+
+/* ---------- SnapKhata app icons (public/khata.webmanifest) ---------- */
+// The tile has a fixed pixel size: headless Chrome keeps a minimum window width, so a full-page tile would be cut off.
+const khataGlyph = (size) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6z"/><path d="M6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2"/><path d="M9.5 9.5h6M9.5 13.5h4"/></svg>`;
+const khataIcon = (size, { radius, glyphScale }) =>
+  page(
+    `<div class="t"><div class="g">${khataGlyph(size * glyphScale)}</div></div>`,
+    `body{background:transparent}.t{position:absolute;left:0;top:0;width:${size}px;height:${size}px;border-radius:${radius}px;display:grid;place-items:center;background:linear-gradient(135deg,#3a66f5 0%,#5b5cf6 100%);box-shadow:inset 0 ${size * 0.01}px 0 rgba(255,255,255,.35)}
+.g{display:grid;place-items:center}`,
+  );
+
+shot(khataIcon(192, { radius: 44, glyphScale: 0.58 }), join(outIcons, 'khata-192.png'), 192, 192, true);
+shot(khataIcon(512, { radius: 118, glyphScale: 0.58 }), join(outIcons, 'khata-512.png'), 512, 512, true);
+shot(khataIcon(512, { radius: 0, glyphScale: 0.44 }), join(outIcons, 'khata-maskable-512.png'), 512, 512);
+shot(khataIcon(180, { radius: 0, glyphScale: 0.54 }), join(outIcons, 'khata-apple-touch-icon.png'), 180, 180);
+console.log('SnapKhata icons');
 rmSync(work, { recursive: true, force: true });

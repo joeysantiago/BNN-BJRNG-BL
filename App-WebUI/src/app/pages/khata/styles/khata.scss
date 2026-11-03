@@ -1,0 +1,12 @@
+// SnapKhata design system: one stylesheet (khata.css) for the public page (/khata) and every app screen (/khata/app/...).
+// Built by angular.json with "inject": false and linked by KhataStyleService only while SnapKhata is open, so other pages never load it.
+@use 'khata-tokens';
+@use 'khata-base';
+@use 'khata-app';
+@use 'khata-dashboard';
+@use 'khata-party';
+@use 'khata-entry-form';
+@use 'khata-photos';
+@use 'khata-details';
+@use 'khata-extra';
+@use 'khata-landing';

@@ -1,0 +1,22 @@
+<svg:ellipse cx="70" cy="98" rx="46" ry="6" fill="var(--k-line)" />
+<svg:rect x="26" y="14" width="88" height="74" rx="20" fill="var(--k-surface-solid)" stroke="var(--k-line-strong)" />
+<svg:circle cx="112" cy="20" r="10" fill="var(--k-brand-soft)" />
+<svg:circle cx="24" cy="78" r="7" fill="var(--k-brand-soft)" />
+<svg:g transform="translate(46 27) scale(2)" fill="none" stroke="var(--k-brand)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  @for (s of shapes(); track $index) {
+    @switch (s.tag) {
+      @case ('path') {
+        <svg:path [attr.d]="s.d" />
+      }
+      @case ('circle') {
+        <svg:circle [attr.cx]="s.cx" [attr.cy]="s.cy" [attr.r]="s.r" />
+      }
+      @case ('rect') {
+        <svg:rect [attr.x]="s.x" [attr.y]="s.y" [attr.width]="s.width" [attr.height]="s.height" [attr.rx]="s.rx" />
+      }
+      @case ('ellipse') {
+        <svg:ellipse [attr.cx]="s.cx" [attr.cy]="s.cy" [attr.rx]="s.rx" [attr.ry]="s.ry" />
+      }
+    }
+  }
+</svg:g>

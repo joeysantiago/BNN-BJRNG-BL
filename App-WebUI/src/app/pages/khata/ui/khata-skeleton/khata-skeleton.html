@@ -1,0 +1,22 @@
+<div class="k-page" aria-busy="true">
+  <span class="sr-only" role="status">{{ i18n.t('khata.loading') }}</span>
+  <div class="k-head">
+    <div><span class="k-sk sk-title"></span><span class="k-sk sk-lead"></span></div>
+  </div>
+  @if (kind() === 'dash') {
+    <div class="k-hero"><span class="k-sk sk-eyebrow"></span><span class="k-sk sk-big"></span><span class="k-sk sk-split"></span></div>
+    <div class="k-stats">
+      @for (s of stats; track s) {
+        <div class="k-card k-stat"><span class="k-sk sk-label"></span><span class="k-sk sk-value"></span></div>
+      }
+    </div>
+    <div class="k-card"><span class="k-sk sk-h2"></span><span class="k-sk sk-chart"></span></div>
+  } @else {
+    <div class="k-card"><span class="k-sk sk-bar"></span></div>
+    <div class="k-list">
+      @for (r of rows; track r) {
+        <div class="k-row-link sk-row"><span class="k-sk sk-avatar"></span><span class="mid"><span class="k-sk sk-name"></span><span class="k-sk sk-sub"></span></span><span class="k-sk sk-amount"></span></div>
+      }
+    </div>
+  }
+</div>

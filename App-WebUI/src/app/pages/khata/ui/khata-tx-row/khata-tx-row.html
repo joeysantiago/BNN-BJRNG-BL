@@ -1,0 +1,29 @@
+<a class="k-row-link" [class.gone]="kTxRow().isDeleted" [routerLink]="['/khata/app/b', bookId(), 'e', kTxRow().id]">
+  <span class="k-tx-ico" [class.give]="gave()" [class.get]="!gave()"><svg [kIco]="gave() ? 'gave' : 'got'" [size]="20" [stroke]="2.4"></svg></span>
+  <span class="mid">
+    <b>{{ title() }}</b>
+    <small>
+      {{ sub() }}
+      @if (kTxRow().isDeleted) {
+        <span class="k-badge give">{{ i18n.t('khata.e.deleted') }}</span>
+      } @else if (kTxRow().version > 1) {
+        <span class="k-badge warn">{{ i18n.t('khata.e.edited') }}</span>
+      }
+      @if (!kTxRow().addedByMe) {
+        <span class="k-badge brand">{{ i18n.t('khata.e.byContact') }}</span>
+      }
+      @if (kTxRow().photoCount) {
+        <span class="k-badge"><svg kIco="clip" [size]="12"></svg>{{ kTxRow().photoCount }}</span>
+      }
+    </small>
+  </span>
+  <span class="end">
+    <span class="amt k-num" [class.k-give]="gave()" [class.k-get]="!gave()">{{ kTxRow().amountMinor | kMoney: currency() : i18n.lang() }}</span>
+    @if (running() && kTxRow().balanceAfterMinor !== null && kTxRow().balanceAfterMinor !== undefined) {
+      <small class="k-faint k-num">{{ i18n.t('khata.e.balAfter', { amount: (kTxRow().balanceAfterMinor | kMoney: currency() : i18n.lang()) }) }}</small>
+    } @else {
+      <small class="k-faint">{{ i18n.t(gave() ? 'khata.e.gave' : 'khata.e.got') }}</small>
+    }
+  </span>
+  <svg kIco="chev" [size]="18"></svg>
+</a>

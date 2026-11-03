@@ -1,29 +1,102 @@
-<div class="wrap page">
-  <section class="card hero" aria-labelledby="khata-h1">
-    <h1 id="khata-h1">{{ i18n.t('khata.l.h1') }}</h1>
-    <p class="lead">{{ i18n.t('khata.l.lead') }}</p>
-    <div class="actions">
-      <a class="btn pri lg" routerLink="/khata/app">{{ i18n.t('khata.l.open') }}</a>
-      @if (!auth.user()) {
-        <a class="btn lg" routerLink="/login" [queryParams]="{ next: '/khata/app' }">{{ i18n.t('khata.l.login') }}</a>
-      }
+<div class="khata k-land" [style.visibility]="style.ready() ? null : 'hidden'" [attr.data-kt]="theme.brightness()" [attr.dir]="i18n.dir()">
+  <header class="kl-top">
+    <div class="kl-in">
+      <a class="k-logo" routerLink="/khata" [attr.aria-label]="i18n.t('khata.app.name')"><span class="mark"><svg kIco="logo" [stroke]="2.2"></svg></span><span>{{ i18n.t('khata.app.name') }}</span></a>
+      <div class="kl-tools">
+        <label class="kl-lang">
+          <svg kIco="globe" [size]="16"></svg>
+          <span class="sr-only">{{ i18n.t('lang.label') }}</span>
+          <select (change)="setLang($any($event.target).value)">
+            @for (l of i18n.languages; track l.code) {
+              <option [value]="l.code" [selected]="l.code === i18n.lang()" [attr.lang]="l.code">{{ l.native }}</option>
+            }
+          </select>
+        </label>
+        <button type="button" class="k-btn ghost icon" [title]="modeLabel()" [attr.aria-label]="modeLabel()" (click)="cycleMode()"><svg [kIco]="modeIcon()"></svg></button>
+        @if (auth.user()) {
+          <a class="k-btn ghost sm kl-login" routerLink="/profile">{{ i18n.t('auth.profile') }}</a>
+        } @else {
+          <a class="k-btn ghost sm kl-login" routerLink="/login" [queryParams]="{ next: '/khata/app' }">{{ i18n.t('khata.l.login') }}</a>
+        }
+      </div>
+    </div>
+  </header>
+
+  <section class="kl-hero" aria-labelledby="khata-h1">
+    <div class="kl-in kl-hero-in">
+      <span class="blob b1" aria-hidden="true"></span><span class="blob b2" aria-hidden="true"></span>
+      <div class="kl-copy">
+        <h1 id="khata-h1">{{ i18n.t('khata.l.h1') }}</h1>
+        <p class="kl-lead">{{ i18n.t('khata.l.lead') }}</p>
+        <div class="kl-cta">
+          <a class="k-btn lg kl-open" routerLink="/khata/app">{{ i18n.t('khata.l.open') }}<svg kIco="next" [size]="18"></svg></a>
+          @if (auth.user()) {
+            <a class="k-btn lg kl-ghost" routerLink="/profile">{{ i18n.t('auth.profile') }}</a>
+          } @else {
+            <a class="k-btn lg kl-ghost" routerLink="/login" [queryParams]="{ next: '/khata/app' }">{{ i18n.t('khata.l.login') }}</a>
+          }
+        </div>
+        <p class="kl-trust"><span><svg kIco="lock" [size]="15"></svg>{{ i18n.t('khata.auth.t1') }}</span><span><svg kIco="shield" [size]="15"></svg>{{ i18n.t('khata.auth.t2') }}</span></p>
+      </div>
+      <div class="kl-visual" aria-hidden="true">
+        <div class="kl-mock">
+          <small>{{ i18n.t('khata.c.willGet') }}</small><b>{{ sample().total }}</b>
+          <div class="rows">
+            @for (r of sample().rows; track r.key) {
+              <div><span>{{ i18n.t(r.key) }}</span><span>{{ r.amount }}</span></div>
+            }
+          </div>
+        </div>
+        <div class="kl-float gave"><span class="ic"><svg kIco="gave" [size]="16"></svg></span><span><small>{{ i18n.t('khata.e.gave') }}</small><b>{{ sample().gave }} · {{ i18n.t('khata.l.mockA') }}</b></span></div>
+        <div class="kl-float got"><span class="ic"><svg kIco="got" [size]="16"></svg></span><span><small>{{ i18n.t('khata.e.got') }}</small><b>{{ sample().got }} · {{ i18n.t('khata.l.mockB') }}</b></span></div>
+      </div>
     </div>
   </section>
 
-  <section class="card" aria-labelledby="khata-features">
-    <h2 id="khata-features">{{ i18n.t('khata.l.featuresH') }}</h2>
-    <ul class="features">
-      @for (f of features; track f) {
-        <li>{{ i18n.t('khata.l.' + f) }}</li>
-      }
-    </ul>
+  <section class="kl-sec" aria-labelledby="khata-features">
+    <div class="kl-in">
+      <h2 id="khata-features">{{ i18n.t('khata.l.featuresH') }}</h2>
+      <ul class="kl-feats">
+        @for (f of features; track f.key) {
+          <li class="kl-card"><span class="kl-ic"><svg [kIco]="f.icon"></svg></span><p>{{ i18n.t('khata.l.' + f.key) }}</p></li>
+        }
+        <li class="kl-card kl-why"><span class="kl-ic"><svg kIco="camera"></svg></span><p><b>{{ i18n.t('khata.auth.b2') }}</b> · {{ i18n.t('khata.auth.b3') }}</p></li>
+      </ul>
+    </div>
   </section>
 
-  <section class="card prose" aria-labelledby="khata-faq">
-    <h2 id="khata-faq">{{ i18n.t('khata.l.faqH') }}</h2>
-    @for (q of faq; track q) {
-      <h3>{{ i18n.t('khata.l.' + q) }}</h3>
-      <p>{{ i18n.t('khata.l.' + q + 'a') }}</p>
-    }
+  <section class="kl-sec" aria-labelledby="khata-faq">
+    <div class="kl-in">
+      <h2 id="khata-faq">{{ i18n.t('khata.l.faqH') }}</h2>
+      <div class="kl-faq">
+        @for (q of faq; track q; let first = $first) {
+          <details class="kl-card" [open]="first">
+            <summary>{{ i18n.t('khata.l.' + q) }}<svg kIco="chevD" [size]="18"></svg></summary>
+            <p>{{ i18n.t('khata.l.' + q + 'a') }}</p>
+          </details>
+        }
+      </div>
+    </div>
   </section>
+
+  <section class="kl-sec" aria-labelledby="khata-cta">
+    <div class="kl-in">
+      <div class="kl-band">
+        <span class="blob b1" aria-hidden="true"></span>
+        <div><h2 id="khata-cta">{{ i18n.t('khata.auth.artTitle') }}</h2><p>{{ i18n.t('khata.auth.artLead') }}</p></div>
+        <a class="k-btn lg kl-open" routerLink="/khata/app">{{ i18n.t('khata.l.open') }}<svg kIco="next" [size]="18"></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="kl-foot">
+    <div class="kl-in">
+      <nav [attr.aria-label]="i18n.t('nav.pages')">
+        <a routerLink="/about">{{ i18n.page('about') }}</a>
+        <a routerLink="/privacy">{{ i18n.page('privacy') }}</a>
+        <a routerLink="/terms">{{ i18n.page('terms') }}</a>
+      </nav>
+      <p>&copy; {{ year }} thakurg.com. {{ i18n.t('ft.rights') }}</p>
+    </div>
+  </footer>
 </div>
