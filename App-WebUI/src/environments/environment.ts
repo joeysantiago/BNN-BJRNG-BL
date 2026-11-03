@@ -8,7 +8,7 @@ export const environment = {
   apiBaseUrl: '',
   // true: the login form is pre-filled with the first login below and all of them are shown as one-tap buttons (for testing).
   // false: no pre-fill and no login buttons, the form starts empty. Set this to false before deploying.
-  showDevLogins: true,
+  showDevLogins: false,
   devLogins: [
     { email: 'superadmin@thakurg.com', password: 'Super@1234' },
     { email: 'admin@thakurg.com', password: 'Admin@1234' },
