@@ -10,6 +10,7 @@ import { KhataSkeleton } from '../ui/khata-skeleton/khata-skeleton';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { KhataStateService } from '../../../core/khata-state.service';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { PHOTO_LIMITS, PHOTO_TYPES, photoName, squarePhoto } from '../../../core/khata-photos';
 import { KHATA_CUSTOMER, KHATA_SUPPLIER, KhataContact, KhataContactType, KhataNotify } from '../../../core/models/khata.model';
 
 /** /khata/app/b/:bookId/contact/:contactId/settings: a party's details, the "can add entries" switch and "Delete contact" (both ask to confirm). */
@@ -64,6 +65,18 @@ export class KhataContactSettings {
     });
   }
 
+  async removePhoto(): Promise<void> {
+    const contact = this.contact();
+    if (!contact || this.busy())
+      return;
+    await this.run(async () => {
+      const message = await this.api.deleteContactPhoto(contact.id);
+      // Removing the picture changes the contact on the server (its row version), so reload it before the next save.
+      this.contact.set((await this.api.contacts(this.bookId())).contacts.find((c) => c.id === contact.id) ?? { ...contact, photo: null });
+      this.info.set(message);
+    });
+  }
+
   async save(form: HTMLFormElement): Promise<void> {
     const contact = this.contact();
     if (!contact || this.busy())
@@ -96,6 +109,26 @@ export class KhataContactSettings {
     }
     await this.run(async () => this.contact.set(await this.api.setPermission(contact.id, allow)));
     box.checked = this.contact()?.allowContactEntries ?? false;
+  }
+
+  /** Makes the picked picture a small square in the browser, then uploads it; the badge shows it at once. */
+  async pickPhoto(input: HTMLInputElement): Promise<void> {
+    const file = input.files?.[0];
+    const contact = this.contact();
+    input.value = '';
+    if (!file || !contact)
+      return;
+    if (!PHOTO_TYPES.includes(file.type) || file.size > PHOTO_LIMITS.maxPickedBytes) {
+      this.error.set(this.i18n.t('khata.cs.photoBad'));
+      return;
+    }
+    await this.run(async () => {
+      const blob = await squarePhoto(file);
+      if (!blob || blob.size > PHOTO_LIMITS.maxContactPhotoBytes)
+        throw new Error(this.i18n.t('khata.cs.photoBad'));
+      this.contact.set(await this.api.setContactPhoto(contact.id, { blob, name: photoName(file.name, blob) }));
+      this.info.set(this.i18n.t('khata.cs.photoSaved'));
+    });
   }
 
   /**

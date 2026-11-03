@@ -26,6 +26,17 @@ public class KhataContactsController : ControllerBase
 
     #region Public Methods
 
+    // The UI adds ?v={photo} so a new picture gets a new URL; the picture itself may be kept for a day.
+    [HttpGet("contacts/{contactId:int}/photo")]
+    [EnableRateLimiting(SecurityExtensions.KhataReadPolicy)]
+    public async Task<IActionResult> GetPhoto(int contactId, CancellationToken cancellationToken)
+    {
+        var file = await _contactService.OpenPhotoAsync(HttpContext.KhataCaller(), contactId, cancellationToken);
+        Response.Headers.CacheControl = "private, max-age=86400";
+
+        return File(file.Content, file.ContentType);
+    }
+
     [HttpDelete("contacts/{contactId:int}")]
     [EnableRateLimiting(SecurityExtensions.KhataWritePolicy)]
     public async Task<ActionResult<ApiResponse<object?>>> Delete(int contactId, CancellationToken cancellationToken)
@@ -42,6 +53,27 @@ public class KhataContactsController : ControllerBase
         var contacts = await _contactService.GetByBookAsync(HttpContext.KhataCaller(), bookId, cancellationToken);
 
         return Ok(ApiResponse<BookContactsDto>.SuccessResponse(contacts));
+    }
+
+    [HttpDelete("contacts/{contactId:int}/photo")]
+    [EnableRateLimiting(SecurityExtensions.KhataWritePolicy)]
+    public async Task<ActionResult<ApiResponse<object?>>> DeletePhoto(int contactId, CancellationToken cancellationToken)
+    {
+        var message = await _contactService.DeletePhotoAsync(HttpContext.KhataCaller(), contactId, cancellationToken);
+
+        return Ok(ApiResponse<object?>.SuccessResponse(null, message));
+    }
+
+    // multipart/form-data with one "file" field; replaces the previous picture.
+    [HttpPut("contacts/{contactId:int}/photo")]
+    [EnableRateLimiting(SecurityExtensions.KhataWritePolicy)]
+    [TypeFilter(typeof(KhataContactPhotoLimitFilter))]
+    public async Task<ActionResult<ApiResponse<ContactDto>>> SetPhoto(int contactId, IFormFile? file, CancellationToken cancellationToken)
+    {
+        await using var content = file?.OpenReadStream() ?? Stream.Null;
+        var result = await _contactService.SetPhotoAsync(HttpContext.KhataCaller(), contactId, new PhotoUploadDto { Content = content, FileName = file?.FileName ?? string.Empty, Length = file?.Length ?? 0 }, cancellationToken);
+
+        return Ok(ApiResponse<ContactDto>.SuccessResponse(result.Data, result.Message));
     }
 
     [HttpPut("contacts/{contactId:int}")]

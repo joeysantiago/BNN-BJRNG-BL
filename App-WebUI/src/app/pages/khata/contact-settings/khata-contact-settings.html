@@ -5,7 +5,7 @@
     <a class="k-back" [routerLink]="['/khata/app/b', bookId(), 'contact', c.id]"><svg kIco="back" [size]="18"></svg>{{ c.name }}</a>
     <div class="k-head">
       <div class="k-head-who">
-        <span kAvatar [name]="c.name" size="lg"></span>
+        <span kAvatar [name]="c.name" [contactId]="c.id" [photo]="c.photo" size="lg"></span>
         <div><h1>{{ i18n.t('khata.cs.title') }}</h1><p>{{ c.name }}</p></div>
       </div>
     </div>
@@ -16,6 +16,23 @@
     @if (error()) {
       <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
     }
+
+    <section class="k-card" aria-labelledby="cs-photo">
+      <div class="k-card-h k-m0"><h2 id="cs-photo">{{ i18n.t('khata.cs.photo') }}</h2></div>
+      <div class="k-photo-row">
+        <span kAvatar [name]="c.name" [contactId]="c.id" [photo]="c.photo" size="lg"></span>
+        <div class="k-head-acts">
+          <label class="k-btn sm" [class.is-busy]="busy()">
+            <input #photo type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" [disabled]="busy()" (change)="pickPhoto(photo)" />
+            <svg kIco="camera" [size]="16"></svg>{{ i18n.t(c.photo ? 'khata.cs.photoChange' : 'khata.cs.photoAdd') }}
+          </label>
+          @if (c.photo) {
+            <button type="button" class="k-btn sm ghost" [disabled]="busy()" (click)="removePhoto()">{{ i18n.t('khata.cs.photoRemove') }}</button>
+          }
+        </div>
+      </div>
+      <p class="k-hint">{{ i18n.t('khata.cs.photoHint') }}</p>
+    </section>
 
     <form #form class="k-card k-form" novalidate aria-labelledby="cs-d" (submit)="$event.preventDefault(); save(form)">
       <div class="k-card-h k-m0"><h2 id="cs-d">{{ i18n.t('khata.cs.details') }}</h2></div>

@@ -17,6 +17,7 @@ export class KhataUiService {
   readonly sheet = signal<KhataConfirm | null>(null);
   readonly viewer = signal<KhataViewer | null>(null);
   private readonly urls = new Map<number, Promise<string | null>>();
+  private readonly contactUrls = new Map<string, Promise<string | null>>();
 
   // #region Public Methods
 
@@ -81,6 +82,18 @@ export class KhataUiService {
     const v = this.viewer();
     if (v && v.items[v.index] === item)
       this.viewer.set({ index: v.index, items: v.items.map((x) => (x === item ? { ...x, url } : x)) });
+  }
+
+  /** The blob URL of a contact's profile picture, fetched once per version. Null when it can't be loaded (initials are shown). */
+  contactPhotoUrl(contactId: number, version: string): Promise<string | null> {
+    const key = `${contactId}:${version}`;
+    let url = this.contactUrls.get(key);
+    if (!url) {
+      url = this.api.contactPhoto(contactId, version).then((blob) => URL.createObjectURL(blob), () => null);
+      this.contactUrls.set(key, url);
+      void url.then((u) => u === null && this.contactUrls.delete(key));
+    }
+    return url;
   }
 
   // #endregion

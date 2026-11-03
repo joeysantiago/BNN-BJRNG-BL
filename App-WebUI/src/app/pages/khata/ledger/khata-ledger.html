@@ -6,7 +6,7 @@
 
     <section class="k-card k-party" aria-labelledby="ledger-h1">
       <div class="who">
-        <span kAvatar [name]="contact()!.name" size="lg"></span>
+        <span kAvatar [name]="contact()!.name" [contactId]="contact()!.id" [photo]="contact()!.photo" size="lg"></span>
         <div class="k-grow">
           <h1 id="ledger-h1">{{ contact()!.name }}</h1>
           <div class="meta">

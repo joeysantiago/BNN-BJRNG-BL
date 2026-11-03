@@ -1,1 +1,5 @@
-{{ initials().toUpperCase() }}
+@if (url(); as src) {
+  <img [src]="src" alt="" />
+} @else {
+  {{ initials().toUpperCase() }}
+}

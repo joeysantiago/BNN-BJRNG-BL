@@ -10,6 +10,9 @@ import { Component, OnDestroy, afterNextRender, effect, inject, signal } from '@
 /** The apps that also offer a one-time code login, by the start of the address they open. */
 const OTP_APPS: Record<string, string> = { '/khata': 'khata', '/tracker': 'tracker' };
 
+/** Where a code goes, from what was typed: an e-mail address or a mobile number (digits, optional +, spaces or dashes); null = neither. */
+const channelOf = (to: string): OtpChannel | null => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to) ? 'email' : /^\+?[\d\s-]{7,16}$/.test(to) ? 'sms' : null);
+
 /** Only addresses of this site are followed after the login, never another site (an open redirect). */
 const safeNext = (value: string | null): string | null => (value && value.startsWith('/') && !value.startsWith('//') && !/^\/(login|signup)\b/.test(value) ? value : null);
 
@@ -114,12 +117,19 @@ export class AuthPage implements OnDestroy {
     });
   }
 
-  /** Sends (or sends again) the one-time code to the e-mail address or mobile number. */
+  /** Sends (or sends again) the one-time code. One field: an e-mail address gets the code by e-mail, a mobile number by SMS. */
   async sendCode(destination: string): Promise<void> {
     const app = this.otpApp;
     const to = destination.trim();
     if (!app || !to || this.busy() || this.resendIn() > 0)
       return;
+    const channel = channelOf(to);
+    if (!channel) {
+      this.info.set('');
+      this.error.set(this.i18n.t('auth.otp.invalidTo'));
+      return;
+    }
+    this.channel.set(channel);
     await this.attempt(async () => {
       const result = await this.auth.otpRequest(this.channel(), to, app);
       this.destination.set(to);

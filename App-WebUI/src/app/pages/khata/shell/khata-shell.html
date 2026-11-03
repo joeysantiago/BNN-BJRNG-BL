@@ -1,4 +1,4 @@
-<div #root class="khata" [style.visibility]="style.ready() ? null : 'hidden'" [attr.data-kt]="theme.brightness()" [attr.dir]="i18n.dir()" [attr.lang]="i18n.info().code">
+<div #root class="khata" [style.visibility]="style.ready() ? null : 'hidden'" [attr.data-kt]="theme.brightness()" [attr.data-ks]="theme.skin()" [attr.dir]="i18n.dir()" [attr.lang]="i18n.info().code">
   <div class="k-app">
     <aside class="k-rail" [attr.aria-label]="i18n.t('khata.app.menu')">
       <a class="k-logo" routerLink="/khata/app"><span class="mark"><svg kIco="logo" [stroke]="2.2"></svg></span><span>{{ i18n.t('khata.app.name') }}</span></a>
@@ -49,14 +49,22 @@
             }
           </div>
           <div class="k-menu">
-            <button type="button" class="k-btn ghost icon" aria-haspopup="true" aria-controls="k-theme-menu" [attr.aria-expanded]="menu() === 'theme'" [title]="modeLabel()" [attr.aria-label]="modeLabel()" (click)="toggleMenu('theme')">
-              <svg [kIco]="modeIcon()"></svg>
-            </button>
+            <button type="button" class="k-btn ghost icon" aria-haspopup="true" aria-controls="k-theme-menu" [attr.aria-expanded]="menu() === 'theme'" [title]="i18n.t('khata.theme.menu')"
+              [attr.aria-label]="i18n.t('khata.theme.menu')" (click)="toggleMenu('theme')"><svg kIco="palette"></svg></button>
             @if (menu() === 'theme') {
-              <div id="k-theme-menu" class="k-pop" role="group" [attr.aria-label]="i18n.t('khata.theme.label')">
-                @for (m of modes; track m) {
-                  <button type="button" class="k-pop-opt" [attr.aria-pressed]="theme.activeMode() === m" (click)="setMode(m); menu.set(null)"><svg [kIco]="modeIcons[m]" [size]="18"></svg>{{ i18n.t('khata.theme.' + m) }}</button>
-                }
+              <div id="k-theme-menu" class="k-pop" role="group" [attr.aria-label]="i18n.t('khata.theme.menu')">
+                <div class="k-pop-modes" role="group" [attr.aria-label]="i18n.t('khata.theme.mode')">
+                  @for (m of modes; track m) {
+                    <button type="button" class="k-pop-opt" [attr.aria-pressed]="theme.activeMode() === m" [title]="i18n.t('khata.theme.' + m)" [attr.aria-label]="i18n.t('khata.theme.' + m)" (click)="setMode(m)">
+                      <svg [kIco]="modeIcons[m]" [size]="18"></svg>
+                    </button>
+                  }
+                </div>
+                <div class="k-pop-skins" role="group" [attr.aria-label]="i18n.t('khata.theme.skins')">
+                  @for (s of theme.skins; track s.id) {
+                    <button type="button" class="k-pop-opt" [attr.aria-pressed]="theme.skin() === s.id" (click)="setSkin(s.id)"><span [class]="'k-swatch ' + s.id" aria-hidden="true"></span>{{ i18n.t(s.labelKey) }}</button>
+                  }
+                </div>
               </div>
             }
           </div>

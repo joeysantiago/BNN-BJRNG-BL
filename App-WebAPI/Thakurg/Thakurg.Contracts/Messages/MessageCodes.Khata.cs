@@ -118,6 +118,8 @@ public static partial class MessageCodes
 
     public const string KhataAttachmentDeleted = "KHATA_ATTACHMENT_DELETED";
 
+    public const string KhataContactPhotoSaved = "KHATA_CONTACT_PHOTO_SAVED";
+
     public const string KhataCurrencyCodeTaken = "KHATA_CURRENCY_CODE_TAKEN";
 
     public const string KhataExportBalanceLine = "KHATA_EXPORT_BALANCE_LINE";
@@ -138,7 +140,13 @@ public static partial class MessageCodes
 
     public const string KhataNotifyEmailMissing = "KHATA_NOTIFY_EMAIL_MISSING";
 
+    public const string KhataContactPhotoDeleted = "KHATA_CONTACT_PHOTO_DELETED";
+
+    public const string KhataContactPhotoInvalid = "KHATA_CONTACT_PHOTO_INVALID";
+
     public const string KhataNotifyMobileMissing = "KHATA_NOTIFY_MOBILE_MISSING";
 
     public const string KhataExportStatementTitle = "KHATA_EXPORT_STATEMENT_TITLE";
+
+    public const string KhataContactPhotoNotFound = "KHATA_CONTACT_PHOTO_NOT_FOUND";
 }

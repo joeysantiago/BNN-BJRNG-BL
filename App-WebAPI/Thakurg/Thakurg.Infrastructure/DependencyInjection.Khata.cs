@@ -28,7 +28,7 @@ public static partial class DependencyInjection
     // Text lengths and the first entry date (Khata:Limits), and the Storage, Notifications and Manifest sections.
     private static bool IsValidKhataText(KhataOptions options)
     {
-        var limitsValid = options.Limits is { NoteLength: > 0, BookNameLength: > 0, ContactNameLength: > 0, ContactAddressLength: > 0, PhotoFileNameLength: > 0 } && options.Limits.FirstEntryDate > DateOnly.MinValue;
+        var limitsValid = options.Limits is { MaxContactPhotoBytes: > 0, MultipartOverheadBytes: > 0, NoteLength: > 0, BookNameLength: > 0, ContactNameLength: > 0, ContactAddressLength: > 0, PhotoFileNameLength: > 0 } && options.Limits.FirstEntryDate > DateOnly.MinValue;
         var storageValid = options.Storage is { MaxRetries: >= 0, NetworkTimeoutSeconds: > 0, SecretLength: > 0, BlobFolder.Length: > 0, EndpointSuffix.Length: > 0 };
         var manifestValid = options.Manifest is { CacheSeconds: > 0, Id.Length: > 0, StartUrl.Length: > 0, Scope.Length: > 0, Display.Length: > 0, Orientation.Length: > 0, BackgroundColor.Length: > 0, ThemeColor.Length: > 0, Icons.Count: > 0 };
 

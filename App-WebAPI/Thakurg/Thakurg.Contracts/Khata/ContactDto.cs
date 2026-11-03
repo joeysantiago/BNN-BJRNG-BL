@@ -1,5 +1,6 @@
 namespace Thakurg.Contracts.Khata;
 
+// Photo is the version of the contact's picture (it changes with every upload, so its URL can be cached); null = no picture.
 public class ContactDto
 {
     public int Id { get; set; }
@@ -9,6 +10,8 @@ public class ContactDto
     public string? Note { get; set; }
 
     public string? Email { get; set; }
+
+    public string? Photo { get; set; }
 
     public string? Mobile { get; set; }
 

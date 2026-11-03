@@ -31,8 +31,6 @@ public class KhataAttachmentService : IKhataAttachmentService
 
     private readonly IKhataTransactionRepository _transactionRepository;
 
-    private static readonly Dictionary<string, string> Extensions = new() { ["image/jpeg"] = ".jpg", ["image/png"] = ".png", ["image/webp"] = ".webp", ["image/gif"] = ".gif" };
-
     public KhataAttachmentService(IOptions<KhataOptions> options, IKhataFileStorage fileStorage, IKhataCommonServices common, IKhataContactRepository contactRepository,
         IKhataTransactionRepository transactionRepository, IKhataAttachmentRepository attachmentRepository)
     {
@@ -114,7 +112,7 @@ public class KhataAttachmentService : IKhataAttachmentService
         {
             foreach (var (bytes, contentType, fileName) in photos)
             {
-                var fileId = await store.SaveAsync(caller.UserId, entry.BookId, $"{Guid.NewGuid():N}{Extensions[contentType]}", bytes, contentType, cancellationToken);
+                var fileId = await store.SaveAsync(caller.UserId, entry.BookId, $"{Guid.NewGuid():N}{KhataImageType.Extensions[contentType]}", bytes, contentType, cancellationToken);
                 var attachment = new KhataAttachment { TransactionId = transactionId, FileName = fileName, ContentType = contentType, SizeBytes = bytes.Length, Md5 = Convert.ToHexStringLower(MD5.HashData(bytes)), SortOrder = ++sortOrder };
                 var storedFile = new KhataStoredFile { UserId = caller.UserId, BookId = entry.BookId, ContactId = entry.ContactId, FileKind = (byte)KhataFileKind.Photo, Role = (byte)KhataFileRole.Home, Provider = (byte)store.Provider, FileId = fileId, SyncStatus = (byte)KhataSyncStatus.Synced };
                 rows.Add((attachment, storedFile));
@@ -145,25 +143,12 @@ public class KhataAttachmentService : IKhataAttachmentService
         return new BusinessException(MessageCodes.KhataPhotoInvalid, 400, Math.Max(1, _limits.MaxPhotoBytes / (1024 * 1024)));
     }
 
-    // JPG starts FF D8 FF, PNG 89 50 4E 47 0D 0A 1A 0A, GIF "GIF87a" / "GIF89a", WebP "RIFF" .... "WEBP".
-    private static string? PhotoType(byte[] head)
-    {
-        return head switch
-        {
-            [0xFF, 0xD8, 0xFF, ..] => "image/jpeg",
-            [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, ..] => "image/png",
-            [0x47, 0x49, 0x46, 0x38, 0x37 or 0x39, 0x61, ..] => "image/gif",
-            [0x52, 0x49, 0x46, 0x46, _, _, _, _, 0x57, 0x45, 0x42, 0x50, ..] => "image/webp",
-            _ => null
-        };
-    }
-
     // The original name without folders or characters a file name can't hold, cut to the column size; the extension follows the real type.
     private string SafeFileName(string fileName, string contentType)
     {
         var invalid = Path.GetInvalidFileNameChars();
         var name = new string(Path.GetFileNameWithoutExtension(Path.GetFileName(fileName.Replace('\\', '/'))).Where(c => !char.IsControl(c) && !invalid.Contains(c)).ToArray()).Trim();
-        var extension = Extensions[contentType];
+        var extension = KhataImageType.Extensions[contentType];
         name = name.Length == 0 ? "photo" : name[..Math.Min(name.Length, _limits.PhotoFileNameLength - extension.Length)];
 
         return name + extension;
@@ -196,7 +181,7 @@ public class KhataAttachmentService : IKhataAttachmentService
         using var buffer = new MemoryStream();
         await file.Content.CopyToAsync(buffer, cancellationToken);
         var bytes = buffer.ToArray();
-        var contentType = bytes.Length > _limits.MaxPhotoBytes ? null : PhotoType(bytes);
+        var contentType = bytes.Length > _limits.MaxPhotoBytes ? null : KhataImageType.Detect(bytes);
 
         return contentType is null ? throw PhotoInvalid() : (bytes, contentType, SafeFileName(file.FileName, contentType));
     }

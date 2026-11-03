@@ -29,6 +29,15 @@
               </button>
             }
           </div>
+          <h3 class="k-legend-h k-mt8">{{ i18n.t('khata.theme.skins') }}</h3>
+          <div class="k-themes k-skins" role="group" [attr.aria-label]="i18n.t('khata.theme.skins')">
+            @for (s of theme.skins; track s.id) {
+              <button type="button" class="k-theme" [attr.aria-pressed]="theme.skin() === s.id" (click)="theme.set(s.id)">
+                <span class="pv k-skin-pv" aria-hidden="true"><span [class]="'k-swatch ' + s.id"></span></span>
+                <span class="nm">{{ i18n.t(s.labelKey) }}</span>
+              </button>
+            }
+          </div>
           <div class="k-set-row k-mt8">
             <span class="t"><span class="k-ib brand"><svg kIco="globe" [size]="18"></svg></span><span><b>{{ i18n.t('khata.p.language') }}</b><small>{{ i18n.t('khata.p.languageHint') }}</small></span></span>
             <label class="k-field k-lang">

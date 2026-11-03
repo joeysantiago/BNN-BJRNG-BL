@@ -48,6 +48,10 @@ export const KHATA_ICONS: Record<KhataIconName, KhataIconShape[]> = {
   hash: [{ tag: 'path', d: 'M4 9h16M4 15h16M10 3 8 21M16 3l-2 18' }],
   logo: [{ tag: 'path', d: 'M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6z' }, { tag: 'path', d: 'M6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2' }, { tag: 'path', d: 'M9.5 9.5h6M9.5 13.5h4' }],
   install: [{ tag: 'rect', x: 5, y: 2, width: 14, height: 20, rx: 2 }, { tag: 'path', d: 'M12 7v7M9 11l3 3 3-3M10 18h4' }],
+  filePdf: [{ tag: 'path', d: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z' }, { tag: 'path', d: 'M14 2v4a2 2 0 0 0 2 2h4' }, { tag: 'path', d: 'M8 13h8M8 17h8M8 9h2' }],
+  fileSheet: [{ tag: 'path', d: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z' }, { tag: 'path', d: 'M14 2v4a2 2 0 0 0 2 2h4' }, { tag: 'path', d: 'M8 12h8v6H8zM12 12v6M8 15h8' }],
+  fileCsv: [{ tag: 'path', d: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z' }, { tag: 'path', d: 'M14 2v4a2 2 0 0 0 2 2h4' }, { tag: 'path', d: 'M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01M16 17h.01' }],
+  palette: [{ tag: 'circle', cx: 13.5, cy: 6.5, r: 1 }, { tag: 'circle', cx: 17.5, cy: 10.5, r: 1 }, { tag: 'circle', cx: 8.5, cy: 7.5, r: 1 }, { tag: 'circle', cx: 6.5, cy: 12.5, r: 1 }, { tag: 'path', d: 'M12 22a10 10 0 1 1 10-10c0 2.5-2 3-3.5 3H16a2 2 0 0 0-1.5 3.3c.6.8.3 3.7-2.5 3.7z' }],
 };
 
 /** Icons that point along the reading direction; they turn round in Arabic. */

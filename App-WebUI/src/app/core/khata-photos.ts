@@ -55,3 +55,26 @@ export const compressPhoto = async (file: Blob): Promise<Blob | null> => {
 
 /** The saved file name: the picked name with the extension of the compressed type. */
 export const photoName = (picked: string, blob: Blob): string => picked.replace(/\.[^.]+$/, '') + (blob.type === 'image/webp' ? '.webp' : '.jpg');
+
+/** A contact's profile picture: the middle square of the photo, contactPhotoPx wide, WebP (JPEG where WebP can't be written). */
+export const squarePhoto = async (file: Blob): Promise<Blob | null> => {
+  let source: ImageBitmap | HTMLImageElement;
+  try {
+    source = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  } catch {
+    source = await decodeImage(file);
+  }
+  const side = Math.min(source.width, source.height);
+  const edge = Math.min(PHOTO_LIMITS.contactPhotoPx, side);
+  const canvas = document.createElement('canvas');
+  canvas.width = edge;
+  canvas.height = edge;
+  const g = canvas.getContext('2d');
+  if (!g)
+    return null;
+  g.drawImage(source, (source.width - side) / 2, (source.height - side) / 2, side, side, 0, 0, edge, edge);
+  const webp = await toBlob(canvas, 'image/webp', 0.8);
+  if (webp && webp.type === 'image/webp')
+    return webp;
+  return toBlob(canvas, 'image/jpeg', 0.82);
+};

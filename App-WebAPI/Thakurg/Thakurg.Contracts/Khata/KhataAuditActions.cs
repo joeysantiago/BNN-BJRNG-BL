@@ -22,5 +22,9 @@ public static class KhataAuditActions
 
     public const string AllowEntriesOff = "AllowEntriesOff";
 
+    public const string ContactPhotoSet = "ContactPhotoSet";
+
     public const string CurrencyDeleted = "CurrencyDeleted";
+
+    public const string ContactPhotoRemoved = "ContactPhotoRemoved";
 }

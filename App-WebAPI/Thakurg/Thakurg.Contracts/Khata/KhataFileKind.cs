@@ -8,5 +8,6 @@ public enum KhataFileKind : byte
     BookJson = 3,
     Export = 4,
     ImportOriginal = 5,
-    UpiQr = 6
+    UpiQr = 6,
+    ContactPhoto = 7
 }

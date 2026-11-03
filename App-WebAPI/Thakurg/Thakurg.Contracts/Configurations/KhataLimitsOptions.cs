@@ -39,4 +39,8 @@ public class KhataLimitsOptions
     public int PhotoFileNameLength { get; set; }
 
     public int ContactAddressLength { get; set; }
+
+    public long MaxContactPhotoBytes { get; set; }
+
+    public long MultipartOverheadBytes { get; set; }
 }

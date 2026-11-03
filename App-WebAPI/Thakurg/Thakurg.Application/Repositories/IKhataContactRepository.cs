@@ -14,11 +14,15 @@ public interface IKhataContactRepository
 
     Task AddNotificationPrefAsync(KhataNotificationPref pref, CancellationToken cancellationToken);
 
+    Task<KhataStoredFile?> GetStoredFileAsync(int storedFileId, CancellationToken cancellationToken);
+
     Task<(int ToGet, int ToGive)> CountBalancesAsync(int bookId, CancellationToken cancellationToken);
 
     Task<KhataContact?> GetContactAsync(int contactId, int userId, CancellationToken cancellationToken);
 
     Task<KhataNotificationPref?> GetNotificationPrefAsync(int contactId, CancellationToken cancellationToken);
+
+    Task SetPhotoAsync(KhataContact contact, KhataStoredFile storedFile, CancellationToken cancellationToken);
 
     Task<List<KhataNotificationPref>> GetNotificationPrefsAsync(int bookId, CancellationToken cancellationToken);
 

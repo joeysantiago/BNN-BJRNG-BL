@@ -25,7 +25,7 @@ export type KhataPartyKind = 'all' | 'customers' | 'suppliers';
 export type KhataPartyStatus = 'all' | 'collect' | 'pay' | 'settled';
 
 /** Names of the line icons in khata-icons.ts. */
-export type KhataIconName = 'home' | 'users' | 'list' | 'book' | 'user' | 'plus' | 'search' | 'sun' | 'moon' | 'monitor' | 'lock' | 'back' | 'next' | 'chev' | 'chevL' | 'chevD' | 'camera' | 'image' | 'x' | 'trash' | 'edit' | 'history' | 'gave' | 'got' | 'sort' | 'check' | 'alert' | 'phone' | 'mail' | 'settings' | 'logout' | 'wallet' | 'calendar' | 'note' | 'clip' | 'swap' | 'shield' | 'zap' | 'trend' | 'download' | 'globe' | 'store' | 'truck' | 'hash' | 'logo' | 'install';
+export type KhataIconName = 'home' | 'users' | 'list' | 'book' | 'user' | 'plus' | 'search' | 'sun' | 'moon' | 'monitor' | 'lock' | 'back' | 'next' | 'chev' | 'chevL' | 'chevD' | 'camera' | 'image' | 'x' | 'trash' | 'edit' | 'history' | 'gave' | 'got' | 'sort' | 'check' | 'alert' | 'phone' | 'mail' | 'settings' | 'logout' | 'wallet' | 'calendar' | 'note' | 'clip' | 'swap' | 'shield' | 'zap' | 'trend' | 'download' | 'globe' | 'store' | 'truck' | 'hash' | 'logo' | 'install' | 'filePdf' | 'fileSheet' | 'fileCsv' | 'palette';
 
 /** One shape of a line icon; only the attributes of its tag are set. */
 export interface KhataIconShape {
@@ -89,6 +89,8 @@ export interface KhataContact {
   balanceMinor: number;
   lastEntryOn?: string;
   notify?: KhataNotify;
+  /** Version of the contact's profile picture; changes with every upload. Null = none (initials are shown). */
+  photo?: string | null;
   allowContactEntries: boolean;
   contactType: KhataContactType;
 }

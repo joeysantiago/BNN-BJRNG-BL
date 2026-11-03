@@ -86,12 +86,21 @@ export class KhataApiService {
     return this.call('GET', `/khata/contacts/${contactId}/notifications`);
   }
 
+  deleteContactPhoto(contactId: number): Promise<string> {
+    return this.call('DELETE', `/khata/contacts/${contactId}/photo`, undefined, {}, true);
+  }
+
   saveStorage(request: KhataStorageRequest): Promise<string> {
     return this.call('PUT', '/khata/storage', request, {}, true);
   }
 
   saveSettings(notificationsEnabled: boolean): Promise<string> {
     return this.call('PUT', '/khata/settings', { notificationsEnabled }, {}, true);
+  }
+
+  /** A contact's profile picture as a file (the API needs the login token). `version` makes a new upload a new address. */
+  contactPhoto(contactId: number, version: string): Promise<Blob> {
+    return this.api.blob(`/khata/contacts/${contactId}/photo?v=${encodeURIComponent(version)}`, { headers: this.headers() }, TIMEOUT);
   }
 
   /** The dashboard of a book. `today` is the browser's own date, so "this month" is the reader's month. */
@@ -129,6 +138,14 @@ export class KhataApiService {
 
   setNotifications(contactId: number, notify: KhataNotify): Promise<KhataNotify> {
     return this.call('PUT', `/khata/contacts/${contactId}/notifications`, notify);
+  }
+
+  /** Uploads a contact's profile picture (already made small in the browser); the answer is the updated contact. */
+  async setContactPhoto(contactId: number, photo: KhataUpload): Promise<KhataContact> {
+    const form = new FormData();
+    form.append('file', photo.blob, photo.name);
+    const res = await this.api.sendFull<KhataContact>('PUT', `/khata/contacts/${contactId}/photo`, { headers: this.headers(), body: form }, UPLOAD_TIMEOUT);
+    return res.data;
   }
 
   updateContact(contactId: number, request: KhataContactRequest): Promise<KhataContact> {

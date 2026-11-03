@@ -366,3 +366,118 @@
   margin: 4px 0 0;
   font-size: 13px;
 }
+
+/* An open menu sits above the cards that follow it. The page blocks animate in (k-stagger), which gives each its own stacking layer,
+   so the block that holds the open menu is lifted, or the next cards would cover the menu and take its taps. */
+.khata .k-stagger > *:has(.k-pop),
+.khata .k-head:has(.k-pop),
+.khata .k-row-h:has(.k-pop) {
+  position: relative;
+  z-index: 35;
+}
+
+.khata .k-pop {
+  isolation: isolate;
+  background-color: var(--k-surface-solid);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+
+/* Export: one download icon; the file types (PDF red, Excel green, CSV in the brand colour) slide out beside it on hover, focus or tap. */
+.khata .k-xwrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+
+.khata .k-xgroup {
+  display: inline-flex;
+  gap: 6px;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  padding-block: 4px;
+  transition: max-width 0.25s var(--k-ease), opacity 0.2s, margin 0.25s var(--k-ease), visibility 0s 0.25s;
+}
+
+.khata .k-xwrap.open .k-xgroup,
+.khata .k-xwrap:not(.off):focus-within .k-xgroup {
+  max-width: 170px;
+  opacity: 1;
+  visibility: visible;
+  margin-inline-start: 6px;
+  padding-inline: 2px;
+  transition: max-width 0.25s var(--k-ease), opacity 0.2s, margin 0.25s var(--k-ease), visibility 0s;
+}
+
+@media (hover: hover) {
+  .khata .k-xwrap:not(.off):hover .k-xgroup {
+    max-width: 170px;
+    opacity: 1;
+    visibility: visible;
+    margin-inline-start: 6px;
+    padding-inline: 2px;
+    transition: max-width 0.25s var(--k-ease), opacity 0.2s, margin 0.25s var(--k-ease), visibility 0s;
+  }
+}
+
+.khata .k-xwrap.open .k-x-main {
+  color: var(--k-brand);
+  border-color: color-mix(in srgb, var(--k-brand) 40%, transparent);
+}
+
+.khata .k-x {
+  --b-fg: var(--x-color);
+  --b-bd: color-mix(in srgb, var(--x-color) 35%, transparent);
+  --b-bg: color-mix(in srgb, var(--x-color) 10%, var(--k-surface-solid));
+}
+
+.khata .k-x-pdf {
+  --x-color: var(--k-give);
+}
+
+.khata .k-x-xlsx {
+  --x-color: var(--k-get);
+}
+
+.khata .k-x-csv {
+  --x-color: var(--k-brand);
+}
+
+.khata .k-x-err {
+  margin: 6px 0 0;
+  font-size: 13px;
+}
+
+/* A party's profile picture fills the round badge. */
+.khata .k-av.has-photo {
+  overflow: hidden;
+  padding: 0;
+}
+
+.khata .k-av img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Contact settings: the picture with its buttons. */
+.khata .k-photo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.khata .k-photo-row .k-av.lg {
+  width: 72px;
+  height: 72px;
+  font-size: 24px;
+}
+
+.khata .k-photo-row label {
+  cursor: pointer;
+}

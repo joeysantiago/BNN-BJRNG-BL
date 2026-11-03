@@ -38,6 +38,11 @@ public class KhataContactRepository : IKhataContactRepository
         return _dbContext.KhataTransactions.Where(t => t.ContactId == contactId && t.IsActive && !t.IsDeleted && !t.IsSoftDeleted).MaxAsync(t => (DateOnly?)t.EntryDate, cancellationToken);
     }
 
+    public Task<KhataStoredFile?> GetStoredFileAsync(int storedFileId, CancellationToken cancellationToken)
+    {
+        return _dbContext.KhataStoredFiles.WhereActive().FirstOrDefaultAsync(f => f.Id == storedFileId, cancellationToken);
+    }
+
     // Only the owner's contacts, and only while the book itself is not deleted.
     public Task<KhataContact?> GetContactAsync(int contactId, int userId, CancellationToken cancellationToken)
     {
@@ -73,6 +78,24 @@ public class KhataContactRepository : IKhataContactRepository
         var contacts = _dbContext.KhataContacts.Where(c => c.BookId == bookId);
 
         return _dbContext.KhataNotificationPrefs.AsNoTracking().WhereActive().Where(p => contacts.Any(c => c.Id == p.ContactId)).ToListAsync(cancellationToken);
+    }
+
+    // The new picture's stored-file row and the contact pointing at it are saved in one SQL transaction (with any pending change, such as the old picture's row).
+    public async Task SetPhotoAsync(KhataContact contact, KhataStoredFile storedFile, CancellationToken cancellationToken)
+    {
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+            _dbContext.KhataStoredFiles.Add(storedFile);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            contact.PhotoStoredFileId = storedFile.Id;
+            contact.ModifiedOn = DateTime.UtcNow;
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        });
     }
 
     // False when someone else changed the contact since the caller read it (RowVersion no longer matches).

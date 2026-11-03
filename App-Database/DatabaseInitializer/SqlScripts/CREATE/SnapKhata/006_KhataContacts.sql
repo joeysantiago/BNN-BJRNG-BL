@@ -13,6 +13,7 @@ BEGIN
         ContactType         TINYINT           NOT NULL CONSTRAINT DF_KhataContacts_ContactType DEFAULT (1)             ,
         AllowContactEntries BIT               NOT NULL CONSTRAINT DF_KhataContacts_AllowContactEntries DEFAULT (0)     ,
         LinkedUserId        INT               NULL                                                                     ,
+        PhotoStoredFileId   INT               NULL                                                                     ,
         ShareStatus         TINYINT           NOT NULL CONSTRAINT DF_KhataContacts_ShareStatus DEFAULT (0)             ,
         ShareRespondedOn    DATETIME2         NULL                                                                     ,
         BalanceMinor        BIGINT            NOT NULL CONSTRAINT DF_KhataContacts_BalanceMinor DEFAULT (0)            ,

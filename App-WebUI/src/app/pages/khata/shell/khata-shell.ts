@@ -6,10 +6,10 @@ import { AuthService } from '../../../core/auth.service';
 import { I18nService } from '../../../core/i18n.service';
 import { UserAvatar } from '../../../shared/user-avatar';
 import { ThemeService } from '../../../core/theme.service';
-import { ThemeMode } from '../../../core/models/theme.model';
 import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import { KhataUiService } from '../../../core/khata-ui.service';
 import { KhataPwaService } from '../../../core/khata-pwa.service';
+import { Skin, ThemeMode } from '../../../core/models/theme.model';
 import { KhataStateService } from '../../../core/khata-state.service';
 import { KhataStyleService } from '../../../core/khata-style.service';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
@@ -54,9 +54,7 @@ export class KhataShell implements OnDestroy {
   protected readonly bookId = computed(() => this.state.current()?.id ?? 0);
   private readonly sheet = viewChild<ElementRef<HTMLDialogElement>>('sheet');
   private readonly viewer = viewChild<ElementRef<HTMLDialogElement>>('viewer');
-  protected readonly modeIcon = computed(() => MODE_ICONS[this.theme.activeMode()]);
   protected readonly viewerItem = computed(() => this.ui.viewer()?.items[this.ui.viewer()!.index] ?? null);
-  protected readonly modeLabel = computed(() => this.i18n.t('khata.theme.toggle', { name: this.i18n.t('khata.theme.' + this.theme.activeMode()) }));
   /** On a party's ledger the new-entry button opens the form for that party. */
   protected readonly newEntryQuery = computed(() => {
     const contact = /\/contact\/(\d+)(?:$|[/?#])/.exec(this.url())?.[1];
@@ -113,6 +111,14 @@ export class KhataShell implements OnDestroy {
   setLang(lang: Lang): void {
     this.i18n.set(lang);
     this.menu.set(null);
+  }
+
+  /** One of the four styles (Glass, Clay, Skeu, Neu); the same choice as the site's theme menu. */
+  setSkin(skin: Skin): void {
+    const root = this.root()?.nativeElement;
+    root?.classList.add('k-theming');
+    this.theme.set(skin);
+    setTimeout(() => root?.classList.remove('k-theming'), THEME_FADE_MS);
   }
 
   /** Left / Right step through the photo viewer; in Arabic they swap, like the layout. */

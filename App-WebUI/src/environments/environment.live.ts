@@ -18,6 +18,8 @@ export const environment = {
     maxPhotos: 3,
     photoEdgePx: 1600,
     maxPhotoBytes: 2097152,
-    maxPickedBytes: 10485760
+    maxPickedBytes: 10485760,
+    contactPhotoPx: 512,
+    maxContactPhotoBytes: 524288
   }
 };

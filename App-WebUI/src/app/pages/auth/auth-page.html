@@ -5,8 +5,8 @@
 
     @if (otpApp && mode === 'login') {
       <div class="way" role="group" [attr.aria-label]="i18n.t('auth.otp.way')">
-        <button type="button" class="btn sm" [attr.aria-pressed]="way() === 'password'" (click)="setWay('password')">{{ i18n.t('auth.otp.byPassword') }}</button>
-        <button type="button" class="btn sm" [attr.aria-pressed]="way() === 'otp'" (click)="setWay('otp')">{{ i18n.t('auth.otp.byCode') }}</button>
+        <button type="button" class="btn sm" [class.pri]="way() === 'password'" [attr.aria-pressed]="way() === 'password'" (click)="setWay('password')">{{ i18n.t('auth.otp.byPassword') }}</button>
+        <button type="button" class="btn sm" [class.pri]="way() === 'otp'" [attr.aria-pressed]="way() === 'otp'" (click)="setWay('otp')">{{ i18n.t('auth.otp.byCode') }}</button>
       </div>
     }
 
@@ -62,14 +62,10 @@
       }
     } @else if (step() === 'ask') {
       <form class="form" [attr.aria-busy]="busy()" (submit)="$event.preventDefault(); sendCode(to.value)">
-        <div class="way" role="radiogroup" [attr.aria-label]="i18n.t('auth.otp.channel')">
-          <label class="btn sm" [attr.aria-pressed]="channel() === 'email'"><input type="radio" name="channel" class="sr-only" [checked]="channel() === 'email'" (change)="channel.set('email')" />{{ i18n.t('auth.otp.email') }}</label>
-          <label class="btn sm" [attr.aria-pressed]="channel() === 'sms'"><input type="radio" name="channel" class="sr-only" [checked]="channel() === 'sms'" (change)="channel.set('sms')" />{{ i18n.t('auth.otp.phone') }}</label>
-        </div>
         <label class="field">
-          <span>{{ i18n.t(channel() === 'email' ? 'auth.email' : 'auth.otp.mobile') }}</span>
-          <input #to name="destination" [type]="channel() === 'email' ? 'email' : 'tel'" [attr.inputmode]="channel() === 'email' ? 'email' : 'tel'" [attr.autocomplete]="channel() === 'email' ? 'email' : 'tel'"
-            spellcheck="false" maxlength="256" required [disabled]="busy()" [value]="destination()" />
+          <span>{{ i18n.t('auth.otp.to') }}</span>
+          <input #to name="destination" type="text" autocomplete="username" spellcheck="false" autocapitalize="off" maxlength="256" required aria-describedby="auth-otp-hint" [disabled]="busy()" [value]="destination()" />
+          <small id="auth-otp-hint" class="hint">{{ i18n.t('auth.otp.toHint') }}</small>
         </label>
         <button type="submit" class="btn pri lg" [disabled]="busy()">{{ i18n.t(busy() ? 'auth.busy' : 'auth.otp.send') }}</button>
         @if (error()) {
@@ -88,7 +84,7 @@
         <button type="submit" class="btn pri lg" [disabled]="busy()">{{ i18n.t(busy() ? 'auth.busy' : 'auth.login.btn') }}</button>
         <div class="way">
           <button type="button" class="btn sm ghost" [disabled]="busy() || resendIn() > 0" (click)="sendCode(destination())">{{ resendIn() > 0 ? i18n.t('auth.otp.resendIn', { n: resendIn() }) : i18n.t('auth.otp.resend') }}</button>
-          <button type="button" class="btn sm ghost" [disabled]="busy()" (click)="changeDestination()">{{ i18n.t(channel() === 'email' ? 'auth.otp.changeEmail' : 'auth.otp.changeMobile') }}</button>
+          <button type="button" class="btn sm ghost" [disabled]="busy()" (click)="changeDestination()">{{ i18n.t('auth.otp.changeTo') }}</button>
         </div>
         @if (error()) {
           <p class="err" role="alert">{{ error() }}</p>

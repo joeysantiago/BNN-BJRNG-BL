@@ -37,7 +37,7 @@
       @if (entry() && party(); as p) {
         <div class="k-field">
           <span class="lbl">{{ i18n.t('khata.ef.party') }}</span>
-          <div class="k-row-link k-static"><span kAvatar [name]="p.name"></span><span class="mid"><b>{{ p.name }}</b></span></div>
+          <div class="k-row-link k-static"><span kAvatar [name]="p.name" [contactId]="p.id" [photo]="p.photo"></span><span class="mid"><b>{{ p.name }}</b></span></div>
         </div>
       } @else {
         <label class="k-field">
