@@ -6,9 +6,13 @@ public interface IKhataTransactionService
 {
     Task<string> DeleteAsync(KhataCallerDto caller, int transactionId, CancellationToken cancellationToken);
 
+    Task<TransactionDetailDto> GetDetailAsync(KhataCallerDto caller, int transactionId, CancellationToken cancellationToken);
+
     Task<List<TransactionHistoryDto>> GetHistoryAsync(KhataCallerDto caller, int transactionId, CancellationToken cancellationToken);
 
-    Task<TransactionPageDto> GetPageAsync(KhataCallerDto caller, int contactId, int page, int? pageSize, CancellationToken cancellationToken);
+    Task<TransactionPageDto> GetPageAsync(KhataCallerDto caller, int contactId, TransactionQueryDto query, CancellationToken cancellationToken);
+
+    Task<TransactionPageDto> GetBookPageAsync(KhataCallerDto caller, int bookId, TransactionQueryDto query, CancellationToken cancellationToken);
 
     Task<TransactionDto> UpdateAsync(KhataCallerDto caller, int transactionId, TransactionRequestDto request, CancellationToken cancellationToken);
 

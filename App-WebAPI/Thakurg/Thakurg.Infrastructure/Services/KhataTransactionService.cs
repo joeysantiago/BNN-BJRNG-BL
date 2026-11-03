@@ -22,18 +22,24 @@ public class KhataTransactionService : IKhataTransactionService
 
     private readonly IKhataCommonServices _common;
 
+    private readonly IKhataBookRepository _bookRepository;
+
     private readonly IKhataContactRepository _contactRepository;
+
+    private readonly IKhataAttachmentRepository _attachmentRepository;
 
     private readonly IKhataTransactionRepository _transactionRepository;
 
     private static readonly DateOnly FirstAllowedDate = new(2000, 1, 1);
 
-    public KhataTransactionService(IOptions<KhataOptions> options, IKhataCommonServices common, IKhataContactRepository contactRepository, IKhataTransactionRepository transactionRepository)
+    public KhataTransactionService(IOptions<KhataOptions> options, IKhataCommonServices common, IKhataBookRepository bookRepository, IKhataContactRepository contactRepository, IKhataTransactionRepository transactionRepository, IKhataAttachmentRepository attachmentRepository)
     {
         _limits = options.Value.Limits;
         _common = common;
+        _bookRepository = bookRepository;
         _contactRepository = contactRepository;
         _transactionRepository = transactionRepository;
+        _attachmentRepository = attachmentRepository;
     }
 
     #region Public Methods
@@ -51,6 +57,20 @@ public class KhataTransactionService : IKhataTransactionService
         return await _common.Messages.GetAsync(MessageCodes.KhataEntryDeleted);
     }
 
+    // One entry with its contact and photos; a soft-deleted entry is still shown (IsDeleted = true).
+    public async Task<TransactionDetailDto> GetDetailAsync(KhataCallerDto caller, int transactionId, CancellationToken cancellationToken)
+    {
+        var entry = await _transactionRepository.GetAnyTransactionAsync(transactionId, cancellationToken);
+        var contact = entry is null ? null : await _contactRepository.GetContactAsync(entry.ContactId, caller.UserId, cancellationToken);
+        if (entry is null || contact is null)
+            throw new BusinessException(MessageCodes.KhataEntryNotFound, 404);
+
+        var attachments = await _attachmentRepository.GetAttachmentsAsync(transactionId, cancellationToken);
+        var lastEntryOn = await _contactRepository.GetLastEntryOnAsync(contact.Id, cancellationToken);
+
+        return new TransactionDetailDto { Entry = await EntryAsync(caller, transactionId, cancellationToken), BookId = entry.BookId, Contact = KhataMapper.ToDto(contact, lastEntryOn), Attachments = attachments.Select(KhataMapper.ToDto).ToList() };
+    }
+
     public async Task<List<TransactionHistoryDto>> GetHistoryAsync(KhataCallerDto caller, int transactionId, CancellationToken cancellationToken)
     {
         await RequireVisibleEntryAsync(caller, transactionId, cancellationToken);
@@ -59,14 +79,25 @@ public class KhataTransactionService : IKhataTransactionService
         return history.Select(KhataMapper.ToDto).ToList();
     }
 
-    public async Task<TransactionPageDto> GetPageAsync(KhataCallerDto caller, int contactId, int page, int? pageSize, CancellationToken cancellationToken)
+    public async Task<TransactionPageDto> GetPageAsync(KhataCallerDto caller, int contactId, TransactionQueryDto query, CancellationToken cancellationToken)
     {
         var contact = await RequireContactAsync(caller, contactId, cancellationToken);
-        var size = Math.Clamp(pageSize ?? _limits.PageSize, 1, _limits.MaxPageSize);
-        var number = Math.Max(1, page);
-        var (items, total) = await _transactionRepository.GetPageAsync(contactId, number, size, cancellationToken);
+        var filter = KhataQuery.Filter(query, _limits);
+        filter.ContactId = contactId;
 
-        return new TransactionPageDto { Items = items.Select(t => KhataMapper.ToDto(t, caller.UserId)).ToList(), Page = number, PageSize = size, Total = total, BalanceMinor = contact.BalanceMinor };
+        return await PageAsync(caller, filter, contact.BalanceMinor, cancellationToken);
+    }
+
+    // Every entry of the caller's book, with the contact name, searchable by note or contact name. BalanceMinor is the book net (you will get - you will give).
+    public async Task<TransactionPageDto> GetBookPageAsync(KhataCallerDto caller, int bookId, TransactionQueryDto query, CancellationToken cancellationToken)
+    {
+        var books = await _bookRepository.GetBookSummariesAsync(caller.UserId, bookId, null, cancellationToken);
+        var book = books.FirstOrDefault() ?? throw new BusinessException(MessageCodes.KhataBookNotFound, 404);
+        var filter = KhataQuery.Filter(query, _limits);
+        filter.BookId = bookId;
+        filter.SearchContactName = true;
+
+        return await PageAsync(caller, filter, book.YouWillGetMinor - book.YouWillGiveMinor, cancellationToken);
     }
 
     public async Task<TransactionDto> UpdateAsync(KhataCallerDto caller, int transactionId, TransactionRequestDto request, CancellationToken cancellationToken)
@@ -82,7 +113,7 @@ public class KhataTransactionService : IKhataTransactionService
         await SaveChangeAsync(caller, entry, KhataMapper.RowVersion(request.RowVersion), KhataChangeType.Edited, balanceDelta, cancellationToken);
         await _common.Audit.WriteAsync(KhataAuditActions.EntryEdited, caller.UserId, caller, new { TransactionId = transactionId, entry.Version }, cancellationToken);
 
-        return KhataMapper.ToDto(entry, caller.UserId);
+        return await EntryAsync(caller, transactionId, cancellationToken);
     }
 
     public async Task<TransactionDto> AddAsync(KhataCallerDto caller, int contactId, TransactionRequestDto request, Guid? idempotencyKey, CancellationToken cancellationToken)
@@ -95,7 +126,7 @@ public class KhataTransactionService : IKhataTransactionService
             var history = NewHistory(caller, entry, KhataChangeType.Created);
             await _transactionRepository.AddAsync(entry, history, KhataMapper.Signed(entry.EntryType, entry.AmountMinor), cancellationToken);
 
-            return KhataMapper.ToDto(entry, caller.UserId);
+            return await EntryAsync(caller, entry.Id, cancellationToken);
         }, cancellationToken);
     }
 
@@ -114,6 +145,11 @@ public class KhataTransactionService : IKhataTransactionService
         var noteTooLong = request.Note is not null && request.Note.Trim().Length > MaxNoteLength;
         if (!Enum.IsDefined(request.EntryType) || request.AmountMinor <= 0 || request.AmountMinor > _limits.MaxAmountMinor || request.EntryDate < FirstAllowedDate || request.EntryDate > latestAllowedDate || noteTooLong)
             throw new BusinessException(MessageCodes.KhataEntryInvalid, 400);
+    }
+
+    private async Task<TransactionDto> EntryAsync(KhataCallerDto caller, int transactionId, CancellationToken cancellationToken)
+    {
+        return await _transactionRepository.GetEntryAsync(transactionId, caller.UserId, cancellationToken) ?? throw new BusinessException(MessageCodes.KhataEntryNotFound, 404);
     }
 
     private static KhataTransactionHistory NewHistory(KhataCallerDto caller, KhataTransaction entry, KhataChangeType changeType)
@@ -144,6 +180,13 @@ public class KhataTransactionService : IKhataTransactionService
             throw new BusinessException(MessageCodes.KhataEntryNotFound, 404);
 
         return entry;
+    }
+
+    private async Task<TransactionPageDto> PageAsync(KhataCallerDto caller, TransactionFilterDto filter, long balanceMinor, CancellationToken cancellationToken)
+    {
+        var (items, total, gaveMinor, gotMinor) = await _transactionRepository.GetPageAsync(filter, caller.UserId, cancellationToken);
+
+        return new TransactionPageDto { Items = items, Page = filter.Page, PageSize = filter.PageSize, Total = total, GaveMinor = gaveMinor, GotMinor = gotMinor, BalanceMinor = balanceMinor };
     }
 
     private async Task SaveChangeAsync(KhataCallerDto caller, KhataTransaction entry, byte[] expectedRowVersion, KhataChangeType changeType, long balanceDelta, CancellationToken cancellationToken)

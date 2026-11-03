@@ -7,6 +7,7 @@ using Thakurg.Contracts.Exceptions;
 using Thakurg.Contracts.Khata;
 using Thakurg.Contracts.Messages;
 using Thakurg.Domain.Entities;
+using Thakurg.Infrastructure.Common;
 
 namespace Thakurg.Infrastructure.Services;
 
@@ -23,12 +24,18 @@ public class KhataBookService : IKhataBookService
 
     private readonly IKhataUserRepository _userRepository;
 
-    public KhataBookService(IOptions<KhataOptions> options, IKhataCommonServices common, IKhataUserRepository userRepository, IKhataBookRepository bookRepository)
+    private readonly IKhataContactRepository _contactRepository;
+
+    private readonly IKhataTransactionRepository _transactionRepository;
+
+    public KhataBookService(IOptions<KhataOptions> options, IKhataCommonServices common, IKhataUserRepository userRepository, IKhataBookRepository bookRepository, IKhataContactRepository contactRepository, IKhataTransactionRepository transactionRepository)
     {
         _limits = options.Value.Limits;
         _common = common;
         _userRepository = userRepository;
         _bookRepository = bookRepository;
+        _contactRepository = contactRepository;
+        _transactionRepository = transactionRepository;
     }
 
     #region Public Methods
@@ -75,6 +82,25 @@ public class KhataBookService : IKhataBookService
         return await SummaryAsync(caller, bookId, null, cancellationToken);
     }
 
+    // The book home page: totals, counts, the last months (ending with the month of "today", the caller's local date, else UTC), the largest open balances and the newest entries.
+    public async Task<BookSummaryDto> GetSummaryAsync(KhataCallerDto caller, int bookId, string? today, CancellationToken cancellationToken)
+    {
+        var day = KhataQuery.Date(today) ?? DateOnly.FromDateTime(DateTime.UtcNow);
+        var user = await _userRepository.GetUserAsync(caller.UserId, cancellationToken);
+        var books = await _bookRepository.GetBookSummariesAsync(caller.UserId, bookId, user?.LastBookId, cancellationToken);
+        var book = books.FirstOrDefault() ?? throw new BusinessException(MessageCodes.KhataBookNotFound, 404);
+        var lastMonth = new DateOnly(day.Year, day.Month, 1);
+        var firstMonth = lastMonth.AddMonths(1 - _limits.SummaryMonths);
+        var totals = await _transactionRepository.GetMonthTotalsAsync(bookId, firstMonth, lastMonth.AddMonths(1), cancellationToken);
+        var (toGet, toGive) = await _contactRepository.CountBalancesAsync(bookId, cancellationToken);
+        var topContacts = await _contactRepository.GetTopContactsAsync(bookId, _limits.SummaryTopContacts, cancellationToken);
+        var recentFilter = new TransactionFilterDto { BookId = bookId, Kind = KhataEntryKind.Live, Sort = KhataEntrySort.Newest, Page = 1, PageSize = _limits.SummaryRecent };
+        var (recent, _, _, _) = await _transactionRepository.GetPageAsync(recentFilter, caller.UserId, cancellationToken);
+        var entryCount = await _transactionRepository.CountLiveEntriesAsync(bookId, cancellationToken);
+
+        return new BookSummaryDto { Book = book, ToGetCount = toGet, ToGiveCount = toGive, EntryCount = entryCount, Months = Months(firstMonth, totals), TopContacts = topContacts.Select(c => KhataMapper.ToDto(c.Contact, c.LastEntryOn)).ToList(), Recent = recent };
+    }
+
     public async Task<BookDto> CreateAsync(KhataCallerDto caller, BookRequestDto request, Guid? idempotencyKey, CancellationToken cancellationToken)
     {
         return await _common.Idempotency.RunAsync(caller, idempotencyKey, "POST books", request, async () =>
@@ -94,6 +120,12 @@ public class KhataBookService : IKhataBookService
     #endregion
 
     #region Private Methods
+
+    // Every month from firstMonth on, oldest first; a month without entries shows zeros.
+    private List<BookMonthDto> Months(DateOnly firstMonth, List<BookMonthDto> totals)
+    {
+        return Enumerable.Range(0, _limits.SummaryMonths).Select(i => KhataQuery.Month(firstMonth.AddMonths(i).Year, firstMonth.AddMonths(i).Month)).Select(month => totals.FirstOrDefault(t => t.Month == month) ?? new BookMonthDto { Month = month }).ToList();
+    }
 
     private async Task<KhataBook> RequireBookAsync(KhataCallerDto caller, int bookId, CancellationToken cancellationToken)
     {

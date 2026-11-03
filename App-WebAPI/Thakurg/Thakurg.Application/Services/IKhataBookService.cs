@@ -12,5 +12,7 @@ public interface IKhataBookService
 
     Task<BookDto> UpdateAsync(KhataCallerDto caller, int bookId, BookRequestDto request, CancellationToken cancellationToken);
 
+    Task<BookSummaryDto> GetSummaryAsync(KhataCallerDto caller, int bookId, string? today, CancellationToken cancellationToken);
+
     Task<BookDto> CreateAsync(KhataCallerDto caller, BookRequestDto request, Guid? idempotencyKey, CancellationToken cancellationToken);
 }
