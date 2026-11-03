@@ -690,3 +690,18 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Settings > Mail: one card per mail server, with its icon beside the title; the security choice is the same switch as file storage. */
+.khata .k-mail-h {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.khata .k-mail-h h2 {
+  margin: 0;
+}
+
+.khata .k-typeseg.k-seg3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}

@@ -23,6 +23,8 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
 
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
 
+    public DbSet<MailSetting> MailSettings => Set<MailSetting>();
+
     public DbSet<OneTimeCode> OneTimeCodes => Set<OneTimeCode>();
 
     public DbSet<ServiceItem> ServiceItems => Set<ServiceItem>();
@@ -92,6 +94,7 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
         modelBuilder.Entity<Message>().ToTable("Messages");
         modelBuilder.Entity<PageName>().ToTable("PageNames");
         modelBuilder.Entity<AppSetting>().ToTable("AppSettings");
+        modelBuilder.Entity<MailSetting>().ToTable("MailSettings");
         modelBuilder.Entity<UserProfile>().ToTable("UserProfiles");
         modelBuilder.Entity<OneTimeCode>().ToTable("OneTimeCodes");
         modelBuilder.Entity<ServiceItem>().ToTable("ServiceItems");

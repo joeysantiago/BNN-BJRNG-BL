@@ -3,6 +3,10 @@ namespace Thakurg.Contracts.Messages;
 // One-time code login, mail and SMS sending, profile details and file exports.
 public static partial class MessageCodes
 {
+    public const string EmailBrand = "EMAIL_BRAND";
+
+    public const string EmailFooter = "EMAIL_FOOTER";
+
     public const string AuthOtpSent = "AUTH_OTP_SENT";
 
     public const string AuthOtpInvalid = "AUTH_OTP_INVALID";
@@ -14,6 +18,8 @@ public static partial class MessageCodes
     public const string SmsNotConfigured = "SMS_NOT_CONFIGURED";
 
     public const string AuthOtpEmailBody = "AUTH_OTP_EMAIL_BODY";
+
+    public const string AuthOtpEmailLead = "AUTH_OTP_EMAIL_LEAD";
 
     public const string AuthOtpAppInvalid = "AUTH_OTP_APP_INVALID";
 

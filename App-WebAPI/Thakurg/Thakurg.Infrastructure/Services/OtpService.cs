@@ -6,6 +6,7 @@ using Thakurg.Application.Services;
 using Thakurg.Contracts.Auth;
 using Thakurg.Contracts.Configurations;
 using Thakurg.Contracts.Exceptions;
+using Thakurg.Contracts.Mail;
 using Thakurg.Contracts.Messages;
 using Thakurg.Contracts.Wrappers;
 using Thakurg.Domain.Entities;
@@ -174,8 +175,10 @@ public class OtpService : IOtpService
         }
 
         var subject = await _messageService.GetAsync(MessageCodes.AuthOtpEmailSubject, plainCode);
-        var body = await _messageService.GetAsync(MessageCodes.AuthOtpEmailBody, plainCode, _options.Otp.CodeMinutes);
-        await _emailSender.SendAsync(destination, subject, EmailHtml.Paragraphs([body], _messageService.CurrentLanguage() == "ar"), cancellationToken);
+        var lead = await _messageService.GetAsync(MessageCodes.AuthOtpEmailLead);
+        var note = await _messageService.GetAsync(MessageCodes.AuthOtpEmailBody, _options.Otp.CodeMinutes);
+        var frame = await EmailHtml.FrameAsync(_messageService, _messageService.CurrentLanguage());
+        await _emailSender.SendAsync(MailPurposes.Otp, destination, subject, EmailHtml.Code(frame, lead, plainCode, note), cancellationToken);
     }
 
     #endregion

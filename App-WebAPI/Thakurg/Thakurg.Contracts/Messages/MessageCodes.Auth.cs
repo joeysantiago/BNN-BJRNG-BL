@@ -65,4 +65,12 @@ public static partial class MessageCodes
     public const string AuthAccountArchived = "AUTH_ACCOUNT_ARCHIVED";
 
     public const string AuthPasswordChanged = "AUTH_PASSWORD_CHANGED";
+
+    public const string AuthDeletedEmailBody = "AUTH_DELETED_EMAIL_BODY";
+
+    public const string AuthDeletedEmailHello = "AUTH_DELETED_EMAIL_HELLO";
+
+    public const string AuthDeletedEmailSubject = "AUTH_DELETED_EMAIL_SUBJECT";
+
+    public const string AuthDeletedEmailWarning = "AUTH_DELETED_EMAIL_WARNING";
 }

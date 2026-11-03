@@ -13,11 +13,12 @@ Applies to **controllers and services** in `App-WebAPI` only.
 
 ## Existing bundles
 
-There are none yet: every controller and service in `Thakurg` is within the limit (the largest, `MusicService`, takes exactly 6). Add the first bundle to this table when one is created.
+Reuse one of these before adding a new bundle, and add every new bundle to this table.
 
 | Bundle | Properties |
 |---|---|
-| _(none yet)_ | |
+| `IKhataCommonServices` (SnapKhata ledger services) | `Audit`, `Messages`, `Idempotency`, `Notifications` |
+| `IAuthSessionServices` (`AuthService`) | `Tokens` (`IAuthTokenService`), `Cache` (`IAuthSessionCache`) |
 
 ## Example
 

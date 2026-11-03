@@ -6,6 +6,7 @@ using Thakurg.Application.Services;
 using Thakurg.Contracts.Configurations;
 using Thakurg.Contracts.Exceptions;
 using Thakurg.Contracts.Khata;
+using Thakurg.Contracts.Mail;
 using Thakurg.Contracts.Messages;
 using Thakurg.Domain.Entities;
 using Thakurg.Infrastructure.Common;
@@ -78,7 +79,9 @@ public class KhataNotificationService : IKhataNotificationService
         if (pref.NotifyEmail)
         {
             var subject = await _messageService.GetInAsync(owner.Language, MessageCodes.KhataNotifySubject, sender);
-            logs.Add(await TrySendAsync(job, KhataNotifyChannel.Email, template, contact.Email, email => _emailSender.SendAsync(email, subject, EmailHtml.Paragraphs(lines, owner.Language == "ar"), cancellationToken)));
+            var frame = await EmailHtml.FrameAsync(_messageService, owner.Language);
+            var html = EmailHtml.Notice(frame, sender, [lines[0]], lines[1], Tone(contact.BalanceMinor));
+            logs.Add(await TrySendAsync(job, KhataNotifyChannel.Email, template, contact.Email, email => _emailSender.SendAsync(MailPurposes.Notification, email, subject, html, cancellationToken)));
         }
 
         await _notificationRepository.AddLogsAsync(logs, cancellationToken);
@@ -87,6 +90,17 @@ public class KhataNotificationService : IKhataNotificationService
     #endregion
 
     #region Private Methods
+
+    // The colour of the balance line in the e-mail: red when the party owes, green when they will get money, grey when settled.
+    private static EmailTone Tone(long balanceMinor)
+    {
+        return balanceMinor switch
+        {
+            > 0 => EmailTone.Danger,
+            < 0 => EmailTone.Success,
+            _ => EmailTone.Neutral
+        };
+    }
 
     private static string Money(long amountMinor, KhataCurrency? currency)
     {

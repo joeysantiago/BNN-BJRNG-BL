@@ -45,6 +45,7 @@ public static partial class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IAuthTokenService, AuthTokenService>();
+        services.AddSingleton<IMailSecretProtector, MailSecretProtector>();
 
         services.AddScoped<IOtpRepository, OtpRepository>();
         services.AddScoped<IAuthRepository, AuthRepository>();
@@ -53,6 +54,7 @@ public static partial class DependencyInjection
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<IUserAccessRepository, UserAccessRepository>();
+        services.AddScoped<IMailSettingRepository, MailSettingRepository>();
         services.AddScoped<ITranslationRepository, TranslationRepository>();
 
         services.AddScoped<IOtpService, OtpService>();
@@ -65,7 +67,10 @@ public static partial class DependencyInjection
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<ISettingsService, SettingsService>();
         services.AddScoped<IAuthSessionCache, AuthSessionCache>();
+        services.AddScoped<IAccountMailService, AccountMailService>();
+        services.AddScoped<IAuthSessionServices, AuthSessionServices>();
         services.AddScoped<IUserAccessService, UserAccessService>();
+        services.AddScoped<IMailSettingService, MailSettingService>();
         services.AddScoped<ITranslationService, TranslationService>();
         services.AddScoped<IRolePermissionService, RolePermissionService>();
 

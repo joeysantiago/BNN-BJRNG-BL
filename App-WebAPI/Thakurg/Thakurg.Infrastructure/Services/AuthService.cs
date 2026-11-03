@@ -35,20 +35,23 @@ public class AuthService : IAuthService
 
     private readonly IPasswordHasher _passwordHasher;
 
+    private readonly IAccountMailService _accountMail;
+
     private static readonly string[] Languages = ["en", "hi", "ar"];
 
     // The options a user may switch off for themselves, by code prefix, and the apps that make them "their own": none = every user (header, speed test).
     // Page switches (page.*) are not listed: they stay with the site settings.
     private static readonly Dictionary<string, string[]> OwnFeatureApps = new() { ["site."] = [], ["speed."] = [], ["yt."] = [AppCodes.Youtube], ["audio."] = [AppCodes.Creta, AppCodes.Nexon] };
 
-    public AuthService(IOptions<AuthOptions> options, IAuthTokenService tokenService, IPasswordHasher passwordHasher, IMessageService messageService, IAuthRepository authRepository, IAuthSessionCache sessionCache)
+    public AuthService(IOptions<AuthOptions> options, IAuthSessionServices sessionServices, IPasswordHasher passwordHasher, IMessageService messageService, IAuthRepository authRepository, IAccountMailService accountMail)
     {
         _options = options.Value;
-        _tokenService = tokenService;
+        _tokenService = sessionServices.Tokens;
         _passwordHasher = passwordHasher;
         _messageService = messageService;
         _authRepository = authRepository;
-        _sessionCache = sessionCache;
+        _sessionCache = sessionServices.Cache;
+        _accountMail = accountMail;
     }
 
     #region Public Methods
@@ -84,6 +87,7 @@ public class AuthService : IAuthService
     }
 
     // The user deletes their own account (soft delete): every session ends at once and the e-mail can no longer log in. The last super admin cannot.
+    // The user is then told by e-mail (AccountMailService), so a deletion they did not make does not go unnoticed.
     public async Task<string> DeleteAccountAsync(AuthCallerDto caller, CancellationToken cancellationToken)
     {
         var user = await RequireUserAsync(caller.UserId, cancellationToken);
@@ -99,6 +103,7 @@ public class AuthService : IAuthService
         await _authRepository.SaveChangesAsync(cancellationToken);
         await _authRepository.RevokeSessionsAsync(user.Id, null, now, cancellationToken);
         _sessionCache.Forget(user.Id);
+        await _accountMail.SendAccountDeletedAsync(user.Email, user.DisplayName, user.Language, now, cancellationToken);
 
         return await _messageService.GetAsync(MessageCodes.AuthAccountDeleted);
     }

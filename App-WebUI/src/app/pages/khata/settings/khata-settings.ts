@@ -1,4 +1,5 @@
 import { Lang } from '../../../core/site';
+import { KhataMail } from './khata-mail/khata-mail';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { KhataUsers } from './khata-users/khata-users';
 import { KhataIcon } from '../ui/khata-icon/khata-icon';
@@ -15,12 +16,13 @@ import { KhataIconName, KhataNotice, KhataSettingsTab, KhataStorage, KhataStorag
 /**
  * /khata/app/settings (?tab=): SnapKhata's settings in tabs, like the site's Settings page. General: theme and language. Notifications: whether
  * SnapKhata sends notifications at all (each party's channels are on that party's settings). File storage: where bill photos are kept for the
- * whole site, local or Azure Blob. Users: every account, to edit, archive / activate or delete. Only a super admin who logged in with a password sees
- * the last two, and the API checks the same.
+ * whole site, local or Azure Blob. Mail: the mail servers for one-time codes and notifications. Users: every account, to edit, archive / activate,
+ * delete or restore. Only a super admin who logged in with a password sees
+ * the last three, and the API checks the same.
  */
 @Component({
   selector: 'app-khata-settings',
-  imports: [KhataIcon, KhataUsers],
+  imports: [KhataIcon, KhataMail, KhataUsers],
   templateUrl: './khata-settings.html',
   styleUrl: './khata-settings.scss',
 })
@@ -43,7 +45,7 @@ export class KhataSettings {
   protected readonly modeIcons: Record<ThemeMode, KhataIconName> = { light: 'sun', dark: 'moon', system: 'monitor' };
   /** Only a super admin whose session logged in with a password may change where the site keeps files, or manage the users. */
   protected readonly canStorage = computed(() => this.auth.isSuperAdmin() && this.auth.user()?.loginMethod !== 'otp');
-  protected readonly tabs = computed<KhataSettingsTab[]>(() => (this.canStorage() ? ['general', 'notifications', 'storage', 'users'] : ['general', 'notifications']));
+  protected readonly tabs = computed<KhataSettingsTab[]>(() => (this.canStorage() ? ['general', 'notifications', 'storage', 'mail', 'users'] : ['general', 'notifications']));
   protected readonly tab = computed<KhataSettingsTab>(() => {
     const wanted = this.query().get('tab') as KhataSettingsTab | null;
     return wanted && this.tabs().includes(wanted) ? wanted : 'general';
