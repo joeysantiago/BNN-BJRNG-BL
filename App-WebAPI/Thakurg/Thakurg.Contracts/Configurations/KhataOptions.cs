@@ -7,4 +7,6 @@ public class KhataOptions
     public KhataLimitsOptions Limits { get; set; } = new();
 
     public KhataNewUserOptions NewUser { get; set; } = new();
+
+    public KhataLocalFilesOptions LocalFiles { get; set; } = new();
 }

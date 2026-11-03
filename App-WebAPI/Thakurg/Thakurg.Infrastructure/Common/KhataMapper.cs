@@ -27,6 +27,11 @@ public static class KhataMapper
         return entryType == (byte)KhataEntryType.Gave ? amountMinor : -amountMinor;
     }
 
+    public static AttachmentDto ToDto(KhataAttachment attachment)
+    {
+        return new AttachmentDto { Id = attachment.Id, FileName = attachment.FileName, ContentType = attachment.ContentType, SizeBytes = attachment.SizeBytes };
+    }
+
     public static TransactionSnapshotDto Snapshot(KhataTransaction entry)
     {
         return new TransactionSnapshotDto { EntryType = (KhataEntryType)entry.EntryType, AmountMinor = entry.AmountMinor, Note = entry.Note, EntryDate = entry.EntryDate };
@@ -45,6 +50,17 @@ public static class KhataMapper
     public static ContactDto ToDto(KhataContact contact, DateOnly? lastEntryOn)
     {
         return new ContactDto { Id = contact.Id, BookId = contact.BookId, Name = contact.Name, Mobile = contact.Mobile, Email = contact.Email, Address = contact.Address, Note = contact.Note, ContactType = (KhataContactType)contact.ContactType, AllowContactEntries = contact.AllowContactEntries, ShareStatus = (KhataShareStatus)contact.ShareStatus, BalanceMinor = contact.BalanceMinor, DueDate = contact.DueDate, LastEntryOn = lastEntryOn, RowVersion = Convert.ToBase64String(contact.RowVersion) };
+    }
+
+    // An entry as the lists and the details show it: with its contact name, photo count and the contact balance right after it.
+    public static TransactionDto ToDto(KhataTransaction entry, int userId, string? contactName, int photoCount, long? balanceAfterMinor)
+    {
+        var dto = ToDto(entry, userId);
+        dto.ContactName = contactName;
+        dto.PhotoCount = photoCount;
+        dto.BalanceAfterMinor = balanceAfterMinor;
+
+        return dto;
     }
 
     #endregion

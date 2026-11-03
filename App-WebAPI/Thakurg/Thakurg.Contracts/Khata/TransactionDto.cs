@@ -14,6 +14,8 @@ public class TransactionDto
 
     public bool IsDeleted { get; set; }
 
+    public int PhotoCount { get; set; }
+
     public long AmountMinor { get; set; }
 
     public int AddedByUserId { get; set; }
@@ -22,7 +24,11 @@ public class TransactionDto
 
     public DateTime CreatedOn { get; set; }
 
+    public string? ContactName { get; set; }
+
     public DateTime? ModifiedOn { get; set; }
+
+    public long? BalanceAfterMinor { get; set; }
 
     public KhataEntryType EntryType { get; set; }
 

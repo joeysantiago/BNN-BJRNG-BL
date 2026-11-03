@@ -4,6 +4,8 @@ public static partial class MessageCodes
 {
     public const string KhataBookLimit = "KHATA_BOOK_LIMIT";
 
+    public const string KhataPhotoLimit = "KHATA_PHOTO_LIMIT";
+
     public const string KhataBookDeleted = "KHATA_BOOK_DELETED";
 
     public const string KhataContactLimit = "KHATA_CONTACT_LIMIT";
@@ -11,6 +13,10 @@ public static partial class MessageCodes
     public const string KhataEntryDeleted = "KHATA_ENTRY_DELETED";
 
     public const string KhataEntryInvalid = "KHATA_ENTRY_INVALID";
+
+    public const string KhataPhotoInvalid = "KHATA_PHOTO_INVALID";
+
+    public const string KhataQueryInvalid = "KHATA_QUERY_INVALID";
 
     public const string KhataBookNotFound = "KHATA_BOOK_NOT_FOUND";
 
@@ -42,9 +48,13 @@ public static partial class MessageCodes
 
     public const string KhataRequestKeyReused = "KHATA_REQUEST_KEY_REUSED";
 
+    public const string KhataAttachmentDeleted = "KHATA_ATTACHMENT_DELETED";
+
     public const string KhataCurrencyCodeTaken = "KHATA_CURRENCY_CODE_TAKEN";
 
     public const string KhataRequestInProgress = "KHATA_REQUEST_IN_PROGRESS";
+
+    public const string KhataAttachmentNotFound = "KHATA_ATTACHMENT_NOT_FOUND";
 
     public const string KhataBookCurrencyLocked = "KHATA_BOOK_CURRENCY_LOCKED";
 }
