@@ -90,7 +90,7 @@ export class KhataProfile {
     const details = Object.fromEntries(DETAIL_FIELDS.map((f) => [f, String(data.get(f) ?? '').trim() || null])) as unknown as ProfileDetails;
     await this.run('address', this.addressNotice, async () => {
       const text = await this.auth.saveDetails(details);
-      this.details.set(details);
+      this.details.set({ ...details, limits: this.details()?.limits });
       return text;
     });
   }

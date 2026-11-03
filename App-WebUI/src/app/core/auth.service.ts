@@ -90,8 +90,10 @@ export class AuthService {
   patchUser(user: AuthUser): void {
     if (this.user()?.id !== user.id)
       return;
-    this.user.set(user);
-    this.post({ type: 'session', token: this.token ?? undefined, expiresAt: this.expiresAt, user });
+    // Some answers (the avatar endpoints) do not say how this session logged in; keep what is already known.
+    const patched = { ...user, loginMethod: user.loginMethod || this.user()?.loginMethod };
+    this.user.set(patched);
+    this.post({ type: 'session', token: this.token ?? undefined, expiresAt: this.expiresAt, user: patched });
   }
 
   /** A fresh access token now, for example after an audio packet was refused. False when the session is over (then every tab logs out). */

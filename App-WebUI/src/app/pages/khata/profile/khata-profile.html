@@ -88,14 +88,26 @@
                 <label class="k-field ico">
                   <span class="lbl">{{ i18n.t('khata.p.mobile') }}</span>
                   <svg kIco="phone" [size]="18"></svg>
-                  <input name="mobile" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" [value]="details()?.mobile ?? ''" />
+                  <input name="mobile" type="tel" inputmode="tel" autocomplete="tel" [attr.maxlength]="details()?.limits?.mobileLength" [value]="details()?.mobile ?? ''" />
                 </label>
-                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.line1') }}</span><input name="addressLine1" type="text" autocomplete="address-line1" maxlength="200" [value]="details()?.addressLine1 ?? ''" /></label>
-                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.line2') }}</span><input name="addressLine2" type="text" autocomplete="address-line2" maxlength="200" [value]="details()?.addressLine2 ?? ''" /></label>
-                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.city') }}</span><input name="city" type="text" autocomplete="address-level2" maxlength="100" [value]="details()?.city ?? ''" /></label>
-                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.state') }}</span><input name="state" type="text" autocomplete="address-level1" maxlength="100" [value]="details()?.state ?? ''" /></label>
-                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.postalCode') }}</span><input name="postalCode" type="text" autocomplete="postal-code" maxlength="20" [value]="details()?.postalCode ?? ''" /></label>
-                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.country') }}</span><input name="country" type="text" autocomplete="country-name" maxlength="100" [value]="details()?.country ?? ''" /></label>
+                <label class="k-field">
+                  <span class="lbl">{{ i18n.t('khata.p.line1') }}</span>
+                  <input name="addressLine1" type="text" autocomplete="address-line1" [attr.maxlength]="details()?.limits?.addressLength" [value]="details()?.addressLine1 ?? ''" />
+                </label>
+                <label class="k-field">
+                  <span class="lbl">{{ i18n.t('khata.p.line2') }}</span>
+                  <input name="addressLine2" type="text" autocomplete="address-line2" [attr.maxlength]="details()?.limits?.addressLength" [value]="details()?.addressLine2 ?? ''" />
+                </label>
+                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.city') }}</span><input name="city" type="text" autocomplete="address-level2" [attr.maxlength]="details()?.limits?.cityLength" [value]="details()?.city ?? ''" /></label>
+                <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.state') }}</span><input name="state" type="text" autocomplete="address-level1" [attr.maxlength]="details()?.limits?.stateLength" [value]="details()?.state ?? ''" /></label>
+                <label class="k-field">
+                  <span class="lbl">{{ i18n.t('khata.p.postalCode') }}</span>
+                  <input name="postalCode" type="text" autocomplete="postal-code" [attr.maxlength]="details()?.limits?.postalCodeLength" [value]="details()?.postalCode ?? ''" />
+                </label>
+                <label class="k-field">
+                  <span class="lbl">{{ i18n.t('khata.p.country') }}</span>
+                  <input name="country" type="text" autocomplete="country-name" [attr.maxlength]="details()?.limits?.countryLength" [value]="details()?.country ?? ''" />
+                </label>
               </div>
             </fieldset>
             <fieldset class="k-plain k-form">
@@ -104,25 +116,28 @@
                 <label class="k-field ico">
                   <span class="lbl">{{ i18n.t('khata.p.companyName') }}</span>
                   <svg kIco="store" [size]="18"></svg>
-                  <input name="companyName" type="text" autocomplete="organization" maxlength="200" [value]="details()?.companyName ?? ''" />
+                  <input name="companyName" type="text" autocomplete="organization" [attr.maxlength]="details()?.limits?.companyNameLength" [value]="details()?.companyName ?? ''" />
                 </label>
                 <label class="k-field ico">
                   <span class="lbl">{{ i18n.t('khata.p.companyTaxId') }}</span>
                   <svg kIco="hash" [size]="18"></svg>
-                  <input name="companyTaxId" type="text" autocomplete="off" maxlength="30" [value]="details()?.companyTaxId ?? ''" />
+                  <input name="companyTaxId" type="text" autocomplete="off" [attr.maxlength]="details()?.limits?.companyTaxIdLength" [value]="details()?.companyTaxId ?? ''" />
                 </label>
                 <label class="k-field ico">
                   <span class="lbl">{{ i18n.t('khata.p.companyEmail') }}</span>
                   <svg kIco="mail" [size]="18"></svg>
-                  <input name="companyEmail" type="email" inputmode="email" autocomplete="off" maxlength="200" [value]="details()?.companyEmail ?? ''" />
+                  <input name="companyEmail" type="email" inputmode="email" autocomplete="off" [attr.maxlength]="details()?.limits?.companyEmailLength" [value]="details()?.companyEmail ?? ''" />
                 </label>
                 <label class="k-field ico">
                   <span class="lbl">{{ i18n.t('khata.p.companyPhone') }}</span>
                   <svg kIco="phone" [size]="18"></svg>
-                  <input name="companyPhone" type="tel" inputmode="tel" autocomplete="off" maxlength="20" [value]="details()?.companyPhone ?? ''" />
+                  <input name="companyPhone" type="tel" inputmode="tel" autocomplete="off" [attr.maxlength]="details()?.limits?.companyPhoneLength" [value]="details()?.companyPhone ?? ''" />
                 </label>
               </div>
-              <label class="k-field"><span class="lbl">{{ i18n.t('khata.p.companyAddress') }}</span><textarea name="companyAddress" maxlength="400" [value]="details()?.companyAddress ?? ''"></textarea></label>
+              <label class="k-field">
+                <span class="lbl">{{ i18n.t('khata.p.companyAddress') }}</span>
+                <textarea name="companyAddress" [attr.maxlength]="details()?.limits?.companyAddressLength" [value]="details()?.companyAddress ?? ''"></textarea>
+              </label>
             </fieldset>
             <div class="k-actions">
               @if (addressNotice(); as n) {

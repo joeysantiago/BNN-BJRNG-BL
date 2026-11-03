@@ -88,6 +88,7 @@ export interface ProfileDetails {
   state: string | null;
   mobile: string | null;
   country: string | null;
+  limits?: ProfileLimits;
   postalCode: string | null;
   companyName: string | null;
   addressLine1: string | null;
@@ -96,4 +97,19 @@ export interface ProfileDetails {
   companyPhone: string | null;
   companyTaxId: string | null;
   companyAddress: string | null;
+}
+
+/** The longest each profile field may be, from the API's configuration (Profile:Limits), so the form and the server agree. */
+export interface ProfileLimits {
+  cityLength: number;
+  stateLength: number;
+  mobileLength: number;
+  addressLength: number;
+  countryLength: number;
+  postalCodeLength: number;
+  companyNameLength: number;
+  companyEmailLength: number;
+  companyPhoneLength: number;
+  companyTaxIdLength: number;
+  companyAddressLength: number;
 }
