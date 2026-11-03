@@ -1,225 +1,194 @@
 <div class="wrap page">
-  <section class="card head" aria-labelledby="cfg-h1">
+  <header class="head">
     <h1 id="cfg-h1">{{ i18n.t('cfg.h1') }}</h1>
+    <p class="lead">{{ i18n.t(auth.user() && !tabs().length ? 'cfg.admin.p' : 'cfg.lead') }}</p>
     @if (auth.user() && !tabs().length) {
-      <p class="lead">{{ i18n.t('cfg.admin.p') }}</p>
       <a class="btn pri" routerLink="/profile">{{ i18n.t('cfg.admin.cta') }}</a>
-    } @else {
-      <p class="lead">{{ i18n.t('cfg.lead') }}</p>
-      <p class="note">{{ i18n.t('cfg.note') }}</p>
     }
-  </section>
+  </header>
 
   @if (current(); as tab) {
-    <nav class="card tabbar" [attr.aria-label]="i18n.t('cfg.tabs')">
+    <div class="card shell">
       <div class="tabs" role="tablist" [attr.aria-label]="i18n.t('cfg.tabs')">
         @for (t of tabs(); track t.id; let i = $index) {
           <button type="button" role="tab" class="tab" [id]="'cfg-tab-' + t.id" [attr.aria-selected]="t.id === tab.id" [attr.aria-controls]="'cfg-panel-' + t.id" [attr.tabindex]="t.id === tab.id ? 0 : -1"
             (click)="select(t.id)" (keydown)="onTabKey($event, i)">{{ tabName(t) }}</button>
         }
       </div>
-    </nav>
 
-    <div class="panel" role="tabpanel" [id]="'cfg-panel-' + tab.id" [attr.aria-labelledby]="'cfg-tab-' + tab.id">
-      @switch (tab.id) {
-        @case ('account') {
-          <app-account-tab />
-        }
-        @case ('users') {
-          <app-users-tab />
-        }
-        @case ('roles') {
-          <app-roles-tab />
-        }
-        @case ('permissions') {
-          <app-permissions-tab />
-        }
-        @case ('youtube') {
-          <section class="card grp" aria-labelledby="cfg-yt">
-            <h2 id="cfg-yt">{{ i18n.t('cfg.yt.h') }}</h2>
-            <p class="help">{{ i18n.t('cfg.yt.lead') }}</p>
-            @if (ytKeySet() !== null) {
-              <p class="status" role="status">{{ i18n.t(ytKeySet() ? 'cfg.yt.set' : 'cfg.yt.notset') }}</p>
-            }
-            @if (auth.can('settings.youtube', 'edit')) {
-              <form class="setup inset" [attr.aria-busy]="busy()" (submit)="saveYoutube($event, ytKey)">
-                <label class="stack">
-                  <span>{{ i18n.t('cfg.yt.label') }}</span>
-                  <input #ytKey type="password" name="youtube-api-key" autocomplete="off" spellcheck="false" [disabled]="busy()" />
-                </label>
-                <div class="setup-actions">
-                  <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t(busy() ? 'cfg.yt.saving' : 'cfg.yt.save') }}</button>
-                </div>
-              </form>
-            } @else {
-              <p class="note">{{ i18n.t('cfg.readonly') }}</p>
-            }
-            @if (ytNotice(); as n) {
-              <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
-            }
-          </section>
-        }
-        @default {
-          <!-- The site settings tabs share the unsaved-edits bar: Save all saves every section the user may edit. -->
-          @if (editable().length) {
-            <section class="card topbar" aria-labelledby="cfg-save-h">
-              <h2 id="cfg-save-h" class="sr-only">{{ i18n.t('cfg.save.all') }}</h2>
-              <div class="bar">
-                <p class="status" role="status">{{ count() ? i18n.t('cfg.changed', { n: count() }) : i18n.t('cfg.nochange') }}</p>
-                <div class="acts">
-                  <button type="button" class="btn" [disabled]="!count() || saving() !== null" (click)="reset()">{{ i18n.t('cfg.reset') }}</button>
-                  <button type="button" class="btn pri" [disabled]="!count() || saving() !== null" [attr.title]="count() ? null : i18n.t('cfg.save.nothing')" (click)="save('all')">{{ saveLabel('all') }}</button>
-                </div>
-              </div>
-              @if (noticeFor('all'); as n) {
-                <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+      <div class="panel" role="tabpanel" [id]="'cfg-panel-' + tab.id" [attr.aria-labelledby]="'cfg-tab-' + tab.id">
+        @switch (tab.id) {
+          @case ('account') {
+            <app-account-tab />
+          }
+          @case ('users') {
+            <app-users-tab />
+          }
+          @case ('roles') {
+            <app-roles-tab />
+          }
+          @case ('permissions') {
+            <app-permissions-tab />
+          }
+          @case ('youtube') {
+            <section class="sec" aria-labelledby="cfg-yt">
+              <h2 id="cfg-yt" class="sec-h">{{ i18n.t('cfg.yt.h') }}</h2>
+              <p class="help">{{ i18n.t('cfg.yt.lead') }}</p>
+              @if (ytKeySet() !== null) {
+                <p class="status" role="status">{{ i18n.t(ytKeySet() ? 'cfg.yt.set' : 'cfg.yt.notset') }}</p>
+              }
+              @if (auth.can('settings.youtube', 'edit')) {
+                <form [attr.aria-busy]="busy()" (submit)="saveYoutube($event, ytKey)">
+                  <label class="field-row">
+                    <span class="txt"><b>{{ i18n.t('cfg.yt.label') }}</b></span>
+                    <input #ytKey type="password" name="youtube-api-key" autocomplete="off" spellcheck="false" [disabled]="busy()" />
+                  </label>
+                  <div class="foot">
+                    <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t(busy() ? 'cfg.yt.saving' : 'cfg.yt.save') }}</button>
+                    @if (ytNotice(); as n) {
+                      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+                    }
+                  </div>
+                </form>
+              } @else {
+                <p class="note">{{ i18n.t('cfg.readonly') }}</p>
               }
             </section>
           }
-
-          @if (tab.id === 'features') {
-            @for (g of groups; track g.id) {
-              <section class="card grp" [attr.aria-labelledby]="'cfg-' + g.id">
-                <div class="sechead">
-                  <h2 [id]="'cfg-' + g.id">{{ g.label }}</h2>
-                  @if (auth.can('settings.features', 'edit')) {
-                    <button type="button" class="btn pri" [disabled]="!pendingIn(g.id) || saving() !== null" [attr.title]="pendingIn(g.id) ? null : i18n.t('cfg.save.nothing')" [attr.aria-describedby]="'cfg-' + g.id"
-                      (click)="save(g.id)">{{ saveLabel(g.id) }}</button>
-                  }
+          @default {
+            <!-- The site settings tabs share the unsaved-edits bar: Save all saves every section the user may edit. -->
+            @if (editable().length && count()) {
+              <div class="topbar" role="region" aria-labelledby="cfg-save-h">
+                <h2 id="cfg-save-h" class="sr-only">{{ i18n.t('cfg.save.all') }}</h2>
+                <p class="status" role="status">{{ i18n.t('cfg.changed', { n: count() }) }}</p>
+                <div class="acts">
+                  <button type="button" class="btn pri" [disabled]="saving() !== null" (click)="save('all')">{{ saveLabel('all') }}</button>
+                  <button type="button" class="btn" [disabled]="saving() !== null" (click)="reset()">{{ i18n.t('cfg.reset') }}</button>
                 </div>
-                <p class="help">{{ g.help }}</p>
-                @if (noticeFor(g.id); as n) {
+                @if (noticeFor('all'); as n) {
                   <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
                 }
-                <fieldset class="bare" [disabled]="!auth.can('settings.features', 'edit')">
-                  <legend class="sr-only">{{ g.label }}</legend>
-                  <ul class="rows">
-                    @for (f of g.items; track f.id) {
-                      <li class="inset" [class.diff]="settings().features[f.id] !== defaults.features[f.id]">
-                        <label>
-                          <input type="checkbox" role="switch" [checked]="settings().features[f.id]" (change)="feature(f.id, $event)" />
+              </div>
+            }
+
+            @if (tab.id === 'features') {
+              @for (g of groups; track g.id) {
+                <section class="sec" [attr.aria-labelledby]="'cfg-' + g.id">
+                  <h2 class="sec-h" [id]="'cfg-' + g.id">{{ g.label }}</h2>
+                  <p class="help">{{ g.help }}</p>
+                  <fieldset class="bare" [disabled]="!auth.can('settings.features', 'edit')">
+                    <legend class="sr-only">{{ g.label }}</legend>
+                    <div class="opts">
+                      @for (f of g.items; track f.id) {
+                        <label class="opt" [class.diff]="settings().features[f.id] !== defaults.features[f.id]">
                           <span class="txt">
                             <b>{{ f.label }}</b>
-                            <small>{{ f.help }}</small>
+                            <small>{{ settings().features[f.id] !== defaults.features[f.id] ? i18n.t('cfg.default', { value: state(defaults.features[f.id]) }) : f.help }}</small>
                           </span>
-                          <span class="pill" [class.on]="settings().features[f.id]">{{ state(settings().features[f.id]) }}</span>
+                          <input type="checkbox" role="switch" class="switch" [checked]="settings().features[f.id]" (change)="feature(f.id, $event)" />
                         </label>
-                        @if (settings().features[f.id] !== defaults.features[f.id]) {
-                          <small class="was">{{ i18n.t('cfg.default', { value: state(defaults.features[f.id]) }) }}</small>
-                        }
-                      </li>
-                    }
-                  </ul>
-                  @if (g.id === 'speed') {
-                    <div class="setup inset">
-                      <label class="stack">
-                        <span>{{ i18n.t('cfg.gauge') }}</span>
+                      }
+                    </div>
+                    @if (g.id === 'speed') {
+                      <label class="field-row">
+                        <span class="txt"><b>{{ i18n.t('cfg.gauge') }}</b><small [class.bad]="gaugeBad()">{{ i18n.t(gaugeBad() ? 'cfg.gauge.bad' : 'cfg.gauge.help') }}</small></span>
                         <input type="text" inputmode="numeric" autocomplete="off" [value]="settings().speed.gaugeStops.join(', ')" [attr.aria-invalid]="gaugeBad()" (change)="gauge($event)" />
                       </label>
-                      <small class="{{ gaugeBad() ? 'was bad' : 'was' }}">{{ i18n.t(gaugeBad() ? 'cfg.gauge.bad' : 'cfg.gauge.help') }}</small>
+                    }
+                  </fieldset>
+                  @if (auth.can('settings.features', 'edit')) {
+                    <div class="foot">
+                      <button type="button" class="btn pri" [disabled]="!pendingIn(g.id) || saving() !== null" [attr.title]="pendingIn(g.id) ? null : i18n.t('cfg.save.nothing')" (click)="save(g.id)">{{ saveLabel(g.id) }}</button>
+                      @if (noticeFor(g.id); as n) {
+                        <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+                      }
                     </div>
                   }
+                </section>
+              }
+            }
+
+            @if (tab.id === 'connection') {
+              <section class="sec" aria-labelledby="cfg-conn">
+                <h2 id="cfg-conn" class="sec-h">{{ i18n.t('cfg.conn.h') }}</h2>
+                <fieldset class="bare" [disabled]="!auth.can('settings.connection', 'edit')">
+                  <legend class="sr-only">{{ i18n.t('cfg.conn.h') }}</legend>
+                  <label class="opt lead-opt">
+                    <span class="txt"><b>{{ i18n.t('cfg.conn.all') }}</b></span>
+                    <input type="checkbox" role="switch" class="switch" [checked]="settings().connection.enabled" (change)="cfg.setConnectionEnabled(checked($event))" />
+                  </label>
+                  <div class="opts">
+                    @for (id of fields(); track id) {
+                      <label class="opt">
+                        <span class="txt"><b>{{ i18n.t(label(id)) }}</b></span>
+                        <input type="checkbox" role="switch" class="switch" [checked]="settings().connection.fields[id]" (change)="cfg.setConnectionField(id, checked($event))" />
+                      </label>
+                    }
+                  </div>
                 </fieldset>
+                @if (auth.can('settings.connection', 'edit')) {
+                  <div class="foot">
+                    <button type="button" class="btn pri" [disabled]="!pendingIn('connection') || saving() !== null" [attr.title]="pendingIn('connection') ? null : i18n.t('cfg.save.nothing')" (click)="save('connection')">{{ saveLabel('connection') }}</button>
+                    @if (noticeFor('connection'); as n) {
+                      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+                    }
+                  </div>
+                }
+              </section>
+            }
+
+            @if (tab.id === 'services') {
+              <section class="sec" aria-labelledby="cfg-svc">
+                <h2 id="cfg-svc" class="sec-h">{{ i18n.t('cfg.svc.h') }}</h2>
+                <fieldset class="bare" [disabled]="!auth.can('settings.services', 'edit')">
+                  <legend class="sr-only">{{ i18n.t('cfg.svc.h') }}</legend>
+                  <label class="opt lead-opt">
+                    <span class="txt"><b>{{ i18n.t('cfg.svc.all') }}</b></span>
+                    <input type="checkbox" role="switch" class="switch" [checked]="settings().services.enabled" (change)="cfg.setServicesEnabled(checked($event))" />
+                  </label>
+                  <label class="field-row">
+                    <span class="txt"><b>{{ i18n.t('cfg.svc.refresh') }}</b></span>
+                    <input type="number" min="0" step="10" [value]="settings().services.refreshSeconds" (change)="secs($event)" />
+                  </label>
+                  <div class="opts">
+                    @for (s of settings().services.items; track s.id) {
+                      <label class="opt">
+                        <span class="txt"><b>{{ s.name }}</b></span>
+                        <input type="checkbox" role="switch" class="switch" [checked]="s.enabled" (change)="cfg.setServiceEnabled(s.id, checked($event))" />
+                      </label>
+                    }
+                  </div>
+                </fieldset>
+                @if (auth.can('settings.services', 'edit')) {
+                  <div class="foot">
+                    <button type="button" class="btn pri" [disabled]="!pendingIn('services') || saving() !== null" [attr.title]="pendingIn('services') ? null : i18n.t('cfg.save.nothing')" (click)="save('services')">{{ saveLabel('services') }}</button>
+                    @if (noticeFor('services'); as n) {
+                      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+                    }
+                  </div>
+                }
+              </section>
+            }
+
+            @if (tab.id === 'json') {
+              <section class="sec" aria-labelledby="cfg-json">
+                <h2 id="cfg-json" class="sec-h">{{ i18n.t('cfg.json.h') }}</h2>
+                <p class="help">{{ i18n.t('cfg.json.help') }}</p>
+                <label class="sr-only" for="cfg-json-box">{{ i18n.t('cfg.json.h') }}</label>
+                <textarea #box id="cfg-json-box" rows="10" spellcheck="false" [value]="json()"></textarea>
+                @if (auth.can('settings.json', 'edit')) {
+                  <div class="foot">
+                    <button type="button" class="btn pri" (click)="importJson(box.value)">{{ i18n.t('cfg.json.import') }}</button>
+                    @if (importMessage(); as m) {
+                      <p class="status" [class.bad]="m === 'bad'" [attr.role]="m === 'bad' ? 'alert' : 'status'">{{ i18n.t(m === 'ok' ? 'cfg.json.ok' : 'cfg.json.bad') }}</p>
+                    }
+                  </div>
+                }
               </section>
             }
           }
-
-          @if (tab.id === 'connection') {
-            <section class="card grp" aria-labelledby="cfg-conn">
-              <div class="sechead">
-                <h2 id="cfg-conn">{{ i18n.t('cfg.conn.h') }}</h2>
-                @if (auth.can('settings.connection', 'edit')) {
-                  <button type="button" class="btn pri" [disabled]="!pendingIn('connection') || saving() !== null" [attr.title]="pendingIn('connection') ? null : i18n.t('cfg.save.nothing')" aria-describedby="cfg-conn"
-                    (click)="save('connection')">{{ saveLabel('connection') }}</button>
-                }
-              </div>
-              @if (noticeFor('connection'); as n) {
-                <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
-              }
-              <fieldset class="bare" [disabled]="!auth.can('settings.connection', 'edit')">
-                <legend class="sr-only">{{ i18n.t('cfg.conn.h') }}</legend>
-                <ul class="rows">
-                  <li class="inset">
-                    <label>
-                      <input type="checkbox" role="switch" [checked]="settings().connection.enabled" (change)="cfg.setConnectionEnabled(checked($event))" />
-                      <span class="txt"><b>{{ i18n.t('cfg.conn.all') }}</b></span>
-                      <span class="pill" [class.on]="settings().connection.enabled">{{ state(settings().connection.enabled) }}</span>
-                    </label>
-                  </li>
-                  @for (id of fields(); track id) {
-                    <li class="inset">
-                      <label>
-                        <input type="checkbox" role="switch" [checked]="settings().connection.fields[id]" (change)="cfg.setConnectionField(id, checked($event))" />
-                        <span class="txt"><b>{{ i18n.t(label(id)) }}</b></span>
-                        <span class="pill" [class.on]="settings().connection.fields[id]">{{ state(settings().connection.fields[id]) }}</span>
-                      </label>
-                    </li>
-                  }
-                </ul>
-              </fieldset>
-            </section>
-          }
-
-          @if (tab.id === 'services') {
-            <section class="card grp" aria-labelledby="cfg-svc">
-              <div class="sechead">
-                <h2 id="cfg-svc">{{ i18n.t('cfg.svc.h') }}</h2>
-                @if (auth.can('settings.services', 'edit')) {
-                  <button type="button" class="btn pri" [disabled]="!pendingIn('services') || saving() !== null" [attr.title]="pendingIn('services') ? null : i18n.t('cfg.save.nothing')" aria-describedby="cfg-svc"
-                    (click)="save('services')">{{ saveLabel('services') }}</button>
-                }
-              </div>
-              @if (noticeFor('services'); as n) {
-                <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
-              }
-              <fieldset class="bare" [disabled]="!auth.can('settings.services', 'edit')">
-                <legend class="sr-only">{{ i18n.t('cfg.svc.h') }}</legend>
-                <ul class="rows">
-                  <li class="inset">
-                    <label>
-                      <input type="checkbox" role="switch" [checked]="settings().services.enabled" (change)="cfg.setServicesEnabled(checked($event))" />
-                      <span class="txt"><b>{{ i18n.t('cfg.svc.all') }}</b></span>
-                      <span class="pill" [class.on]="settings().services.enabled">{{ state(settings().services.enabled) }}</span>
-                    </label>
-                  </li>
-                  <li class="inset">
-                    <label class="stack">
-                      <span>{{ i18n.t('cfg.svc.refresh') }}</span>
-                      <input type="number" min="0" step="10" [value]="settings().services.refreshSeconds" (change)="secs($event)" />
-                    </label>
-                  </li>
-                  @for (s of settings().services.items; track s.id) {
-                    <li class="inset">
-                      <label>
-                        <input type="checkbox" role="switch" [checked]="s.enabled" (change)="cfg.setServiceEnabled(s.id, checked($event))" />
-                        <span class="txt"><b>{{ s.name }}</b></span>
-                        <span class="pill" [class.on]="s.enabled">{{ state(s.enabled) }}</span>
-                      </label>
-                    </li>
-                  }
-                </ul>
-              </fieldset>
-            </section>
-          }
-
-          @if (tab.id === 'json') {
-            <section class="card grp" aria-labelledby="cfg-json">
-              <h2 id="cfg-json">{{ i18n.t('cfg.json.h') }}</h2>
-              <p class="help">{{ i18n.t('cfg.json.help') }}</p>
-              <label class="sr-only" for="cfg-json-box">{{ i18n.t('cfg.json.h') }}</label>
-              <textarea #box id="cfg-json-box" rows="10" spellcheck="false" [value]="json()"></textarea>
-              @if (auth.can('settings.json', 'edit')) {
-                <div class="bar">
-                  @if (importMessage(); as m) {
-                    <p class="status" [class.bad]="m === 'bad'" [attr.role]="m === 'bad' ? 'alert' : 'status'">{{ i18n.t(m === 'ok' ? 'cfg.json.ok' : 'cfg.json.bad') }}</p>
-                  }
-                  <button type="button" class="btn pri" (click)="importJson(box.value)">{{ i18n.t('cfg.json.import') }}</button>
-                </div>
-              }
-            </section>
-          }
         }
-      }
+      </div>
     </div>
   }
 </div>

@@ -1,10 +1,10 @@
 import { Lang } from '../../../core/site';
 import { FEATURE_APPS } from '../../../feature-routes';
-import { Skin } from '../../../core/models/theme.model';
 import { AuthService } from '../../../core/auth.service';
 import { I18nService } from '../../../core/i18n.service';
 import { ThemeService } from '../../../core/theme.service';
 import { SettingsService } from '../../../core/settings.service';
+import { Skin, ThemeMode } from '../../../core/models/theme.model';
 import { Component, computed, inject, signal } from '@angular/core';
 import { AccountForm, AccountNotice, OwnGroup } from './account-tab.model';
 import { FEATURES, FEATURE_GROUPS, featureBuilt } from '../../../core/features';
@@ -31,12 +31,16 @@ export class AccountTab {
   protected readonly theme = inject(ThemeService);
   protected readonly saving = signal<AccountForm | null>(null);
   protected readonly notice = signal<AccountNotice | null>(null);
-  /** The ticked options, starting from what the user saved last; edits stay here until Save. */
+  /** The options the user switched off, starting from what they saved last. Each switch saves at once. */
   protected readonly hidden = signal<string[]>(this.auth.user()?.hiddenFeatures ?? []);
   protected readonly canEdit = computed(() => this.auth.can('settings.account', 'edit'));
   protected readonly groups = computed<OwnGroup[]>(() => FEATURE_GROUPS.filter((g) => this.isOwn(g.id) && featureBuilt(g.id, FEATURE_APPS)).map((g) => ({ id: g.id, label: g.label, items: FEATURES.filter((f) => f.group === g.id && featureBuilt(f.id, FEATURE_APPS)) })).filter((g) => g.items.length));
 
   // #region Public Methods
+
+  pickMode(ev: Event): void {
+    this.theme.setMode((ev.target as HTMLSelectElement).value as ThemeMode);
+  }
 
   pickSkin(ev: Event): void {
     this.theme.set((ev.target as HTMLSelectElement).value as Skin);
@@ -52,21 +56,10 @@ export class AccountTab {
     return !this.cfg.settings().features[id];
   }
 
-  /** Saves the options the user switched off. The server accepts only the options of their own pages. */
-  async saveFeatures(): Promise<void> {
-    await this.run('features', () => this.auth.updateFeatures(this.hidden()));
-  }
-
-  toggle(id: FeatureId, ev: Event): void {
-    const on = (ev.target as HTMLInputElement).checked;
-    this.hidden.update((h) => (on ? h.filter((c) => c !== id) : [...h, id]));
-  }
-
-  /** Saves the language of the account and applies it to the site at once. */
+  /** Saves the language of the account as soon as it is picked and applies it to the site. */
   async saveLanguage(ev: Event): Promise<void> {
-    ev.preventDefault();
     const user = this.auth.user();
-    const lang = String(new FormData(ev.target as HTMLFormElement).get('language') ?? 'en') as Lang;
+    const lang = (ev.target as HTMLSelectElement).value as Lang;
     if (!user)
       return;
     await this.run('language', async () => {
@@ -93,6 +86,18 @@ export class AccountTab {
   noticeFor(form: AccountForm): AccountNotice | null {
     const n = this.notice();
     return n?.form === form ? n : null;
+  }
+
+  /** One switch saves at once. The server accepts only the options of their own pages; when it refuses, the switch goes back. */
+  async toggle(id: FeatureId, ev: Event): Promise<void> {
+    const box = ev.target as HTMLInputElement;
+    const before = this.hidden();
+    this.hidden.set(box.checked ? before.filter((c) => c !== id) : [...before, id]);
+    await this.run('features', () => this.auth.updateFeatures(this.hidden()));
+    if (this.notice()?.error) {
+      this.hidden.set(before);
+      box.checked = !box.checked;
+    }
   }
 
   // #endregion
