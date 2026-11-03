@@ -32,6 +32,7 @@ public static partial class DependencyInjection
     {
         services.AddOptions<HostingOptions>().Bind(configuration.GetSection(HostingOptions.SectionName)).Validate(o => o.HostedOn is HostingOptions.Local or HostingOptions.Azure, "Hosting:HostedOn must be Local or Azure.").ValidateOnStart();
         services.Configure<StreamingOptions>(configuration.GetSection(StreamingOptions.SectionName));
+        services.AddOptions<AvatarOptions>().Bind(configuration.GetSection(AvatarOptions.SectionName)).Validate(o => o.Root.Length > 0 && o.MaxBytes > 0 && o.Extensions.Count > 0, "Avatars:Root, Avatars:MaxBytes and Avatars:Extensions must be set.").ValidateOnStart();
 
         services.AddMemoryCache();
         services.AddHttpContextAccessor();
@@ -46,6 +47,7 @@ public static partial class DependencyInjection
         services.AddScoped<ITranslationRepository, TranslationRepository>();
 
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IAvatarService, AvatarService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<ISettingsService, SettingsService>();
