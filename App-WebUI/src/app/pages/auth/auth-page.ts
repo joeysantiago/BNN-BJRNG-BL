@@ -30,8 +30,8 @@ export class AuthPage {
   private readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
   private readonly route = inject(ActivatedRoute);
-  /** Development builds only: the seeded logins, the first pre-filled. Empty in QA, UAT and live. */
-  protected readonly devLogins: DevLogin[] = environment.devLogins;
+  /** The seeded logins, the first pre-filled, only while `showDevLogins` is true in the environment. Empty when it is false (deployments). */
+  protected readonly devLogins: DevLogin[] = environment.showDevLogins ? environment.devLogins : [];
   protected readonly next = safeNext(this.route.snapshot.queryParamMap.get('next'));
   protected readonly mode: AuthMode = this.route.snapshot.data['mode'] === 'signup' ? 'signup' : 'login';
 
