@@ -80,6 +80,7 @@
       "App-WebAPI/Thakurg/Thakurg.Infrastructure/Common/ProcessOutputStream.cs",
       "App-WebUI/src/app/pages/youtube/**",
       "App-WebUI/public/og/youtube.png",
+      "App-WebUI/public/icons/youtube-*",
       "App-Prototype/pages/youtube.html",
       "App-Prototype/assets/js/youtube.js",
       "App-Prototype/assets/css/youtube.css"

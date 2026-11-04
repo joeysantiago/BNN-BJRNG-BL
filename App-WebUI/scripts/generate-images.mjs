@@ -174,6 +174,25 @@ shot(icon(192, { radius: 44, glyphScale: 0.62 }), join(outIcons, 'icon-192.png')
 shot(icon(512, { radius: 118, glyphScale: 0.62 }), join(outIcons, 'icon-512.png'), 512, 512, true);
 shot(icon(512, { radius: 0, glyphScale: 0.46 }), join(outIcons, 'maskable-512.png'), 512, 512);
 shot(icon(180, { radius: 0, glyphScale: 0.58 }), join(outIcons, 'apple-touch-icon.png'), 180, 180);
+// Nexon player icons: the car photo in scripts/nexon-icon.png (629 x 334), cropped to the car.
+// The car spans x 58-578 (centre 318) and y 40-318 (centre 179); `fill` is the share of the icon width it takes.
+// The photo does not fill the tile, so the space around it takes the photo's wall colour above its horizon (y 205)
+// and its road colour below, and the photo's edges fade into that.
+const nexonPhoto = pathToFileURL(join(root, 'scripts', 'nexon-icon.png')).href;
+const nexonIcon = (size, { radius, fill }) => {
+  const k = (size * fill) / 520;
+  const horizon = size / 2 + (205 - 179) * k;
+  return page(
+    '<div class="t"><div class="car"></div></div>',
+    `body{background:transparent}.t{position:absolute;inset:0;border-radius:${radius}px;overflow:hidden;background:linear-gradient(#cab8aa ${horizon}px,#6a6563 ${horizon}px,#575251)}
+.car{position:absolute;left:${size / 2 - 318 * k}px;top:${size / 2 - 179 * k}px;width:${629 * k}px;height:${334 * k}px;background:url('${nexonPhoto}') 0 0/100% 100% no-repeat;-webkit-mask-image:linear-gradient(transparent,#000 6%,#000 94%,transparent),linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);-webkit-mask-composite:source-in;mask-composite:intersect}`,
+  );
+};
+
+shot(nexonIcon(192, { radius: 44, fill: 0.94 }), join(outIcons, 'nexon-192.png'), 192, 192, true);
+shot(nexonIcon(512, { radius: 118, fill: 0.94 }), join(outIcons, 'nexon-512.png'), 512, 512, true);
+shot(nexonIcon(512, { radius: 0, fill: 0.78 }), join(outIcons, 'nexon-maskable-512.png'), 512, 512);
+shot(nexonIcon(180, { radius: 0, fill: 0.92 }), join(outIcons, 'nexon-apple-touch-icon.png'), 180, 180);
 const fav = join(work, 'fav48.png');
 shot(icon(48, { radius: 11, glyphScale: 0.66 }), fav, 48, 48, true);
 
