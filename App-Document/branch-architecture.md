@@ -62,6 +62,7 @@ C# drops a call to a partial method that has no implementation, so a branch with
 - `App-WebUI/src/app/feature-routes.ts`: the feature routes and pages, and `FEATURE_APPS` (the apps the branch holds; the Settings page and the
   header show only their settings, panels and access boxes); a branch without the speed test sends `/` to its own app.
 - `App-Prototype/assets/js/routes.js`: the prototype pages; a branch without the speed test sends `/` to its own app.
+- `App-WebUI/angular.json`: the SnapKhata style bundle (`pages/khata/styles/khata.scss`) is listed only on a branch that holds Khata.
 - `App-WebAPI/Thakurg/Thakurg.API/appsettings.json`: `AppManifests:Apps`, the apps that install on their own (`khata`, `creta`, `nexon`, `youtube`),
   each with its own manifest id, start address, scope and icons (`public/icons/<app>-*`). `matrix` keeps the section with an empty `Apps`.
 - The `apps` list of the feature's `*.pages.json` (`speedtest`, `creta` or `nexon`, `youtube`, `khata`): `scripts/postbuild.mjs` writes each app's
@@ -83,6 +84,19 @@ others), so an app installed before keeps working and updates in place.
 
 A change to one of these files on `matrix` conflicts in every branch: keep the branch's own list and take the rest of the change. Merging a branch
 into `main` touches them only if the branch changed them; then keep `main`'s full list.
+
+## Merging a branch into banni-linux
+`banni-linux` holds every app and is deployed. Each `Features/App/*` branch holds only the shared code and its own app, and is merged into
+`banni-linux`, which so ends up with the whole site. A branch never gets another app's code (for example no OTP or mail code on Nexon).
+- **A change made on both a feature branch and `banni-linux`** (the same fix typed twice) is what conflicts. Make a change once, on the
+  branch it belongs to, and let the merge bring it to `banni-linux`.
+- **A feature file** must be listed under its feature in `feature-branches.json`; a file that is not listed counts as shared.
+- **The per-branch files** (`feature-routes.ts`, `appsettings.json` with the branch's own `AppManifests:Apps`, `angular.json` (the SnapKhata
+  style bundle only where Khata is), the music routes, pages and players, the prototype `routes.js`) keep `banni-linux`'s full version:
+  `.gitattributes` (only on `banni-linux`) marks them `merge=ours`. Run `git config merge.ours.driver true` once in the clone. Git only uses
+  that rule when both sides changed the file, so after a merge check that none of these files lost another app.
+
+`Mojito` (Angular only, demo backend) is not merged into `banni-linux`.
 
 ## Seed rows
 `Common/001_Messages.sql`, `007_Translations.sql` and `003_Features.sql` keep every feature's rows on every branch on purpose (unused rows are harmless).

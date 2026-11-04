@@ -1,0 +1,11 @@
+# banni-linux only. The files that list a branch's own apps (App-Document/branch-architecture.md, "Files that differ per branch"): when a
+# Features/App/* branch or matrix is merged into banni-linux, banni-linux keeps its full version of them instead of stopping with a conflict.
+# Needs, once per clone:  git config merge.ours.driver true
+# Git only asks this driver when both branches changed the file; if only the incoming branch changed one of these, check it after the merge.
+App-WebUI/src/app/feature-routes.ts merge=ours
+App-WebUI/angular.json merge=ours
+App-Prototype/assets/js/routes.js merge=ours
+App-WebAPI/Thakurg/Thakurg.API/appsettings.json merge=ours
+App-WebUI/src/app/pages/creta/music.routes.ts merge=ours
+App-WebUI/src/app/pages/creta/music.pages.json merge=ours
+App-Database/DatabaseInitializer/SqlScripts/INSERT/Music/001_MusicPlayers.sql merge=ours
