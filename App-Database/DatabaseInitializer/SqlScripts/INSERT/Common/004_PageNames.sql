@@ -31,6 +31,9 @@ BEGIN
         ('hr', 'ar', N'أتريوم للموارد البشرية'),
         ('khata', 'en', N'SnapKhata'),
         ('khata', 'hi', N'स्नैपखाता'),
-        ('khata', 'ar', N'سناب خاتا');
+        ('khata', 'ar', N'سناب خاتا'),
+        ('youtube', 'en', N'YouTube player'),
+        ('youtube', 'hi', N'यूट्यूब प्लेयर'),
+        ('youtube', 'ar', N'مشغل يوتيوب');
 END
 GO
