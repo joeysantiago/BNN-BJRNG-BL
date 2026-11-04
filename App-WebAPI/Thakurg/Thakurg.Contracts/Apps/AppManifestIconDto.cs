@@ -1,9 +1,9 @@
 using System.Text.Json.Serialization;
 
-namespace Thakurg.Contracts.Khata;
+namespace Thakurg.Contracts.Apps;
 
 // One icon of the web-app manifest (W3C key names, so they are set here).
-public class KhataManifestIconDto
+public class AppManifestIconDto
 {
     [JsonPropertyName("src")]
     public string Src { get; set; } = string.Empty;

@@ -7,7 +7,7 @@ import { I18nService } from '../../../core/i18n.service';
 import { formatMoney } from '../../../core/khata-format';
 import { ThemeService } from '../../../core/theme.service';
 import { ThemeMode } from '../../../core/models/theme.model';
-import { KhataPwaService } from '../../../core/khata-pwa.service';
+import { AppPwaService } from '../../../core/app-pwa.service';
 import { KhataStyleService } from '../../../core/khata-style.service';
 import { Component, OnDestroy, computed, effect, inject } from '@angular/core';
 import { KhataCurrency, KhataIconName, KhataLandingFeature } from '../../../core/models/khata.model';
@@ -33,9 +33,9 @@ const SAMPLE_CURRENCY: KhataCurrency = { id: 0, code: 'INR', name: 'Indian rupee
 export class KhataLanding implements OnDestroy {
   protected readonly faq = FAQ;
   private readonly seo = inject(SeoService);
+  private readonly pwa = inject(AppPwaService);
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
-  private readonly pwa = inject(KhataPwaService);
   protected readonly theme = inject(ThemeService);
   protected readonly year = new Date().getFullYear();
   protected readonly style = inject(KhataStyleService);
@@ -50,7 +50,7 @@ export class KhataLanding implements OnDestroy {
 
   constructor() {
     this.style.load();
-    this.pwa.enter();
+    this.pwa.enter('khata');
     effect(() => {
       const title = this.i18n.t('seo.khata.title');
       const description = this.i18n.t('seo.khata.desc');
