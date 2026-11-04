@@ -1,0 +1,1653 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#2f5bea" />
+<meta name="color-scheme" content="light dark" />
+<meta name="description" content="thakurg.com prototype: My Tasks - personal tasks, checklists, date-wise organisation, marketing visits, attachments, reminders and app lock." />
+<title>My Tasks · thakurg.com prototype</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Crect width=%2224%22 height=%2224%22 rx=%226%22 fill=%22%232f5bea%22/%3E%3Cpath d=%22M7 12.5l3 3 7-7%22 fill=%22none%22 stroke=%22white%22 stroke-width=%222.4%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="../assets/css/fonts.css" />
+<style>
+/* My Tasks prototype. Same design system as SnapKhata: every colour is a token on .mt, Light and Dark are two sets of the same tokens. */
+html, body { margin: 0; }
+.mt {
+  --k-font: 'Manrope Variable', 'Noto Sans Devanagari Variable', 'Noto Sans Arabic Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --k-r-sm: 10px;
+  --k-r: 16px;
+  --k-r-lg: 24px;
+  --k-r-xl: 32px;
+  --k-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --k-rail: 264px;
+  --k-tabs: 68px;
+  color-scheme: light;
+  --k-bg: #eef1f7;
+  --k-bg-image: radial-gradient(700px 480px at 6% -4%, rgba(247, 200, 226, 0.55), transparent 62%), radial-gradient(640px 460px at 102% 6%, rgba(255, 221, 186, 0.55), transparent 60%), radial-gradient(900px 640px at 60% 112%, rgba(190, 210, 255, 0.6), transparent 62%);
+  --k-surface: rgba(255, 255, 255, 0.78);
+  --k-surface-solid: #ffffff;
+  --k-surface-3: rgba(15, 23, 42, 0.05);
+  --k-switch-off: #c9d0dc;
+  --k-glass: blur(18px) saturate(160%);
+  --k-line: rgba(15, 23, 42, 0.08);
+  --k-line-strong: rgba(15, 23, 42, 0.16);
+  --k-text: #0f172a;
+  --k-muted: #556074;
+  --k-faint: #7a8498;
+  --k-brand: #2f5bea;
+  --k-brand-soft: rgba(47, 91, 234, 0.1);
+  --k-on-brand: #ffffff;
+  --k-brand-grad: linear-gradient(135deg, #3a66f5 0%, #5b5cf6 100%);
+  --k-get: #0a7a4f;
+  --k-get-soft: rgba(10, 122, 79, 0.1);
+  --k-give: #c4302b;
+  --k-give-soft: rgba(196, 48, 43, 0.09);
+  --k-warn: #9a5b00;
+  --k-warn-soft: rgba(214, 140, 0, 0.13);
+  --k-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --k-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 28px rgba(31, 45, 90, 0.08);
+  --k-shadow-lg: 0 2px 6px rgba(16, 24, 40, 0.06), 0 24px 56px rgba(31, 45, 90, 0.16);
+  --k-focus: 0 0 0 4px rgba(47, 91, 234, 0.22);
+  --k-overlay: rgba(15, 23, 42, 0.45);
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--k-bg);
+  background-image: var(--k-bg-image);
+  background-attachment: fixed;
+  color: var(--k-text);
+  font: 15px/1.55 var(--k-font);
+  -webkit-font-smoothing: antialiased;
+}
+.mt[data-kt=dark] {
+  color-scheme: dark;
+  --k-bg: #0e0b19;
+  --k-bg-image: radial-gradient(620px 460px at 0% 0%, rgba(176, 52, 150, 0.32), transparent 64%), radial-gradient(560px 460px at 100% 4%, rgba(255, 128, 64, 0.22), transparent 62%), radial-gradient(900px 640px at 55% 115%, rgba(78, 60, 200, 0.34), transparent 62%);
+  --k-surface: rgba(255, 255, 255, 0.06);
+  --k-surface-solid: #1a1628;
+  --k-surface-3: rgba(255, 255, 255, 0.08);
+  --k-switch-off: rgba(255, 255, 255, 0.24);
+  --k-glass: blur(22px) saturate(150%);
+  --k-line: rgba(255, 255, 255, 0.1);
+  --k-line-strong: rgba(255, 255, 255, 0.2);
+  --k-text: #f4f1fb;
+  --k-muted: #b2abc9;
+  --k-faint: #8e87a8;
+  --k-brand: #ff8a4c;
+  --k-brand-soft: rgba(255, 138, 76, 0.14);
+  --k-on-brand: #1d0d04;
+  --k-brand-grad: linear-gradient(135deg, #ffa25a 0%, #ff6a88 100%);
+  --k-get: #5fe0a5;
+  --k-get-soft: rgba(95, 224, 165, 0.13);
+  --k-give: #ff8c84;
+  --k-give-soft: rgba(255, 140, 132, 0.13);
+  --k-warn: #ffcf6b;
+  --k-warn-soft: rgba(255, 207, 107, 0.14);
+  --k-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --k-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 14px 36px rgba(0, 0, 0, 0.36);
+  --k-shadow-lg: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 28px 64px rgba(0, 0, 0, 0.55);
+  --k-focus: 0 0 0 4px rgba(255, 138, 76, 0.28);
+  --k-overlay: rgba(4, 2, 10, 0.66);
+}
+.mt *, .mt *::before, .mt *::after { box-sizing: border-box; }
+.mt h1, .mt h2, .mt h3 { margin: 0; letter-spacing: -0.01em; }
+.mt p { margin: 0; }
+.mt a { color: var(--k-brand); }
+.mt :focus-visible { outline: none; box-shadow: var(--k-focus); border-radius: var(--k-r-sm); }
+.mt .ico { flex: none; display: block; }
+.mt .muted { color: var(--k-muted); }
+.mt .faint { color: var(--k-faint); }
+.mt .num { font-variant-numeric: tabular-nums; }
+.mt .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.mt[hidden], .mt [hidden] { display: none !important; }
+
+/* ---------- Buttons ---------- */
+.mt .btn {
+  --b-bg: var(--k-surface-solid); --b-fg: var(--k-text); --b-bd: var(--k-line-strong);
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 10px 18px; border-radius: 14px; border: 1px solid var(--b-bd);
+  background: var(--b-bg); color: var(--b-fg); font: 700 14.5px/1.2 var(--k-font);
+  text-decoration: none; cursor: pointer; white-space: nowrap; box-shadow: var(--k-shadow-sm);
+  transition: transform 0.18s var(--k-ease), box-shadow 0.25s var(--k-ease), background-color 0.25s, filter 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mt[data-kt=dark] .btn { --b-bg: rgba(255, 255, 255, 0.07); }
+.mt .btn:hover { transform: translateY(-1px); box-shadow: var(--k-shadow); }
+.mt .btn:active { transform: translateY(0) scale(0.97); }
+.mt .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.mt .btn.pri { --b-fg: var(--k-on-brand); --b-bd: transparent; background: var(--k-brand-grad); box-shadow: 0 8px 22px color-mix(in srgb, var(--k-brand) 35%, transparent); }
+.mt .btn.pri:hover { filter: brightness(1.05); }
+.mt .btn.ok { --b-bg: var(--k-get); --b-fg: #fff; --b-bd: transparent; }
+.mt[data-kt=dark] .btn.ok { --b-fg: #0e0b19; }
+.mt .btn.ghost { --b-bg: transparent; --b-bd: transparent; box-shadow: none; }
+.mt .btn.ghost:hover { --b-bg: var(--k-surface-3); }
+.mt .btn.danger { --b-fg: var(--k-give); --b-bd: color-mix(in srgb, var(--k-give) 35%, transparent); }
+.mt .btn.sm { min-height: 36px; padding: 6px 12px; border-radius: 11px; font-size: 13.5px; }
+.mt .btn.icon { min-width: 44px; padding: 0; }
+.mt .btn.icon.sm { min-width: 36px; }
+.mt .btn.wide { width: 100%; }
+.mt .badge-dot { position: relative; }
+.mt .badge-dot b { position: absolute; top: 4px; inset-inline-end: 4px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--k-give); color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
+
+/* ---------- Cards, forms ---------- */
+.mt .card { border-radius: var(--k-r-lg); background: var(--k-surface); border: 1px solid var(--k-line); -webkit-backdrop-filter: var(--k-glass); backdrop-filter: var(--k-glass); box-shadow: var(--k-shadow); }
+.mt .card.pad { padding: 18px; }
+.mt .card h2 { font-size: 1.05rem; font-weight: 800; }
+.mt .card .sub { margin-top: 4px; color: var(--k-muted); font-size: 14px; }
+.mt .field { display: grid; gap: 6px; min-width: 0; }
+.mt .field > span { font-size: 13px; font-weight: 700; color: var(--k-muted); }
+.mt .in, .mt select.in, .mt textarea.in {
+  width: 100%; min-height: 44px; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--k-line-strong);
+  background: var(--k-surface-solid); color: var(--k-text); font: 600 15px/1.3 var(--k-font); outline: none;
+}
+.mt[data-kt=dark] .in { background: rgba(255, 255, 255, 0.06); }
+.mt .in:focus { box-shadow: var(--k-focus); border-color: var(--k-brand); }
+.mt select.in option { color: #0f172a; background: #fff; }
+.mt textarea.in { min-height: 84px; resize: vertical; }
+.mt .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.mt .grid2 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); }
+.mt .seg { display: inline-flex; padding: 4px; gap: 4px; border-radius: 14px; background: var(--k-surface-3); border: 1px solid var(--k-line); flex-wrap: wrap; }
+.mt .seg button { min-height: 36px; padding: 6px 14px; border: 0; border-radius: 10px; background: transparent; color: var(--k-muted); font: 700 13.5px var(--k-font); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.mt .seg button[aria-pressed=true] { background: var(--k-surface-solid); color: var(--k-text); box-shadow: var(--k-shadow-sm); }
+.mt .switch { position: relative; flex: none; width: 48px; height: 28px; }
+.mt .switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; z-index: 1; }
+.mt .switch i { position: absolute; inset: 0; border-radius: 999px; background: var(--k-switch-off); box-shadow: inset 0 0 0 1px var(--k-line-strong); transition: background 0.2s; }
+.mt .switch i::after { content: ''; position: absolute; top: 3px; inset-inline-start: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); transition: transform 0.2s var(--k-ease); }
+.mt .switch input:checked + i { background: var(--k-brand); box-shadow: none; }
+.mt .switch input:checked + i::after { transform: translateX(20px); }
+.mt[dir=rtl] .switch input:checked + i::after { transform: translateX(-20px); }
+.mt .switch input:disabled + i { opacity: 0.5; }
+.mt .switch input:focus-visible + i { box-shadow: var(--k-focus); }
+.mt .set-row { display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 10px 0; border-top: 1px solid var(--k-line); }
+.mt .set-row:first-of-type { border-top: 0; }
+.mt .set-row .txt { flex: 1; min-width: 0; display: grid; }
+.mt .set-row .txt small { color: var(--k-muted); font-size: 13px; }
+.mt .pill { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 750; background: var(--k-surface-3); color: var(--k-muted); white-space: nowrap; }
+.mt .pill.ok { background: var(--k-get-soft); color: var(--k-get); }
+.mt .pill.bad { background: var(--k-give-soft); color: var(--k-give); }
+.mt .pill.warn { background: var(--k-warn-soft); color: var(--k-warn); }
+.mt .pill.brand { background: var(--k-brand-soft); color: var(--k-brand); }
+.mt .pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+.mt .note { padding: 10px 14px; border-radius: 14px; background: var(--k-brand-soft); color: var(--k-text); font-size: 13.5px; display: flex; gap: 10px; align-items: flex-start; }
+.mt .note .ico { color: var(--k-brand); margin-top: 1px; }
+
+/* ---------- App shell (same as SnapKhata) ---------- */
+.mt .app { min-height: 100vh; min-height: 100dvh; }
+.mt .rail { display: none; }
+.mt .top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 10px 16px; padding-top: max(10px, env(safe-area-inset-top)); background: color-mix(in srgb, var(--k-bg) 72%, transparent); -webkit-backdrop-filter: blur(16px) saturate(150%); backdrop-filter: blur(16px) saturate(150%); border-bottom: 1px solid var(--k-line); }
+.mt .logo { display: inline-flex; align-items: center; gap: 10px; min-width: 0; color: var(--k-text); text-decoration: none; font-weight: 800; font-size: 17px; letter-spacing: -0.02em; }
+.mt .logo .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mt .mark { flex: none; width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: var(--k-brand-grad); color: var(--k-on-brand); box-shadow: 0 6px 16px color-mix(in srgb, var(--k-brand) 35%, transparent); }
+.mt .top .logo { flex: 1; }
+.mt .top .crumb { display: none; font-weight: 700; color: var(--k-muted); flex: 1; }
+.mt .top-actions { display: flex; gap: 2px; align-items: center; }
+.mt .avatar { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: var(--k-brand-soft); color: var(--k-brand); font-weight: 800; font-size: 14px; text-decoration: none; flex: none; }
+.mt .avatar.lg { width: 64px; height: 64px; border-radius: 20px; font-size: 22px; }
+.mt .content { width: min(1120px, 100%); margin-inline: auto; padding: 18px 16px calc(var(--k-tabs) + 40px + env(safe-area-inset-bottom)); }
+.mt .page { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+.mt .head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.mt .head h1 { font-size: clamp(1.45rem, 4vw, 1.9rem); font-weight: 800; letter-spacing: -0.02em; }
+.mt .head p { color: var(--k-muted); font-size: 14px; }
+.mt .tabs { position: fixed; inset-inline: 10px; bottom: max(10px, env(safe-area-inset-bottom)); z-index: 30; height: var(--k-tabs); display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; padding: 6px; border-radius: 24px; background: color-mix(in srgb, var(--k-surface-solid) 82%, transparent); -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%); border: 1px solid var(--k-line); box-shadow: var(--k-shadow-lg); }
+.mt .tab { display: grid; justify-items: center; gap: 3px; min-height: 52px; padding: 6px 2px; border-radius: 16px; color: var(--k-faint); text-decoration: none; font-size: 11px; font-weight: 700; }
+.mt .tab[aria-current=page] { color: var(--k-brand); background: var(--k-brand-soft); }
+.mt .fab { justify-self: center; width: 56px; height: 56px; margin-top: -26px; border-radius: 20px; display: grid; place-items: center; background: var(--k-brand-grad); color: var(--k-on-brand); box-shadow: 0 12px 26px color-mix(in srgb, var(--k-brand) 45%, transparent); border: 4px solid var(--k-bg); cursor: pointer; transition: transform 0.2s var(--k-ease); }
+.mt .fab:hover { transform: translateY(-2px) rotate(90deg); }
+.mt .who { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 16px; background: var(--k-surface); border: 1px solid var(--k-line); color: var(--k-text); text-decoration: none; }
+.mt .who small { display: block; color: var(--k-muted); font-size: 12px; }
+.mt .who b { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (min-width: 1024px) {
+  .mt .app { display: grid; grid-template-columns: var(--k-rail) minmax(0, 1fr); }
+  .mt .rail { position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column; gap: 18px; padding: 22px 16px; border-inline-end: 1px solid var(--k-line); background: color-mix(in srgb, var(--k-surface-solid) 55%, transparent); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+  .mt .rail .logo { padding-inline: 6px; }
+  .mt .rail nav { display: grid; gap: 4px; }
+  .mt .nav { display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 10px 14px; border-radius: 14px; color: var(--k-muted); text-decoration: none; font-weight: 700; transition: background-color 0.2s, color 0.2s, transform 0.2s var(--k-ease); }
+  .mt .nav:hover { color: var(--k-text); background: var(--k-surface-3); transform: translateX(2px); }
+  .mt .nav[aria-current=page] { color: var(--k-text); background: var(--k-surface-solid); box-shadow: var(--k-shadow); }
+  .mt .nav[aria-current=page] .ico { color: var(--k-brand); }
+  .mt .nav .cnt { margin-inline-start: auto; font-size: 12px; color: var(--k-faint); }
+  .mt .rail .grow { flex: 1; }
+  .mt .top { padding-inline: 32px; }
+  .mt .top .logo, .mt .tabs { display: none; }
+  .mt .top .crumb { display: block; }
+  .mt .content { padding: 28px 32px 56px; }
+}
+
+/* ---------- Dashboard ---------- */
+.mt .stats { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 720px) { .mt .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.mt .stat { display: grid; gap: 2px; padding: 14px 16px; text-align: start; cursor: pointer; font: inherit; color: inherit; transition: transform 0.2s var(--k-ease), border-color 0.2s; }
+.mt .stat:hover { transform: translateY(-2px); border-color: var(--k-line-strong); }
+.mt .stat small { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 750; color: var(--k-muted); }
+.mt .stat b { font-size: 28px; letter-spacing: -0.02em; line-height: 1.15; }
+.mt .stat.total { background: var(--k-brand-grad); color: var(--k-on-brand); border-color: transparent; }
+.mt .stat.total small { color: inherit; opacity: 0.85; }
+.mt .stat.overdue b { color: var(--k-give); }
+.mt .stat.done b { color: var(--k-get); }
+.mt .ptabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 5px; border-radius: 18px; background: var(--k-surface); border: 1px solid var(--k-line); -webkit-backdrop-filter: var(--k-glass); backdrop-filter: var(--k-glass); box-shadow: var(--k-shadow); }
+.mt .ptab { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border: 0; border-radius: 14px; background: transparent; color: var(--k-muted); font: 800 15px var(--k-font); cursor: pointer; }
+.mt .ptab .c { min-width: 24px; padding: 1px 7px; border-radius: 999px; background: var(--k-surface-3); font-size: 12px; }
+.mt .ptab[aria-selected=true] { background: var(--k-brand-grad); color: var(--k-on-brand); box-shadow: 0 8px 20px color-mix(in srgb, var(--k-brand) 30%, transparent); }
+.mt .ptab[aria-selected=true] .c { background: rgba(255, 255, 255, 0.25); }
+.mt .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+.mt .chip { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 6px 13px; border-radius: 999px; border: 1px solid var(--k-line); background: var(--k-surface); color: var(--k-muted); font: 700 13.5px var(--k-font); cursor: pointer; white-space: nowrap; }
+.mt .chip .c { font-size: 11.5px; color: var(--k-faint); }
+.mt .chip[aria-pressed=true] { background: var(--k-text); color: var(--k-bg); border-color: transparent; }
+.mt .chip[aria-pressed=true] .c { color: inherit; opacity: 0.7; }
+.mt .chip.mk[aria-pressed=false] { color: #b4387a; border-color: color-mix(in srgb, #d6489a 30%, transparent); }
+.mt[data-kt=dark] .chip.mk[aria-pressed=false] { color: #ff8fc8; }
+.mt .chip.od[aria-pressed=false] .c { color: var(--k-give); font-weight: 800; }
+.mt select.chip { appearance: none; -webkit-appearance: none; padding-inline-end: 28px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a8498' stroke-width='3'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+.mt[dir=rtl] select.chip { background-position: left 10px center; }
+.mt select.chip.on { background-color: var(--k-text); color: var(--k-bg); }
+.mt .filters { display: grid; gap: 6px; }
+.mt .filters .lbl { font-size: 11.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--k-faint); padding-inline: 4px; }
+.mt .toolbar { display: flex; gap: 8px; align-items: center; }
+.mt .search { position: relative; flex: 1; min-width: 0; }
+.mt .search .ico { position: absolute; top: 50%; inset-inline-start: 14px; transform: translateY(-50%); color: var(--k-faint); pointer-events: none; }
+.mt .search input { padding-inline-start: 42px; }
+.mt .quick { display: flex; gap: 8px; padding: 6px; border-radius: 18px; }
+.mt .quick .in { border: 0; background: transparent; box-shadow: none; }
+.mt .quick .in:focus { box-shadow: none; }
+.mt .active-filter { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--k-muted); }
+
+/* ---------- Task cards ---------- */
+.mt .list { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }
+.mt .ghead { display: flex; align-items: center; gap: 8px; margin: 10px 4px 0; font-size: 12.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--k-faint); }
+.mt .ghead.od { color: var(--k-give); }
+.mt .ghead .c { font-weight: 700; }
+.mt .tc { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 14px 14px 14px 16px; border-radius: 20px; overflow: hidden; transition: transform 0.2s var(--k-ease), border-color 0.2s, opacity 0.3s; }
+.mt .tc::before { content: ''; position: absolute; inset-block: 12px; inset-inline-start: 0; width: 4px; border-radius: 0 4px 4px 0; background: var(--p, transparent); }
+.mt[dir=rtl] .tc::before { border-radius: 4px 0 0 4px; }
+.mt .tc.p-high { --p: #e5484d; }
+.mt .tc.p-medium { --p: #f5a524; }
+.mt .tc.p-low { --p: #3fb37f; }
+.mt .tc:hover { border-color: var(--k-line-strong); }
+.mt .tc.is-done { opacity: 0.86; }
+.mt .tc.is-done .t-title { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--k-text) 45%, transparent); color: var(--k-muted); }
+.mt .tc.sel { outline: 2px solid var(--k-brand); outline-offset: -2px; }
+.mt .tc.flash { animation: mt-flash 0.9s var(--k-ease); }
+@keyframes mt-flash { 0% { transform: scale(0.98); box-shadow: 0 0 0 4px var(--k-brand-soft); } 100% { transform: none; } }
+.mt .t-main { min-width: 0; display: grid; gap: 6px; cursor: pointer; text-align: start; background: none; border: 0; padding: 0; color: inherit; font: inherit; }
+.mt .t-title { font-size: 15.5px; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
+.mt .t-desc { font-size: 13.5px; color: var(--k-muted); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.mt .t-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 12.5px; font-weight: 700; color: var(--k-muted); }
+.mt .t-meta > span { display: inline-flex; align-items: center; gap: 4px; }
+.mt .t-meta .od { color: var(--k-give); }
+.mt .t-meta .td { color: var(--k-brand); }
+.mt .prog { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; color: var(--k-muted); }
+.mt .bar { flex: 1; max-width: 220px; height: 6px; border-radius: 99px; background: var(--k-surface-3); overflow: hidden; }
+.mt .bar i { display: block; height: 100%; border-radius: inherit; background: var(--k-brand-grad); transition: width 0.4s var(--k-ease); }
+.mt .bar.full i { background: var(--k-get); }
+.mt .t-side { display: grid; justify-items: end; gap: 6px; }
+.mt .t-thumb { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; border: 1px solid var(--k-line); }
+.mt .t-done-line { font-size: 12.5px; color: var(--k-get); font-weight: 700; display: flex; gap: 10px; flex-wrap: wrap; }
+.mt .t-done-line span:first-child { color: var(--k-muted); }
+/* Circular check: the task and every checklist item */
+.mt .cc { flex: none; width: 26px; height: 26px; margin: 1px; padding: 0; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--k-line-strong); background: transparent; color: transparent; cursor: pointer; transition: background 0.2s var(--k-ease), border-color 0.2s, transform 0.15s; position: relative; }
+.mt .cc::after { content: ''; position: absolute; inset: -9px; }
+.mt .cc:hover { border-color: var(--k-brand); color: color-mix(in srgb, var(--k-brand) 45%, transparent); }
+.mt .cc:active { transform: scale(0.9); }
+.mt .cc.on { background: var(--k-get); border-color: var(--k-get); color: #fff; animation: mt-pop 0.3s var(--k-ease); }
+.mt[data-kt=dark] .cc.on { color: #0e0b19; }
+.mt .cc.sm { width: 22px; height: 22px; }
+.mt .cc.sq { border-radius: 7px; }
+.mt .cc.sq.on { background: var(--k-brand); border-color: var(--k-brand); }
+@keyframes mt-pop { 50% { transform: scale(1.15); } }
+.mt .inline-cl { grid-column: 2 / -1; display: grid; gap: 2px; padding-top: 4px; border-top: 1px dashed var(--k-line); }
+.mt .cl-item { display: flex; align-items: center; gap: 10px; min-height: 40px; }
+.mt .cl-item .tx { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; transition: color 0.2s; }
+.mt .cl-item.done .tx { text-decoration: line-through; color: var(--k-faint); }
+.mt .expand { transition: transform 0.2s var(--k-ease); }
+.mt .expand[aria-expanded=true] .ico { transform: rotate(180deg); }
+.mt .empty { display: grid; justify-items: center; gap: 10px; padding: 40px 20px; text-align: center; }
+.mt .empty .big { width: 64px; height: 64px; border-radius: 22px; display: grid; place-items: center; background: var(--k-brand-soft); color: var(--k-brand); }
+.mt .bulk { position: fixed; z-index: 35; inset-inline: 10px; bottom: calc(var(--k-tabs) + max(10px, env(safe-area-inset-bottom)) + 10px); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-radius: 20px; background: var(--k-surface-solid); border: 1px solid var(--k-line-strong); box-shadow: var(--k-shadow-lg); }
+.mt .bulk b { margin-inline-end: auto; }
+.mt .bulk select.in { width: auto; min-height: 36px; padding: 6px 10px; font-size: 13.5px; border-radius: 11px; }
+@media (min-width: 1024px) { .mt .bulk { inset-inline-start: calc(var(--k-rail) + 32px); inset-inline-end: 32px; bottom: 20px; } }
+
+/* ---------- Sheet (editor) ---------- */
+.mt .scrim { position: fixed; inset: 0; z-index: 60; background: var(--k-overlay); display: grid; align-items: end; justify-items: center; animation: mt-fade 0.2s; }
+@keyframes mt-fade { from { opacity: 0; } }
+.mt .sheet { width: min(720px, 100%); max-height: 94dvh; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; border-radius: 28px 28px 0 0; background: var(--k-surface-solid); box-shadow: var(--k-shadow-lg); animation: mt-up 0.32s var(--k-ease); }
+@keyframes mt-up { from { transform: translateY(40px); opacity: 0; } }
+@media (min-width: 760px) { .mt .scrim { align-items: center; padding: 24px; } .mt .sheet { border-radius: 28px; max-height: 90dvh; } }
+.mt .sheet-h { display: flex; align-items: center; gap: 10px; padding: 14px 16px 10px 20px; border-bottom: 1px solid var(--k-line); }
+.mt .sheet-h h2 { flex: 1; font-size: 1.1rem; font-weight: 800; }
+.mt .sheet-b { overflow-x: hidden; overflow-y: auto; padding: 16px 20px 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; overscroll-behavior: contain; }
+.mt .ed-cl .btn.icon.sm { min-width: 32px; min-height: 36px; }
+.mt .sec-h small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.mt .sheet-f { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; padding-bottom: max(12px, env(safe-area-inset-bottom)); border-top: 1px solid var(--k-line); }
+.mt .sheet-f .sp { flex: 1; }
+.mt .title-in { font-size: 19px; font-weight: 800; min-height: 52px; }
+.mt .sec { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.mt .sec-h { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: var(--k-muted); }
+.mt .sec-h .sp { flex: 1; }
+.mt .pri-seg button[data-v=high][aria-pressed=true] { color: #e5484d; }
+.mt .pri-seg button[data-v=medium][aria-pressed=true] { color: #d48806; }
+.mt .pri-seg button[data-v=low][aria-pressed=true] { color: #1f9d63; }
+.mt .pri-seg i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.mt .ed-cl { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; }
+.mt .ed-cl .cl-item { gap: 4px; padding: 2px 4px; border-radius: 12px; }
+.mt .ed-cl .cl-item.drag { opacity: 0.4; }
+.mt .ed-cl .cl-item.over { box-shadow: inset 0 2px 0 var(--k-brand); }
+.mt .ed-cl .tx { flex: 1; min-width: 0; border: 0; background: transparent; color: inherit; font: 600 14.5px var(--k-font); padding: 8px 4px; border-radius: 8px; outline: none; }
+.mt .ed-cl .tx:focus { background: var(--k-surface-3); }
+.mt .grip { cursor: grab; color: var(--k-faint); display: grid; place-items: center; width: 24px; height: 36px; touch-action: none; }
+.mt .cl-add { display: flex; gap: 8px; align-items: center; padding-inline-start: 4px; }
+.mt .cl-add .in { flex: 1; min-width: 0; min-height: 40px; }
+.mt .photos { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+.mt .ph { position: relative; aspect-ratio: 1; border-radius: 16px; overflow: hidden; border: 1px solid var(--k-line); background: var(--k-surface-3); }
+.mt .ph img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: zoom-in; }
+.mt .ph .acts { position: absolute; inset-inline-end: 6px; top: 6px; display: flex; gap: 4px; }
+.mt .ph .acts button { width: 30px; height: 30px; border-radius: 10px; border: 0; display: grid; place-items: center; background: rgba(15, 23, 42, 0.62); color: #fff; cursor: pointer; }
+.mt .ph-add { aspect-ratio: 1; border-radius: 16px; border: 2px dashed var(--k-line-strong); display: grid; place-items: center; align-content: center; gap: 4px; color: var(--k-muted); font: 700 12.5px var(--k-font); cursor: pointer; background: transparent; }
+.mt .ph-add:hover { border-color: var(--k-brand); color: var(--k-brand); }
+.mt .hist { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.mt .hist li { display: grid; grid-template-columns: 12px 1fr; gap: 10px; padding: 6px 0; font-size: 13.5px; }
+.mt .hist li::before { content: ''; width: 10px; height: 10px; margin-top: 5px; border-radius: 50%; background: var(--k-brand-soft); border: 2px solid var(--k-brand); }
+.mt .hist small { display: block; color: var(--k-faint); font-size: 12px; }
+.mt details.more { border-top: 1px solid var(--k-line); padding-top: 10px; }
+.mt details.more summary { cursor: pointer; font-weight: 800; font-size: 13.5px; color: var(--k-muted); list-style: none; display: flex; gap: 6px; align-items: center; min-height: 36px; }
+.mt details.more summary::-webkit-details-marker { display: none; }
+.mt .lightbox { position: fixed; inset: 0; z-index: 80; background: rgba(4, 2, 10, 0.9); display: grid; grid-template-rows: auto 1fr auto; color: #fff; animation: mt-fade 0.2s; }
+.mt .lightbox .lb-h, .mt .lightbox .lb-f { display: flex; align-items: center; gap: 8px; padding: 12px 16px; }
+.mt .lightbox .lb-h b { flex: 1; }
+.mt .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; margin: auto; display: block; min-height: 0; }
+.mt .lightbox .lb-body { display: grid; min-height: 0; padding: 0 12px; }
+.mt .lightbox .btn { --b-bg: rgba(255, 255, 255, 0.12); --b-fg: #fff; --b-bd: rgba(255, 255, 255, 0.2); }
+.mt .lightbox .lb-f { justify-content: center; }
+
+/* ---------- Toast, popover ---------- */
+.mt .toasts { position: fixed; z-index: 90; inset-inline: 0; bottom: calc(var(--k-tabs) + 28px + env(safe-area-inset-bottom)); display: grid; justify-items: center; gap: 8px; pointer-events: none; padding-inline: 16px; }
+@media (min-width: 1024px) { .mt .toasts { bottom: 24px; } }
+.mt .toast { pointer-events: auto; display: flex; align-items: center; gap: 12px; max-width: 520px; padding: 10px 10px 10px 16px; border-radius: 16px; background: var(--k-text); color: var(--k-bg); font-weight: 700; font-size: 14px; box-shadow: var(--k-shadow-lg); animation: mt-up 0.3s var(--k-ease); }
+.mt .toast.err { background: var(--k-give); color: #fff; }
+.mt .toast button { border: 0; background: transparent; color: inherit; font: 800 14px var(--k-font); text-decoration: underline; cursor: pointer; min-height: 36px; padding: 0 8px; }
+.mt .pop { position: fixed; z-index: 55; top: 62px; inset-inline-end: 12px; width: min(380px, calc(100% - 24px)); max-height: 70dvh; overflow: auto; padding: 14px; border-radius: 20px; background: var(--k-surface-solid); border: 1px solid var(--k-line-strong); box-shadow: var(--k-shadow-lg); display: grid; gap: 8px; animation: mt-fade 0.15s; }
+.mt .pop h2 { font-size: 15px; font-weight: 800; }
+.mt .rem { display: flex; gap: 10px; align-items: center; padding: 8px; border-radius: 12px; cursor: pointer; border: 0; background: var(--k-surface-3); color: inherit; font: inherit; text-align: start; width: 100%; }
+.mt .rem .ic { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; flex: none; }
+.mt .rem .ic.od { background: var(--k-give-soft); color: var(--k-give); }
+.mt .rem .ic.td { background: var(--k-brand-soft); color: var(--k-brand); }
+.mt .rem .ic.up { background: var(--k-warn-soft); color: var(--k-warn); }
+.mt .rem div { min-width: 0; flex: 1; }
+.mt .rem b { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mt .rem small { color: var(--k-muted); font-size: 12px; }
+
+/* ---------- Calendar ---------- */
+.mt .cal-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mt .cal-h h2 { flex: 1; font-size: 1.15rem; font-weight: 800; min-width: 150px; }
+.mt .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.mt .cal .dow { text-align: center; font-size: 11.5px; font-weight: 800; color: var(--k-faint); padding: 4px 0; text-transform: uppercase; }
+.mt .day { position: relative; min-height: 64px; padding: 6px; border-radius: 14px; border: 1px solid transparent; background: var(--k-surface-3); color: var(--k-text); font: 700 13px var(--k-font); text-align: start; cursor: pointer; display: grid; align-content: start; gap: 4px; }
+.mt .day.out { opacity: 0.4; }
+.mt .day.today { border-color: var(--k-brand); }
+.mt .day.today .dn { background: var(--k-brand); color: var(--k-on-brand); }
+.mt .day[aria-pressed=true] { background: var(--k-surface-solid); box-shadow: var(--k-shadow); border-color: var(--k-line-strong); }
+.mt .day .dn { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; }
+.mt .day .dots { display: flex; flex-wrap: wrap; gap: 3px; }
+.mt .day .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--k-brand); }
+.mt .day .dots i.od { background: var(--k-give); }
+.mt .day .dots i.dn2 { background: var(--k-get); }
+.mt .day .lbl { display: none; font-size: 11px; font-weight: 700; color: var(--k-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (min-width: 760px) { .mt .day { min-height: 92px; } .mt .day .lbl { display: block; } .mt .day .dots { display: none; } }
+.mt .cal.week .day { min-height: 140px; }
+.mt .cal.week .day .lbl { display: block; white-space: normal; padding: 3px 5px; border-radius: 6px; background: var(--k-brand-soft); color: var(--k-text); }
+.mt .cal.week .day .dots { display: none; }
+
+/* ---------- Settings ---------- */
+.mt .stabs { display: flex; gap: 6px; overflow-x: auto; padding: 4px; border-radius: 18px; background: var(--k-surface); border: 1px solid var(--k-line); }
+.mt .stab { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 8px 14px; border-radius: 14px; border: 0; background: transparent; color: var(--k-muted); font: 750 14px var(--k-font); cursor: pointer; }
+.mt .stab[aria-selected=true] { background: var(--k-surface-solid); color: var(--k-text); box-shadow: var(--k-shadow-sm); }
+.mt .stab[aria-selected=true] .ico { color: var(--k-brand); }
+.mt .sgrid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .mt .sgrid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+.mt .users { display: grid; gap: 10px; }
+.mt .urow { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px; border-radius: 16px; background: var(--k-surface-3); }
+.mt .urow .perms { grid-column: 1 / -1; display: grid; gap: 4px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.mt .urow .perm { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 12px; background: var(--k-surface-solid); font-weight: 700; font-size: 13.5px; }
+.mt .urow .perm > span:not(.switch):not(.pill) { flex: 1; min-width: 0; }
+.mt .cats { display: grid; gap: 6px; }
+.mt .cat-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 14px; background: var(--k-surface-3); }
+.mt .cat-row .in { min-height: 38px; padding: 6px 10px; flex: 1; }
+.mt .swatch { width: 26px; height: 26px; border-radius: 9px; border: 2px solid var(--k-surface-solid); box-shadow: 0 0 0 1px var(--k-line-strong); cursor: pointer; flex: none; padding: 0; }
+.mt .swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+.mt .swatches .swatch[aria-pressed=true] { box-shadow: 0 0 0 2px var(--k-text); }
+.mt pre.code { margin: 0; padding: 14px; border-radius: 14px; background: #0f172a; color: #d6e2ff; font: 12.5px/1.55 ui-monospace, Menlo, Consolas, monospace; overflow: auto; direction: ltr; text-align: left; }
+.mt .phone { width: 210px; height: 400px; border-radius: 34px; padding: 10px; background: #0f172a; box-shadow: var(--k-shadow-lg); margin-inline: auto; }
+.mt .phone .scr { height: 100%; border-radius: 26px; background: var(--k-brand-grad); display: grid; place-items: center; align-content: center; gap: 14px; color: #fff; text-align: center; padding: 16px; }
+.mt .phone .scr .mark { width: 76px; height: 76px; border-radius: 24px; background: #fff; color: #3a66f5; }
+.mt .phone .scr b { font-size: 20px; letter-spacing: -0.02em; }
+.mt .homescreen { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; padding: 14px; border-radius: 18px; background: var(--k-surface-3); }
+.mt .homescreen div { display: grid; justify-items: center; gap: 4px; width: 64px; font-size: 11px; font-weight: 700; text-align: center; }
+.mt .homescreen i { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; color: #fff; font-style: normal; font-weight: 800; }
+.mt .homescreen .me i { outline: 3px solid var(--k-brand); outline-offset: 2px; }
+
+/* ---------- Lock (same as SnapKhata's PIN screen) ---------- */
+.mt .lock { position: fixed; inset: 0; z-index: 100; display: grid; justify-items: center; align-content: center; gap: 14px; padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); text-align: center; background-color: var(--k-bg); background-image: var(--k-bg-image); overflow-y: auto; }
+.mt .lock h1 { font-size: 1.4rem; font-weight: 800; }
+.mt .lock p { max-width: 320px; color: var(--k-muted); }
+.mt .lock-mark { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 22px; background: var(--k-brand-grad); color: var(--k-on-brand); box-shadow: var(--k-shadow-lg); }
+.mt .lock-dots { display: flex; gap: 16px; min-height: 24px; align-items: center; }
+.mt .lock-dots i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--k-line-strong); transition: background 0.15s, border-color 0.15s, transform 0.15s; }
+.mt .lock-dots i.on { background: var(--k-brand); border-color: var(--k-brand); transform: scale(1.1); }
+.mt .lock-dots.err i { border-color: var(--k-give); }
+.mt .lock-dots.err { animation: mt-shake 0.35s var(--k-ease); }
+@keyframes mt-shake { 25% { translate: -8px; } 75% { translate: 8px; } }
+.mt .lock-pad { display: grid; grid-template-columns: repeat(3, 72px); gap: 14px; margin-top: 6px; }
+.mt .lock-key { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--k-line); background: var(--k-surface); color: var(--k-text); font: 600 1.5rem/1 var(--k-font); box-shadow: var(--k-shadow-sm); cursor: pointer; touch-action: manipulation; }
+.mt .lock-key:active:not(:disabled) { background: var(--k-brand-soft); transform: scale(0.96); }
+.mt .lock-key:disabled { opacity: 0.5; cursor: default; }
+.mt .lock-key.fn { background: transparent; border-color: transparent; box-shadow: none; }
+.mt .lock-err { min-height: 22px; color: var(--k-give); font-weight: 700; font-size: 14px; }
+.mt .proto { position: fixed; z-index: 40; top: max(8px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; background: var(--k-warn-soft); color: var(--k-warn); pointer-events: none; display: none; }
+@media (prefers-reduced-motion: reduce) { .mt *, .mt *::before, .mt *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div id="mt" class="mt" data-kt="light">
+  <div id="root"></div>
+  <div id="modal"></div>
+  <div id="lightbox"></div>
+  <div id="pop"></div>
+  <div id="lock"></div>
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+  <input type="file" id="pick-gallery" accept="image/*" multiple hidden />
+  <input type="file" id="pick-camera" accept="image/*" capture="environment" hidden />
+  <input type="file" id="pick-replace" accept="image/*" hidden />
+</div>
+<script>
+'use strict';
+/*
+  My Tasks prototype (single file). Everything a real build would get from the API is simulated in one "database" kept in
+  localStorage (mytasks-proto-db):
+    Apps          the app row (Code 'tasks', Name, ShortName). The name shown everywhere comes from here, Super Admin edits it.
+    Users         the common accounts (shared with every app) and their per-app access: tasks and khata are separate flags.
+    TaskSettings  per user: App Lock (PIN, lock after), notifications, preferences. Khata's lock is a separate record.
+    Categories    per user; Marketing is a system category that cannot be deleted.
+    Tasks         per user (owner), with checklist items, photos, history, soft delete.
+  Theme follows the prototype's shared mode (thakurg-proto-mode), like SnapKhata.
+*/
+const STORE = 'mytasks-proto-db';
+const MODE_KEY = 'thakurg-proto-mode';
+const UNLOCK_KEY = 'mytasks-proto-unlocked';
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* ---------- Icons ---------- */
+const ICONS = {
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  users: '<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 3.1a4 4 0 0 1 0 7.8M22 21a7 7 0 0 0-4-6.3"/>',
+  cal: '<rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  tasks: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  clip: '<path d="m21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/>',
+  image: '<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
+  camera: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>',
+  trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/>',
+  copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  chev: '<path d="m6 9 6 6 6-6"/>',
+  left: '<path d="m15 18-6-6 6-6"/>',
+  right: '<path d="m9 18 6-6-6-6"/>',
+  up: '<path d="m18 15-6-6-6 6"/>',
+  repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  flag: '<path d="M4 22V4a1 1 0 0 1 1-1h12l-2 5 2 5H5"/>',
+  mega: '<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+  grip: '<circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/>',
+  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>',
+  monitor: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  alert: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>',
+  tag: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>',
+  phone: '<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/>',
+  select: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/>',
+  undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
+  back: '<path d="M7 7h12v12"/><path d="M19 7 5 21"/>',
+  key: '<circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 9.3-9.3M17 6l3 3M14 9l2 2"/>',
+  del: '<path d="M21 5H9l-7 7 7 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="m18 9-6 6M12 9l6 6"/>',
+};
+const icon = (n, s = 20, cls = '') => `<svg class="ico ${cls}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ''}</svg>`;
+
+/* ---------- Dates (local calendar; tasks are organised by due date, never by creation date) ---------- */
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const pad = (n) => String(n).padStart(2, '0');
+const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parseD = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (d, n) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; };
+const addMonths = (d, n) => { const x = new Date(d.getFullYear(), d.getMonth() + n, 1); x.setDate(Math.min(d.getDate(), new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate())); return x; };
+const today = () => ymd(new Date());
+const nowHM = () => { const n = new Date(); return `${pad(n.getHours())}:${pad(n.getMinutes())}`; };
+const fmtD = (s) => (s ? `${s.slice(8, 10)}-${s.slice(5, 7)}-${s.slice(0, 4)}` : '');
+const fmtDT = (iso) => { const d = new Date(iso); return `${fmtD(ymd(d))} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const monthLabel = (ym) => `${MONTHS[Number(ym.slice(5, 7)) - 1]} ${ym.slice(0, 4)}`;
+function weekStart(d) {
+  const sunday = prefs().weekStart === 'sun';
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  x.setDate(x.getDate() - (sunday ? x.getDay() : (x.getDay() + 6) % 7));
+  return x;
+}
+const weekRange = (offset) => { const s = addDays(weekStart(new Date()), offset * 7); return [ymd(s), ymd(addDays(s, 6))]; };
+function friendlyDue(t) {
+  if (!t.due) return '';
+  const td = today();
+  const tm = t.time ? ` · ${t.time}` : '';
+  if (t.due === td) return `Today${tm}`;
+  if (t.due === ymd(addDays(new Date(), 1))) return `Tomorrow${tm}`;
+  if (t.due === ymd(addDays(new Date(), -1))) return `Yesterday${tm}`;
+  return fmtD(t.due) + tm;
+}
+
+/* ---------- Database (simulated) ---------- */
+const PALETTE = ['#d6489a', '#3a66f5', '#1f9d63', '#f5a524', '#8b5cf6', '#e5484d', '#0ea5b7', '#64748b'];
+let db = null;
+db = load();
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE));
+    if (s && s.v === 3) return s;
+  } catch (e) { /* first run */ }
+  return seed();
+}
+function save() {
+  try { localStorage.setItem(STORE, JSON.stringify(db)); }
+  catch (e) { toast('Storage is full in this browser. Remove some photos and try again.', { err: true }); }
+}
+function nid() { db.seq = (db.seq || 1000) + 1; return db.seq; }
+function seed() {
+  const d = { v: 3, seq: 1000 };
+  d.apps = [
+    { code: 'tasks', name: 'My Tasks', shortName: 'My Tasks', startUrl: '/tasks/', scope: '/tasks/', themeColor: '#2f5bea', modifiedBy: null, modifiedOn: null },
+    { code: 'khata', name: 'SnapKhata', shortName: 'Khata', startUrl: '/khata/app/', scope: '/khata/', themeColor: '#2f5bea' },
+  ];
+  d.users = [
+    { id: 1, name: 'Kunal Kumar', email: 'admin@demo.local', role: 'superadmin', access: { tasks: true, khata: true } },
+    { id: 2, name: 'Riya Sharma', email: 'user@demo.local', role: 'user', access: { tasks: true, khata: false } },
+    { id: 3, name: 'Aman Verma', email: 'khata@demo.local', role: 'user', access: { tasks: false, khata: true } },
+  ];
+  d.session = { userId: 1 };
+  d.settings = {};
+  d.khataLock = { 1: { enabled: true }, 2: { enabled: false }, 3: { enabled: true } };
+  d.categories = {};
+  d.tasks = {};
+  db = d;
+  for (const u of d.users) {
+    d.settings[u.id] = defaultSettings();
+    d.categories[u.id] = defaultCategories();
+    d.tasks[u.id] = [];
+  }
+  seedTasks(1, true);
+  seedTasks(2, false);
+  return d;
+}
+function defaultSettings() {
+  return { lock: { enabled: false, pin: null, after: 5 }, notify: { enabled: true, time: '09:00', before: '1d', overdue: true, upcoming: true }, weekStart: 'mon', defaultCat: 'personal', defaultPri: 'medium', defaultTab: 'active' };
+}
+function defaultCategories() {
+  return [
+    { id: 'marketing', name: 'Marketing', color: '#d6489a', system: true },
+    { id: 'personal', name: 'Personal', color: '#3a66f5' },
+    { id: 'home', name: 'Home', color: '#1f9d63' },
+    { id: 'maintenance', name: 'Maintenance', color: '#f5a524' },
+    { id: 'work', name: 'Work', color: '#8b5cf6' },
+  ];
+}
+function acImage() {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dbe6ff"/><stop offset="1" stop-color="#f5e9ff"/></linearGradient></defs><rect width="320" height="240" fill="url(#g)"/><rect x="40" y="60" width="240" height="90" rx="18" fill="#fff" stroke="#94a3b8" stroke-width="4"/><rect x="60" y="120" width="200" height="10" rx="5" fill="#cbd5e1"/><circle cx="250" cy="85" r="6" fill="#22c55e"/><path d="M90 170c0 20-10 20-10 40M160 170c0 20-10 20-10 40M230 170c0 20-10 20-10 40" stroke="#60a5fa" stroke-width="5" fill="none" stroke-linecap="round"/><text x="60" y="95" font-family="sans-serif" font-size="20" font-weight="700" fill="#334155">AC unit</text></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+function seedTasks(uid, rich) {
+  const n = new Date();
+  const D = (days) => ymd(addDays(n, days));
+  const ago = (days, h = 10) => { const x = addDays(n, -days); x.setHours(h, 0, 0, 0); return x.toISOString(); };
+  const make = (o) => {
+    const t = Object.assign({ id: nid(), owner: uid, desc: '', due: '', time: '', cat: 'personal', pri: 'medium', items: [], photos: [], started: false, remind: true, repeat: { type: 'none', every: 1, unit: 'month' }, createdOn: ago(o.createdAgo ?? 3), modifiedOn: null, completedOn: null, deleted: false, deletedOn: null, history: [] }, o);
+    t.items = (o.items || []).map((x) => (typeof x === 'string' ? { id: nid(), text: x, done: false } : { id: nid(), text: x[0], done: x[1] }));
+    t.history = [{ at: t.createdOn, what: 'Created' }];
+    if (t.completedOn) t.history.push({ at: t.completedOn, what: 'Completed' });
+    delete t.createdAgo;
+    db.tasks[uid].push(t);
+  };
+  if (!rich) {
+    make({ title: 'Call the plumber', due: D(1), cat: 'home', pri: 'high' });
+    make({ title: 'Visit Mehta Electronics', due: D(0), time: '16:00', cat: 'marketing', items: ['Show new catalogue', 'Collect order'] });
+    make({ title: 'Read a book', cat: 'personal', pri: 'low' });
+    return;
+  }
+  const jan = addMonths(new Date(n.getFullYear(), n.getMonth(), 15), 2);
+  make({ title: 'Marketing Visit', desc: 'Weekly visit to the market area. Carry the new price list.', due: D(0), time: '11:00', cat: 'marketing', pri: 'high', createdAgo: 2,
+    items: [['Visit Customer A', true], ['Visit Customer B', true], ['Collect pending payments', true], ['Share new product details', false], ['Follow up with existing customers', false], ['Update customer records', false]] });
+  make({ title: 'Repair My AC', desc: 'Bedroom AC is not cooling. Get it checked before summer.', due: ymd(jan), cat: 'maintenance', pri: 'medium', createdAgo: 1,
+    items: ['Call the technician', 'Check gas level', 'Clean the filters'], photos: [{ id: nid(), name: 'ac.svg', src: acImage() }] });
+  make({ title: 'Collect pending payments from Gupta Stores', due: D(-2), time: '15:00', cat: 'marketing', pri: 'high', createdAgo: 6, items: ['Invoice 1043', 'Invoice 1051'] });
+  make({ title: 'Pay electricity bill', due: D(3), cat: 'personal', pri: 'medium', createdAgo: 4 });
+  make({ title: 'Product demo at Sharma Traders', desc: 'Demo the new range, take samples.', due: ymd(addDays(weekStart(n), 9)), time: '12:30', cat: 'marketing', pri: 'medium', items: ['Pack samples', 'Print brochures', 'Confirm the time by phone'] });
+  make({ title: 'AC servicing', desc: 'Every six months.', due: ymd(addMonths(n, 4)), cat: 'maintenance', pri: 'low', repeat: { type: 'custom', every: 6, unit: 'month' } });
+  make({ title: 'Renew vehicle insurance', due: ymd(addMonths(new Date(n.getFullYear(), n.getMonth(), 10), 14)), cat: 'personal', pri: 'high' });
+  make({ title: 'Plan festive stock for shop', due: D(-10), cat: 'marketing', pri: 'high', createdAgo: 20, completedOn: ago(11, 18), items: [['List fast sellers', true], ['Order from supplier', true]] });
+  make({ title: 'Buy groceries', cat: 'home', pri: 'low', createdAgo: 1, items: ['Rice', 'Dal', 'Vegetables', 'Milk'] });
+  make({ title: 'Update customer records', due: D(-1), cat: 'work', pri: 'medium', createdAgo: 5, completedOn: ago(1, 19) });
+  make({ title: 'Team meeting', due: D(1), time: '10:00', cat: 'work', pri: 'medium' });
+  make({ title: 'Fix leaking tap', due: ymd(new Date(n.getFullYear(), n.getMonth() + 1, 0)), cat: 'home', pri: 'low', started: true });
+  make({ title: 'New customer acquisition drive', due: ymd(addMonths(new Date(n.getFullYear(), n.getMonth(), 5), 1)), cat: 'marketing', pri: 'medium', items: ['Shortlist 20 shops', 'Prepare offer sheet'] });
+}
+
+/* ---------- Session and access (backend would check these per request) ---------- */
+const me = () => db.users.find((u) => u.id === db.session.userId) || null;
+const isAdmin = () => me()?.role === 'superadmin';
+const hasAccess = (u = me()) => !!u && (u.role === 'superadmin' || u.access.tasks);
+const app = () => db.apps.find((a) => a.code === 'tasks');
+function prefs() { return db.settings[db.session.userId] || defaultSettings(); }
+const cats = () => db.categories[db.session.userId] || [];
+const catOf = (id) => cats().find((c) => c.id === id) || { id, name: 'Uncategorised', color: '#94a3b8' };
+/** Only the signed-in user's own, non-deleted tasks: one user never sees another's. */
+const myTasks = () => (db.tasks[db.session.userId] || []).filter((t) => !t.deleted);
+const taskById = (id) => (db.tasks[db.session.userId] || []).find((t) => t.id === id);
+
+/* ---------- Task rules ---------- */
+const isDone = (t) => !!t.completedOn;
+function isOverdue(t) {
+  if (isDone(t) || !t.due) return false;
+  const td = today();
+  return t.due < td || (t.due === td && !!t.time && nowHM() > t.time);
+}
+function status(t) {
+  if (isDone(t)) return 'completed';
+  if (isOverdue(t)) return 'overdue';
+  if (t.started || t.items.some((i) => i.done)) return 'ongoing';
+  return 'pending';
+}
+const STATUS = { completed: ['Completed', 'ok'], overdue: ['Overdue', 'bad'], ongoing: ['Ongoing', 'brand'], pending: ['Pending', ''] };
+function log(t, what) { t.history.push({ at: new Date().toISOString(), what }); }
+function nextDue(t) {
+  const base = t.due ? parseD(t.due) : new Date();
+  const r = t.repeat; const n = Math.max(1, Number(r.every) || 1);
+  const unit = r.type === 'custom' ? r.unit : { daily: 'day', weekly: 'week', monthly: 'month', yearly: 'year' }[r.type];
+  if (unit === 'day') return ymd(addDays(base, n));
+  if (unit === 'week') return ymd(addDays(base, 7 * n));
+  if (unit === 'month') return ymd(addMonths(base, n));
+  return ymd(addMonths(base, 12 * n));
+}
+function complete(t, how) {
+  if (isDone(t)) return;
+  t.completedOn = new Date().toISOString();
+  log(t, how === 'auto' ? 'Completed automatically (all checklist items done)' : 'Marked as completed');
+  if (t.repeat.type !== 'none' && !t.spawned) {
+    t.spawned = true;
+    const next = cloneTask(t, { due: nextDue(t), resetItems: true, keepPhotos: false });
+    log(next, `Created by repeat of "${t.title}"`);
+    db.tasks[db.session.userId].push(next);
+    toast(`Repeats: next "${t.title}" on ${fmtD(next.due)}`);
+  }
+}
+function reopen(t, why) {
+  if (!isDone(t)) return;
+  t.lastCompletedOn = t.completedOn;
+  t.completedOn = null;
+  log(t, why || 'Reopened');
+}
+function cloneTask(t, { due, resetItems, keepPhotos = true, titleSuffix = '' }) {
+  const c = JSON.parse(JSON.stringify(t));
+  Object.assign(c, { id: nid(), title: t.title + titleSuffix, due: due ?? t.due, createdOn: new Date().toISOString(), modifiedOn: null, completedOn: null, lastCompletedOn: null, deleted: false, deletedOn: null, spawned: false, started: false, history: [{ at: new Date().toISOString(), what: 'Created' }] });
+  c.items = c.items.map((i) => ({ id: nid(), text: i.text, done: resetItems ? false : i.done }));
+  c.photos = keepPhotos ? c.photos.map((p) => ({ ...p, id: nid() })) : [];
+  return c;
+}
+/** After a checklist change: all done completes the task, unchecking an item reopens a completed task. */
+function syncChecklist(t) {
+  if (!t.items.length) return;
+  const all = t.items.every((i) => i.done);
+  if (all && !isDone(t)) complete(t, 'auto');
+  else if (!all && isDone(t)) reopen(t, 'Reopened (a checklist item was unchecked)');
+}
+
+/* ---------- Filters: primary tab x date scope x category x search ---------- */
+const ui = { view: 'tasks', tab: null, scope: 'all', cat: 'all', q: '', sort: 'due', selecting: false, sel: new Set(), open: new Set(), calMonth: null, calDay: null, calMode: 'month', stab: 'general', flash: null };
+function inTab(t, tab) { return tab === 'all' ? true : tab === 'active' ? !isDone(t) : isDone(t); }
+function inScope(t, scope) {
+  const d = t.due; const td = today();
+  switch (scope) {
+    case 'all': return true;
+    case 'today': return d === td;
+    case 'week': { const [a, b] = weekRange(0); return !!d && d >= a && d <= b; }
+    case 'nextweek': { const [a, b] = weekRange(1); return !!d && d >= a && d <= b; }
+    case 'month': return !!d && d.slice(0, 7) === td.slice(0, 7);
+    case 'upcoming': return !!d && d > td;
+    case 'overdue': return isOverdue(t);
+    case 'nodate': return !d;
+    default:
+      if (scope.startsWith('m:')) return !!d && d.slice(0, 7) === scope.slice(2);
+      if (scope.startsWith('y:')) return !!d && d.slice(0, 4) === scope.slice(2);
+      return true;
+  }
+}
+const inCat = (t, c) => c === 'all' || t.cat === c;
+function matchQ(t, q) {
+  if (!q) return true;
+  q = q.toLowerCase();
+  return t.title.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q) || t.items.some((i) => i.text.toLowerCase().includes(q)) || catOf(t.cat).name.toLowerCase().includes(q);
+}
+function filtered({ tab = ui.tab, scope = ui.scope, cat = ui.cat, q = ui.q } = {}) {
+  return myTasks().filter((t) => inTab(t, tab) && inScope(t, scope) && inCat(t, cat) && matchQ(t, q));
+}
+const PRI_RANK = { high: 0, medium: 1, low: 2 };
+function group(t) {
+  const td = today();
+  if (isDone(t)) return ui.tab === 'completed' ? [10, 'Completed in ' + monthLabel(ymd(new Date(t.completedOn)).slice(0, 7))] : [20, 'Completed'];
+  if (isOverdue(t)) return [0, 'Overdue'];
+  if (!t.due) return [9, 'No due date'];
+  if (t.due === td) return [1, 'Today'];
+  if (t.due === ymd(addDays(new Date(), 1))) return [2, 'Tomorrow'];
+  const [w0, w1] = weekRange(0); const [n0, n1] = weekRange(1);
+  if (t.due >= w0 && t.due <= w1) return [3, 'This week'];
+  if (t.due >= n0 && t.due <= n1) return [4, 'Next week'];
+  if (t.due.slice(0, 7) === td.slice(0, 7)) return [5, 'Later this month'];
+  return [6, monthLabel(t.due.slice(0, 7))];
+}
+function sorted(list) {
+  const key = (t) => {
+    const [rank] = group(t);
+    if (ui.sort === 'priority') return [rank, PRI_RANK[t.pri], t.due || '9999', t.time || '99'];
+    if (ui.sort === 'created') return [rank, -new Date(t.createdOn).getTime()];
+    if (isDone(t) && ui.tab === 'completed') return [rank, -new Date(t.completedOn).getTime()];
+    return [rank, t.due || '9999', t.time || '99', PRI_RANK[t.pri]];
+  };
+  return list.map((t) => [key(t), t]).sort((a, b) => {
+    for (let i = 0; i < a[0].length; i++) { if (a[0][i] < b[0][i]) return -1; if (a[0][i] > b[0][i]) return 1; }
+    return 0;
+  }).map((x) => x[1]);
+}
+/** Month and year chips are built from the tasks' due dates (plus the current month and year), never hard-coded. */
+function dynamicPeriods() {
+  const td = today();
+  const months = new Set([td.slice(0, 7)]); const years = new Set([td.slice(0, 4)]);
+  for (const t of myTasks()) if (t.due) { months.add(t.due.slice(0, 7)); years.add(t.due.slice(0, 4)); }
+  return { months: [...months].sort(), years: [...years].sort() };
+}
+
+/* ---------- Theme (shared prototype mode, like SnapKhata) ---------- */
+const darkQ = matchMedia('(prefers-color-scheme: dark)');
+function mode() { try { const m = localStorage.getItem(MODE_KEY); return ['light', 'dark', 'system'].includes(m) ? m : 'system'; } catch (e) { return 'system'; } }
+function applyTheme() {
+  const m = mode(); const r = m === 'system' ? (darkQ.matches ? 'dark' : 'light') : m;
+  $('#mt').dataset.kt = r;
+  document.querySelector('meta[name=theme-color]').content = r === 'dark' ? '#0e0b19' : '#eef1f7';
+}
+function setMode(m) { try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* private mode */ } applyTheme(); render(); }
+darkQ.addEventListener('change', applyTheme);
+addEventListener('storage', (e) => { if (e.key === MODE_KEY) applyTheme(); });
+
+/* ---------- Toast ---------- */
+function toast(text, { err = false, undo = null, ms = 4200 } = {}) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (err ? ' err' : '');
+  el.innerHTML = `<span>${esc(text)}</span>${undo ? '<button type="button">Undo</button>' : ''}`;
+  if (undo) el.querySelector('button').onclick = () => { undo(); el.remove(); };
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), ms);
+}
+
+/* ---------- Routing (#/tasks, #/calendar, #/settings/<tab>, #/profile) ---------- */
+function route() {
+  const h = location.hash.replace(/^#\/?/, '').split('/');
+  ui.view = ['tasks', 'calendar', 'settings', 'profile'].includes(h[0]) ? h[0] : 'tasks';
+  if (ui.view === 'settings' && h[1]) ui.stab = h[1];
+  ui.selecting = false; ui.sel.clear();
+  render();
+}
+addEventListener('hashchange', route);
+const go = (path) => { if (location.hash !== '#/' + path) location.hash = '#/' + path; else route(); };
+
+/* ---------- Render: shell ---------- */
+function render() {
+  const a = app();
+  document.title = `${a.name} · thakurg.com prototype`;
+  if (!me()) { $('#root').innerHTML = loginView(); return; }
+  if (!hasAccess()) { $('#root').innerHTML = noAccessView(); return; }
+  if (ui.tab === null) ui.tab = prefs().defaultTab;
+  const views = { tasks: tasksView, calendar: calendarView, settings: settingsView, profile: profileView };
+  const u = me();
+  const counts = { active: myTasks().filter((t) => !isDone(t)).length };
+  const navs = [['tasks', 'tasks', 'Tasks', counts.active], ['calendar', 'cal', 'Calendar', ''], ['settings', 'gear', 'Settings', ''], ['profile', 'user', 'Profile', '']];
+  const crumb = { tasks: 'Tasks', calendar: 'Calendar', settings: 'Settings', profile: 'Profile' }[ui.view];
+  const rem = reminders().length;
+  $('#root').innerHTML = `
+  <div class="app">
+    <aside class="rail" aria-label="${esc(a.name)}">
+      <a class="logo" href="#/tasks"><span class="mark">${icon('check', 20)}</span><span class="name" data-app-name>${esc(a.name)}</span></a>
+      <button type="button" class="btn pri wide" data-act="new">${icon('plus', 18)} Add task</button>
+      <nav aria-label="Main">${navs.map(([id, ic, label, c]) => `<a class="nav" href="#/${id}" ${ui.view === id ? 'aria-current="page"' : ''}>${icon(ic)}${label}${c !== '' ? `<span class="cnt">${c}</span>` : ''}</a>`).join('')}</nav>
+      <div class="grow"></div>
+      <a class="who" href="#/profile"><span class="avatar">${esc(initials(u.name))}</span><span style="min-width:0"><b>${esc(u.name)}</b><small>${u.role === 'superadmin' ? 'Super Admin' : 'User'}</small></span></a>
+    </aside>
+    <div style="min-width:0">
+      <header class="top">
+        <a class="logo" href="#/tasks"><span class="mark">${icon('check', 20)}</span><span class="name" data-app-name>${esc(a.name)}</span></a>
+        <span class="crumb">${crumb}</span>
+        <div class="top-actions">
+          <button type="button" class="btn ghost icon" data-act="focus-search" aria-label="Search tasks">${icon('search')}</button>
+          <button type="button" class="btn ghost icon badge-dot" data-act="bell" aria-label="Reminders (${rem})">${icon('bell')}${rem ? `<b>${rem}</b>` : ''}</button>
+          ${prefs().lock.enabled ? `<button type="button" class="btn ghost icon" data-act="lock-now" aria-label="Lock now">${icon('lock')}</button>` : ''}
+          <a class="btn ghost icon" href="#/settings/general" aria-label="Settings">${icon('gear')}</a>
+          <a class="avatar" href="#/profile" aria-label="Profile">${esc(initials(u.name))}</a>
+        </div>
+      </header>
+      <main class="content" id="main">${views[ui.view]()}</main>
+    </div>
+    <nav class="tabs" aria-label="Main">
+      <a class="tab" href="#/tasks" ${ui.view === 'tasks' ? 'aria-current="page"' : ''}>${icon('tasks', 22)}Tasks</a>
+      <a class="tab" href="#/calendar" ${ui.view === 'calendar' ? 'aria-current="page"' : ''}>${icon('cal', 22)}Calendar</a>
+      <button type="button" class="fab" data-act="new" aria-label="Add task">${icon('plus', 26)}</button>
+      <a class="tab" href="#/settings/general" ${ui.view === 'settings' ? 'aria-current="page"' : ''}>${icon('gear', 22)}Settings</a>
+      <a class="tab" href="#/profile" ${ui.view === 'profile' ? 'aria-current="page"' : ''}>${icon('user', 22)}Profile</a>
+    </nav>
+    ${ui.selecting ? bulkBar() : ''}
+  </div>`;
+  if (ui.flash) { const el = document.querySelector(`.tc[data-id="${ui.flash}"]`); el?.classList.add('flash'); ui.flash = null; }
+}
+const initials = (n) => n.split(/\s+/).map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+
+/* ---------- Tasks dashboard ---------- */
+function tasksView() {
+  const all = myTasks();
+  const sum = { total: all.length, active: all.filter((t) => !isDone(t)).length, done: all.filter(isDone).length, overdue: all.filter(isOverdue).length };
+  const tabCount = (tab) => filtered({ tab }).length;
+  const scopeCount = (scope) => filtered({ scope }).length;
+  const catCount = (cat) => filtered({ cat }).length;
+  const { months, years } = dynamicPeriods();
+  const scopes = [['all', 'All tasks'], ['today', 'Today'], ['week', 'Current week'], ['nextweek', 'Next week'], ['month', 'Current month'], ['upcoming', 'Upcoming'], ['overdue', 'Overdue'], ['nodate', 'No due date']];
+  const mSel = ui.scope.startsWith('m:'); const ySel = ui.scope.startsWith('y:');
+  return `<section class="page" aria-labelledby="h-tasks">
+    <div class="head"><div><h1 id="h-tasks">${esc(greeting())}</h1><p>${esc(dayLine())}</p></div>
+      <div class="row"><button type="button" class="btn sm" data-act="select" aria-pressed="${ui.selecting}">${icon('select', 16)} ${ui.selecting ? 'Done' : 'Select'}</button>
+      <button type="button" class="btn pri sm" data-act="new">${icon('plus', 16)} Add task</button></div></div>
+    <div class="stats">
+      <button type="button" class="card stat total" data-act="quick-filter" data-tab="all" data-scope="all"><small>${icon('tasks', 15)} Total tasks</small><b class="num">${sum.total}</b></button>
+      <button type="button" class="card stat" data-act="quick-filter" data-tab="active" data-scope="all"><small>${icon('clock', 15)} Active</small><b class="num">${sum.active}</b></button>
+      <button type="button" class="card stat done" data-act="quick-filter" data-tab="completed" data-scope="all"><small>${icon('check', 15)} Completed</small><b class="num">${sum.done}</b></button>
+      <button type="button" class="card stat overdue" data-act="quick-filter" data-tab="active" data-scope="overdue"><small>${icon('alert', 15)} Overdue</small><b class="num">${sum.overdue}</b></button>
+    </div>
+    <div class="ptabs" role="tablist" aria-label="Task status">
+      ${[['all', 'All'], ['active', 'Active'], ['completed', 'Completed']].map(([id, l]) => `<button type="button" role="tab" class="ptab" id="pt-${id}" aria-selected="${ui.tab === id}" aria-controls="task-list" data-act="tab" data-v="${id}">${l}<span class="c num">${tabCount(id)}</span></button>`).join('')}
+    </div>
+    <div class="filters">
+      <span class="lbl">When</span>
+      <div class="chips" role="group" aria-label="Date">
+        ${scopes.map(([id, l]) => `<button type="button" class="chip ${id === 'overdue' ? 'od' : ''}" aria-pressed="${ui.scope === id}" data-act="scope" data-v="${id}">${l} <span class="c num">${scopeCount(id)}</span></button>`).join('')}
+        <select class="chip ${mSel ? 'on' : ''}" data-act="scope-select" aria-label="Month">
+          <option value="">Month…</option>${months.map((m) => `<option value="m:${m}" ${ui.scope === 'm:' + m ? 'selected' : ''}>${monthLabel(m)} (${scopeCount('m:' + m)})</option>`).join('')}
+        </select>
+        <select class="chip ${ySel ? 'on' : ''}" data-act="scope-select" aria-label="Year">
+          <option value="">Year…</option>${years.map((y) => `<option value="y:${y}" ${ui.scope === 'y:' + y ? 'selected' : ''}>Tasks in ${y} (${scopeCount('y:' + y)})</option>`).join('')}
+        </select>
+      </div>
+      <span class="lbl">Category</span>
+      <div class="chips" role="group" aria-label="Category">
+        <button type="button" class="chip" aria-pressed="${ui.cat === 'all'}" data-act="cat" data-v="all">All categories <span class="c num">${catCount('all')}</span></button>
+        ${cats().map((c) => `<button type="button" class="chip ${c.id === 'marketing' ? 'mk' : ''}" aria-pressed="${ui.cat === c.id}" data-act="cat" data-v="${c.id}">${c.id === 'marketing' ? icon('mega', 15) : `<span class="pill-dot" style="width:9px;height:9px;border-radius:50%;background:${c.color}"></span>`} ${esc(c.name)} <span class="c num">${catCount(c.id)}</span></button>`).join('')}
+      </div>
+    </div>
+    <div class="toolbar">
+      <label class="search"><span class="sr-only">Search tasks</span>${icon('search', 18)}<input class="in" id="q" type="search" placeholder="Search title, description, checklist, category" value="${esc(ui.q)}" autocomplete="off" /></label>
+      <select class="in" data-act="sort" aria-label="Sort" style="width:auto">
+        <option value="due" ${ui.sort === 'due' ? 'selected' : ''}>Due date</option>
+        <option value="priority" ${ui.sort === 'priority' ? 'selected' : ''}>Priority</option>
+        <option value="created" ${ui.sort === 'created' ? 'selected' : ''}>Newest</option>
+      </select>
+    </div>
+    ${ui.tab !== 'completed' ? `<form class="card quick" data-form="quick"><span class="cc" aria-hidden="true" style="margin:9px 4px 0 8px"></span><input class="in" name="title" placeholder="Quick add: type a task and press Enter${quickDueHint()}" aria-label="Quick add task" autocomplete="off" /><button class="btn pri icon" aria-label="Add">${icon('plus')}</button></form>` : ''}
+    <div id="task-list" role="tabpanel" aria-labelledby="pt-${ui.tab}">${listHTML()}</div>
+  </section>`;
+}
+function greeting() { const h = new Date().getHours(); return `${h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'}, ${me().name.split(' ')[0]}`; }
+function dayLine() { const n = new Date(); const td = myTasks().filter((t) => t.due === today() && !isDone(t)).length; return `${['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][n.getDay()]}, ${fmtD(today())} · ${td} due today`; }
+function quickDue() {
+  const s = ui.scope; const td = today();
+  if (s === 'today' || s === 'week' || s === 'month') return td;
+  if (s === 'nextweek') return weekRange(1)[0];
+  if (s.startsWith('m:')) return s.slice(2) === td.slice(0, 7) ? td : s.slice(2) + '-01';
+  if (s.startsWith('y:')) return s.slice(2) === td.slice(0, 4) ? td : s.slice(2) + '-01-01';
+  return '';
+}
+function quickDueHint() { const d = quickDue(); return d ? ` (due ${fmtD(d)})` : ''; }
+function listHTML() {
+  const list = sorted(filtered());
+  if (!list.length) return emptyHTML();
+  let out = ''; let last = null; const groups = {};
+  for (const t of list) { const g = group(t)[1]; groups[g] = (groups[g] || 0) + 1; }
+  for (const t of list) {
+    const g = group(t)[1];
+    if (g !== last) { out += `<h2 class="ghead ${g === 'Overdue' ? 'od' : ''}">${g === 'Overdue' ? icon('alert', 15) : ''}${esc(g)} <span class="c num">· ${groups[g]}</span></h2>`; last = g; }
+    out += cardHTML(t);
+  }
+  return `<div class="list">${out}</div>`;
+}
+function emptyHTML() {
+  const msg = ui.scope === 'overdue' && ui.tab === 'completed' ? 'Completed tasks are never overdue.' : ui.q ? `Nothing matches "${ui.q}".` : 'No tasks here yet.';
+  return `<div class="card empty"><span class="big">${icon('tasks', 30)}</span><h2>${esc(msg)}</h2><p class="muted">Change the tab or filters, or add a new task.</p><div class="row" style="justify-content:center"><button type="button" class="btn" data-act="clear-filters">Clear filters</button><button type="button" class="btn pri" data-act="new">${icon('plus', 18)} Add task</button></div></div>`;
+}
+function cardHTML(t) {
+  const st = status(t); const done = isDone(t); const c = catOf(t.cat);
+  const n = t.items.length; const k = t.items.filter((i) => i.done).length;
+  const open = ui.open.has(t.id); const sel = ui.sel.has(t.id);
+  const dueCls = st === 'overdue' ? 'od' : t.due === today() ? 'td' : '';
+  return `<article class="card tc p-${t.pri} ${done ? 'is-done' : ''} ${sel ? 'sel' : ''}" data-id="${t.id}">
+    ${ui.selecting
+      ? `<button type="button" class="cc sq ${sel ? 'on' : ''}" data-act="pick" data-id="${t.id}" aria-pressed="${sel}" aria-label="Select ${esc(t.title)}">${icon('check', 14)}</button>`
+      : `<button type="button" class="cc ${done ? 'on' : ''}" data-act="toggle" data-id="${t.id}" aria-pressed="${done}" aria-label="${done ? 'Reopen' : 'Complete'} ${esc(t.title)}">${icon('check', 15)}</button>`}
+    <button type="button" class="t-main" data-act="${ui.selecting ? 'pick' : 'edit'}" data-id="${t.id}">
+      <span class="t-title">${esc(t.title)}</span>
+      ${t.desc ? `<span class="t-desc">${esc(t.desc)}</span>` : ''}
+      <span class="t-meta">
+        ${t.due ? `<span class="${dueCls}">${icon('cal', 14)}${esc(friendlyDue(t))}</span>` : '<span class="faint">No due date</span>'}
+        <span class="pill ${STATUS[st][1]}">${STATUS[st][0]}</span>
+        <span><span style="width:8px;height:8px;border-radius:50%;background:${c.color}"></span>${esc(c.name)}</span>
+        <span title="${t.pri} priority">${icon('flag', 14)}${t.pri[0].toUpperCase() + t.pri.slice(1)}</span>
+        ${t.repeat.type !== 'none' ? `<span title="Repeats">${icon('repeat', 14)}${esc(repeatLabel(t.repeat))}</span>` : ''}
+        ${t.photos.length ? `<span title="Attachments">${icon('clip', 14)}${t.photos.length}</span>` : ''}
+      </span>
+      ${n ? `<span class="prog"><span class="bar ${k === n ? 'full' : ''}"><i style="width:${Math.round((k / n) * 100)}%"></i></span><span class="num">${k}/${n} completed</span></span>` : ''}
+      ${done ? `<span class="t-done-line"><span>Due ${t.due ? fmtD(t.due) : '-'}</span><span>${icon('check', 14)} Completed ${fmtD(ymd(new Date(t.completedOn)))}</span></span>` : ''}
+    </button>
+    <div class="t-side">
+      ${t.photos[0] ? `<img class="t-thumb" src="${t.photos[0].src}" alt="" data-act="photo" data-id="${t.id}" data-p="0" />` : ''}
+      ${n && !ui.selecting ? `<button type="button" class="btn ghost icon sm expand" data-act="expand" data-id="${t.id}" aria-expanded="${open}" aria-label="Show checklist">${icon('chev', 18)}</button>` : ''}
+    </div>
+    ${open && n && !ui.selecting ? `<div class="inline-cl">${t.items.map((i) => `<div class="cl-item ${i.done ? 'done' : ''}"><button type="button" class="cc sm ${i.done ? 'on' : ''}" data-act="item" data-id="${t.id}" data-i="${i.id}" aria-pressed="${i.done}" aria-label="${esc(i.text)}">${icon('check', 13)}</button><span class="tx">${esc(i.text)}</span></div>`).join('')}</div>` : ''}
+  </article>`;
+}
+function repeatLabel(r) {
+  if (r.type === 'custom') return `Every ${r.every} ${r.unit}${r.every > 1 ? 's' : ''}`;
+  return { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly' }[r.type] || '';
+}
+function bulkBar() {
+  const n = ui.sel.size;
+  return `<div class="bulk" role="toolbar" aria-label="Selected tasks">
+    <b>${n} selected</b>
+    <button type="button" class="btn sm" data-act="sel-all">Select all</button>
+    <button type="button" class="btn sm ok" data-act="bulk" data-v="complete" ${n ? '' : 'disabled'}>${icon('check', 16)} Complete</button>
+    <button type="button" class="btn sm" data-act="bulk" data-v="reopen" ${n ? '' : 'disabled'}>Reopen</button>
+    <button type="button" class="btn sm" data-act="bulk" data-v="duplicate" ${n ? '' : 'disabled'}>${icon('copy', 16)} Duplicate</button>
+    <select class="in" data-act="bulk-cat" aria-label="Move to category" ${n ? '' : 'disabled'}><option value="">Move to…</option>${cats().map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select>
+    <button type="button" class="btn sm danger" data-act="bulk" data-v="delete" ${n ? '' : 'disabled'}>${icon('trash', 16)} Delete</button>
+    <button type="button" class="btn sm ghost" data-act="select">Cancel</button>
+  </div>`;
+}
+
+/* ---------- Calendar ---------- */
+function calendarView() {
+  const td = today();
+  if (!ui.calMonth) ui.calMonth = td.slice(0, 7);
+  if (!ui.calDay) ui.calDay = td;
+  const [y, m] = ui.calMonth.split('-').map(Number);
+  const first = new Date(y, m - 1, 1);
+  let days = [];
+  if (ui.calMode === 'week') {
+    const s = weekStart(parseD(ui.calDay));
+    for (let i = 0; i < 7; i++) days.push(addDays(s, i));
+  } else {
+    const s = weekStart(first);
+    for (let i = 0; i < 42; i++) days.push(addDays(s, i));
+    if (ymd(days[35]).slice(0, 7) !== ui.calMonth) days = days.slice(0, 35);
+  }
+  const byDay = {};
+  for (const t of myTasks()) if (t.due) (byDay[t.due] = byDay[t.due] || []).push(t);
+  const dows = prefs().weekStart === 'sun' ? ['Sun', ...DOW.slice(0, 6)] : DOW;
+  const title = ui.calMode === 'week' ? `Week of ${fmtD(ymd(days[0]))}` : monthLabel(ui.calMonth);
+  const dayTasks = sorted(byDay[ui.calDay] || []);
+  return `<section class="page" aria-labelledby="h-cal">
+    <div class="head"><div><h1 id="h-cal">Calendar</h1><p>Tasks on their due dates. Pick a day to see it, or add a task straight on that day.</p></div></div>
+    <div class="card pad" style="display:grid;gap:12px">
+      <div class="cal-h">
+        <button type="button" class="btn icon sm" data-act="cal-move" data-v="-1" aria-label="Previous">${icon('left', 18)}</button>
+        <h2>${esc(title)}</h2>
+        <button type="button" class="btn icon sm" data-act="cal-move" data-v="1" aria-label="Next">${icon('right', 18)}</button>
+        <button type="button" class="btn sm" data-act="cal-today">Today</button>
+        <div class="seg" role="group" aria-label="View"><button type="button" data-act="cal-mode" data-v="month" aria-pressed="${ui.calMode === 'month'}">Month</button><button type="button" data-act="cal-mode" data-v="week" aria-pressed="${ui.calMode === 'week'}">Week</button></div>
+      </div>
+      <div class="cal ${ui.calMode}">
+        ${dows.map((d) => `<div class="dow">${d}</div>`).join('')}
+        ${days.map((d) => {
+          const k = ymd(d); const ts = byDay[k] || [];
+          const out = ui.calMode === 'month' && k.slice(0, 7) !== ui.calMonth;
+          const lbls = ts.slice(0, ui.calMode === 'week' ? 6 : 2).map((t) => `<span class="lbl" style="${isDone(t) ? 'text-decoration:line-through;opacity:.6' : isOverdue(t) ? 'color:var(--k-give)' : ''}">${esc(t.title)}</span>`).join('');
+          const more = ts.length > (ui.calMode === 'week' ? 6 : 2) ? `<span class="lbl">+${ts.length - (ui.calMode === 'week' ? 6 : 2)} more</span>` : '';
+          return `<button type="button" class="day ${out ? 'out' : ''} ${k === td ? 'today' : ''}" aria-pressed="${k === ui.calDay}" data-act="cal-day" data-v="${k}" aria-label="${fmtD(k)}, ${ts.length} tasks"><span class="dn num">${d.getDate()}</span><span class="dots">${ts.slice(0, 4).map((t) => `<i class="${isDone(t) ? 'dn2' : isOverdue(t) ? 'od' : ''}"></i>`).join('')}</span>${lbls}${more}</button>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="head"><div><h2 style="font-size:1.1rem;font-weight:800">${esc(ui.calDay === td ? 'Today' : fmtD(ui.calDay))} · ${dayTasks.length} task${dayTasks.length === 1 ? '' : 's'}</h2></div>
+      <button type="button" class="btn pri sm" data-act="new-on-day">${icon('plus', 16)} Add task on ${fmtD(ui.calDay)}</button></div>
+    <div class="list">${dayTasks.length ? dayTasks.map(cardHTML).join('') : '<div class="card empty"><p class="muted">Nothing due on this day.</p></div>'}</div>
+  </section>`;
+}
+
+/* ---------- Settings (tabs, like SnapKhata's Settings) ---------- */
+function settingsView() {
+  const tabs = [['general', 'gear', 'General'], ['lock', 'lock', 'App Lock'], ['notifications', 'bell', 'Notifications'], ['categories', 'tag', 'Categories'], ['install', 'phone', 'Install app']];
+  if (isAdmin()) tabs.push(['access', 'users', 'Users & access']);
+  tabs.push(['data', 'trash', 'Recently deleted']);
+  if (!tabs.some((t) => t[0] === ui.stab)) ui.stab = 'general';
+  const body = { general: setGeneral, lock: setLock, notifications: setNotify, categories: setCats, install: setInstall, access: setAccess, data: setData }[ui.stab]();
+  return `<section class="page" aria-labelledby="h-set">
+    <div class="head"><div><h1 id="h-set">Settings</h1><p>${esc(app().name)} settings. They apply to this app only and never change SnapKhata or the other apps.</p></div></div>
+    <div class="stabs" role="tablist" aria-label="Settings">${tabs.map(([id, ic, l]) => `<button type="button" role="tab" class="stab" aria-selected="${ui.stab === id}" data-act="stab" data-v="${id}">${icon(ic, 17)}${l}</button>`).join('')}</div>
+    ${body}
+  </section>`;
+}
+function setGeneral() {
+  const a = app(); const p = prefs(); const m = mode();
+  return `<div class="sgrid two">
+    <form class="card pad" data-form="appname" style="display:grid;gap:14px">
+      <div><h2>App name</h2><p class="sub">Comes from the database (Apps table, code <b>tasks</b>). It shows in the header, dashboard, settings, the install name and the manifest.</p></div>
+      ${isAdmin() ? '' : `<div class="note">${icon('lock', 18)}<span>Only a Super Admin can change the app name.</span></div>`}
+      <label class="field"><span>Name</span><input class="in" name="name" maxlength="40" required value="${esc(a.name)}" ${isAdmin() ? '' : 'disabled'} /></label>
+      <label class="field"><span>Short name (home-screen label, up to 12 characters)</span><input class="in" name="shortName" maxlength="12" required value="${esc(a.shortName)}" ${isAdmin() ? '' : 'disabled'} /></label>
+      ${a.modifiedOn ? `<p class="muted" style="font-size:13px">Last changed ${fmtDT(a.modifiedOn)} by ${esc(db.users.find((u) => u.id === a.modifiedBy)?.name || '-')}</p>` : ''}
+      ${isAdmin() ? `<div class="row"><button class="btn pri">Save name</button><button type="button" class="btn ghost" data-act="reset-name">Reset to "My Tasks"</button></div>` : ''}
+    </form>
+    <div class="card pad" style="display:grid;gap:4px">
+      <h2>Appearance and defaults</h2>
+      <div class="set-row"><div class="txt"><b>Theme</b><small>Same Light / Dark choice as SnapKhata</small></div>
+        <div class="seg" role="group" aria-label="Theme">${[['light', 'sun', 'Light'], ['dark', 'moon', 'Dark'], ['system', 'monitor', 'System']].map(([v, ic, l]) => `<button type="button" data-act="mode" data-v="${v}" aria-pressed="${m === v}">${icon(ic, 15)}${l}</button>`).join('')}</div></div>
+      <div class="set-row"><div class="txt"><b>Week starts on</b><small>Used by Current week, Next week and the calendar</small></div>
+        <div class="seg" role="group" aria-label="Week starts on"><button type="button" data-act="pref" data-k="weekStart" data-v="mon" aria-pressed="${p.weekStart === 'mon'}">Monday</button><button type="button" data-act="pref" data-k="weekStart" data-v="sun" aria-pressed="${p.weekStart === 'sun'}">Sunday</button></div></div>
+      <div class="set-row"><div class="txt"><b>Open on tab</b><small>The tab the dashboard opens with</small></div>
+        <select class="in" style="width:auto" data-act="pref-select" data-k="defaultTab"><option value="all" ${p.defaultTab === 'all' ? 'selected' : ''}>All</option><option value="active" ${p.defaultTab === 'active' ? 'selected' : ''}>Active</option><option value="completed" ${p.defaultTab === 'completed' ? 'selected' : ''}>Completed</option></select></div>
+      <div class="set-row"><div class="txt"><b>New task category</b></div>
+        <select class="in" style="width:auto" data-act="pref-select" data-k="defaultCat">${cats().map((c) => `<option value="${c.id}" ${p.defaultCat === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
+      <div class="set-row"><div class="txt"><b>New task priority</b></div>
+        <select class="in" style="width:auto" data-act="pref-select" data-k="defaultPri">${['low', 'medium', 'high'].map((v) => `<option value="${v}" ${p.defaultPri === v ? 'selected' : ''}>${v[0].toUpperCase() + v.slice(1)}</option>`).join('')}</select></div>
+    </div>
+  </div>`;
+}
+function setLock() {
+  const l = prefs().lock; const kl = db.khataLock[db.session.userId];
+  return `<div class="sgrid two">
+    <div class="card pad" style="display:grid;gap:4px">
+      <h2>App Lock</h2><p class="sub">A 4-digit PIN, as in SnapKhata. The installed app asks for it when it opens and after it has been in the background.</p>
+      <div class="set-row"><div class="txt"><b>Lock ${esc(app().name)} with a PIN</b><small>${l.enabled ? 'On' : 'Off'}</small></div><label class="switch"><input type="checkbox" data-act="lock-toggle" ${l.enabled ? 'checked' : ''} aria-label="App Lock" /><i></i></label></div>
+      <div class="set-row"><div class="txt"><b>Lock after</b><small>Time in the background before the PIN is asked again</small></div>
+        <select class="in" style="width:auto" data-act="lock-after" ${l.enabled ? '' : 'disabled'}>${[[0, 'Immediately'], [1, '1 minute'], [5, '5 minutes'], [15, '15 minutes'], [30, '30 minutes']].map(([v, t]) => `<option value="${v}" ${l.after === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+      <div class="row" style="margin-top:10px"><button type="button" class="btn" data-act="lock-change" ${l.enabled ? '' : 'disabled'}>${icon('key', 18)} Change PIN</button><button type="button" class="btn" data-act="lock-now" ${l.enabled ? '' : 'disabled'}>${icon('lock', 18)} Lock now</button></div>
+    </div>
+    <div class="card pad" style="display:grid;gap:12px">
+      <h2>Independent from SnapKhata</h2>
+      <p class="sub">Each app keeps its own lock. Turning one on or off, or changing its PIN, never changes the other.</p>
+      <div class="set-row"><div class="txt"><b>${esc(app().name)} lock</b><small>This setting (TaskSettings)</small></div><span class="pill ${l.enabled ? 'ok' : ''}">${l.enabled ? 'On' : 'Off'}</span></div>
+      <div class="set-row"><div class="txt"><b>SnapKhata lock</b><small>Kept in SnapKhata's own settings</small></div><span class="pill ${kl?.enabled ? 'ok' : ''}">${kl?.enabled ? 'On' : 'Off'}</span></div>
+      <div class="note">${icon('shield', 18)}<span>In the real app the server locks the session: while locked, every task and attachment call is refused (423) until the PIN is entered, so hiding the screen is not the only protection.</span></div>
+    </div>
+  </div>`;
+}
+function setNotify() {
+  const n = prefs().notify; const perm = 'Notification' in window ? Notification.permission : 'unsupported';
+  const dis = n.enabled ? '' : 'disabled';
+  return `<div class="sgrid two">
+    <div class="card pad" style="display:grid;gap:4px">
+      <h2>Reminders</h2><p class="sub">Optional. Each task can switch its own reminder off.</p>
+      <div class="set-row"><div class="txt"><b>Task notifications</b><small>Due-date, upcoming and overdue reminders</small></div><label class="switch"><input type="checkbox" data-act="notify" data-k="enabled" ${n.enabled ? 'checked' : ''} aria-label="Task notifications" /><i></i></label></div>
+      <div class="set-row"><div class="txt"><b>Remind me</b><small>Before a task with a due time</small></div>
+        <select class="in" style="width:auto" data-act="notify-select" data-k="before" ${dis}>${[['0', 'At due time'], ['15m', '15 minutes before'], ['1h', '1 hour before'], ['1d', '1 day before']].map(([v, t]) => `<option value="${v}" ${n.before === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+      <div class="set-row"><div class="txt"><b>Daily reminder time</b><small>For tasks due today without a time</small></div><input class="in" type="time" style="width:auto" data-act="notify-select" data-k="time" value="${n.time}" ${dis} /></div>
+      <div class="set-row"><div class="txt"><b>Overdue tasks</b><small>Daily, until they are completed</small></div><label class="switch"><input type="checkbox" data-act="notify" data-k="overdue" ${n.overdue ? 'checked' : ''} ${dis} aria-label="Overdue reminders" /><i></i></label></div>
+      <div class="set-row"><div class="txt"><b>Upcoming tasks</b><small>Tasks due in the next 3 days</small></div><label class="switch"><input type="checkbox" data-act="notify" data-k="upcoming" ${n.upcoming ? 'checked' : ''} ${dis} aria-label="Upcoming reminders" /><i></i></label></div>
+    </div>
+    <div class="card pad" style="display:grid;gap:12px">
+      <h2>This device</h2>
+      <div class="set-row"><div class="txt"><b>Browser permission</b><small>Needed for notifications outside the app</small></div><span class="pill ${perm === 'granted' ? 'ok' : perm === 'denied' ? 'bad' : ''}">${{ granted: 'Allowed', denied: 'Blocked', default: 'Not asked', unsupported: 'Not supported' }[perm]}</span></div>
+      <div class="row">${perm === 'default' ? `<button type="button" class="btn" data-act="notify-perm">${icon('bell', 18)} Allow notifications</button>` : ''}<button type="button" class="btn" data-act="notify-test" ${dis}>Send a test reminder</button></div>
+      <p class="muted" style="font-size:13px">Right now: ${reminders().length} reminder(s) in the bell. The real app would send push notifications through the site's service worker, scoped to /tasks/.</p>
+    </div>
+  </div>`;
+}
+function setCats() {
+  const count = (id) => myTasks().filter((t) => t.cat === id).length;
+  return `<div class="card pad" style="display:grid;gap:14px">
+    <div><h2>Categories</h2><p class="sub">Marketing is built in. Tasks in any category also appear in their date groups (Today, January 2027, ...).</p></div>
+    <div class="cats">${cats().map((c) => `<div class="cat-row"><button type="button" class="swatch" style="background:${c.color}" data-act="cat-color" data-id="${c.id}" aria-label="Change colour of ${esc(c.name)}"></button>
+      <input class="in" value="${esc(c.name)}" data-act="cat-rename" data-id="${c.id}" aria-label="Category name" maxlength="24" ${c.system ? 'readonly' : ''} />
+      <span class="pill">${count(c.id)} tasks</span>
+      ${c.system ? `<span class="pill brand">Built in</span>` : `<button type="button" class="btn ghost icon sm" data-act="cat-del" data-id="${c.id}" aria-label="Delete ${esc(c.name)}">${icon('trash', 17)}</button>`}</div>`).join('')}</div>
+    <form class="row" data-form="cat-add"><input class="in" name="name" placeholder="New category" maxlength="24" required style="flex:1;min-width:160px" /><button class="btn pri">${icon('plus', 18)} Add category</button></form>
+  </div>`;
+}
+function manifest() {
+  const a = app();
+  return { id: '/tasks/', name: a.name, short_name: a.shortName, description: `${a.name}: tasks, checklists and reminders`, start_url: '/tasks/?source=tasks-pwa', scope: '/tasks/', display: 'standalone', orientation: 'portrait', background_color: '#2f5bea', theme_color: a.themeColor, icons: [{ src: '/tasks/icons/icon-192.png', sizes: '192x192', type: 'image/png' }, { src: '/tasks/icons/icon-512.png', sizes: '512x512', type: 'image/png' }, { src: '/tasks/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }] };
+}
+function setInstall() {
+  const a = app();
+  const homes = [['Speedtest', '#6a46f0'], ['Creta', '#e5484d'], ['Nexon', '#0ea5b7'], ['YouTube', '#ff0033'], ['Khata', '#3a66f5']];
+  return `<div class="sgrid two">
+    <div class="card pad" style="display:grid;gap:14px">
+      <div><h2>Install ${esc(a.name)}</h2><p class="sub">Installs as its own app with its own icon, manifest, start address and service-worker scope (/tasks/). It does not replace Speedtest, Creta, Nexon, YouTube or Khata.</p></div>
+      <div class="homescreen" aria-label="Home screen preview">${homes.map(([n, c]) => `<div><i style="background:${c}">${n[0]}</i>${n}</div>`).join('')}<div class="me"><i style="background:linear-gradient(135deg,#3a66f5,#5b5cf6)">${icon('check', 24)}</i>${esc(a.shortName)}</div></div>
+      <button type="button" class="btn pri" data-act="install">${icon('download', 18)} Install app</button>
+      <p class="muted" style="font-size:13px">The manifest is served by the API from the Apps row, so a new name reaches new installs at once; installed apps pick it up when the browser refreshes the manifest.</p>
+    </div>
+    <div class="card pad" style="display:grid;gap:14px">
+      <h2>Splash screen</h2>
+      <div class="phone"><div class="scr"><span class="mark">${icon('check', 40)}</span><b>${esc(a.name)}</b><small style="opacity:.85">thakurg.com</small></div></div>
+      <h2>manifest.webmanifest (from the database)</h2>
+      <pre class="code">${esc(JSON.stringify(manifest(), null, 2))}</pre>
+    </div>
+  </div>`;
+}
+/** One app permission: a switch for normal users; a Super Admin always opens every app, so it shows "Always on" instead. */
+function accessToggle(u, appCode, ic, label) {
+  if (u.role === 'superadmin')
+    return `<div class="perm">${icon(ic, 18)}<span>${esc(label)}</span><span class="pill ok">${icon('check', 13)} Always on</span></div>`;
+  const on = !!u.access[appCode];
+  return `<label class="perm">${icon(ic, 18)}<span>${esc(label)}<small class="muted" style="display:block;font-weight:600">${on ? 'Access granted' : 'No access'}</small></span><span class="switch"><input type="checkbox" data-act="access" data-id="${u.id}" data-app="${appCode}" ${on ? 'checked' : ''} aria-label="${esc(label)} access for ${esc(u.name)}" /><i></i></span></label>`;
+}
+function setAccess() {
+  return `<div class="card pad" style="display:grid;gap:14px">
+    <div><h2>Users & access</h2><p class="sub">One common account per person (same login and profile everywhere). Access to each app is a separate permission: giving ${esc(app().name)} never gives SnapKhata, and the other way round.</p></div>
+    <div class="users">${db.users.map((u) => `<div class="urow"><span class="avatar">${esc(initials(u.name))}</span><div style="min-width:0"><b>${esc(u.name)}</b> ${u.role === 'superadmin' ? '<span class="pill brand">Super Admin</span>' : ''}<br /><small class="muted">${esc(u.email)}</small></div>
+      <div class="perms">
+        ${accessToggle(u, 'tasks', 'tasks', app().name)}
+        ${accessToggle(u, 'khata', 'shield', 'SnapKhata')}
+      </div></div>`).join('')}</div>
+    <div class="note">${icon('info', 18)}<span>Try it: switch to Aman (Khata only) on the Profile page to see the "no access" screen. Every user only ever sees their own tasks and photos.</span></div>
+  </div>`;
+}
+function setData() {
+  const del = (db.tasks[db.session.userId] || []).filter((t) => t.deleted);
+  return `<div class="card pad" style="display:grid;gap:14px">
+    <div><h2>Recently deleted</h2><p class="sub">Deleted tasks are soft-deleted and can be restored.</p></div>
+    ${del.length ? `<div class="cats">${del.map((t) => `<div class="cat-row"><span style="flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.title)}</span><small class="muted">Deleted ${fmtDT(t.deletedOn)}</small><button type="button" class="btn sm" data-act="restore" data-id="${t.id}">${icon('undo', 16)} Restore</button></div>`).join('')}</div>` : '<p class="muted">Nothing deleted.</p>'}
+    <div class="row" style="border-top:1px solid var(--k-line);padding-top:14px"><button type="button" class="btn danger" data-act="reset-proto">Reset prototype data</button><span class="muted" style="font-size:13px">Prototype only: restores the demo users and tasks.</span></div>
+  </div>`;
+}
+
+/* ---------- Profile (common profile; app permissions separate) ---------- */
+function profileView() {
+  const u = me(); const a = app();
+  return `<section class="page" aria-labelledby="h-prof">
+    <div class="head"><div><h1 id="h-prof">Profile</h1><p>Your common thakurg.com account, the same one SnapKhata uses.</p></div></div>
+    <div class="sgrid two">
+      <form class="card pad" data-form="profile" style="display:grid;gap:14px">
+        <div class="row"><span class="avatar lg">${esc(initials(u.name))}</span><div><h2>${esc(u.name)}</h2><p class="muted">${esc(u.email)} · ${u.role === 'superadmin' ? 'Super Admin' : 'User'}</p></div></div>
+        <label class="field"><span>Name</span><input class="in" name="name" required maxlength="60" value="${esc(u.name)}" /></label>
+        <label class="field"><span>E-mail</span><input class="in" value="${esc(u.email)}" disabled /></label>
+        <div class="row"><button class="btn pri">Save</button><button type="button" class="btn danger" data-act="logout">${icon('logout', 18)} Log out</button></div>
+      </form>
+      <div class="card pad" style="display:grid;gap:12px">
+        <h2>Your apps</h2><p class="sub">Each app is granted separately by a Super Admin.</p>
+        <div class="set-row"><div class="txt"><b>${esc(a.name)}</b><small>Your tasks: ${myTasks().length}</small></div><span class="pill ${hasAccess(u) ? 'ok' : 'bad'}">${hasAccess(u) ? 'Access' : 'No access'}</span></div>
+        <div class="set-row"><div class="txt"><b>SnapKhata</b><small>Separate permission</small></div><span class="pill ${u.role === 'superadmin' || u.access.khata ? 'ok' : 'bad'}">${u.role === 'superadmin' || u.access.khata ? 'Access' : 'No access'}</span></div>
+        <h2 style="margin-top:8px">Prototype: switch user</h2>
+        <select class="in" data-act="switch-user">${db.users.map((x) => `<option value="${x.id}" ${x.id === u.id ? 'selected' : ''}>${esc(x.name)} (${x.role === 'superadmin' ? 'Super Admin' : x.access.tasks ? 'My Tasks' : 'Khata only'})</option>`).join('')}</select>
+      </div>
+    </div>
+  </section>`;
+}
+function loginView() {
+  return `<div class="lock" style="position:static;min-height:100dvh"><span class="lock-mark">${icon('check', 30)}</span><h1>${esc(app().name)}</h1><p>Log in with your common thakurg.com account (simulated).</p>
+    <div style="display:grid;gap:8px;width:min(340px,100%)">${db.users.map((u) => `<button type="button" class="btn wide" data-act="login" data-id="${u.id}">${esc(u.name)} · ${esc(u.email)}</button>`).join('')}</div></div>`;
+}
+function noAccessView() {
+  return `<div class="lock" style="position:static;min-height:100dvh"><span class="lock-mark">${icon('lock', 30)}</span><h1>No access to ${esc(app().name)}</h1>
+    <p>${esc(me().name)}, your account does not have ${esc(app().name)}. A Super Admin can grant it in Settings → Users & access. Having SnapKhata does not include it.</p>
+    <div class="row" style="justify-content:center"><select class="in" style="width:auto" data-act="switch-user">${db.users.map((x) => `<option value="${x.id}" ${x.id === me().id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select><button type="button" class="btn" data-act="logout">${icon('logout', 18)} Log out</button></div></div>`;
+}
+
+/* ---------- Reminders (bell) ---------- */
+function reminders() {
+  const n = prefs().notify;
+  if (!n.enabled || !me() || !hasAccess()) return [];
+  const td = today(); const soon = ymd(addDays(new Date(), 3)); const out = [];
+  for (const t of myTasks()) {
+    if (isDone(t) || !t.remind || !t.due) continue;
+    if (isOverdue(t)) { if (n.overdue) out.push({ t, kind: 'od', text: `Overdue since ${fmtD(t.due)}` }); }
+    else if (t.due === td) out.push({ t, kind: 'td', text: `Due today${t.time ? ' at ' + t.time : ''}` });
+    else if (n.upcoming && t.due <= soon) out.push({ t, kind: 'up', text: `Due ${friendlyDue(t)}` });
+  }
+  return out;
+}
+function showBell() {
+  const list = reminders();
+  $('#pop').innerHTML = `<div class="pop" role="dialog" aria-label="Reminders"><div class="row"><h2 style="flex:1">Reminders</h2><button type="button" class="btn ghost icon sm" data-act="pop-close" aria-label="Close">${icon('x', 18)}</button></div>
+    ${list.length ? list.map((r) => `<button type="button" class="rem" data-act="edit" data-id="${r.t.id}"><span class="ic ${r.kind}">${icon(r.kind === 'od' ? 'alert' : r.kind === 'td' ? 'bell' : 'clock', 17)}</span><div><b>${esc(r.t.title)}</b><small>${esc(r.text)}</small></div></button>`).join('') : `<p class="muted">${prefs().notify.enabled ? 'You are all caught up.' : 'Notifications are off in Settings.'}</p>`}
+    <a class="btn sm ghost" href="#/settings/notifications" data-act="pop-close">Reminder settings</a></div>`;
+}
+
+/* ---------- Editor sheet ---------- */
+let draft = null; let draftNew = false;
+function openEditor(t, preset = {}) {
+  const p = prefs();
+  draftNew = !t;
+  draft = t ? JSON.parse(JSON.stringify(t)) : { id: null, title: '', desc: '', due: preset.due ?? quickDue(), time: '', cat: ui.cat !== 'all' ? ui.cat : p.defaultCat, pri: p.defaultPri, items: [], photos: [], started: false, remind: true, repeat: { type: 'none', every: 1, unit: 'month' }, history: [] };
+  renderEditor();
+  setTimeout(() => $('#ed-title')?.focus(), 50);
+}
+function renderEditor() {
+  const t = draft; const orig = t.id ? taskById(t.id) : null; const done = orig && isDone(orig);
+  const r = t.repeat;
+  $('#modal').innerHTML = `<div class="scrim" data-act="scrim"><form class="sheet" data-form="task" role="dialog" aria-modal="true" aria-labelledby="ed-h" novalidate>
+    <div class="sheet-h"><h2 id="ed-h">${draftNew ? 'New task' : 'Edit task'}</h2>${orig ? `<span class="pill ${STATUS[status(orig)][1]}">${STATUS[status(orig)][0]}</span>` : ''}<button type="button" class="btn ghost icon" data-act="close" aria-label="Close">${icon('x')}</button></div>
+    <div class="sheet-b">
+      <label class="field"><span class="sr-only">Title</span><input class="in title-in" id="ed-title" name="title" placeholder="Task title (required)" maxlength="120" value="${esc(t.title)}" required /></label>
+      <p class="lock-err" id="ed-err" style="min-height:0;margin-top:-8px"></p>
+      <label class="field"><span>Description (optional)</span><textarea class="in" name="desc" maxlength="2000" placeholder="Notes, address, details...">${esc(t.desc)}</textarea></label>
+      <div class="grid2">
+        <label class="field"><span>Due date</span><input class="in" type="date" name="due" value="${t.due}" /></label>
+        <label class="field"><span>Due time</span><input class="in" type="time" name="time" value="${t.time}" /></label>
+        <label class="field"><span>Category</span><select class="in" name="cat">${cats().map((c) => `<option value="${c.id}" ${t.cat === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></label>
+        ${!done ? `<label class="field"><span>Status</span><select class="in" name="started"><option value="0" ${!t.started ? 'selected' : ''}>Pending</option><option value="1" ${t.started ? 'selected' : ''}>Ongoing</option></select></label>` : ''}
+      </div>
+      <div class="field"><span>Priority</span><div class="seg pri-seg" role="group" aria-label="Priority">${[['low', '#3fb37f', 'Low'], ['medium', '#f5a524', 'Medium'], ['high', '#e5484d', 'High']].map(([v, c, l]) => `<button type="button" data-act="ed-pri" data-v="${v}" aria-pressed="${t.pri === v}"><i style="background:${c}"></i>${l}</button>`).join('')}</div></div>
+      <div class="sec" id="ed-cl">${checklistHTML()}</div>
+      <div class="sec" id="ed-ph">${photosHTML()}</div>
+      <div class="grid2">
+        <label class="field"><span>Repeat</span><select class="in" name="repeat">${[['none', 'Does not repeat'], ['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly'], ['yearly', 'Yearly'], ['custom', 'Custom...']].map(([v, l]) => `<option value="${v}" ${r.type === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+        <div class="field" id="ed-custom" ${r.type === 'custom' ? '' : 'hidden'}><span>Every</span><div class="row" style="flex-wrap:nowrap"><input class="in" type="number" min="1" max="99" name="every" value="${r.every}" style="width:80px" /><select class="in" name="unit">${['day', 'week', 'month', 'year'].map((u) => `<option value="${u}" ${r.unit === u ? 'selected' : ''}>${u}s</option>`).join('')}</select></div></div>
+        <div class="set-row" style="border:0;padding:0;min-height:44px;align-self:end"><div class="txt"><b>Reminder</b><small>${prefs().notify.enabled ? 'Uses your reminder settings' : 'Notifications are off'}</small></div><label class="switch"><input type="checkbox" name="remind" ${t.remind ? 'checked' : ''} aria-label="Reminder" /><i></i></label></div>
+      </div>
+      ${orig ? `<details class="more"><summary>${icon('clock', 16)} History · created ${fmtDT(orig.createdOn)}${orig.completedOn ? ' · completed ' + fmtDT(orig.completedOn) : ''}</summary><ul class="hist">${orig.history.slice().reverse().map((h) => `<li><span>${esc(h.what)}<small>${fmtDT(h.at)}</small></span></li>`).join('')}</ul></details>` : ''}
+    </div>
+    <div class="sheet-f">
+      ${orig ? `<button type="button" class="btn icon danger" data-act="ed-delete" aria-label="Delete">${icon('trash', 18)}</button><button type="button" class="btn icon" data-act="ed-dup" aria-label="Duplicate" title="Duplicate">${icon('copy', 18)}</button>` : ''}
+      <span class="sp"></span>
+      ${orig ? (done ? `<button type="button" class="btn" data-act="ed-reopen">Reopen</button>` : `<button type="button" class="btn ok" data-act="ed-complete">${icon('check', 18)} Complete</button>`) : `<button type="button" class="btn" data-act="ed-save-more">Save & add another</button>`}
+      <button class="btn pri">${draftNew ? 'Add task' : 'Save'}</button>
+    </div>
+  </form></div>`;
+}
+function checklistHTML() {
+  const its = draft.items; const k = its.filter((i) => i.done).length;
+  return `<div class="sec-h">${icon('tasks', 16)} Checklist ${its.length ? `<span class="num">· ${k}/${its.length} completed</span>` : ''}<span class="sp"></span>${its.length ? `<span class="bar ${k === its.length ? 'full' : ''}" style="max-width:120px"><i style="width:${Math.round((k / its.length) * 100)}%"></i></span>` : ''}</div>
+    <div class="ed-cl" id="ed-items">${its.map((i, ix) => `<div class="cl-item ${i.done ? 'done' : ''}" data-i="${i.id}" draggable="true">
+      <span class="grip" aria-hidden="true">${icon('grip', 16)}</span>
+      <button type="button" class="cc sm ${i.done ? 'on' : ''}" data-act="ed-item" data-i="${i.id}" aria-pressed="${i.done}" aria-label="Done: ${esc(i.text)}">${icon('check', 13)}</button>
+      <input class="tx" value="${esc(i.text)}" data-act="ed-item-text" data-i="${i.id}" aria-label="Checklist item" maxlength="200" />
+      <button type="button" class="btn ghost icon sm" data-act="ed-item-move" data-i="${i.id}" data-v="-1" aria-label="Move up" ${ix === 0 ? 'disabled' : ''}>${icon('up', 16)}</button>
+      <button type="button" class="btn ghost icon sm" data-act="ed-item-move" data-i="${i.id}" data-v="1" aria-label="Move down" ${ix === its.length - 1 ? 'disabled' : ''}>${icon('chev', 16)}</button>
+      <button type="button" class="btn ghost icon sm" data-act="ed-item-del" data-i="${i.id}" aria-label="Delete item">${icon('x', 16)}</button></div>`).join('')}</div>
+    <div class="cl-add"><span class="cc sm" aria-hidden="true" style="opacity:.5"></span><input class="in" id="ed-new-item" placeholder="Add checklist item, press Enter" maxlength="200" aria-label="New checklist item" /><button type="button" class="btn icon sm" data-act="ed-item-add" aria-label="Add item">${icon('plus', 18)}</button></div>`;
+}
+function photosHTML() {
+  return `<div class="sec-h">${icon('clip', 16)} Attachments <span class="num">· ${draft.photos.length}/8</span><span class="sp"></span><small class="faint">JPG, PNG, WebP, up to 10 MB each</small></div>
+    <div class="photos">${draft.photos.map((p, ix) => `<div class="ph"><img src="${p.src}" alt="${esc(p.name)}" data-act="ed-photo" data-p="${ix}" /><div class="acts"><button type="button" data-act="ph-replace" data-p="${p.id}" aria-label="Replace photo">${icon('edit', 15)}</button><button type="button" data-act="ph-del" data-p="${p.id}" aria-label="Remove photo">${icon('x', 15)}</button></div></div>`).join('')}
+      ${draft.photos.length < 8 ? `<button type="button" class="ph-add" data-act="ph-gallery">${icon('image', 22)}Gallery</button><button type="button" class="ph-add" data-act="ph-camera">${icon('camera', 22)}Camera</button>` : ''}</div>`;
+}
+const rerenderCl = () => { $('#ed-cl').innerHTML = checklistHTML(); };
+const rerenderPh = () => { $('#ed-ph').innerHTML = photosHTML(); };
+function readForm(form) {
+  const f = new FormData(form);
+  draft.title = String(f.get('title') || '').trim();
+  draft.desc = String(f.get('desc') || '').trim();
+  draft.due = String(f.get('due') || '');
+  draft.time = draft.due ? String(f.get('time') || '') : '';
+  draft.cat = String(f.get('cat'));
+  if (f.has('started')) draft.started = f.get('started') === '1';
+  draft.remind = f.get('remind') === 'on';
+  draft.repeat = { type: String(f.get('repeat')), every: Math.max(1, Math.min(99, Number(f.get('every')) || 1)), unit: String(f.get('unit') || 'month') };
+}
+/** Saves the editor. Returns the saved task, or null when the title is missing. */
+function saveDraft(form) {
+  readForm(form);
+  if (!draft.title) { $('#ed-err').textContent = 'Please enter a task title.'; $('#ed-title').focus(); return null; }
+  const pending = $('#ed-new-item')?.value.trim();
+  if (pending) draft.items.push({ id: nid(), text: pending, done: false });
+  draft.items = draft.items.filter((i) => i.text.trim());
+  if (draftNew) {
+    const t = Object.assign({}, draft, { id: nid(), owner: db.session.userId, createdOn: new Date().toISOString(), modifiedOn: null, completedOn: null, deleted: false, deletedOn: null, history: [{ at: new Date().toISOString(), what: 'Created' }] });
+    db.tasks[db.session.userId].push(t);
+    syncChecklist(t);
+    save(); ui.flash = t.id;
+    toast(`Added "${t.title}"${t.due ? ' · due ' + fmtD(t.due) : ''}`);
+    return t;
+  }
+  const t = taskById(draft.id);
+  const changed = ['title', 'desc', 'due', 'time', 'cat', 'pri', 'started', 'remind'].filter((k) => t[k] !== draft[k]);
+  if (JSON.stringify(t.repeat) !== JSON.stringify(draft.repeat)) changed.push('repeat');
+  if (JSON.stringify(t.items) !== JSON.stringify(draft.items)) changed.push('checklist');
+  if (t.photos.map((p) => p.id).join() !== draft.photos.map((p) => p.id).join()) changed.push('attachments');
+  Object.assign(t, { title: draft.title, desc: draft.desc, due: draft.due, time: draft.time, cat: draft.cat, pri: draft.pri, started: draft.started, remind: draft.remind, repeat: draft.repeat, items: draft.items, photos: draft.photos });
+  if (changed.length) { t.modifiedOn = new Date().toISOString(); log(t, 'Edited: ' + changed.join(', ')); }
+  syncChecklist(t);
+  save(); ui.flash = t.id;
+  toast('Saved');
+  return t;
+}
+function closeEditor() { $('#modal').innerHTML = ''; draft = null; }
+function softDelete(ids) {
+  const list = ids.map(taskById).filter(Boolean);
+  const at = new Date().toISOString();
+  for (const t of list) { t.deleted = true; t.deletedOn = at; log(t, 'Deleted'); }
+  save(); render();
+  toast(list.length === 1 ? `Deleted "${list[0].title}"` : `Deleted ${list.length} tasks`, { undo: () => { for (const t of list) { t.deleted = false; t.deletedOn = null; log(t, 'Restored'); } save(); render(); } });
+}
+function duplicate(t) {
+  const c = cloneTask(t, { resetItems: true, titleSuffix: ' (copy)' });
+  log(c, `Duplicated from "${t.title}"`);
+  db.tasks[db.session.userId].push(c);
+  return c;
+}
+
+/* ---------- Photos: validate, shrink, store ---------- */
+const OK_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'];
+let replaceId = null;
+function readImage(file) {
+  return new Promise((resolve, reject) => {
+    if (!OK_TYPES.includes(file.type)) return reject(new Error(`${file.name}: only JPG, PNG, WebP or GIF images.`));
+    if (file.size > 10 * 1024 * 1024) return reject(new Error(`${file.name}: larger than 10 MB.`));
+    const fr = new FileReader();
+    fr.onerror = () => reject(new Error(`${file.name}: could not be read.`));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error(`${file.name}: not a valid image.`));
+      img.onload = () => {
+        const max = 1280; const s = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        resolve({ id: nid(), name: file.name, src: c.toDataURL('image/jpeg', 0.78) });
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+async function addFiles(files) {
+  for (const f of files) {
+    if (draft.photos.length >= 8 && !replaceId) { toast('Up to 8 photos per task.', { err: true }); break; }
+    try {
+      const p = await readImage(f);
+      if (replaceId) { const ix = draft.photos.findIndex((x) => x.id === replaceId); if (ix >= 0) draft.photos[ix] = p; replaceId = null; }
+      else draft.photos.push(p);
+    } catch (e) { toast(e.message, { err: true }); }
+  }
+  replaceId = null;
+  rerenderPh();
+}
+['#pick-gallery', '#pick-camera', '#pick-replace'].forEach((s) => $(s).addEventListener('change', (e) => { const fs = [...e.target.files]; e.target.value = ''; if (draft) addFiles(fs); }));
+let lb = null;
+function openLightbox(photos, ix, fromEditor) {
+  lb = { photos, ix, fromEditor };
+  renderLightbox();
+}
+function renderLightbox() {
+  if (!lb) { $('#lightbox').innerHTML = ''; return; }
+  const p = lb.photos[lb.ix];
+  $('#lightbox').innerHTML = `<div class="lightbox" role="dialog" aria-modal="true" aria-label="Photo"><div class="lb-h"><b>${esc(p.name)} · ${lb.ix + 1}/${lb.photos.length}</b><button type="button" class="btn icon" data-act="lb-close" aria-label="Close">${icon('x')}</button></div>
+    <div class="lb-body"><img src="${p.src}" alt="${esc(p.name)}" /></div>
+    <div class="lb-f"><button type="button" class="btn icon" data-act="lb-move" data-v="-1" aria-label="Previous" ${lb.ix === 0 ? 'disabled' : ''}>${icon('left')}</button>${lb.fromEditor ? `<button type="button" class="btn" data-act="lb-del">${icon('trash', 18)} Remove</button>` : ''}<button type="button" class="btn icon" data-act="lb-move" data-v="1" aria-label="Next" ${lb.ix === lb.photos.length - 1 ? 'disabled' : ''}>${icon('right')}</button></div></div>`;
+}
+
+/* ---------- App Lock (PIN pad, like SnapKhata) ---------- */
+const hashPin = (pin) => { let h = 5381; for (const c of 'mytasks:' + db.session.userId + ':' + pin) h = ((h << 5) + h + c.charCodeAt(0)) | 0; return String(h); }; // prototype only; the API keeps a real hash
+let lk = null; // { mode: 'unlock' | 'new' | 'confirm' | 'current', buf, first, err, tries, until, then }
+function unlockedNow() { try { return sessionStorage.getItem(UNLOCK_KEY) === String(db.session.userId); } catch (e) { return false; } }
+function markUnlocked(on) { try { on ? sessionStorage.setItem(UNLOCK_KEY, String(db.session.userId)) : sessionStorage.removeItem(UNLOCK_KEY); } catch (e) { /* private mode */ } }
+function startLock(modeName, then) { lk = { mode: modeName, buf: '', first: '', err: '', tries: 0, until: 0, then }; renderLock(); }
+function renderLock() {
+  if (!lk) { $('#lock').innerHTML = ''; $('#root').removeAttribute('aria-hidden'); return; }
+  $('#root').setAttribute('aria-hidden', 'true');
+  const a = app();
+  const titles = { unlock: `${a.name} is locked`, new: 'Create a 4-digit PIN', confirm: 'Enter the PIN again', current: 'Enter your current PIN' };
+  const subs = { unlock: 'Enter your PIN to open your tasks.', new: `Only for ${a.name}. SnapKhata keeps its own lock.`, confirm: 'To make sure it is right.', current: 'Before you choose a new one.' };
+  const wait = lk.until > Date.now();
+  $('#lock').innerHTML = `<div class="lock" role="dialog" aria-modal="true" aria-labelledby="lk-h">
+    <span class="lock-mark">${icon('lock', 30)}</span><h1 id="lk-h">${titles[lk.mode]}</h1><p>${subs[lk.mode]}</p>
+    <div class="lock-dots ${lk.err ? 'err' : ''}" aria-label="${lk.buf.length} of 4 digits">${[0, 1, 2, 3].map((i) => `<i class="${i < lk.buf.length ? 'on' : ''}"></i>`).join('')}</div>
+    <p class="lock-err" role="alert">${esc(wait ? `Too many wrong PINs. Try again in ${Math.ceil((lk.until - Date.now()) / 1000)} s.` : lk.err)}</p>
+    <div class="lock-pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => `<button type="button" class="lock-key" data-act="pin" data-v="${d}" ${wait ? 'disabled' : ''}>${d}</button>`).join('')}
+      ${lk.mode === 'unlock' ? '<span></span>' : `<button type="button" class="lock-key fn" data-act="pin-cancel" aria-label="Cancel">${icon('x', 22)}</button>`}
+      <button type="button" class="lock-key" data-act="pin" data-v="0" ${wait ? 'disabled' : ''}>0</button>
+      <button type="button" class="lock-key fn" data-act="pin-back" aria-label="Delete digit">${icon('del', 24)}</button></div>
+    <div class="lock-foot row" style="justify-content:center">${lk.mode === 'unlock' ? `<button type="button" class="btn ghost" data-act="pin-forgot">Forgot PIN?</button>` : ''}<span class="muted" style="font-size:12.5px">Prototype hint: type the digits on your keyboard too.</span></div>
+  </div>`;
+}
+function pinDigit(d) {
+  if (!lk || lk.until > Date.now() || lk.buf.length >= 4) return;
+  lk.buf += d; lk.err = '';
+  renderLock();
+  if (lk.buf.length === 4) setTimeout(pinDone, 120);
+}
+function pinDone() {
+  const l = prefs().lock; const pin = lk.buf;
+  if (lk.mode === 'unlock' || lk.mode === 'current') {
+    if (hashPin(pin) === l.pin) {
+      if (lk.mode === 'unlock') { markUnlocked(true); lk = null; renderLock(); toast('Unlocked'); return; }
+      lk = { ...lk, mode: 'new', buf: '', err: '' }; renderLock(); return;
+    }
+    lk.tries++; lk.buf = ''; lk.err = 'Wrong PIN. Try again.';
+    if (lk.tries >= 5) { lk.until = Date.now() + 30000; lk.tries = 0; const tick = setInterval(() => { if (!lk || lk.until <= Date.now()) { clearInterval(tick); if (lk) lk.err = ''; } renderLock(); }, 1000); }
+    renderLock(); return;
+  }
+  if (lk.mode === 'new') { lk = { ...lk, mode: 'confirm', first: pin, buf: '' }; renderLock(); return; }
+  if (lk.mode === 'confirm') {
+    if (pin !== lk.first) { lk = { ...lk, mode: 'new', buf: '', first: '', err: 'The PINs did not match. Start again.' }; renderLock(); return; }
+    l.pin = hashPin(pin); l.enabled = true; save(); markUnlocked(true);
+    const then = lk.then; lk = null; renderLock();
+    toast(then === 'change' ? 'PIN changed' : `App Lock is on for ${app().name}`);
+    render();
+  }
+}
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  const l = prefs().lock;
+  if (document.hidden) { hiddenAt = Date.now(); return; }
+  if (l.enabled && hiddenAt && Date.now() - hiddenAt >= l.after * 60000 && !lk && hasAccess()) { markUnlocked(false); startLock('unlock'); }
+});
+function lockOnStart() { const l = prefs().lock; if (me() && hasAccess() && l.enabled && l.pin && !unlockedNow()) startLock('unlock'); }
+
+/* ---------- Events ---------- */
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]');
+  if (!el) { if (!e.target.closest('.pop')) $('#pop').innerHTML = ''; return; }
+  const act = el.dataset.act; const id = Number(el.dataset.id);
+  if (act !== 'bell' && !el.closest('.pop')) $('#pop').innerHTML = '';
+  const t = id ? taskById(id) : null;
+  switch (act) {
+    case 'new': if (ui.view === 'settings' || ui.view === 'profile') go('tasks'); openEditor(null); break;
+    case 'new-on-day': openEditor(null, { due: ui.calDay }); break;
+    case 'edit': $('#pop').innerHTML = ''; if (t) openEditor(t); break;
+    case 'toggle': if (!t) break;
+      if (isDone(t)) { reopen(t); toast(`Reopened "${t.title}"`); }
+      else { complete(t, 'manual'); toast(`Completed "${t.title}"`, { undo: () => { reopen(t, 'Reopened (undo)'); save(); render(); } }); }
+      save(); render(); break;
+    case 'item': { const it = t?.items.find((i) => i.id === Number(el.dataset.i)); if (!it) break;
+      it.done = !it.done; log(t, `${it.done ? 'Checked' : 'Unchecked'} "${it.text}"`);
+      const was = isDone(t); syncChecklist(t);
+      if (!was && isDone(t)) toast(`All done: "${t.title}" completed`);
+      if (was && !isDone(t)) toast(`"${t.title}" reopened`);
+      save(); render(); break; }
+    case 'expand': ui.open.has(id) ? ui.open.delete(id) : ui.open.add(id); render(); break;
+    case 'photo': e.stopPropagation(); if (t) openLightbox(t.photos, Number(el.dataset.p), false); break;
+    case 'tab': ui.tab = el.dataset.v; render(); break;
+    case 'scope': ui.scope = el.dataset.v; render(); break;
+    case 'cat': ui.cat = el.dataset.v; render(); break;
+    case 'quick-filter': ui.tab = el.dataset.tab; ui.scope = el.dataset.scope; ui.cat = 'all'; render(); break;
+    case 'clear-filters': ui.scope = 'all'; ui.cat = 'all'; ui.q = ''; render(); break;
+    case 'focus-search': if (ui.view !== 'tasks') go('tasks'); setTimeout(() => $('#q')?.focus(), 30); break;
+    case 'select': ui.selecting = !ui.selecting; ui.sel.clear(); render(); break;
+    case 'pick': ui.sel.has(id) ? ui.sel.delete(id) : ui.sel.add(id); render(); break;
+    case 'sel-all': filtered().forEach((x) => ui.sel.add(x.id)); render(); break;
+    case 'bulk': { const ids = [...ui.sel]; const v = el.dataset.v;
+      if (v === 'delete') { ui.selecting = false; ui.sel.clear(); softDelete(ids); break; }
+      for (const tid of ids) { const x = taskById(tid); if (!x) continue; if (v === 'complete') complete(x, 'manual'); if (v === 'reopen') reopen(x); if (v === 'duplicate') duplicate(x); }
+      save(); toast(`${ids.length} task(s): ${v === 'complete' ? 'completed' : v === 'reopen' ? 'reopened' : 'duplicated'}`); ui.selecting = false; ui.sel.clear(); render(); break; }
+    case 'bell': $('#pop').innerHTML ? ($('#pop').innerHTML = '') : showBell(); break;
+    case 'pop-close': $('#pop').innerHTML = ''; break;
+    case 'lock-now': markUnlocked(false); startLock('unlock'); break;
+    // calendar
+    case 'cal-move': { const v = Number(el.dataset.v);
+      if (ui.calMode === 'week') { ui.calDay = ymd(addDays(parseD(ui.calDay), 7 * v)); ui.calMonth = ui.calDay.slice(0, 7); }
+      else { const [y, m] = ui.calMonth.split('-').map(Number); ui.calMonth = ymd(new Date(y, m - 1 + v, 1)).slice(0, 7); ui.calDay = ui.calMonth + '-01'; }
+      render(); break; }
+    case 'cal-today': ui.calDay = today(); ui.calMonth = ui.calDay.slice(0, 7); render(); break;
+    case 'cal-mode': ui.calMode = el.dataset.v; render(); break;
+    case 'cal-day': ui.calDay = el.dataset.v; ui.calMonth = ui.calDay.slice(0, 7); render(); break;
+    // settings
+    case 'stab': go('settings/' + el.dataset.v); break;
+    case 'mode': setMode(el.dataset.v); break;
+    case 'pref': prefs()[el.dataset.k] = el.dataset.v; save(); render(); break;
+    case 'reset-name': if (!isAdmin()) break; Object.assign(app(), { name: 'My Tasks', shortName: 'My Tasks', modifiedBy: me().id, modifiedOn: new Date().toISOString() }); save(); render(); toast('App name reset'); break;
+    case 'lock-change': startLock('current', 'change'); break;
+    case 'notify-perm': Notification.requestPermission().then(() => render()); break;
+    case 'notify-test': notifyTest(); break;
+    case 'install': install(); break;
+    case 'cat-color': { const c = cats().find((x) => x.id === el.dataset.id); c.color = PALETTE[(PALETTE.indexOf(c.color) + 1) % PALETTE.length]; save(); render(); break; }
+    case 'cat-del': { const c = cats().find((x) => x.id === el.dataset.id); if (!c || c.system) break; const n = myTasks().filter((x) => x.cat === c.id);
+      n.forEach((x) => { x.cat = 'personal'; log(x, `Category "${c.name}" deleted, moved to Personal`); });
+      db.categories[db.session.userId] = cats().filter((x) => x.id !== c.id); if (ui.cat === c.id) ui.cat = 'all'; save(); render(); toast(`Deleted "${c.name}"${n.length ? `, ${n.length} task(s) moved to Personal` : ''}`); break; }
+    case 'restore': if (t) { t.deleted = false; t.deletedOn = null; log(t, 'Restored'); save(); render(); toast(`Restored "${t.title}"`); } break;
+    case 'reset-proto': localStorage.removeItem(STORE); markUnlocked(false); db = seed(); save(); ui.tab = null; go('tasks'); toast('Prototype data reset'); break;
+    // profile / session
+    case 'logout': db.session.userId = null; markUnlocked(false); save(); render(); break;
+    case 'login': db.session.userId = id; save(); ui.tab = null; go('tasks'); lockOnStart(); break;
+    // editor
+    case 'scrim': if (e.target === el) closeEditor(); break;
+    case 'close': closeEditor(); break;
+    case 'ed-pri': draft.pri = el.dataset.v; el.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === el))); break;
+    case 'ed-item': { const it = draft.items.find((i) => i.id === Number(el.dataset.i)); it.done = !it.done; rerenderCl(); break; }
+    case 'ed-item-add': addDraftItem(); break;
+    case 'ed-item-del': draft.items = draft.items.filter((i) => i.id !== Number(el.dataset.i)); rerenderCl(); break;
+    case 'ed-item-move': { const ix = draft.items.findIndex((i) => i.id === Number(el.dataset.i)); const to = ix + Number(el.dataset.v);
+      if (to < 0 || to >= draft.items.length) break; const [x] = draft.items.splice(ix, 1); draft.items.splice(to, 0, x); rerenderCl(); break; }
+    case 'ph-gallery': $('#pick-gallery').click(); break;
+    case 'ph-camera': $('#pick-camera').click(); break;
+    case 'ph-replace': replaceId = Number(el.dataset.p); $('#pick-replace').click(); break;
+    case 'ph-del': draft.photos = draft.photos.filter((p) => p.id !== Number(el.dataset.p)); rerenderPh(); break;
+    case 'ed-photo': openLightbox(draft.photos, Number(el.dataset.p), true); break;
+    case 'ed-complete': case 'ed-reopen': { const form = el.closest('form'); const s = saveDraft(form); if (!s) break;
+      if (act === 'ed-complete') complete(s, 'manual'); else reopen(s); save(); closeEditor(); render(); break; }
+    case 'ed-save-more': { const s = saveDraft(el.closest('form')); if (!s) break; render(); openEditor(null, { due: s.due }); break; }
+    case 'ed-dup': { const s = saveDraft(el.closest('form')); if (!s) break; const c = duplicate(s); save(); closeEditor(); ui.flash = c.id; render(); toast(`Duplicated as "${c.title}"`); openEditor(c); break; }
+    case 'ed-delete': { const tid = draft.id; closeEditor(); softDelete([tid]); break; }
+    // lightbox
+    case 'lb-close': lb = null; renderLightbox(); break;
+    case 'lb-move': lb.ix += Number(el.dataset.v); renderLightbox(); break;
+    case 'lb-del': { const p = lb.photos[lb.ix]; draft.photos = draft.photos.filter((x) => x.id !== p.id); rerenderPh(); lb = null; renderLightbox(); break; }
+    // lock
+    case 'pin': pinDigit(el.dataset.v); break;
+    case 'pin-back': if (lk) { lk.buf = lk.buf.slice(0, -1); renderLock(); } break;
+    case 'pin-cancel': lk = null; renderLock(); render(); break;
+    case 'pin-forgot': forgotPin(); break;
+  }
+});
+function addDraftItem() {
+  const inp = $('#ed-new-item'); const v = inp.value.trim();
+  if (!v) return;
+  draft.items.push({ id: nid(), text: v, done: false });
+  rerenderCl(); $('#ed-new-item').focus();
+}
+function forgotPin() {
+  // Like SnapKhata: log out, log in again with the password, then choose a new PIN.
+  const l = prefs().lock; l.pin = null; l.enabled = false; save(); lk = null; renderLock();
+  db.session.userId = null; save(); render();
+  toast('Log in again, then set a new PIN in Settings → App Lock.');
+}
+document.addEventListener('change', (e) => {
+  const el = e.target; const act = el.dataset.act;
+  if (el.name === 'repeat' && draft) { $('#ed-custom').hidden = el.value !== 'custom'; return; }
+  switch (act) {
+    case 'scope-select': if (el.value) { ui.scope = el.value; render(); } break;
+    case 'sort': ui.sort = el.value; render(); break;
+    case 'bulk-cat': if (!el.value) break; for (const tid of ui.sel) { const x = taskById(tid); if (x) { x.cat = el.value; log(x, `Moved to ${catOf(el.value).name}`); } }
+      save(); toast(`Moved ${ui.sel.size} task(s) to ${catOf(el.value).name}`); ui.selecting = false; ui.sel.clear(); render(); break;
+    case 'pref-select': prefs()[el.dataset.k] = el.value; save(); if (el.dataset.k === 'defaultTab') ui.tab = el.value; toast('Saved'); break;
+    case 'lock-toggle': if (el.checked) { el.checked = false; startLock('new', 'enable'); } else { const l = prefs().lock; l.enabled = false; l.pin = null; save(); render(); toast('App Lock is off'); } break;
+    case 'lock-after': prefs().lock.after = Number(el.value); save(); toast('Saved'); break;
+    case 'notify': prefs().notify[el.dataset.k] = el.checked; save(); render(); break;
+    case 'notify-select': prefs().notify[el.dataset.k] = el.value; save(); toast('Saved'); break;
+    case 'access': { if (!isAdmin()) break; const u = db.users.find((x) => x.id === Number(el.dataset.id)); u.access[el.dataset.app] = el.checked; save();
+      toast(`${u.name}: ${el.dataset.app === 'tasks' ? app().name : 'SnapKhata'} ${el.checked ? 'granted' : 'removed'}`); render(); break; }
+    case 'cat-rename': { const c = cats().find((x) => x.id === el.dataset.id); const v = el.value.trim(); if (c && v && !c.system) { c.name = v; save(); toast('Saved'); } else el.value = c.name; break; }
+    case 'switch-user': db.session.userId = Number(el.value); markUnlocked(false); save(); ui.tab = null; ui.cat = 'all'; ui.scope = 'all'; go('tasks'); lockOnStart(); break;
+  }
+});
+document.addEventListener('input', (e) => {
+  const el = e.target;
+  if (el.id === 'q') { ui.q = el.value; $('#task-list').innerHTML = listHTML(); return; }
+  if (el.dataset.act === 'ed-item-text') { const it = draft.items.find((i) => i.id === Number(el.dataset.i)); if (it) it.text = el.value; }
+});
+document.addEventListener('keydown', (e) => {
+  if (lk) {
+    if (/^[0-9]$/.test(e.key)) { pinDigit(e.key); e.preventDefault(); }
+    else if (e.key === 'Backspace') { lk.buf = lk.buf.slice(0, -1); renderLock(); }
+    return;
+  }
+  if (e.key === 'Escape') { if (lb) { lb = null; renderLightbox(); } else if (draft) closeEditor(); else $('#pop').innerHTML = ''; }
+  if (e.key === 'Enter' && e.target.id === 'ed-new-item') { e.preventDefault(); addDraftItem(); }
+  if (lb && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { const v = e.key === 'ArrowRight' ? 1 : -1; if (lb.photos[lb.ix + v]) { lb.ix += v; renderLightbox(); } }
+  if (e.key === 'n' && !draft && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName) && me() && hasAccess()) { e.preventDefault(); openEditor(null); }
+});
+document.addEventListener('submit', (e) => {
+  const f = e.target; const kind = f.dataset.form;
+  if (!kind) return;
+  e.preventDefault();
+  if (kind === 'task') { if (saveDraft(f)) { closeEditor(); render(); } return; }
+  if (kind === 'quick') {
+    const title = f.elements.namedItem('title').value.trim(); if (!title) return;
+    const p = prefs();
+    const t = { id: nid(), owner: db.session.userId, title, desc: '', due: quickDue(), time: '', cat: ui.cat !== 'all' ? ui.cat : p.defaultCat, pri: p.defaultPri, items: [], photos: [], started: false, remind: true, repeat: { type: 'none', every: 1, unit: 'month' }, createdOn: new Date().toISOString(), modifiedOn: null, completedOn: null, deleted: false, deletedOn: null, history: [{ at: new Date().toISOString(), what: 'Created (quick add)' }] };
+    db.tasks[db.session.userId].push(t); save(); ui.flash = t.id;
+    if (ui.tab === 'completed') ui.tab = 'active';
+    render(); $('input[name=title]', $('[data-form=quick]'))?.focus();
+    toast(`Added "${title}"`); return;
+  }
+  if (kind === 'appname') {
+    if (!isAdmin()) return toast('Only a Super Admin can change the app name.', { err: true });
+    const name = f.elements.namedItem('name').value.trim(); const shortName = f.elements.namedItem('shortName').value.trim();
+    if (!name || !shortName) return toast('Enter a name and a short name.', { err: true });
+    Object.assign(app(), { name, shortName, modifiedBy: me().id, modifiedOn: new Date().toISOString() }); save(); render();
+    toast(`App name changed to "${name}"`); return;
+  }
+  if (kind === 'cat-add') {
+    const name = f.elements.namedItem('name').value.trim(); if (!name) return;
+    if (cats().some((c) => c.name.toLowerCase() === name.toLowerCase())) return toast('That category already exists.', { err: true });
+    cats().push({ id: 'c' + nid(), name, color: PALETTE[cats().length % PALETTE.length] }); save(); render(); toast(`Added "${name}"`); return;
+  }
+  if (kind === 'profile') { const n = f.elements.namedItem('name').value.trim(); if (n) { me().name = n; save(); render(); toast('Profile saved'); } }
+});
+/* Checklist drag to reorder (mouse); the up / down buttons do the same on touch and keyboard. */
+let dragId = null;
+document.addEventListener('dragstart', (e) => { const r = e.target.closest?.('.ed-cl .cl-item'); if (!r) return; dragId = Number(r.dataset.i); r.classList.add('drag'); e.dataTransfer.effectAllowed = 'move'; });
+document.addEventListener('dragover', (e) => { const r = e.target.closest?.('.ed-cl .cl-item'); if (!r || dragId === null) return; e.preventDefault(); document.querySelectorAll('.ed-cl .over').forEach((x) => x.classList.remove('over')); r.classList.add('over'); });
+document.addEventListener('drop', (e) => {
+  const r = e.target.closest?.('.ed-cl .cl-item'); if (!r || dragId === null) return; e.preventDefault();
+  const from = draft.items.findIndex((i) => i.id === dragId); const to = draft.items.findIndex((i) => i.id === Number(r.dataset.i));
+  if (from >= 0 && to >= 0 && from !== to) { const [x] = draft.items.splice(from, 1); draft.items.splice(to, 0, x); }
+  dragId = null; rerenderCl();
+});
+document.addEventListener('dragend', () => { dragId = null; document.querySelectorAll('.ed-cl .drag, .ed-cl .over').forEach((x) => x.classList.remove('drag', 'over')); });
+
+function notifyTest() {
+  const r = reminders()[0]; const title = app().name; const body = r ? `${r.t.title}: ${r.text}` : 'Reminders are working.';
+  if ('Notification' in window && Notification.permission === 'granted') new Notification(title, { body });
+  toast(`${title}: ${body}`);
+}
+let deferredInstall = null;
+addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredInstall = e; });
+function install() {
+  if (deferredInstall) { deferredInstall.prompt(); deferredInstall = null; return; }
+  toast(`Prototype: the real app installs "${app().name}" from /tasks/manifest.webmanifest. Use the browser menu → Install app.`, { ms: 6000 });
+}
+/** Re-checks overdue / due-today every minute, so a task turns overdue while the page is open. */
+setInterval(() => { if (ui.view === 'tasks' && !draft && !lk && document.activeElement?.id !== 'q') { const y = scrollY; render(); scrollTo(0, y); } }, 60000);
+
+applyTheme();
+if (!location.hash) history.replaceState(null, '', '#/tasks');
+route();
+lockOnStart();
+</script>
+</body>
+</html>
