@@ -20,7 +20,7 @@ const MANIFEST_MS = 8000;
  *   leaving puts the site's back. A branch without the speed test makes its own app the site's manifest, so its login page offers that app too.
  * - The manifest is first the site's own copy (public/apps/<code>/manifest.webmanifest, English name), so installing never depends on the API;
  *   when the API answers, its manifest (the name from the PageNames table in the reader's language) takes over.
- * iOS gets the app's home-screen title and icon (icons/<app>-apple-touch-icon.png).
+ * iOS gets the app's home-screen title and icon (icons/<app>-apple-touch-icon.png), and the browser tab shows the app's icon (icons/<app>-192.png).
  */
 @Injectable({ providedIn: 'root' })
 
@@ -52,6 +52,8 @@ export class AppPwaService {
     manifest?.setAttribute('href', this.saved[0]);
     title?.setAttribute('content', this.saved[1]);
     icon?.setAttribute('href', this.saved[2]);
+    for (const [i, favicon] of this.favicons().entries())
+      favicon.setAttribute('href', this.saved[3 + i]);
     this.saved = null;
   }
 
@@ -61,13 +63,18 @@ export class AppPwaService {
       return;
     const [manifest, title, icon] = this.links();
     if (!this.saved)
-      this.saved = [manifest?.getAttribute('href') ?? '', title?.getAttribute('content') ?? '', icon?.getAttribute('href') ?? ''];
+      this.saved = [manifest?.getAttribute('href') ?? '', title?.getAttribute('content') ?? '', icon?.getAttribute('href') ?? '', ...this.favicons().map((f) => f.getAttribute('href') ?? '')];
     this.point(app);
   }
 
   // #endregion
 
   // #region Private Methods
+
+  /** The browser-tab icons (link rel=icon); an app's screen shows that app's icon there. */
+  private favicons(): Element[] {
+    return Array.from(this.doc.head.querySelectorAll('link[rel=icon]'));
+  }
 
   /** The manifest link, iOS title and iOS icon. In an app's own window index.html drops the site's manifest link before any fetch, so it is made here. */
   private links(): (Element | null)[] {
@@ -87,6 +94,8 @@ export class AppPwaService {
     manifest?.setAttribute('href', local);
     title?.setAttribute('content', this.i18n.page(app));
     icon?.setAttribute('href', `icons/${app}-apple-touch-icon.png`);
+    for (const favicon of this.favicons())
+      favicon.setAttribute('href', `icons/${app}-192.png`);
     if (this.browser && manifest)
       void this.upgrade(manifest, local, this.api.url(`/apps/${app}/manifest.webmanifest?lang=${this.i18n.lang()}`));
   }
