@@ -1,10 +1,8 @@
 namespace Thakurg.Contracts.Configurations;
 
-// Khata:Manifest: the SnapKhata web-app manifest. Id, StartUrl, Scope and the icon Src values are paths on the site (Site:PublicUrl); CacheSeconds is how long browsers keep it.
-public class KhataManifestOptions
+// One app under AppManifests:Apps. Id, StartUrl, Scope and the icon Src values are paths on the site (Site:PublicUrl).
+public class AppManifestAppOptions
 {
-    public int CacheSeconds { get; set; }
-
     public string Id { get; set; } = string.Empty;
 
     public string Scope { get; set; } = string.Empty;
@@ -19,5 +17,5 @@ public class KhataManifestOptions
 
     public string BackgroundColor { get; set; } = string.Empty;
 
-    public List<KhataManifestIconOptions> Icons { get; set; } = [];
+    public List<AppManifestIconOptions> Icons { get; set; } = [];
 }

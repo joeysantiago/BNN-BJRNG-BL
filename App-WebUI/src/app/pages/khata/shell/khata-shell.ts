@@ -8,8 +8,8 @@ import { I18nService } from '../../../core/i18n.service';
 import { UserAvatar } from '../../../shared/user-avatar';
 import { ThemeService } from '../../../core/theme.service';
 import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
+import { AppPwaService } from '../../../core/app-pwa.service';
 import { KhataUiService } from '../../../core/khata-ui.service';
-import { KhataPwaService } from '../../../core/khata-pwa.service';
 import { Skin, ThemeMode } from '../../../core/models/theme.model';
 import { KhataLockService } from '../../../core/khata-lock.service';
 import { KhataStateService } from '../../../core/khata-state.service';
@@ -44,9 +44,9 @@ export class KhataShell implements OnDestroy {
   private readonly doc = inject(DOCUMENT);
   private readonly router = inject(Router);
   protected readonly modeIcons = MODE_ICONS;
+  private readonly pwa = inject(AppPwaService);
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
-  private readonly pwa = inject(KhataPwaService);
   protected readonly ui = inject(KhataUiService);
   protected readonly theme = inject(ThemeService);
   protected readonly lock = inject(KhataLockService);
@@ -94,7 +94,7 @@ export class KhataShell implements OnDestroy {
   constructor() {
     this.style.load();
     afterNextRender(() => {
-      this.pwa.enter();
+      this.pwa.enter('khata');
       void this.lock.start();
     });
     // The books (and every page) load only while the installed app is unlocked; unlocking again reloads them.

@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Configurations;
 
-public class KhataManifestIconOptions
+public class AppManifestIconOptions
 {
     public string Src { get; set; } = string.Empty;
 

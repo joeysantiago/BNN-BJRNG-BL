@@ -2,18 +2,17 @@ import { ApiService } from './api.service';
 import { DOCUMENT } from '@angular/common';
 import { I18nService } from './i18n.service';
 import { Injectable, inject } from '@angular/core';
-
-const APPLE_ICON = 'icons/khata-apple-touch-icon.png';
+import { InstallableApp } from './models/app-pwa.model';
 
 /**
- * Makes SnapKhata installable as its own app on a phone. All routes share the path "/" (they live in the hash), so while a SnapKhata
- * screen is open the page points at SnapKhata's manifest (its own id, name, icons and start address /#/khata/app) instead of the
- * speed test's, and iOS gets SnapKhata's home-screen title and icon.
- * The manifest is built by the API, so the app's name comes from the PageNames table in the reader's language. Leaving SnapKhata puts the site's back.
+ * Makes each app (SnapKhata, Creta, Nexon) installable as its own app on a phone. All routes share the path "/" (they live in the hash), so while
+ * an app's screen is open the page points at that app's manifest (its own id, name, icons and start address) instead of the speed test's, and
+ * iOS gets the app's home-screen title and icon (icons/<app>-apple-touch-icon.png).
+ * The manifest is built by the API (AppManifests), so the app's name comes from the PageNames table in the reader's language. Leaving the app puts the site's back.
  */
 @Injectable({ providedIn: 'root' })
 
-export class KhataPwaService {
+export class AppPwaService {
   private users = 0;
   private saved: string[] | null = null;
   private readonly doc = inject(DOCUMENT);
@@ -33,14 +32,14 @@ export class KhataPwaService {
     this.saved = null;
   }
 
-  enter(): void {
+  enter(app: InstallableApp): void {
     this.users++;
     const [manifest, title, icon] = this.links();
     if (!this.saved)
       this.saved = [manifest?.getAttribute('href') ?? '', title?.getAttribute('content') ?? '', icon?.getAttribute('href') ?? ''];
-    manifest?.setAttribute('href', this.api.url(`/khata/manifest.webmanifest?lang=${this.i18n.lang()}`));
-    title?.setAttribute('content', this.i18n.page('khata'));
-    icon?.setAttribute('href', APPLE_ICON);
+    manifest?.setAttribute('href', this.api.url(`/apps/${app}/manifest.webmanifest?lang=${this.i18n.lang()}`));
+    title?.setAttribute('content', this.i18n.page(app));
+    icon?.setAttribute('href', `icons/${app}-apple-touch-icon.png`);
   }
 
   // #endregion

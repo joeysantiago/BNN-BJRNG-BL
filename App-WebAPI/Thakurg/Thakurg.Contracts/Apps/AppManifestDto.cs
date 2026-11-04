@@ -1,9 +1,9 @@
 using System.Text.Json.Serialization;
 
-namespace Thakurg.Contracts.Khata;
+namespace Thakurg.Contracts.Apps;
 
-// GET api/khata/manifest.webmanifest: the SnapKhata web-app manifest. The W3C keys are snake_case, so they are set here instead of the camelCase default.
-public class KhataManifestDto
+// GET api/apps/{code}/manifest.webmanifest: the web-app manifest of one app. The W3C keys are snake_case, so they are set here instead of the camelCase default.
+public class AppManifestDto
 {
     [JsonPropertyName("id")]
     public string Id { get; set; } = string.Empty;
@@ -36,7 +36,7 @@ public class KhataManifestDto
     public string Orientation { get; set; } = string.Empty;
 
     [JsonPropertyName("icons")]
-    public List<KhataManifestIconDto> Icons { get; set; } = [];
+    public List<AppManifestIconDto> Icons { get; set; } = [];
 
     [JsonPropertyName("background_color")]
     public string BackgroundColor { get; set; } = string.Empty;

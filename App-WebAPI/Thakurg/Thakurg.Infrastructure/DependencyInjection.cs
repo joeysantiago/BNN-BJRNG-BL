@@ -39,6 +39,7 @@ public static partial class DependencyInjection
         services.AddOptions<ExportOptions>().Bind(configuration.GetSection(ExportOptions.SectionName)).Validate(o => o is { PdfMargin: >= 0, PdfFontSize: > 0, PdfTitleFontSize: > 0, PdfCellPadding: >= 0, PdfLineWidth: >= 0, SheetNameLength: > 0 }, "Every Export value must be set (sizes above 0).").ValidateOnStart();
         services.AddOptions<ProfileOptions>().Bind(configuration.GetSection(ProfileOptions.SectionName)).Validate(o => o.Limits is { AddressLength: > 0, CityLength: > 0, StateLength: > 0, PostalCodeLength: > 0, CountryLength: > 0, MobileLength: > 0, CompanyNameLength: > 0, CompanyTaxIdLength: > 0, CompanyEmailLength: > 0, CompanyPhoneLength: > 0, CompanyAddressLength: > 0 }, "Every Profile:Limits value must be above 0.").ValidateOnStart();
         services.AddOptions<SiteOptions>().Bind(configuration.GetSection(SiteOptions.SectionName)).Validate(o => Uri.TryCreate(o.PublicUrl, UriKind.Absolute, out _), "Site:PublicUrl must be the web site's absolute address.").ValidateOnStart();
+        services.AddOptions<AppManifestOptions>().Bind(configuration.GetSection(AppManifestOptions.SectionName)).Validate(o => o.CacheSeconds > 0 && o.Apps.Values.All(IsValidManifest), "AppManifests:CacheSeconds must be above 0, and every app under AppManifests:Apps needs Id, StartUrl, Scope, Display, Orientation, BackgroundColor, ThemeColor and Icons.").ValidateOnStart();
         services.AddOptions<EmailOptions>().Bind(configuration.GetSection(EmailOptions.SectionName)).Validate(o => o.Smtp.Port > 0 && o.Smtp.FromAddress.Length > 0 && o.Smtp.FromName.Length > 0, "Email:Smtp:Port, FromAddress and FromName must be set (an empty Host means mail is off).").ValidateOnStart();
 
         services.AddMemoryCache();
@@ -66,6 +67,7 @@ public static partial class DependencyInjection
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<ISettingsService, SettingsService>();
+        services.AddScoped<IAppManifestService, AppManifestService>();
         services.AddScoped<IAuthSessionCache, AuthSessionCache>();
         services.AddScoped<IAccountMailService, AccountMailService>();
         services.AddScoped<IAuthSessionServices, AuthSessionServices>();
@@ -87,6 +89,11 @@ public static partial class DependencyInjection
     #endregion
 
     #region Private Methods
+
+    private static bool IsValidManifest(AppManifestAppOptions manifest)
+    {
+        return manifest is { Id.Length: > 0, StartUrl.Length: > 0, Scope.Length: > 0, Display.Length: > 0, Orientation.Length: > 0, BackgroundColor.Length: > 0, ThemeColor.Length: > 0, Icons.Count: > 0 };
+    }
 
     // Sms:Provider picks the text-message sender. Only "None" exists yet (every send fails with SmsNotConfigured); a provider such as MSG91 or Twilio is
     // another ISmsSender with its own options section, registered here under its name.
