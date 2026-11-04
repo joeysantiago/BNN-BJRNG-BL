@@ -46,7 +46,7 @@ public class KhataAttachmentService : IKhataAttachmentService
 
     public async Task<string> DeleteAsync(KhataCallerDto caller, int attachmentId, CancellationToken cancellationToken)
     {
-        var (attachment, entry) = await RequireVisibleAttachmentAsync(caller, attachmentId, cancellationToken);
+        var (attachment, entry) = await RequireVisibleAttachmentAsync(caller, attachmentId, false, cancellationToken);
         if (entry.AddedByUserId != caller.UserId)
             throw new BusinessException(MessageCodes.KhataEntryNotYours, 403);
 
@@ -73,7 +73,7 @@ public class KhataAttachmentService : IKhataAttachmentService
 
     public async Task<FileStreamDto> OpenAsync(KhataCallerDto caller, int attachmentId, CancellationToken cancellationToken)
     {
-        var (attachment, _) = await RequireVisibleAttachmentAsync(caller, attachmentId, cancellationToken);
+        var (attachment, _) = await RequireVisibleAttachmentAsync(caller, attachmentId, true, cancellationToken);
         var storedFiles = await _attachmentRepository.GetStoredFilesAsync(attachmentId, cancellationToken);
 
         foreach (var storedFile in storedFiles.Where(f => f.Role == (byte)KhataFileRole.Home && f.FileId is not null))
@@ -186,12 +186,13 @@ public class KhataAttachmentService : IKhataAttachmentService
         return contentType is null ? throw PhotoInvalid() : (bytes, contentType, SafeFileName(file.FileName, contentType));
     }
 
-    // Visible = the photo's entry (deleted or not) belongs to one of the caller's own contacts.
-    private async Task<(KhataAttachment Attachment, KhataTransaction Entry)> RequireVisibleAttachmentAsync(KhataCallerDto caller, int attachmentId, CancellationToken cancellationToken)
+    // Visible = the photo's entry (deleted or not) belongs to one of the caller's own contacts. A deleted contact's photos can still be read (readOnly), not changed.
+    private async Task<(KhataAttachment Attachment, KhataTransaction Entry)> RequireVisibleAttachmentAsync(KhataCallerDto caller, int attachmentId, bool readOnly, CancellationToken cancellationToken)
     {
         var attachment = await _attachmentRepository.GetAttachmentAsync(attachmentId, cancellationToken);
         var entry = attachment is null ? null : await _transactionRepository.GetAnyTransactionAsync(attachment.TransactionId, cancellationToken);
-        if (attachment is null || entry is null || await _contactRepository.GetContactAsync(entry.ContactId, caller.UserId, cancellationToken) is null)
+        var contact = entry is null ? null : readOnly ? await _contactRepository.GetReadableContactAsync(entry.ContactId, caller.UserId, cancellationToken) : await _contactRepository.GetContactAsync(entry.ContactId, caller.UserId, cancellationToken);
+        if (attachment is null || entry is null || contact is null)
             throw new BusinessException(MessageCodes.KhataAttachmentNotFound, 404);
 
         return (attachment, entry);

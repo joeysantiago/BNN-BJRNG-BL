@@ -52,6 +52,25 @@ public class KhataContactService : IKhataContactService
         return await _common.Messages.GetAsync(MessageCodes.KhataContactDeleted);
     }
 
+    // A deleted contact brings back its details, not its picture (removed when it was deleted). The book's contact limit still applies.
+    public async Task<string> RestoreAsync(KhataCallerDto caller, int contactId, CancellationToken cancellationToken)
+    {
+        var contact = await _contactRepository.GetReadableContactAsync(contactId, caller.UserId, cancellationToken) ?? throw new BusinessException(MessageCodes.KhataContactNotFound, 404);
+
+        if (contact.IsSoftDeleted)
+        {
+            if (await _contactRepository.CountContactsAsync(contact.BookId, cancellationToken) >= _limits.MaxContactsPerBook)
+                throw new BusinessException(MessageCodes.KhataContactLimit, 409, _limits.MaxContactsPerBook);
+
+            contact.IsSoftDeleted = false;
+            contact.ModifiedOn = DateTime.UtcNow;
+            await _contactRepository.SaveChangesAsync(cancellationToken);
+            await _common.Audit.WriteAsync(KhataAuditActions.ContactRestored, caller.UserId, caller, new { ContactId = contactId, contact.BookId }, cancellationToken);
+        }
+
+        return await _common.Messages.GetAsync(MessageCodes.KhataContactRestored);
+    }
+
     public async Task<string> DeletePhotoAsync(KhataCallerDto caller, int contactId, CancellationToken cancellationToken)
     {
         var contact = await RequireContactAsync(caller, contactId, cancellationToken);
@@ -66,16 +85,6 @@ public class KhataContactService : IKhataContactService
         await _common.Audit.WriteAsync(KhataAuditActions.ContactPhotoRemoved, caller.UserId, caller, new { ContactId = contactId }, cancellationToken);
 
         return await _common.Messages.GetAsync(MessageCodes.KhataContactPhotoDeleted);
-    }
-
-    public async Task<BookContactsDto> GetByBookAsync(KhataCallerDto caller, int bookId, CancellationToken cancellationToken)
-    {
-        var books = await _bookRepository.GetBookSummariesAsync(caller.UserId, bookId, null, cancellationToken);
-        var book = books.FirstOrDefault() ?? throw new BusinessException(MessageCodes.KhataBookNotFound, 404);
-        var contacts = await _contactRepository.GetContactsAsync(bookId, cancellationToken);
-        var prefs = (await _contactRepository.GetNotificationPrefsAsync(bookId, cancellationToken)).ToDictionary(p => p.ContactId);
-
-        return new BookContactsDto { Book = book, Contacts = contacts.Select(c => KhataMapper.ToDto(c.Contact, c.LastEntryOn, prefs.GetValueOrDefault(c.Contact.Id))).ToList() };
     }
 
     // Read from whichever store its KhataStoredFiles row names; the type follows the extension it was saved with.
@@ -94,6 +103,17 @@ public class KhataContactService : IKhataContactService
         await RequireContactAsync(caller, contactId, cancellationToken);
 
         return KhataMapper.ToDto(await _contactRepository.GetNotificationPrefAsync(contactId, cancellationToken));
+    }
+
+    // includeDeleted adds the soft-deleted contacts (IsDeleted = true), for the All and Deleted tabs of the parties screen.
+    public async Task<BookContactsDto> GetByBookAsync(KhataCallerDto caller, int bookId, bool includeDeleted, CancellationToken cancellationToken)
+    {
+        var books = await _bookRepository.GetBookSummariesAsync(caller.UserId, bookId, null, cancellationToken);
+        var book = books.FirstOrDefault() ?? throw new BusinessException(MessageCodes.KhataBookNotFound, 404);
+        var contacts = await _contactRepository.GetContactsAsync(bookId, includeDeleted, cancellationToken);
+        var prefs = (await _contactRepository.GetNotificationPrefsAsync(bookId, cancellationToken)).ToDictionary(p => p.ContactId);
+
+        return new BookContactsDto { Book = book, Contacts = contacts.Select(c => KhataMapper.ToDto(c.Contact, c.LastEntryOn, prefs.GetValueOrDefault(c.Contact.Id))).ToList() };
     }
 
     public async Task<ContactDto> UpdateAsync(KhataCallerDto caller, int contactId, ContactRequestDto request, CancellationToken cancellationToken)

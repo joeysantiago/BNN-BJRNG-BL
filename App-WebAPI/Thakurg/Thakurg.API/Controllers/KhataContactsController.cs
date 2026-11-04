@@ -46,13 +46,14 @@ public class KhataContactsController : ControllerBase
         return Ok(ApiResponse<object?>.SuccessResponse(null, message));
     }
 
-    [HttpGet("books/{bookId:int}/contacts")]
-    [EnableRateLimiting(SecurityExtensions.KhataReadPolicy)]
-    public async Task<ActionResult<ApiResponse<BookContactsDto>>> List(int bookId, CancellationToken cancellationToken)
+    // A deleted contact comes back with its entries (they were never removed).
+    [HttpPost("contacts/{contactId:int}/restore")]
+    [EnableRateLimiting(SecurityExtensions.KhataWritePolicy)]
+    public async Task<ActionResult<ApiResponse<object?>>> Restore(int contactId, CancellationToken cancellationToken)
     {
-        var contacts = await _contactService.GetByBookAsync(HttpContext.KhataCaller(), bookId, cancellationToken);
+        var message = await _contactService.RestoreAsync(HttpContext.KhataCaller(), contactId, cancellationToken);
 
-        return Ok(ApiResponse<BookContactsDto>.SuccessResponse(contacts));
+        return Ok(ApiResponse<object?>.SuccessResponse(null, message));
     }
 
     [HttpDelete("contacts/{contactId:int}/photo")]
@@ -74,6 +75,16 @@ public class KhataContactsController : ControllerBase
         var result = await _contactService.SetPhotoAsync(HttpContext.KhataCaller(), contactId, new PhotoUploadDto { Content = content, FileName = file?.FileName ?? string.Empty, Length = file?.Length ?? 0 }, cancellationToken);
 
         return Ok(ApiResponse<ContactDto>.SuccessResponse(result.Data, result.Message));
+    }
+
+    // ?includeDeleted=true adds the deleted contacts (IsDeleted = true) for the All and Deleted tabs.
+    [HttpGet("books/{bookId:int}/contacts")]
+    [EnableRateLimiting(SecurityExtensions.KhataReadPolicy)]
+    public async Task<ActionResult<ApiResponse<BookContactsDto>>> List(int bookId, [FromQuery] bool includeDeleted, CancellationToken cancellationToken)
+    {
+        var contacts = await _contactService.GetByBookAsync(HttpContext.KhataCaller(), bookId, includeDeleted, cancellationToken);
+
+        return Ok(ApiResponse<BookContactsDto>.SuccessResponse(contacts));
     }
 
     [HttpPut("contacts/{contactId:int}")]

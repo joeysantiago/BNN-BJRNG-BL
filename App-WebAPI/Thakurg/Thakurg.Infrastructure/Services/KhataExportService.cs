@@ -49,7 +49,7 @@ public class KhataExportService : IKhataExportService
     {
         var exportFormat = Format(format);
         var book = await RequireBookAsync(caller, bookId, cancellationToken);
-        var contacts = await _contactRepository.GetContactsAsync(bookId, cancellationToken);
+        var contacts = await _contactRepository.GetContactsAsync(bookId, false, cancellationToken);
         var customer = await Label(MessageCodes.KhataExportCustomer);
         var supplier = await Label(MessageCodes.KhataExportSupplier);
         var table = NewTable(book, await Label(MessageCodes.KhataExportPartiesTitle, book.Name), "parties", book.Name, [await Created()]);
@@ -79,10 +79,11 @@ public class KhataExportService : IKhataExportService
     }
 
     // One party's statement: their mobile and balance in the header, then date, type, note, gave, got, the balance after each entry and status.
+    // A deleted contact's statement can still be exported (its history is kept).
     public async Task<ExportFileDto> ExportContactEntriesAsync(KhataCallerDto caller, int contactId, TransactionQueryDto query, string? format, CancellationToken cancellationToken)
     {
         var exportFormat = Format(format);
-        var contact = await _contactRepository.GetContactAsync(contactId, caller.UserId, cancellationToken) ?? throw new BusinessException(MessageCodes.KhataContactNotFound, 404);
+        var contact = await _contactRepository.GetReadableContactAsync(contactId, caller.UserId, cancellationToken) ?? throw new BusinessException(MessageCodes.KhataContactNotFound, 404);
         var book = await RequireBookAsync(caller, contact.BookId, cancellationToken);
         var filter = Filter(query);
         filter.ContactId = contactId;

@@ -7,7 +7,7 @@
  * The page lists come from src/app/shared.pages.json and every feature's src/app/pages/<feature>/*.pages.json,
  * the same files app.routes.server.ts prerenders, so a branch that deletes a feature folder drops its pages here too.
  */
-import { copyFileSync, existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -24,6 +24,15 @@ const lists = [...features.map(readJson), readJson(join(app, 'shared.pages.json'
 
 copyFileSync(join(dist, 'index.csr.html'), join(dist, '404.html'));
 console.log('created 404.html');
+
+// Every app this branch holds installs on its own at /apps/<code>/ (the scope and start address of its manifest). The address needs a real file,
+// so the web server answers 200 with the app shell (index.html keeps the path and opens the app's screen). The codes come from "apps" in *.pages.json.
+const installable = [...new Set(lists.flatMap((l) => l.apps ?? []))];
+for (const code of installable) {
+  mkdirSync(join(dist, 'apps', code), { recursive: true });
+  copyFileSync(join(dist, 'index.csr.html'), join(dist, 'apps', code, 'index.html'));
+}
+console.log(`created the app shells: ${installable.map((c) => '/apps/' + c + '/').join(', ') || 'none'}`);
 
 const pages = lists.flatMap((l) => l.prerender);
 const missing = pages.filter((p) => !existsSync(join(dist, p, 'index.html')));

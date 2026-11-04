@@ -7,7 +7,7 @@
     <div class="k-head">
       <div>
         <h1>{{ i18n.t('khata.nav.parties') }}</h1>
-        <p>{{ i18n.t('khata.c.lead', { n: counts().all }) }}</p>
+        <p>{{ i18n.t('khata.c.lead', { n: recordCounts().active }) }}</p>
       </div>
       <div class="k-head-acts">
         <app-khata-export [path]="'/khata/books/' + d.book.id + '/contacts'" fileName="parties" [disabled]="adding() || busy()" />
@@ -82,7 +82,13 @@
     <div class="k-sumbar">
       <div><small>{{ i18n.t('khata.c.willGet') }}</small><b class="k-num k-get">{{ sums().get | kMoney: d.book.currency : i18n.lang() }}</b></div>
       <div><small>{{ i18n.t('khata.c.willGive') }}</small><b class="k-num k-give">{{ sums().give | kMoney: d.book.currency : i18n.lang() }}</b></div>
-      <div><small>{{ i18n.t('khata.d.partiesT') }}</small><b class="k-num">{{ counts().all }}</b></div>
+      <div><small>{{ i18n.t('khata.d.partiesT') }}</small><b class="k-num">{{ recordCounts().active }}</b></div>
+    </div>
+
+    <div class="k-seg k-records" role="group" [attr.aria-label]="i18n.t('khata.c.records')">
+      @for (r of records; track r) {
+        <button type="button" [attr.aria-pressed]="record() === r" (click)="record.set(r)">{{ recordLabel(r) }} <span class="k-faint">{{ recordCounts()[r] }}</span></button>
+      }
     </div>
 
     <div class="k-card k-toolbar k-pad-14">
@@ -117,12 +123,23 @@
     @if (rows().length) {
       <ul class="k-list" [attr.aria-label]="i18n.t('khata.nav.parties')">
         @for (r of rows(); track r.contact.id) {
-          <li>
-            <a class="k-row-link" [routerLink]="['/khata/app/b', d.book.id, 'contact', r.contact.id]">
+          <li class="k-party-row" [class.is-deleted]="r.contact.isDeleted">
+            <a class="k-row-link" [class.gone]="r.contact.isDeleted" [routerLink]="['/khata/app/b', d.book.id, 'contact', r.contact.id]">
               <span kAvatar [name]="r.contact.name" [contactId]="r.contact.id" [photo]="r.contact.photo"></span>
               <span class="mid">
                 <b>{{ r.contact.name }}</b>
+                @if (r.contact.mobile || r.contact.email) {
+                  <small class="k-contact-info">
+                    @if (r.contact.mobile) {
+                      <span><svg kIco="phone" [size]="12"></svg><bdi>{{ r.contact.mobile }}</bdi></span>
+                    }
+                    @if (r.contact.email) {
+                      <span><svg kIco="mail" [size]="12"></svg><bdi>{{ r.contact.email }}</bdi></span>
+                    }
+                  </small>
+                }
                 <small>
+                  <span class="k-badge" [class.get]="!r.contact.isDeleted" [class.give]="r.contact.isDeleted"><span class="dot"></span>{{ i18n.t(r.contact.isDeleted ? 'khata.c.isDeleted' : 'khata.c.isActive') }}</span>
                   <span class="k-badge"><svg [kIco]="r.contact.contactType === customer ? 'store' : 'truck'" [size]="12"></svg>{{ i18n.t(r.contact.contactType === customer ? 'khata.c.customer' : 'khata.c.supplier') }}</span>
                   {{ r.last ? i18n.t('khata.c.lastEntry', { date: (r.last | kDate) }) : i18n.t('khata.c.noEntries') }}
                 </small>
@@ -133,16 +150,19 @@
               </span>
               <svg kIco="chev" [size]="18"></svg>
             </a>
+            @if (r.contact.isDeleted) {
+              <button type="button" class="k-btn sm k-restore" [class.is-busy]="restoring() === r.contact.id" [disabled]="!!restoring()" [attr.aria-label]="i18n.t('khata.c.restore') + ': ' + r.contact.name" (click)="restore(r.contact.id)"><svg kIco="history" [size]="16"></svg>{{ i18n.t('khata.c.restore') }}</button>
+            }
           </li>
         }
       </ul>
     } @else {
       <div class="k-card k-empty">
         <svg [kEmptyArt]="filtered() ? 'search' : 'users'"></svg>
-        <h2>{{ i18n.t(counts().all ? 'khata.c.noMatch' : 'khata.c.none') }}</h2>
+        <h2>{{ emptyTitle() }}</h2>
         @if (counts().all) {
           <button type="button" class="k-btn" (click)="clearFilters()">{{ i18n.t('khata.f.clear') }}</button>
-        } @else {
+        } @else if (!recordCounts().all) {
           <button type="button" class="k-btn pri" (click)="toggleAdd(true)"><svg kIco="plus" [size]="18"></svg>{{ i18n.t('khata.c.add') }}</button>
         }
       </div>

@@ -10,6 +10,11 @@
         <div class="k-grow">
           <h1 id="ledger-h1">{{ contact()!.name }}</h1>
           <div class="meta">
+            @if (contact()!.isDeleted) {
+              <span class="k-badge give"><span class="dot"></span>{{ i18n.t('khata.c.isDeleted') }}</span>
+            } @else {
+              <span class="k-badge get"><span class="dot"></span>{{ i18n.t('khata.c.isActive') }}</span>
+            }
             <span class="k-badge"><svg [kIco]="contact()!.contactType === customer ? 'store' : 'truck'" [size]="12"></svg>{{ i18n.t(contact()!.contactType === customer ? 'khata.c.customer' : 'khata.c.supplier') }}</span>
             @if (contact()!.mobile) {
               <span class="k-badge"><svg kIco="phone" [size]="12"></svg>{{ contact()!.mobile }}</span>
@@ -34,9 +39,19 @@
         @if (contact()!.email) {
           <a class="k-btn sm" [href]="'mailto:' + contact()!.email"><svg kIco="mail" [size]="16"></svg>{{ i18n.t('khata.e.email') }}</a>
         }
-        <a class="k-btn sm" [routerLink]="['/khata/app/b', bookId(), 'contact', contactId(), 'settings']"><svg kIco="settings" [size]="16"></svg>{{ i18n.t('khata.e.settings') }}</a>
+        @if (!contact()!.isDeleted) {
+          <a class="k-btn sm" [routerLink]="['/khata/app/b', bookId(), 'contact', contactId(), 'settings']"><svg kIco="settings" [size]="16"></svg>{{ i18n.t('khata.e.settings') }}</a>
+        }
       </div>
     </section>
+
+    @if (contact()!.isDeleted) {
+      <div class="k-card k-deleted-note" role="status">
+        <svg kIco="alert" [size]="18"></svg>
+        <p>{{ i18n.t('khata.c.deletedLead') }}</p>
+        <button type="button" class="k-btn sm pri" [class.is-busy]="restoring()" [disabled]="restoring()" (click)="restore()"><svg kIco="history" [size]="16"></svg>{{ i18n.t('khata.c.restore') }}</button>
+      </div>
+    }
 
     <div class="k-sumbar">
       <div><small>{{ i18n.t('khata.d.totalGave') }}</small><b class="k-num k-give">{{ p.gaveMinor | kMoney: book()!.currency : i18n.lang() }}</b></div>
@@ -82,10 +97,12 @@
       </div>
     }
 
-    <div class="k-sticky">
-      <a class="k-btn gave lg" [routerLink]="['/khata/app/b', bookId(), 'new']" [queryParams]="{ contact: contactId(), type: gave }"><svg kIco="gave" [stroke]="2.4"></svg>{{ i18n.t('khata.e.gave') }}</a>
-      <a class="k-btn got lg" [routerLink]="['/khata/app/b', bookId(), 'new']" [queryParams]="{ contact: contactId(), type: got }"><svg kIco="got" [stroke]="2.4"></svg>{{ i18n.t('khata.e.got') }}</a>
-    </div>
+    @if (!contact()!.isDeleted) {
+      <div class="k-sticky">
+        <a class="k-btn gave lg" [routerLink]="['/khata/app/b', bookId(), 'new']" [queryParams]="{ contact: contactId(), type: gave }"><svg kIco="gave" [stroke]="2.4"></svg>{{ i18n.t('khata.e.gave') }}</a>
+        <a class="k-btn got lg" [routerLink]="['/khata/app/b', bookId(), 'new']" [queryParams]="{ contact: contactId(), type: got }"><svg kIco="got" [stroke]="2.4"></svg>{{ i18n.t('khata.e.got') }}</a>
+      </div>
+    }
   </div>
 } @else if (error()) {
   <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
