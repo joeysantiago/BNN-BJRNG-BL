@@ -7,6 +7,7 @@ import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
 import { DanceDoodle } from '../../shared/dance-doodle';
 import { Repeat } from '../../shared/models/player.model';
+import { AppPwaService } from '../../core/app-pwa.service';
 import { TranslationKey } from '../../core/models/i18n.model';
 import { SettingsService } from '../../core/settings.service';
 import { environment } from '../../../environments/environment';
@@ -56,6 +57,7 @@ export class Creta implements OnDestroy {
   protected readonly playing = signal(false);
   protected readonly shuffle = signal(false);
   private readonly auth = inject(AuthService);
+  private readonly pwa = inject(AppPwaService);
   protected readonly i18n = inject(I18nService);
   protected readonly tracks = signal<Track[]>([]);
   protected readonly repeat = signal<Repeat>('off');
@@ -71,6 +73,8 @@ export class Creta implements OnDestroy {
   protected readonly status = signal<{ text: string; error: boolean } | null>(null);
 
   constructor() {
+    // Creta and Nexon each install as their own app.
+    this.pwa.enter(this.id);
     effect(() => {
       this.seo.set({
         title: this.tt('seo.title'),
@@ -113,6 +117,7 @@ export class Creta implements OnDestroy {
   // #region Public Methods
 
   ngOnDestroy(): void {
+    this.pwa.leave();
     this.audioRef()?.nativeElement.pause();
     this.auth.keepAwake(false);
     if (this.browser && 'mediaSession' in navigator)
