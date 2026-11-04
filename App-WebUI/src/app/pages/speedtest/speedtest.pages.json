@@ -1,4 +1,5 @@
 {
+  "apps": ["speedtest"],
   "prerender": ["", "hi", "ar"],
   "sitemap": [
     { "path": "/", "priority": "1.0", "alt": true },

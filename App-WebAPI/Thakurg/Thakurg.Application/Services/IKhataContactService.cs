@@ -8,13 +8,15 @@ public interface IKhataContactService
 {
     Task<string> DeleteAsync(KhataCallerDto caller, int contactId, CancellationToken cancellationToken);
 
-    Task<string> DeletePhotoAsync(KhataCallerDto caller, int contactId, CancellationToken cancellationToken);
+    Task<string> RestoreAsync(KhataCallerDto caller, int contactId, CancellationToken cancellationToken);
 
-    Task<BookContactsDto> GetByBookAsync(KhataCallerDto caller, int bookId, CancellationToken cancellationToken);
+    Task<string> DeletePhotoAsync(KhataCallerDto caller, int contactId, CancellationToken cancellationToken);
 
     Task<FileStreamDto> OpenPhotoAsync(KhataCallerDto caller, int contactId, CancellationToken cancellationToken);
 
     Task<ContactNotifyDto> GetNotificationsAsync(KhataCallerDto caller, int contactId, CancellationToken cancellationToken);
+
+    Task<BookContactsDto> GetByBookAsync(KhataCallerDto caller, int bookId, bool includeDeleted, CancellationToken cancellationToken);
 
     Task<ContactDto> UpdateAsync(KhataCallerDto caller, int contactId, ContactRequestDto request, CancellationToken cancellationToken);
 

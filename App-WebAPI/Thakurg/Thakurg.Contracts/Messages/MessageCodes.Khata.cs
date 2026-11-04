@@ -112,6 +112,8 @@ public static partial class MessageCodes
 
     public const string KhataExportAllDates = "KHATA_EXPORT_ALL_DATES";
 
+    public const string KhataContactRestored = "KHATA_CONTACT_RESTORED";
+
     public const string KhataCurrencyDeleted = "KHATA_CURRENCY_DELETED";
 
     public const string KhataCurrencyInvalid = "KHATA_CURRENCY_INVALID";

@@ -20,15 +20,17 @@ public interface IKhataContactRepository
 
     Task<KhataContact?> GetContactAsync(int contactId, int userId, CancellationToken cancellationToken);
 
+    Task SetPhotoAsync(KhataContact contact, KhataStoredFile storedFile, CancellationToken cancellationToken);
+
     Task<KhataNotificationPref?> GetNotificationPrefAsync(int contactId, CancellationToken cancellationToken);
 
-    Task SetPhotoAsync(KhataContact contact, KhataStoredFile storedFile, CancellationToken cancellationToken);
+    Task<KhataContact?> GetReadableContactAsync(int contactId, int userId, CancellationToken cancellationToken);
 
     Task<List<KhataNotificationPref>> GetNotificationPrefsAsync(int bookId, CancellationToken cancellationToken);
 
     Task<bool> UpdateContactAsync(KhataContact contact, byte[] expectedRowVersion, CancellationToken cancellationToken);
 
-    Task<List<(KhataContact Contact, DateOnly? LastEntryOn)>> GetContactsAsync(int bookId, CancellationToken cancellationToken);
-
     Task<List<(KhataContact Contact, DateOnly? LastEntryOn)>> GetTopContactsAsync(int bookId, int count, CancellationToken cancellationToken);
+
+    Task<List<(KhataContact Contact, DateOnly? LastEntryOn)>> GetContactsAsync(int bookId, bool includeDeleted, CancellationToken cancellationToken);
 }

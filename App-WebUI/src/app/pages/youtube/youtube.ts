@@ -4,6 +4,7 @@ import { SeoService } from '../../core/seo.service';
 import { isPlatformBrowser } from '@angular/common';
 import { I18nService } from '../../core/i18n.service';
 import { Repeat } from '../../shared/models/player.model';
+import { AppPwaService } from '../../core/app-pwa.service';
 import { SettingsService } from '../../core/settings.service';
 import type { TranslationKey } from '../../core/models/i18n.model';
 import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
@@ -81,6 +82,7 @@ export class Youtube implements OnDestroy {
   protected readonly openList = signal('');
   private readonly api = inject(ApiService);
   private readonly seo = inject(SeoService);
+  private readonly pwa = inject(AppPwaService);
   protected readonly failed = signal(false);
   protected readonly playing = signal(false);
   protected readonly showTip = signal(false);
@@ -131,6 +133,8 @@ export class Youtube implements OnDestroy {
   };
 
   constructor() {
+    // The YouTube player installs as its own app.
+    this.pwa.enter('youtube');
     if (this.browser) {
       this.canFullscreen = !!document.fullscreenEnabled;
       try {
@@ -225,6 +229,7 @@ export class Youtube implements OnDestroy {
   // #region Public Methods
 
   ngOnDestroy(): void {
+    this.pwa.leave();
     clearInterval(this.ticker);
     this.keepAlive?.pause();
     this.audio?.pause();

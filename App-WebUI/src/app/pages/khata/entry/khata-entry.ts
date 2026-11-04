@@ -45,7 +45,7 @@ export class KhataEntryDetails {
   private readonly params = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
   /** Newest version first; the API keeps one row per change, the newest being the entry as it is now. */
   protected readonly versions = computed(() => [...this.history()].sort((a, b) => b.version - a.version));
-  protected readonly editable = computed(() => !!this.data() && this.data()!.entry.addedByMe && !this.data()!.entry.isDeleted);
+  protected readonly editable = computed(() => !!this.data() && this.data()!.entry.addedByMe && !this.data()!.entry.isDeleted && !this.data()!.contact.isDeleted);
 
   constructor() {
     effect(() => this.state.screen(this.i18n.t('khata.td.title')));

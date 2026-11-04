@@ -9,6 +9,7 @@ import { KhataAvatar } from '../ui/khata-avatar/khata-avatar';
 import { KhataExport } from '../ui/khata-export/khata-export';
 import { KhataStatus } from '../ui/khata-status/khata-status';
 import { KhataMissing } from '../ui/khata-missing/khata-missing';
+import { KhataUiService } from '../../../core/khata-ui.service';
 import { KhataApiService } from '../../../core/khata-api.service';
 import { KhataCountDirective } from '../ui/khata-count.directive';
 import { KhataSkeleton } from '../ui/khata-skeleton/khata-skeleton';
@@ -34,9 +35,11 @@ export class KhataLedger {
   protected readonly gave = KHATA_GAVE;
   protected readonly error = signal('');
   protected readonly busy = signal(false);
+  protected readonly restoring = signal(false);
   protected readonly missing = signal('');
   protected readonly customer = KHATA_CUSTOMER;
   protected readonly i18n = inject(I18nService);
+  private readonly ui = inject(KhataUiService);
   private readonly api = inject(KhataApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly state = inject(KhataStateService);
@@ -69,6 +72,22 @@ export class KhataLedger {
 
   // #region Public Methods
 
+  /** Brings the deleted contact back, so entries can be added again. */
+  async restore(): Promise<void> {
+    if (this.restoring())
+      return;
+    this.restoring.set(true);
+    try {
+      this.ui.notify(await this.api.restoreContact(this.contactId()));
+      await this.loadContact(this.bookId(), this.contactId());
+      void this.state.loadBooks().catch(() => null);
+    } catch (e) {
+      this.ui.notify((e as Error).message);
+    } finally {
+      this.restoring.set(false);
+    }
+  }
+
   async more(): Promise<void> {
     await this.loadEntries(this.contactId(), { ...this.query(), page: (this.page()?.page ?? 1) + 1 }, true);
   }
@@ -84,7 +103,8 @@ export class KhataLedger {
     this.contact.set(null);
     this.state.bookId.set(bookId);
     try {
-      const data = await this.api.contacts(bookId);
+      // Deleted contacts are read too: their details and entries stay open (read only) and they can be restored here.
+      const data = await this.api.contacts(bookId, true);
       if (this.contactId() !== contactId)
         return;
       const contact = data.contacts.find((c) => c.id === contactId);

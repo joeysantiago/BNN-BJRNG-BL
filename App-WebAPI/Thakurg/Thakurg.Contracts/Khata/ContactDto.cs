@@ -1,6 +1,7 @@
 namespace Thakurg.Contracts.Khata;
 
 // Photo is the version of the contact's picture (it changes with every upload, so its URL can be cached); null = no picture.
+// IsDeleted: the contact was deleted (soft delete); it and its entries stay readable and it can be restored.
 public class ContactDto
 {
     public int Id { get; set; }
@@ -12,6 +13,8 @@ public class ContactDto
     public string? Email { get; set; }
 
     public string? Photo { get; set; }
+
+    public bool IsDeleted { get; set; }
 
     public string? Mobile { get; set; }
 

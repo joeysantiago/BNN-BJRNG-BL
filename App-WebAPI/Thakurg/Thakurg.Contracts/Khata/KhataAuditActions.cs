@@ -32,5 +32,7 @@ public static class KhataAuditActions
 
     public const string CurrencyDeleted = "CurrencyDeleted";
 
+    public const string ContactRestored = "ContactRestored";
+
     public const string ContactPhotoRemoved = "ContactPhotoRemoved";
 }

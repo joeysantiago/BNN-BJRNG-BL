@@ -72,6 +72,14 @@ public class KhataContactRepository : IKhataContactRepository
         return _dbContext.KhataNotificationPrefs.WhereActive().FirstOrDefaultAsync(p => p.ContactId == contactId, cancellationToken);
     }
 
+    // Like GetContactAsync, but a soft-deleted contact is found too: its details and entries stay readable, and it can be restored.
+    public Task<KhataContact?> GetReadableContactAsync(int contactId, int userId, CancellationToken cancellationToken)
+    {
+        var books = _dbContext.KhataBooks.WhereActive();
+
+        return _dbContext.KhataContacts.Where(c => c.IsActive && !c.IsDeleted).FirstOrDefaultAsync(c => c.Id == contactId && c.OwnerUserId == userId && books.Any(b => b.Id == c.BookId), cancellationToken);
+    }
+
     // The notification choices of the book's contacts (contacts without a row have every channel off).
     public Task<List<KhataNotificationPref>> GetNotificationPrefsAsync(int bookId, CancellationToken cancellationToken)
     {
@@ -115,22 +123,24 @@ public class KhataContactRepository : IKhataContactRepository
         }
     }
 
-    public async Task<List<(KhataContact Contact, DateOnly? LastEntryOn)>> GetContactsAsync(int bookId, CancellationToken cancellationToken)
-    {
-        var rows = await _dbContext.KhataContacts.AsNoTracking().WhereActive().Where(c => c.BookId == bookId)
-            .Select(c => new { Contact = c, LastEntryOn = _dbContext.KhataTransactions.Where(t => t.ContactId == c.Id && !t.IsDeleted && !t.IsSoftDeleted).Max(t => (DateOnly?)t.EntryDate) })
-            .OrderByDescending(r => r.LastEntryOn).ThenBy(r => r.Contact.Name)
-            .ToListAsync(cancellationToken);
-
-        return rows.Select(r => (r.Contact, r.LastEntryOn)).ToList();
-    }
-
     // The contacts with the largest open balance either way; settled contacts (balance 0) are left out.
     public async Task<List<(KhataContact Contact, DateOnly? LastEntryOn)>> GetTopContactsAsync(int bookId, int count, CancellationToken cancellationToken)
     {
         var rows = await _dbContext.KhataContacts.AsNoTracking().WhereActive().Where(c => c.BookId == bookId && c.BalanceMinor != 0)
             .OrderByDescending(c => Math.Abs(c.BalanceMinor)).ThenBy(c => c.Name).Take(count)
             .Select(c => new { Contact = c, LastEntryOn = _dbContext.KhataTransactions.Where(t => t.ContactId == c.Id && !t.IsDeleted && !t.IsSoftDeleted).Max(t => (DateOnly?)t.EntryDate) })
+            .ToListAsync(cancellationToken);
+
+        return rows.Select(r => (r.Contact, r.LastEntryOn)).ToList();
+    }
+
+    // With includeDeleted the soft-deleted contacts come too (their history stays readable); hard-deleted rows never do.
+    public async Task<List<(KhataContact Contact, DateOnly? LastEntryOn)>> GetContactsAsync(int bookId, bool includeDeleted, CancellationToken cancellationToken)
+    {
+        var contacts = includeDeleted ? _dbContext.KhataContacts.Where(c => c.IsActive && !c.IsDeleted) : _dbContext.KhataContacts.WhereActive();
+        var rows = await contacts.AsNoTracking().Where(c => c.BookId == bookId)
+            .Select(c => new { Contact = c, LastEntryOn = _dbContext.KhataTransactions.Where(t => t.ContactId == c.Id && !t.IsDeleted && !t.IsSoftDeleted).Max(t => (DateOnly?)t.EntryDate) })
+            .OrderByDescending(r => r.LastEntryOn).ThenBy(r => r.Contact.Name)
             .ToListAsync(cancellationToken);
 
         return rows.Select(r => (r.Contact, r.LastEntryOn)).ToList();

@@ -55,11 +55,11 @@ public class KhataTransactionService : IKhataTransactionService
         return await _common.Messages.GetAsync(MessageCodes.KhataEntryDeleted);
     }
 
-    // One entry with its contact and photos; a soft-deleted entry is still shown (IsDeleted = true).
+    // One entry with its contact and photos; a soft-deleted entry, or one of a deleted contact, is still shown (IsDeleted = true).
     public async Task<TransactionDetailDto> GetDetailAsync(KhataCallerDto caller, int transactionId, CancellationToken cancellationToken)
     {
         var entry = await _transactionRepository.GetAnyTransactionAsync(transactionId, cancellationToken);
-        var contact = entry is null ? null : await _contactRepository.GetContactAsync(entry.ContactId, caller.UserId, cancellationToken);
+        var contact = entry is null ? null : await _contactRepository.GetReadableContactAsync(entry.ContactId, caller.UserId, cancellationToken);
         if (entry is null || contact is null)
             throw new BusinessException(MessageCodes.KhataEntryNotFound, 404);
 
@@ -72,7 +72,7 @@ public class KhataTransactionService : IKhataTransactionService
 
     public async Task<List<TransactionHistoryDto>> GetHistoryAsync(KhataCallerDto caller, int transactionId, CancellationToken cancellationToken)
     {
-        await RequireVisibleEntryAsync(caller, transactionId, cancellationToken);
+        await RequireVisibleEntryAsync(caller, transactionId, true, cancellationToken);
         var history = await _transactionRepository.GetHistoryAsync(transactionId, cancellationToken);
 
         return history.Select(KhataMapper.ToDto).ToList();
@@ -80,7 +80,8 @@ public class KhataTransactionService : IKhataTransactionService
 
     public async Task<TransactionPageDto> GetPageAsync(KhataCallerDto caller, int contactId, TransactionQueryDto query, CancellationToken cancellationToken)
     {
-        var contact = await RequireContactAsync(caller, contactId, cancellationToken);
+        // A deleted contact's entries stay readable (its history is kept).
+        var contact = await _contactRepository.GetReadableContactAsync(contactId, caller.UserId, cancellationToken) ?? throw new BusinessException(MessageCodes.KhataContactNotFound, 404);
         var filter = KhataQuery.Filter(query, _limits);
         filter.ContactId = contactId;
 
@@ -172,18 +173,19 @@ public class KhataTransactionService : IKhataTransactionService
     // Only whoever added an entry may edit or delete it (design §5.5).
     private async Task<KhataTransaction> RequireOwnEntryAsync(KhataCallerDto caller, int transactionId, CancellationToken cancellationToken)
     {
-        var entry = await RequireVisibleEntryAsync(caller, transactionId, cancellationToken);
+        var entry = await RequireVisibleEntryAsync(caller, transactionId, false, cancellationToken);
         if (entry.AddedByUserId != caller.UserId)
             throw new BusinessException(MessageCodes.KhataEntryNotYours, 403);
 
         return entry;
     }
 
-    // Visible = the entry belongs to one of the caller's own contacts.
-    private async Task<KhataTransaction> RequireVisibleEntryAsync(KhataCallerDto caller, int transactionId, CancellationToken cancellationToken)
+    // Visible = the entry belongs to one of the caller's own contacts; readOnly also accepts a deleted contact (its history stays readable).
+    private async Task<KhataTransaction> RequireVisibleEntryAsync(KhataCallerDto caller, int transactionId, bool readOnly, CancellationToken cancellationToken)
     {
         var entry = await _transactionRepository.GetTransactionAsync(transactionId, cancellationToken);
-        if (entry is null || await _contactRepository.GetContactAsync(entry.ContactId, caller.UserId, cancellationToken) is null)
+        var contact = entry is null ? null : readOnly ? await _contactRepository.GetReadableContactAsync(entry.ContactId, caller.UserId, cancellationToken) : await _contactRepository.GetContactAsync(entry.ContactId, caller.UserId, cancellationToken);
+        if (entry is null || contact is null)
             throw new BusinessException(MessageCodes.KhataEntryNotFound, 404);
 
         return entry;

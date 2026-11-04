@@ -55,7 +55,7 @@ public static class KhataMapper
 
     public static ContactDto ToDto(KhataContact contact, DateOnly? lastEntryOn, KhataNotificationPref? pref)
     {
-        return new ContactDto { Id = contact.Id, BookId = contact.BookId, Name = contact.Name, Mobile = contact.Mobile, Email = contact.Email, Address = contact.Address, Note = contact.Note, ContactType = (KhataContactType)contact.ContactType, AllowContactEntries = contact.AllowContactEntries, ShareStatus = (KhataShareStatus)contact.ShareStatus, BalanceMinor = contact.BalanceMinor, DueDate = contact.DueDate, LastEntryOn = lastEntryOn, RowVersion = Convert.ToBase64String(contact.RowVersion), Notify = ToDto(pref), Photo = contact.PhotoStoredFileId?.ToString() };
+        return new ContactDto { Id = contact.Id, BookId = contact.BookId, Name = contact.Name, Mobile = contact.Mobile, Email = contact.Email, Address = contact.Address, Note = contact.Note, ContactType = (KhataContactType)contact.ContactType, AllowContactEntries = contact.AllowContactEntries, ShareStatus = (KhataShareStatus)contact.ShareStatus, BalanceMinor = contact.BalanceMinor, DueDate = contact.DueDate, LastEntryOn = lastEntryOn, RowVersion = Convert.ToBase64String(contact.RowVersion), Notify = ToDto(pref), Photo = contact.PhotoStoredFileId?.ToString(), IsDeleted = contact.IsSoftDeleted };
     }
 
     // An entry as the lists and the details show it: with its contact name, photo count and the contact balance right after it.
