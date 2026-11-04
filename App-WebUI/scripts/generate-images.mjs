@@ -174,6 +174,21 @@ shot(icon(192, { radius: 44, glyphScale: 0.62 }), join(outIcons, 'icon-192.png')
 shot(icon(512, { radius: 118, glyphScale: 0.62 }), join(outIcons, 'icon-512.png'), 512, 512, true);
 shot(icon(512, { radius: 0, glyphScale: 0.46 }), join(outIcons, 'maskable-512.png'), 512, 512);
 shot(icon(180, { radius: 0, glyphScale: 0.58 }), join(outIcons, 'apple-touch-icon.png'), 180, 180);
+// Creta player icons: the car photo in scripts/creta-icon.png (900 x 1200), cropped to the car.
+// The car spans x 30-878 (centre 454) and y 385-795 (centre 590); `fill` is the share of the icon width it takes.
+const cretaPhoto = pathToFileURL(join(root, 'scripts', 'creta-icon.png')).href;
+const cretaIcon = (size, { radius, fill }) => {
+  const k = (size * fill) / 848;
+  return page(
+    '<div class="t"></div>',
+    `body{background:transparent}.t{position:absolute;inset:0;border-radius:${radius}px;background:#fff url('${cretaPhoto}') no-repeat;background-size:${900 * k}px ${1200 * k}px;background-position:${size / 2 - 454 * k}px ${size / 2 - 590 * k}px}`,
+  );
+};
+
+shot(cretaIcon(192, { radius: 44, fill: 0.94 }), join(outIcons, 'creta-192.png'), 192, 192, true);
+shot(cretaIcon(512, { radius: 118, fill: 0.94 }), join(outIcons, 'creta-512.png'), 512, 512, true);
+shot(cretaIcon(512, { radius: 0, fill: 0.78 }), join(outIcons, 'creta-maskable-512.png'), 512, 512);
+shot(cretaIcon(180, { radius: 0, fill: 0.92 }), join(outIcons, 'creta-apple-touch-icon.png'), 180, 180);
 const fav = join(work, 'fav48.png');
 shot(icon(48, { radius: 11, glyphScale: 0.66 }), fav, 48, 48, true);
 
