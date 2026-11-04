@@ -46,6 +46,8 @@ public static partial class MessageCodes
 
     public const string KhataNotifySaved = "KHATA_NOTIFY_SAVED";
 
+    public const string KhataPinRequired = "KHATA_PIN_REQUIRED";
+
     public const string KhataContactLimit = "KHATA_CONTACT_LIMIT";
 
     public const string KhataEntryDeleted = "KHATA_ENTRY_DELETED";

@@ -19,6 +19,8 @@ public partial class CommonDbContext
 
     public DbSet<KhataStoredFile> KhataStoredFiles => Set<KhataStoredFile>();
 
+    public DbSet<KhataLockSession> KhataLockSessions => Set<KhataLockSession>();
+
     public DbSet<KhataTransaction> KhataTransactions => Set<KhataTransaction>();
 
     public DbSet<KhataIdempotencyKey> KhataIdempotencyKeys => Set<KhataIdempotencyKey>();
@@ -38,6 +40,7 @@ public partial class CommonDbContext
         modelBuilder.Entity<KhataBook>().ToTable("KhataBooks");
         modelBuilder.Entity<KhataUser>().ToTable("KhataUsers");
         modelBuilder.Entity<KhataAuditLog>().ToTable("KhataAuditLog");
+        modelBuilder.Entity<KhataLockSession>().ToTable("KhataLockSessions");
         modelBuilder.Entity<KhataCurrency>().ToTable("KhataCurrencies");
         modelBuilder.Entity<KhataStoredFile>().ToTable("KhataStoredFiles");
         modelBuilder.Entity<KhataNotificationLog>().ToTable("KhataNotificationLog");

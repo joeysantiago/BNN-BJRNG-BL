@@ -335,11 +335,16 @@ export type KhataLockMode = 'checking' | 'open' | 'locked' | 'create' | 'change'
 /** One step of the PIN screen: the PIN to unlock, the current one (to change it), a new one, or the new one again. */
 export type KhataPinStep = 'unlock' | 'current' | 'new' | 'confirm';
 
-/** GET api/khata/pin. `canReset`: this login is fresh, so a new PIN can be chosen without the old one. */
+/**
+ * GET api/khata/pin. `canReset`: this login is fresh, so a new PIN can be chosen without the old one. `protected`: the installed app locks
+ * this login session on the server; `locked`: it is locked now, so ledger calls are refused until the PIN is entered.
+ */
 export interface KhataPinStatus {
   length: number;
   hasPin: boolean;
+  locked: boolean;
   canReset: boolean;
+  protected: boolean;
   lockAfterMinutes: number;
   lockedUntil: string | null;
 }

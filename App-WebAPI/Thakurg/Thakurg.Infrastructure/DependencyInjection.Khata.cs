@@ -32,7 +32,7 @@ public static partial class DependencyInjection
         var storageValid = options.Storage is { MaxRetries: >= 0, NetworkTimeoutSeconds: > 0, SecretLength: > 0, BlobFolder.Length: > 0, EndpointSuffix.Length: > 0 };
         var manifestValid = options.Manifest is { CacheSeconds: > 0, Id.Length: > 0, StartUrl.Length: > 0, Scope.Length: > 0, Display.Length: > 0, Orientation.Length: > 0, BackgroundColor.Length: > 0, ThemeColor.Length: > 0, Icons.Count: > 0 };
 
-        var pinValid = options.Pin is { Length: > 0, LockMinutes: > 0, MaxAttempts: > 0, ResetMinutes: > 0, LockAfterMinutes: > 0 } && options.Pin.MaxFailures > options.Pin.MaxAttempts;
+        var pinValid = options.Pin is { Length: > 0, LockMinutes: > 0, MaxAttempts: > 0, ResetMinutes: > 0, LockAfterMinutes: > 0, RenewSeconds: > 0 } && options.Pin.MaxFailures > options.Pin.MaxAttempts && options.Pin.RenewSeconds < options.Pin.LockAfterMinutes * 60;
 
         return limitsValid && storageValid && manifestValid && pinValid && options.Notifications is { QueueCapacity: > 0, ErrorLength: > 0 };
     }

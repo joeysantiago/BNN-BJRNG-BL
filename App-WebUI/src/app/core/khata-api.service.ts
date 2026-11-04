@@ -1,20 +1,25 @@
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { I18nService } from './i18n.service';
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { KhataAttachment, KhataBook, KhataBookContacts, KhataBookRequest, KhataBookSummary, KhataContact, KhataContactRequest, KhataCurrency, KhataCurrencyRequest, KhataEntry, KhataEntryDetail, KhataEntryHistory, KhataEntryPage, KhataEntryQuery, KhataEntryRequest, KhataUpload, KhataExportFormat, KhataNotify, KhataPinSaved, KhataPinStatus, KhataSettings, KhataStorage, KhataStorageRequest } from './models/khata.model';
 
 const TIMEOUT = 30000;
 const UPLOAD_TIMEOUT = 120000;
 const IDEMPOTENCY = 'X-Idempotency-Key';
+/** HTTP 423: the app lock of this session is locked (KhataPinRequired). */
+const LOCKED = 423;
 
 /**
  * SnapKhata ledger endpoints. They use the common login (ApiService adds the Bearer token and refreshes it after a 401).
- * Creates send an idempotency key made when the form opened, so a double tap or a retry never saves twice.
+ * Creates send an idempotency key made when the form opened, so a double tap or a retry never saves twice. A 423 answer (app lock locked)
+ * is reported through `pinRequired`.
  */
 @Injectable({ providedIn: 'root' })
 
 export class KhataApiService {
+  /** Changes each time the server refuses a call because the app lock is locked (423); KhataLockService then shows the PIN screen. */
+  readonly pinRequired = signal(0);
   private readonly api = inject(ApiService);
   private readonly auth = inject(AuthService);
   private readonly i18n = inject(I18nService);
@@ -35,6 +40,11 @@ export class KhataApiService {
 
   settings(): Promise<KhataSettings> {
     return this.call('GET', '/khata/settings');
+  }
+
+  /** Tells the server the open app is still in use, so it stays unlocked (refused with 423 when it is already locked). */
+  keepPin(): Promise<KhataPinStatus> {
+    return this.call('POST', '/khata/pin/keep', {});
   }
 
   pinStatus(): Promise<KhataPinStatus> {
@@ -77,6 +87,11 @@ export class KhataApiService {
 
   deletePhoto(attachmentId: number): Promise<string> {
     return this.call('DELETE', `/khata/attachments/${attachmentId}`, undefined, {}, true);
+  }
+
+  /** The installed app has opened: lock this session on the server, unless the user has just logged in (`keepOpen`). */
+  lockPin(keepOpen: boolean): Promise<KhataPinStatus> {
+    return this.call('POST', '/khata/pin/lock', { keepOpen });
   }
 
   deleteCurrency(currencyId: number): Promise<string> {
@@ -213,8 +228,14 @@ export class KhataApiService {
   /** `messageOnly` returns the server's message instead of the data. */
   private async call<T>(method: string, path: string, body?: unknown, headers: Record<string, string> = {}, messageOnly = false): Promise<T> {
     const all = { ...this.headers(), ...headers };
-    const res = await this.api.sendFull<T>(method, path, body === undefined ? { headers: all } : this.api.json(body, all), TIMEOUT);
-    return (messageOnly ? res.message ?? '' : res.data) as T;
+    try {
+      const res = await this.api.sendFull<T>(method, path, body === undefined ? { headers: all } : this.api.json(body, all), TIMEOUT);
+      return (messageOnly ? res.message ?? '' : res.data) as T;
+    } catch (e) {
+      if ((e as Error & { status?: number }).status === LOCKED)
+        this.pinRequired.update((n) => n + 1);
+      throw e;
+    }
   }
 
   // #endregion

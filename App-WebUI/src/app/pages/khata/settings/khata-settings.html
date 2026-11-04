@@ -50,7 +50,7 @@
             </label>
           </div>
         </section>
-        @if (lock.status()?.hasPin && lock.status(); as pin) {
+        @if (lock.canChange() && lock.status(); as pin) {
           <section class="k-card" aria-labelledby="ks-lock">
             <div class="k-set-row">
               <span class="t"><span class="k-ib brand"><svg kIco="lock" [size]="18"></svg></span><span><b id="ks-lock">{{ i18n.t('khata.lock.title') }}</b><small>{{ i18n.t('khata.lock.hint', { n: pin.length }) }}</small></span></span>

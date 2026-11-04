@@ -141,6 +141,7 @@ BEGIN
         ('KHATA_PIN_WRONG', N'{"en":"Wrong PIN. {0} tries left before the app is locked for a while.","hi":"गलत PIN। ऐप कुछ देर के लिए लॉक होने से पहले {0} कोशिशें बाकी हैं।","ar":"رمز PIN خاطئ. تبقّت {0} محاولات قبل قفل التطبيق لفترة."}'),
         ('KHATA_PIN_LOCKED', N'{"en":"Too many wrong PINs. Try again in {0} minutes, or log in again.","hi":"बहुत सारे गलत PIN। {0} मिनट बाद फिर कोशिश करें, या फिर से लॉग इन करें।","ar":"محاولات PIN خاطئة كثيرة. حاول مرة أخرى بعد {0} دقيقة، أو سجّل الدخول من جديد."}'),
         ('KHATA_PIN_CLEARED', N'{"en":"Too many wrong PINs. You have been logged out everywhere. Log in again and choose a new PIN.","hi":"बहुत सारे गलत PIN। आपको हर जगह से लॉग आउट कर दिया गया है। फिर से लॉग इन करें और नया PIN चुनें।","ar":"محاولات PIN خاطئة كثيرة. تم تسجيل خروجك من كل الأجهزة. سجّل الدخول من جديد واختر رمز PIN جديدًا."}'),
+        ('KHATA_PIN_REQUIRED', N'{"en":"The app is locked. Enter your PIN to continue.","hi":"ऐप लॉक है। जारी रखने के लिए अपना PIN दर्ज करें।","ar":"التطبيق مقفل. أدخل رمز PIN للمتابعة."}'),
         ('KHATA_PIN_SAVED', N'{"en":"Your app lock PIN was saved.","hi":"आपका ऐप लॉक PIN सहेज लिया गया।","ar":"تم حفظ رمز PIN لقفل التطبيق."}'),
         ('KHATA_PIN_NOT_SET', N'{"en":"You have not set an app lock PIN yet.","hi":"आपने अभी तक ऐप लॉक PIN सेट नहीं किया है।","ar":"لم تقم بتعيين رمز PIN لقفل التطبيق بعد."}'),
         ('KHATA_NOTIFY_SUBJECT', N'{"en":"{0} updated your account","hi":"{0} ने आपका खाता अपडेट किया","ar":"قام {0} بتحديث حسابك"}'),

@@ -12,6 +12,8 @@ using Thakurg.Domain.Entities;
 namespace Thakurg.Infrastructure.Services;
 
 // The app lock PIN of the installed app (KhataUsers.PinHash). The server checks it, so clearing the browser cannot skip it.
+// A session the installed app protects (KhataLockSessions) is refused every ledger call (KhataPinRequired, 423) until the PIN is entered: when the app
+// opens (LockAsync) and after Khata:Pin:LockAfterMinutes without a call. A password or code login in the last LockAfterMinutes counts as unlocked.
 // Khata:Pin:MaxAttempts wrong tries in a row lock it for LockMinutes; MaxFailures wrong tries in all clear it and end every session of the user.
 // Changing it needs the current PIN, unless the login is younger than ResetMinutes (Forgot PIN: log in again, then choose a new one).
 public class KhataPinService : IKhataPinService
@@ -40,6 +42,30 @@ public class KhataPinService : IKhataPinService
 
     #region Public Methods
 
+    // The gate of every ledger call (KhataProfileFilter). A session the app lock does not protect passes; a protected one must be unlocked,
+    // and each call keeps it unlocked for another LockAfterMinutes (written at most once every RenewSeconds).
+    public async Task EnsureUnlockedAsync(KhataCallerDto caller, CancellationToken cancellationToken)
+    {
+        var lockSession = await _userRepository.GetLockSessionAsync(caller.SessionId, cancellationToken);
+
+        if (lockSession is null)
+            return;
+
+        var now = DateTime.UtcNow;
+
+        if (lockSession.UnlockedUntil is null || lockSession.UnlockedUntil <= now)
+            throw new BusinessException(MessageCodes.KhataPinRequired, 423);
+
+        var renewed = now.AddMinutes(_options.LockAfterMinutes);
+
+        if ((renewed - lockSession.UnlockedUntil.Value).TotalSeconds < _options.RenewSeconds)
+            return;
+
+        lockSession.UnlockedUntil = renewed;
+        lockSession.ModifiedOn = now;
+        await _userRepository.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<KhataPinStatusDto> GetAsync(KhataCallerDto caller, CancellationToken cancellationToken)
     {
         var user = await RequireUserAsync(caller, cancellationToken);
@@ -55,6 +81,17 @@ public class KhataPinService : IKhataPinService
             throw new BusinessException(MessageCodes.KhataPinNotSet, 409);
 
         await CheckAsync(user, caller, request.Pin ?? string.Empty, cancellationToken);
+        await SetSessionAsync(user, caller, true, cancellationToken);
+
+        return await ToDtoAsync(user, caller, cancellationToken);
+    }
+
+    // The installed app calls this when it opens: the session becomes protected and locked, unless the user has just logged in (KeepOpen).
+    public async Task<KhataPinStatusDto> LockAsync(KhataCallerDto caller, KhataPinLockRequestDto request, CancellationToken cancellationToken)
+    {
+        var user = await RequireUserAsync(caller, cancellationToken);
+        var keepOpen = request.KeepOpen && await IsLoggedInWithinAsync(caller, _options.LockAfterMinutes, cancellationToken);
+        await SetSessionAsync(user, caller, keepOpen, cancellationToken);
 
         return await ToDtoAsync(user, caller, cancellationToken);
     }
@@ -71,7 +108,7 @@ public class KhataPinService : IKhataPinService
         if (IsWeak(pin))
             throw new BusinessException(MessageCodes.KhataPinWeak, 400);
 
-        if (user.PinHash is not null && !await IsFreshLoginAsync(caller, cancellationToken))
+        if (user.PinHash is not null && !await IsLoggedInWithinAsync(caller, _options.ResetMinutes, cancellationToken))
             await CheckAsync(user, caller, request.CurrentPin ?? string.Empty, cancellationToken);
 
         user.PinHash = _passwordHasher.Hash(pin);
@@ -81,6 +118,7 @@ public class KhataPinService : IKhataPinService
         user.ModifiedOn = DateTime.UtcNow;
         await _userRepository.SaveChangesAsync(cancellationToken);
         await _common.Audit.WriteAsync(KhataAuditActions.PinSet, user.Id, caller, null, cancellationToken);
+        await SetSessionAsync(user, caller, true, cancellationToken);
 
         return new ServiceResultDto<KhataPinStatusDto> { Data = await ToDtoAsync(user, caller, cancellationToken), Message = await _common.Messages.GetAsync(MessageCodes.KhataPinSaved) };
     }
@@ -97,13 +135,6 @@ public class KhataPinService : IKhataPinService
         return steps.Count == 1 && Math.Abs(steps[0]) <= 1;
     }
 
-    private async Task<bool> IsFreshLoginAsync(KhataCallerDto caller, CancellationToken cancellationToken)
-    {
-        var session = await _authRepository.GetSessionAsync(caller.SessionId, cancellationToken);
-
-        return session is not null && session.LoggedInOn >= DateTime.UtcNow.AddMinutes(-_options.ResetMinutes);
-    }
-
     private async Task<KhataUser> RequireUserAsync(KhataCallerDto caller, CancellationToken cancellationToken)
     {
         return await _userRepository.GetUserAsync(caller.UserId, cancellationToken) ?? throw new BusinessException(MessageCodes.AuthSessionInvalid, 401);
@@ -116,7 +147,7 @@ public class KhataPinService : IKhataPinService
         var now = DateTime.UtcNow;
 
         if (user.PinLockedUntil > now)
-            throw new BusinessException(MessageCodes.KhataPinLocked, 423, (int)Math.Ceiling((user.PinLockedUntil.Value - now).TotalMinutes));
+            throw new BusinessException(MessageCodes.KhataPinLocked, 429, (int)Math.Ceiling((user.PinLockedUntil.Value - now).TotalMinutes));
 
         if (_passwordHasher.Verify(pin, user.PinHash!))
         {
@@ -152,7 +183,7 @@ public class KhataPinService : IKhataPinService
             await _userRepository.SaveChangesAsync(cancellationToken);
             await _common.Audit.WriteAsync(KhataAuditActions.PinLocked, user.Id, caller, null, cancellationToken);
 
-            throw new BusinessException(MessageCodes.KhataPinLocked, 423, _options.LockMinutes);
+            throw new BusinessException(MessageCodes.KhataPinLocked, 429, _options.LockMinutes);
         }
 
         await _userRepository.SaveChangesAsync(cancellationToken);
@@ -160,11 +191,40 @@ public class KhataPinService : IKhataPinService
         throw new BusinessException(MessageCodes.KhataPinWrong, 400, _options.MaxAttempts - user.PinFailedCount % _options.MaxAttempts);
     }
 
+    private async Task<bool> IsLoggedInWithinAsync(KhataCallerDto caller, int minutes, CancellationToken cancellationToken)
+    {
+        var session = await _authRepository.GetSessionAsync(caller.SessionId, cancellationToken);
+
+        return session is not null && session.LoggedInOn >= DateTime.UtcNow.AddMinutes(-minutes);
+    }
+
     private async Task<KhataPinStatusDto> ToDtoAsync(KhataUser user, KhataCallerDto caller, CancellationToken cancellationToken)
     {
-        var lockedUntil = user.PinLockedUntil > DateTime.UtcNow ? user.PinLockedUntil : null;
+        var now = DateTime.UtcNow;
+        var lockSession = await _userRepository.GetLockSessionAsync(caller.SessionId, cancellationToken);
+        var lockedUntil = user.PinLockedUntil > now ? user.PinLockedUntil : null;
+        var locked = lockSession is not null && !(lockSession.UnlockedUntil > now);
 
-        return new KhataPinStatusDto { Length = _options.Length, HasPin = user.PinHash is not null, CanReset = await IsFreshLoginAsync(caller, cancellationToken), LockAfterMinutes = _options.LockAfterMinutes, LockedUntil = lockedUntil };
+        return new KhataPinStatusDto { Length = _options.Length, HasPin = user.PinHash is not null, Locked = locked, Protected = lockSession is not null, CanReset = await IsLoggedInWithinAsync(caller, _options.ResetMinutes, cancellationToken), LockAfterMinutes = _options.LockAfterMinutes, LockedUntil = lockedUntil };
+    }
+
+    // Protects this session with the app lock: unlocked for LockAfterMinutes, or locked.
+    private async Task SetSessionAsync(KhataUser user, KhataCallerDto caller, bool unlocked, CancellationToken cancellationToken)
+    {
+        var now = DateTime.UtcNow;
+        var unlockedUntil = unlocked ? now.AddMinutes(_options.LockAfterMinutes) : (DateTime?)null;
+        var lockSession = await _userRepository.GetLockSessionAsync(caller.SessionId, cancellationToken);
+
+        if (lockSession is null)
+        {
+            await _userRepository.AddLockSessionAsync(new KhataLockSession { UserId = user.Id, SessionId = caller.SessionId, UnlockedUntil = unlockedUntil, CreatedBy = user.Id }, cancellationToken);
+
+            return;
+        }
+
+        lockSession.UnlockedUntil = unlockedUntil;
+        lockSession.ModifiedOn = now;
+        await _userRepository.SaveChangesAsync(cancellationToken);
     }
 
     #endregion
