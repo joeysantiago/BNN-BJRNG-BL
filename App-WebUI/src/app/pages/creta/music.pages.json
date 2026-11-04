@@ -1,4 +1,5 @@
 {
+  "apps": ["creta"],
   "prerender": ["creta", "creta-add"],
   "sitemap": [
     { "path": "/creta/", "priority": "0.6" }

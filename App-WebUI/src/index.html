@@ -19,11 +19,20 @@
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
 
-    <!-- Routes use the hash (/#/creta). A plain path such as /creta/ is moved to /#/creta before Angular starts. -->
+    <!-- Routes use the hash (/#/creta). A plain path such as /creta/ is moved to /#/creta before Angular starts.
+         An installed app runs at its own path /apps/<code>/ (its manifest scope), which is kept: without a screen in the hash it opens the app's
+         first screen, and the site's manifest is dropped here so the browser never offers the speed test in another app's window
+         (AppPwaService then adds the app's own manifest). -->
     <script>
       (function () {
         var p = location.pathname;
-        if (p !== '/' && !/^#\//.test(location.hash) && !/\.\w+$/.test(p)) location.replace('/#' + p.replace(/\/+$/, '') + location.search);
+        var a = /^\/apps\/([a-z]+)\/?$/.exec(p);
+        var homes = { speedtest: '/', creta: '/creta', nexon: '/nexon', youtube: '/youtube', khata: '/khata/app' };
+        if (a && homes[a[1]]) {
+          if (!/^#\//.test(location.hash)) location.replace('/apps/' + a[1] + '/' + location.search + '#' + homes[a[1]]);
+          var m = a[1] !== 'speedtest' && document.querySelector('link[rel=manifest]');
+          if (m) m.remove();
+        } else if (p !== '/' && !/^#\//.test(location.hash) && !/\.\w+$/.test(p)) location.replace('/#' + p.replace(/\/+$/, '') + location.search);
       })();
     </script>
 
