@@ -66,7 +66,8 @@ export class KhataMail {
 
   private async load(): Promise<void> {
     try {
-      this.settings.set(await this.api.get<KhataMailSetting[]>('/admin/mail'));
+      // The site's default server is edited in Settings > General; this tab holds SnapKhata's own two.
+      this.settings.set((await this.api.get<KhataMailSetting[]>('/admin/mail')).filter((s) => s.purpose in this.icons));
     } catch (e) {
       this.error.set((e as Error).message);
     }

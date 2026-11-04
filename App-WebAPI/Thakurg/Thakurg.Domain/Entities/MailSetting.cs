@@ -2,7 +2,8 @@ using Thakurg.Domain.Common;
 
 namespace Thakurg.Domain.Entities;
 
-// One mail server profile, entered by a super admin in Settings > Mail: Purpose = MailPurposes (otp or notification), Security = MailSecurityModes.
+// One mail server profile, entered by a super admin in Settings > General (default) or SnapKhata Settings > Mail (otp, notification):
+// Purpose = MailPurposes, Security = MailSecurityModes. PasswordProtected is the password encrypted with IMailSecretProtector.
 // PasswordProtected is the SMTP password, encrypted with ASP.NET Data Protection, never stored or returned in plain text.
 public class MailSetting : BaseEntity
 {

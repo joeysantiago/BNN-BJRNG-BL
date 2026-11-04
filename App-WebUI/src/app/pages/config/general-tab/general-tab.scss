@@ -1,0 +1,12 @@
+@use '../config';
+
+:host {
+  display: grid;
+}
+.lead-note {
+  padding-block-start: 14px;
+}
+.field-row input:not([type='checkbox']),
+.field-row select {
+  width: min(100%, 320px);
+}

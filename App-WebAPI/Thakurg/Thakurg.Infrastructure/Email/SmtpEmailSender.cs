@@ -9,11 +9,13 @@ using Thakurg.Contracts.Configurations;
 using Thakurg.Contracts.Exceptions;
 using Thakurg.Contracts.Mail;
 using Thakurg.Contracts.Messages;
+using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Email;
 
 // Sends mail with MailKit through the server for the mail's purpose (MailPurposes): the profile a super admin saved in Settings > Mail when it is
-// switched on, otherwise the server in appsettings Email:Smtp. With UseSsl, ImplicitTls uses TLS from the start, otherwise the connection upgrades with STARTTLS.
+// switched on, otherwise the site's default server (Settings > General), otherwise the server in appsettings Email:Smtp (no login).
+// With UseSsl, ImplicitTls uses TLS from the start, otherwise the connection upgrades with STARTTLS.
 public class SmtpEmailSender : IEmailSender
 {
     private readonly EmailSmtpOptions _smtp;
@@ -66,7 +68,12 @@ public class SmtpEmailSender : IEmailSender
 
     #region Private Methods
 
-    private static SecureSocketOptions Security(EmailSmtpOptions server)
+    private static bool IsUsable(MailSetting? setting)
+    {
+        return setting is { Enabled: true } && !string.IsNullOrWhiteSpace(setting.Host);
+    }
+
+    private static SecureSocketOptions Security(MailServerDto server)
     {
         if (!server.UseSsl)
             return SecureSocketOptions.None;
@@ -74,17 +81,20 @@ public class SmtpEmailSender : IEmailSender
         return server.ImplicitTls ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
     }
 
-    // The saved profile of this purpose when it is on and has a host; the password is decrypted only here, for this one connection.
-    private async Task<EmailSmtpOptions> ServerAsync(string purpose, CancellationToken cancellationToken)
+    // The saved profile of this purpose, else the default profile, when it is on and has a host; the password is decrypted only here, for this one connection.
+    private async Task<MailServerDto> ServerAsync(string purpose, CancellationToken cancellationToken)
     {
         var setting = await _mailRepository.GetAsync(purpose, cancellationToken);
 
-        if (setting is not { Enabled: true } || string.IsNullOrWhiteSpace(setting.Host))
-            return _smtp;
+        if (!IsUsable(setting) && purpose != MailPurposes.Default)
+            setting = await _mailRepository.GetAsync(MailPurposes.Default, cancellationToken);
 
-        return new EmailSmtpOptions
+        if (setting is null || !IsUsable(setting))
+            return new MailServerDto { Host = _smtp.Host, Port = _smtp.Port, UseSsl = _smtp.UseSsl, ImplicitTls = _smtp.ImplicitTls, FromName = _smtp.FromName, FromAddress = _smtp.FromAddress };
+
+        return new MailServerDto
         {
-            Host = setting.Host,
+            Host = setting.Host!,
             Port = setting.Port,
             UseSsl = setting.Security != MailSecurityModes.None,
             ImplicitTls = setting.Security == MailSecurityModes.Ssl,
