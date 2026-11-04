@@ -25,6 +25,8 @@ export class AuthService {
   private awake = false;
   private expiresAt = 0;
   private token: string | null = null;
+  /** A password or one-time-code login happened in this page load (not a session restored from the refresh cookie). */
+  readonly signedInHere = signal(false);
   private readonly router = inject(Router);
   private readonly api = inject(ApiService);
   private readonly i18n = inject(I18nService);
@@ -191,6 +193,7 @@ export class AuthService {
     this.token = null;
     this.expiresAt = 0;
     this.user.set(null);
+    this.signedInHere.set(false);
     this.restoring = Promise.resolve(false);
     clearTimeout(this.renewTimer);
   }
@@ -283,6 +286,7 @@ export class AuthService {
   /** A login or sign-up: the account's language becomes the site language. */
   private signIn(result: AuthResult): AuthUser {
     this.apply(result);
+    this.signedInHere.set(true);
     const lang = result.user.language;
     if (lang === 'en' || lang === 'hi' || lang === 'ar')
       this.i18n.set(lang);

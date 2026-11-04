@@ -78,7 +78,10 @@ export interface KhataDemoFile {
   contentType: string;
 }
 
-/** SnapKhata's part of the demo database. `lastBook` and `notifications` are per user id; `storage` is for the whole site. */
+/**
+ * SnapKhata's part of the demo database. `lastBook`, `notifications` and `pins` are per user id; `storage` is for the whole site. `locks` (KhataLockSessions)
+ * is per login session token: until when that session is unlocked (null = locked); a session that is not there is not protected by the app lock.
+ */
 export interface KhataDemoDb {
   files: KhataDemoFile[];
   books: KhataDemoBook[];
@@ -88,7 +91,16 @@ export interface KhataDemoDb {
   contacts: KhataDemoContact[];
   currencies: KhataDemoCurrency[];
   lastBook: Record<number, number>;
+  pins?: Record<number, KhataDemoPin>;
+  locks?: Record<string, number | null>;
   notifications: Record<number, boolean>;
+}
+
+/** A user's app lock PIN (KhataUsers.PinHash, PinFailedCount, PinLockedUntil). */
+export interface KhataDemoPin {
+  hash: string;
+  failed: number;
+  lockedUntil: number | null;
 }
 
 /** What one SnapKhata call answers: a message code and its arguments, data, or a file (photos and exports). */

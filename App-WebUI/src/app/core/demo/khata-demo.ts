@@ -1,9 +1,9 @@
 import { DemoFailure } from './demo-failure';
-import { randomToken } from './demo-hash';
-import { DemoDb, DemoUser } from './demo.model';
+import { randomToken, sha256 } from './demo-hash';
+import { DemoDb, DemoSession, DemoUser } from './demo.model';
 import { KHATA_DEMO_MESSAGES } from './khata-demo-messages';
 import { KhataDemoBook, KhataDemoContact, KhataDemoDb, KhataDemoEntry, KhataDemoFile, KhataDemoResult } from './khata-demo.model';
-import { KHATA_GAVE, KhataAttachment, KhataBook, KhataContact, KhataCurrency, KhataEntry, KhataEntryKind, KhataEntrySnapshot, KhataEntrySort, KhataNotify, KhataStorage } from '../models/khata.model';
+import { KHATA_GAVE, KhataAttachment, KhataBook, KhataContact, KhataCurrency, KhataEntry, KhataEntryKind, KhataEntrySnapshot, KhataEntrySort, KhataNotify, KhataPinStatus, KhataStorage } from '../models/khata.model';
 
 export { KHATA_DEMO_MESSAGES };
 
@@ -18,6 +18,10 @@ const EMAIL = /^[^@\s]{1,64}@[^@\s]+\.[^@\s]{2,}$/;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const ACCOUNT = /^[a-z0-9]{3,24}$/;
 const CONTAINER = /^(?=.{3,63}$)[a-z0-9]+(-[a-z0-9]+)*$/;
+/** The same values as Khata:Pin in appsettings.json of the API. */
+const PIN = { length: 4, maxAttempts: 5, lockMinutes: 15, maxFailures: 10, resetMinutes: 10, lockAfterMinutes: 5 };
+/** The calls that work while the app lock is locked, as in the API (KhataLockFree, and the storage settings, which do not pass the Khata profile filter). */
+const LOCK_FREE = ['GET /khata/pin', 'PUT /khata/pin', 'POST /khata/pin/verify', 'POST /khata/pin/lock', 'GET /khata/storage', 'PUT /khata/storage', 'POST /khata/storage/test'];
 
 /** The built-in money types (INSERT/SnapKhata/002_KhataCurrencies.sql), in the same order. */
 export const KHATA_DEMO_CURRENCIES: KhataCurrency[] = [
@@ -33,9 +37,11 @@ export const KHATA_DEMO_CURRENCIES: KhataCurrency[] = [
 export class KhataDemo {
   private readonly k: KhataDemoDb;
 
-  constructor(db: DemoDb, private readonly user: DemoUser, private readonly next: () => number, private readonly text: (code: string, args?: (string | number)[]) => string) {
+  constructor(private readonly db: DemoDb, private readonly user: DemoUser, private readonly session: DemoSession, private readonly next: () => number, private readonly text: (code: string, args?: (string | number)[]) => string, private readonly save: () => void) {
     db.khata ??= { files: [], books: [], storage: { hasKey: false, enabled: false, accountName: '', containerName: '', provider: 'local' }, entries: [], history: [], contacts: [], currencies: [], lastBook: {}, notifications: {} };
     this.k = db.khata;
+    this.k.pins ??= {};
+    this.k.locks ??= {};
   }
 
   // #region Public Methods
@@ -44,6 +50,8 @@ export class KhataDemo {
     const id = Number(/\/(\d+)(?:\/|$)/.exec(path)?.[1]);
     const params = new URLSearchParams(query);
     const form = body as Record<string, unknown>;
+    if (!LOCK_FREE.includes(`${method} ${path}`))
+      this.ensureUnlocked();
     switch (`${method} ${path.replace(/\/\d+(?=\/|$)/g, '/{id}')}`) {
       case 'GET /khata/books':
         return { data: this.myBooks().map((b) => this.bookDto(b)) };
@@ -114,6 +122,18 @@ export class KhataDemo {
         return { data: this.addCurrency(form) };
       case 'DELETE /khata/currencies/{id}':
         return this.deleteCurrency(id);
+      case 'GET /khata/pin':
+      case 'POST /khata/pin/keep':
+        return { data: this.pinStatus() };
+      case 'PUT /khata/pin':
+        return this.setPin(form);
+      case 'POST /khata/pin/verify':
+        this.checkPin(String(form['pin'] ?? ''), true);
+        this.setLock(true);
+        return { data: this.pinStatus() };
+      case 'POST /khata/pin/lock':
+        this.setLock(!!form['keepOpen'] && this.loggedInWithin(PIN.lockAfterMinutes));
+        return { data: this.pinStatus() };
       case 'GET /khata/settings':
         return { data: { notificationsEnabled: this.k.notifications[this.user.id] ?? true, storage: { provider: this.k.storage.provider } } };
       case 'PUT /khata/settings':
@@ -147,6 +167,90 @@ export class KhataDemo {
   private today(): string {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  /** Every digit the same (1111) or one straight run up or down (1234, 9876). */
+  private weakPin(pin: string): boolean {
+    const steps = new Set([...pin].slice(1).map((d, i) => Number(d) - Number(pin[i])));
+    const [only] = [...steps];
+    return steps.size === 1 && Math.abs(only) <= 1;
+  }
+
+  /** Protects this login session with the app lock: unlocked for lockAfterMinutes, or locked. */
+  private setLock(unlocked: boolean): void {
+    this.k.locks![this.session.token] = unlocked ? Date.now() + PIN.lockAfterMinutes * 60000 : null;
+  }
+
+  /** A protected session must be unlocked; each call keeps it unlocked for another lockAfterMinutes (KhataPinService.EnsureUnlockedAsync). */
+  private ensureUnlocked(): void {
+    const locks = this.k.locks!;
+    if (!(this.session.token in locks))
+      return;
+    const until = locks[this.session.token];
+    if (!until || until <= Date.now())
+      throw new DemoFailure(423, 'KHATA_PIN_REQUIRED');
+    this.setLock(true);
+  }
+
+  private loggedInWithin(minutes: number): boolean {
+    return !!this.session.loggedInOn && this.session.loggedInOn >= Date.now() - minutes * 60000;
+  }
+
+  /** GET /khata/pin, as KhataPinStatusDto. */
+  private pinStatus(): KhataPinStatus {
+    const pin = this.k.pins![this.user.id];
+    const guarded = this.session.token in this.k.locks!;
+    const until = this.k.locks![this.session.token];
+    const lockedUntil = pin?.lockedUntil && pin.lockedUntil > Date.now() ? new Date(pin.lockedUntil).toISOString() : null;
+    return { length: PIN.length, hasPin: !!pin, locked: guarded && !(until && until > Date.now()), canReset: this.loggedInWithin(PIN.resetMinutes), protected: guarded, lockAfterMinutes: PIN.lockAfterMinutes, lockedUntil };
+  }
+
+  /** A first PIN needs no old one; to change it the current PIN is checked unless the login is fresh. Saving it unlocks this session. */
+  private setPin(form: Record<string, unknown>): KhataDemoResult {
+    const pin = String(form['pin'] ?? '');
+    if (pin.length !== PIN.length || !/^\d+$/.test(pin))
+      throw new DemoFailure(400, 'KHATA_PIN_INVALID', [PIN.length]);
+    if (this.weakPin(pin))
+      throw new DemoFailure(400, 'KHATA_PIN_WEAK');
+    if (this.k.pins![this.user.id] && !this.loggedInWithin(PIN.resetMinutes))
+      this.checkPin(String(form['currentPin'] ?? ''), false);
+    this.k.pins![this.user.id] = { hash: sha256(`${this.user.id}:${pin}`), failed: 0, lockedUntil: null };
+    this.setLock(true);
+    return { code: 'KHATA_PIN_SAVED', data: this.pinStatus() };
+  }
+
+  /**
+   * A right PIN clears the wrong tries. Every maxAttempts wrong tries in a row lock it for lockMinutes; maxFailures in all clear it and end every
+   * session of the user (401). Wrong tries are saved before the refusal, as the demo saves only answered calls.
+   */
+  private checkPin(pin: string, needPin: boolean): void {
+    const saved = this.k.pins![this.user.id];
+    if (!saved) {
+      if (needPin)
+        throw new DemoFailure(409, 'KHATA_PIN_NOT_SET');
+      return;
+    }
+    if (saved.lockedUntil && saved.lockedUntil > Date.now())
+      throw new DemoFailure(429, 'KHATA_PIN_LOCKED', [Math.ceil((saved.lockedUntil - Date.now()) / 60000)]);
+    if (sha256(`${this.user.id}:${pin}`) === saved.hash) {
+      saved.failed = 0;
+      saved.lockedUntil = null;
+      return;
+    }
+    saved.failed++;
+    if (saved.failed >= PIN.maxFailures) {
+      delete this.k.pins![this.user.id];
+      this.db.sessions = this.db.sessions.filter((s) => s.userId !== this.user.id);
+      this.save();
+      throw new DemoFailure(401, 'KHATA_PIN_CLEARED');
+    }
+    if (saved.failed % PIN.maxAttempts === 0) {
+      saved.lockedUntil = Date.now() + PIN.lockMinutes * 60000;
+      this.save();
+      throw new DemoFailure(429, 'KHATA_PIN_LOCKED', [PIN.lockMinutes]);
+    }
+    this.save();
+    throw new DemoFailure(400, 'KHATA_PIN_WRONG', [PIN.maxAttempts - (saved.failed % PIN.maxAttempts)]);
   }
 
   private requireSuper(isSuper: boolean): void {
@@ -346,7 +450,7 @@ export class KhataDemo {
     const book = this.book(bookId);
     if (this.contactsOf(book.id).length >= LIMITS.maxContacts)
       throw new DemoFailure(409, 'KHATA_CONTACT_LIMIT', [LIMITS.maxContacts]);
-    const contact: KhataDemoContact = { id: this.next(), bookId: book.id, createdOn: this.now(), rowVersion: randomToken(), notify: { app: false, sms: false, email: false }, photo: null, allowContactEntries: false, ...this.contactFields(form) };
+    const contact: KhataDemoContact = { id: this.next(), bookId: book.id, createdOn: this.now(), rowVersion: randomToken(), notify: { app: false, sms: false, email: false, whatsApp: false }, photo: null, allowContactEntries: false, ...this.contactFields(form) };
     this.k.contacts.push(contact);
     return this.contactDto(contact);
   }
@@ -360,14 +464,16 @@ export class KhataDemo {
     return this.contactDto(contact);
   }
 
-  /** E-mail needs the party's e-mail address, SMS their mobile number. */
+  /** E-mail needs the party's e-mail address, SMS and WhatsApp their mobile number. */
   private setNotify(contactId: number, form: Record<string, unknown>): KhataDemoResult {
     const contact = this.contact(contactId);
-    const notify: KhataNotify = { app: !!form['app'], sms: !!form['sms'], email: !!form['email'] };
+    const notify: KhataNotify = { app: !!form['app'], sms: !!form['sms'], email: !!form['email'], whatsApp: !!form['whatsApp'] };
     if (notify.email && !contact.email)
       throw new DemoFailure(400, 'KHATA_NOTIFY_EMAIL_MISSING');
     if (notify.sms && !contact.mobile)
       throw new DemoFailure(400, 'KHATA_NOTIFY_MOBILE_MISSING');
+    if (notify.whatsApp && !contact.mobile)
+      throw new DemoFailure(400, 'KHATA_NOTIFY_WHATSAPP_MISSING');
     contact.notify = notify;
     return { code: 'KHATA_NOTIFY_SAVED', data: notify };
   }

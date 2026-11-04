@@ -238,7 +238,7 @@ export class DemoBackend {
   private signIn(db: DemoDb, user: DemoUser): unknown {
     const token = randomToken();
     db.sessions = db.sessions.filter((s) => s.expiresAt > Date.now());
-    db.sessions.push({ token, userId: user.id, expiresAt: Date.now() + DEMO_RULES.sessionDays * 86400000 });
+    db.sessions.push({ token, userId: user.id, loggedInOn: Date.now(), expiresAt: Date.now() + DEMO_RULES.sessionDays * 86400000 });
     this.keepSession(token);
     return { accessToken: token, expiresInSeconds: DEMO_RULES.accessMinutes * 60, user: this.dto(db, user) };
   }
@@ -425,7 +425,8 @@ export class DemoBackend {
       throw new DemoFailure(403, 'AUTH_FORBIDDEN');
     const { KhataDemo, KHATA_DEMO_MESSAGES } = await import('./khata-demo');
     this.extraMessages = KHATA_DEMO_MESSAGES;
-    const demo = new KhataDemo(db, user, () => this.next(db), (code, args = []) => this.text(code, req.lang, args));
+    const session = db.sessions.find((s) => s.token === req.token)!;
+    const demo = new KhataDemo(db, user, session, () => this.next(db), (code, args = []) => this.text(code, req.lang, args), () => this.store(db));
     return demo.route(req.method, path, query, req.body, this.isSuper(db, user));
   }
 

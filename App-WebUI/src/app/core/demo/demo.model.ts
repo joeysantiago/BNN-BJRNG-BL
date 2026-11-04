@@ -74,11 +74,12 @@ export interface DemoApp {
   autoGrant: boolean;
 }
 
-/** A login session (UserSessions table). The token stands for both the access token and the refresh cookie of the API. */
+/** A login session (UserSessions table). The token stands for both the access token and the refresh cookie of the API. `loggedInOn`: when the password login was made. */
 export interface DemoSession {
   token: string;
   userId: number;
   expiresAt: number;
+  loggedInOn?: number;
 }
 
 /** The whole demo database, kept in this browser's storage. `settings` are the saved site settings (what differs from appSettings.ts); `mail` the saved mail servers. */
