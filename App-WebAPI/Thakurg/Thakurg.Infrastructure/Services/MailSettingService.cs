@@ -50,7 +50,8 @@ public class MailSettingService : IMailSettingService
 
     #region Public Methods
 
-    // Both profiles, in MailPurposes order; one never saved starts from the server in Email:Smtp, switched off.
+    // Every profile (default, sign-in codes, notifications), in MailPurposes order; one never saved starts from the server in Email:Smtp, switched off
+    // and without a login (a mail server's user name and password are kept only here, encrypted, never in appsettings).
     public async Task<List<MailSettingDto>> GetAllAsync(CancellationToken cancellationToken)
     {
         var settings = await _mailRepository.GetAllAsync(cancellationToken);
@@ -147,7 +148,7 @@ public class MailSettingService : IMailSettingService
     private MailSettingDto ToDto(string purpose, MailSetting? setting)
     {
         if (setting is null)
-            return new MailSettingDto { Purpose = purpose, Enabled = false, Host = _smtp.Host, Port = _smtp.Port, Security = SecurityOf(_smtp), UserName = _smtp.User, FromAddress = _smtp.FromAddress, FromName = _smtp.FromName };
+            return new MailSettingDto { Purpose = purpose, Enabled = false, Host = _smtp.Host, Port = _smtp.Port, Security = SecurityOf(_smtp), UserName = string.Empty, FromAddress = _smtp.FromAddress, FromName = _smtp.FromName };
 
         return new MailSettingDto { Purpose = purpose, Enabled = setting.Enabled, Host = setting.Host ?? string.Empty, Port = setting.Port, Security = setting.Security, UserName = setting.UserName ?? string.Empty, HasPassword = setting.PasswordProtected is not null, FromAddress = setting.FromAddress ?? string.Empty, FromName = setting.FromName ?? string.Empty };
     }
