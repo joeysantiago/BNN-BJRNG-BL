@@ -6,6 +6,7 @@ import { SeoService } from '../../core/seo.service';
 import { isPlatformBrowser } from '@angular/common';
 import { I18nService } from '../../core/i18n.service';
 import { DanceDoodle } from '../../shared/dance-doodle';
+import { AppPwaService } from '../../core/app-pwa.service';
 import { SettingsService } from '../../core/settings.service';
 import { PlayerConfig, PlayerId, Repeat, Track } from './creta.model';
 import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
@@ -74,6 +75,7 @@ const fmtTime = (s: number): string => {
 export class Creta implements OnDestroy {
   protected readonly i18n = inject(I18nService);
   private readonly seo = inject(SeoService);
+  private readonly pwa = inject(AppPwaService);
   protected readonly flags = inject(SettingsService);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   protected readonly audioRef = viewChild<ElementRef<HTMLAudioElement>>('audio');
@@ -116,6 +118,8 @@ export class Creta implements OnDestroy {
   protected autoplay = false;
 
   constructor() {
+    // Creta and Nexon each install as their own app.
+    this.pwa.enter(this.id);
     effect(() => {
       this.seo.set({
         title: this.tt('seo.title'),
@@ -157,6 +161,7 @@ export class Creta implements OnDestroy {
   // #region Public Methods
 
   ngOnDestroy(): void {
+    this.pwa.leave();
     this.audioRef()?.nativeElement.pause();
     if (this.browser && 'mediaSession' in navigator) navigator.mediaSession.metadata = null;
   }

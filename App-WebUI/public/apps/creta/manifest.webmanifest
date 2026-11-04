@@ -1,0 +1,18 @@
+{
+  "id": "/creta-app",
+  "name": "Creta audio",
+  "short_name": "Creta audio",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/?source=creta-pwa#/creta",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#170a1c",
+  "theme_color": "#d9482b",
+  "icons": [
+    { "src": "/icons/creta-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/creta-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/creta-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
