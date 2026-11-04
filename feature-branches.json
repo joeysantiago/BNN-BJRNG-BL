@@ -81,6 +81,7 @@
       "App-WebUI/src/app/pages/youtube/**",
       "App-WebUI/public/og/youtube.png",
       "App-WebUI/public/icons/youtube-*",
+      "App-WebUI/public/apps/youtube/**",
       "App-Prototype/pages/youtube.html",
       "App-Prototype/assets/js/youtube.js",
       "App-Prototype/assets/css/youtube.css"
