@@ -32,7 +32,7 @@ export interface UserNotice {
 }
 
 /** A tab of the Settings page. */
-export type SettingsTab = 'account' | 'users' | 'roles' | 'permissions' | 'features' | 'connection' | 'services' | 'youtube' | 'json' | 'mail';
+export type SettingsTab = 'general' | 'account' | 'users' | 'roles' | 'permissions' | 'features' | 'connection' | 'services' | 'youtube' | 'json' | 'mail';
 
 /** A tab of the Settings page and the page code whose View right shows it. */
 export interface TabInfo {

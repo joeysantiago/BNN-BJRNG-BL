@@ -1,5 +1,5 @@
 /** What a mail server profile of Settings > Mail sends: one-time sign-in codes, or SnapKhata notifications. */
-export type MailPurpose = 'otp' | 'notification';
+export type MailPurpose = 'default' | 'otp' | 'notification';
 
 /** How the connection to the mail server is secured: STARTTLS (port 587), SSL/TLS from the start (port 465) or none. */
 export type MailSecurity = 'starttls' | 'ssl' | 'none';

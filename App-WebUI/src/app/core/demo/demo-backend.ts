@@ -17,7 +17,8 @@ const OLD_SETTINGS_KEY = 'thakurg-settings';
 const EMAIL = /^[^@\s]{1,64}@[^@\s]+\.[^@\s]{2,}$/;
 const ROLE_CODE = /^[a-z][a-z0-9-]{1,49}$/;
 const LANGS = ['en', 'hi', 'ar'];
-const MAIL_PURPOSES: MailPurpose[] = ['otp', 'notification'];
+/** Every mail profile, as MailPurposes.All of the API: the site's default server (Settings > General) first. */
+const MAIL_PURPOSES: MailPurpose[] = ['default', 'otp', 'notification'];
 const MAIL_SECURITIES: MailSecurity[] = ['starttls', 'ssl', 'none'];
 
 /**

@@ -18,6 +18,9 @@
 
       <div class="panel" role="tabpanel" [id]="'cfg-panel-' + tab.id" [attr.aria-labelledby]="'cfg-tab-' + tab.id">
         @switch (tab.id) {
+          @case ('general') {
+            <app-general-tab />
+          }
           @case ('account') {
             <app-account-tab />
           }

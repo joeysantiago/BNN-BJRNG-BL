@@ -79,7 +79,8 @@ export class MailTab {
 
   private async load(): Promise<void> {
     try {
-      this.settings.set(await this.api.get<MailSetting[]>('/admin/mail'));
+      // The site's default server is edited in the General tab; this tab holds the two of their own.
+      this.settings.set((await this.api.get<MailSetting[]>('/admin/mail')).filter((s) => s.purpose !== 'default'));
     } catch (e) {
       this.error.set(this.failureText(e));
     }

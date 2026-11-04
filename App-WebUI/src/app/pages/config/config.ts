@@ -6,6 +6,7 @@ import { SeoService } from '../../core/seo.service';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
 import { AccountTab } from './account-tab/account-tab';
+import { GeneralTab } from './general-tab/general-tab';
 import { PermissionsTab } from './permissions-tab/permissions-tab';
 import { SettingsService } from '../../core/settings.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -16,6 +17,8 @@ import { AppSettings, ConnectionField, FeatureGroup, FeatureId, SettingsOverride
 
 /** Every tab of the page, in order. A tab shows when the user's role may view its page and this build holds what it is about. */
 const TABS: TabInfo[] = [
+  // The settings with a login, key or password (the site's mail server), kept encrypted in the database by the API branches; super admin only, like Mail.
+  { id: 'general', page: 'settings.mail' },
   { id: 'account', page: 'settings.account' },
   { id: 'users', page: 'settings.users' },
   { id: 'roles', page: 'settings.roles' },
@@ -37,7 +40,7 @@ const TABS: TabInfo[] = [
  */
 @Component({
   selector: 'app-config',
-  imports: [RouterLink, AccountTab, UsersTab, RolesTab, PermissionsTab, MailTab],
+  imports: [RouterLink, GeneralTab, AccountTab, UsersTab, RolesTab, PermissionsTab, MailTab],
   templateUrl: './config.html',
   styleUrl: './config.scss',
 })
@@ -101,7 +104,7 @@ export class Config {
   }
 
   tabName(tab: TabInfo): string {
-    return this.i18n.t(`perm.page.${tab.page}` as TranslationKey);
+    return this.i18n.t((tab.id === 'general' ? 'cfg.tab.general' : `perm.page.${tab.page}`) as TranslationKey);
   }
 
   /** Opens a tab and keeps it in the address (?tab=), so a reload or a shared link opens the same tab. */
