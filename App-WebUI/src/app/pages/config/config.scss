@@ -44,34 +44,36 @@ h1 {
   padding: 0;
   overflow: hidden;
 }
+/* The tabs stay on one row and scroll sideways instead of wrapping into a block of rows. */
 .tabs {
   display: flex;
-  flex-wrap: wrap;
-  gap: 2px 6px;
+  flex-wrap: nowrap;
+  gap: 0 6px;
   padding: 6px 12px 0;
   border-block-end: 1px solid var(--line, rgba(128, 128, 128, 0.25));
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 12px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
-/* On phones the tabs stay on one row and scroll sideways instead of wrapping into a block of rows. */
+.tab {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  scroll-snap-align: start;
+}
+/* Phones: tighter tabs, no scrollbar, and faded edges to show there is more to swipe to. */
 @media (max-width: 640px) {
   .tabs {
-    flex-wrap: nowrap;
     gap: 0 2px;
     padding-inline: 4px;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x proximity;
-    scroll-padding-inline: 12px;
     scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
     mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 24px), transparent 100%);
   }
   .tabs::-webkit-scrollbar {
     display: none;
-  }
-  .tab {
-    flex: 0 0 auto;
-    white-space: nowrap;
-    scroll-snap-align: start;
   }
 }
 .tab {
@@ -239,7 +241,7 @@ textarea {
   font: inherit;
   box-sizing: border-box;
 }
-.field-row > input,
+.field-row > input:not(.switch),
 .field-row > select {
   width: min(100%, 280px);
   flex: none;
@@ -465,7 +467,7 @@ textarea {
   .field-row {
     flex-wrap: wrap;
   }
-  .field-row > input,
+  .field-row > input:not(.switch),
   .field-row > select {
     width: 100%;
   }
