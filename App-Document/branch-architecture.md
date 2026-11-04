@@ -62,6 +62,8 @@ C# drops a call to a partial method that has no implementation, so a branch with
 - `App-WebUI/src/app/feature-routes.ts`: the feature routes and pages, and `FEATURE_APPS` (the apps the branch holds; the Settings page and the
   header show only their settings, panels and access boxes); a branch without the speed test sends `/` to its own app.
 - `App-Prototype/assets/js/routes.js`: the prototype pages; a branch without the speed test sends `/` to its own app.
+- `App-WebAPI/Thakurg/Thakurg.API/appsettings.json`: `AppManifests:Apps`, the apps that install on their own (`khata`, `creta`, `nexon`), each with
+  its own manifest id, start address and icons (`public/icons/<app>-*`). `matrix` keeps the section with an empty `Apps`.
 - Creta and Nexon: `pages/creta/music.routes.ts`, `pages/creta/music.pages.json`, `SqlScripts/INSERT/Music/001_MusicPlayers.sql` keep only their
   own player, and the prototype keeps only its own player page.
 

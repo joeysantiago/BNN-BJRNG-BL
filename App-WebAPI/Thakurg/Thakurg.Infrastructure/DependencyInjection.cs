@@ -33,6 +33,8 @@ public static partial class DependencyInjection
         services.AddOptions<HostingOptions>().Bind(configuration.GetSection(HostingOptions.SectionName)).Validate(o => o.HostedOn is HostingOptions.Local or HostingOptions.Azure, "Hosting:HostedOn must be Local or Azure.").ValidateOnStart();
         services.Configure<StreamingOptions>(configuration.GetSection(StreamingOptions.SectionName));
         services.AddOptions<AvatarOptions>().Bind(configuration.GetSection(AvatarOptions.SectionName)).Validate(o => o.Root.Length > 0 && o.MaxBytes > 0 && o.Extensions.Count > 0, "Avatars:Root, Avatars:MaxBytes and Avatars:Extensions must be set.").ValidateOnStart();
+        services.AddOptions<SiteOptions>().Bind(configuration.GetSection(SiteOptions.SectionName)).Validate(o => Uri.TryCreate(o.PublicUrl, UriKind.Absolute, out _), "Site:PublicUrl must be the web site's absolute address.").ValidateOnStart();
+        services.AddOptions<AppManifestOptions>().Bind(configuration.GetSection(AppManifestOptions.SectionName)).Validate(o => o.CacheSeconds > 0 && o.Apps.Values.All(IsValidManifest), "AppManifests:CacheSeconds must be above 0, and every app under AppManifests:Apps needs Id, StartUrl, Scope, Display, Orientation, BackgroundColor, ThemeColor and Icons.").ValidateOnStart();
 
         services.AddMemoryCache();
         services.AddHttpContextAccessor();
@@ -51,6 +53,7 @@ public static partial class DependencyInjection
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<ISettingsService, SettingsService>();
+        services.AddScoped<IAppManifestService, AppManifestService>();
         services.AddScoped<IAuthSessionCache, AuthSessionCache>();
         services.AddScoped<IUserAccessService, UserAccessService>();
         services.AddScoped<ITranslationService, TranslationService>();
@@ -67,6 +70,11 @@ public static partial class DependencyInjection
     #endregion
 
     #region Private Methods
+
+    private static bool IsValidManifest(AppManifestAppOptions manifest)
+    {
+        return manifest is { Id.Length: > 0, StartUrl.Length: > 0, Scope.Length: > 0, Display.Length: > 0, Orientation.Length: > 0, BackgroundColor.Length: > 0, ThemeColor.Length: > 0, Icons.Count: > 0 };
+    }
 
     static partial void AddKhataFeature(IServiceCollection services, IConfiguration configuration);
 

@@ -1,3 +1,4 @@
+using Thakurg.API.Controllers;
 using Thakurg.Contracts.Configurations;
 using Thakurg.Infrastructure;
 using Thakurg.Infrastructure.Middleware;
@@ -28,6 +29,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("ThakurgCorsPolicy",
         policy => policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithExposedHeaders("Content-Range", "Content-Length", "Accept-Ranges", "Content-Disposition"));
+
+    // The apps' web-app manifests are fetched by the browser without credentials, from the site's own origin (Site:PublicUrl) as well as the allowed ones.
+    var siteOrigin = new Uri(builder.Configuration[$"{SiteOptions.SectionName}:PublicUrl"] ?? throw new InvalidOperationException("Site:PublicUrl is not configured.")).GetLeftPart(UriPartial.Authority);
+    options.AddPolicy(AppManifestController.CorsPolicy, policy => policy.WithOrigins([.. allowedOrigins, siteOrigin]).WithMethods("GET").AllowAnyHeader());
 });
 
 var app = builder.Build();
