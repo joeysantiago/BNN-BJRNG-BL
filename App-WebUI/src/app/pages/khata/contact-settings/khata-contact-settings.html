@@ -78,10 +78,10 @@
         @for (ch of channels; track ch) {
           <div class="k-set-row">
             <span class="t">
-              <span class="k-ib brand"><svg [kIco]="ch === 'app' ? 'zap' : ch === 'sms' ? 'phone' : 'mail'" [size]="18"></svg></span>
+              <span class="k-ib brand"><svg [kIco]="channelIcons[ch]" [size]="18"></svg></span>
               <span>
                 <b>{{ i18n.t('khata.cs.ch.' + ch) }}</b>
-                <small>{{ ch === 'email' ? (c.email || i18n.t('khata.cs.noEmail')) : ch === 'sms' ? (c.mobile || i18n.t('khata.cs.noMobile')) : i18n.t('khata.cs.appHint') }}</small>
+                <small>{{ ch === 'email' ? (c.email || i18n.t('khata.cs.noEmail')) : ch === 'app' ? i18n.t('khata.cs.appHint') : (c.mobile || i18n.t('khata.cs.noMobile')) }}</small>
               </span>
             </span>
             <span class="k-switch"><input #chBox type="checkbox" role="switch" [checked]="n[ch]" [disabled]="busy()" [attr.aria-label]="i18n.t('khata.cs.ch.' + ch)" (change)="toggleChannel(ch, chBox)" /><span></span></span>

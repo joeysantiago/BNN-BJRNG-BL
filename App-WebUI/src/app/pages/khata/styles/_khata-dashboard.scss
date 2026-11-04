@@ -127,6 +127,11 @@
   color: var(--k-warn);
 }
 
+.khata .k-dash-top {
+  display: grid;
+  gap: 16px;
+}
+
 .khata .k-quick {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -230,9 +235,7 @@
 
 @media (min-width: 1024px) {
   .khata .k-dash-top {
-    display: grid;
     grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
-    gap: 16px;
     align-items: stretch;
   }
 

@@ -11,7 +11,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { KhataStateService } from '../../../core/khata-state.service';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { PHOTO_LIMITS, PHOTO_TYPES, photoName, squarePhoto } from '../../../core/khata-photos';
-import { KHATA_CUSTOMER, KHATA_SUPPLIER, KhataContact, KhataContactType, KhataNotify } from '../../../core/models/khata.model';
+import { KHATA_CUSTOMER, KHATA_SUPPLIER, KhataContact, KhataContactType, KhataIconName, KhataNotify } from '../../../core/models/khata.model';
 
 /** /khata/app/b/:bookId/contact/:contactId/settings: a party's details, the "can add entries" switch and "Delete contact" (both ask to confirm). */
 @Component({
@@ -37,10 +37,11 @@ export class KhataContactSettings {
   protected readonly notify = signal<KhataNotify | null>(null);
   protected readonly contact = signal<KhataContact | null>(null);
   protected readonly invalid = signal<Record<string, boolean>>({});
-  protected readonly channels: (keyof KhataNotify)[] = ['app', 'sms', 'email'];
   protected readonly bookId = computed(() => Number(this.params().get('bookId')));
   protected readonly contactId = computed(() => Number(this.params().get('contactId')));
+  protected readonly channels: (keyof KhataNotify)[] = ['app', 'sms', 'whatsApp', 'email'];
   private readonly params = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
+  protected readonly channelIcons: Record<keyof KhataNotify, KhataIconName> = { app: 'zap', sms: 'phone', email: 'mail', whatsApp: 'chat' };
 
   constructor() {
     effect(() => this.state.screen(this.i18n.t('khata.cs.title')));
@@ -132,7 +133,7 @@ export class KhataContactSettings {
   }
 
   /**
-   * Turns one way of telling this party about entries on or off. Email needs the party's email and SMS their mobile number: when it is missing
+   * Turns one way of telling this party about entries on or off. Email needs the party's email, SMS and WhatsApp their mobile number: when it is missing
    * the switch goes back at once and the reader is told what to add (the API checks the same).
    */
   async toggleChannel(channel: keyof KhataNotify, box: HTMLInputElement): Promise<void> {
@@ -141,11 +142,11 @@ export class KhataContactSettings {
     const on = box.checked;
     if (!contact || !current)
       return;
-    const missing = on && ((channel === 'email' && !contact.email) || (channel === 'sms' && !contact.mobile));
+    const missing = on && ((channel === 'email' && !contact.email) || ((channel === 'sms' || channel === 'whatsApp') && !contact.mobile));
     if (missing) {
       box.checked = false;
       this.info.set('');
-      this.error.set(this.i18n.t(channel === 'email' ? 'khata.cs.notifyNeedEmail' : 'khata.cs.notifyNeedMobile', { name: contact.name }));
+      this.error.set(this.i18n.t(channel === 'email' ? 'khata.cs.notifyNeedEmail' : channel === 'sms' ? 'khata.cs.notifyNeedMobile' : 'khata.cs.notifyNeedWhatsApp', { name: contact.name }));
       return;
     }
     await this.run(async () => {

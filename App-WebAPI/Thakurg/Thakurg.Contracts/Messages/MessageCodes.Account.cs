@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Messages;
 
-// One-time code login, mail and SMS sending, profile details and file exports.
+// One-time code login, mail, SMS and WhatsApp sending, profile details and file exports.
 public static partial class MessageCodes
 {
     public const string EmailBrand = "EMAIL_BRAND";
@@ -36,6 +36,8 @@ public static partial class MessageCodes
     public const string AuthOtpEmailSubject = "AUTH_OTP_EMAIL_SUBJECT";
 
     public const string ProfileDetailsInvalid = "PROFILE_DETAILS_INVALID";
+
+    public const string WhatsAppNotConfigured = "WHATSAPP_NOT_CONFIGURED";
 
     public const string AuthOtpDestinationInvalid = "AUTH_OTP_DESTINATION_INVALID";
 }

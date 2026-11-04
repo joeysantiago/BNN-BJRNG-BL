@@ -2,6 +2,12 @@ namespace Thakurg.Contracts.Khata;
 
 public static class KhataAuditActions
 {
+    public const string PinSet = "PinSet";
+
+    public const string PinLocked = "PinLocked";
+
+    public const string PinCleared = "PinCleared";
+
     public const string BookDeleted = "BookDeleted";
 
     public const string EntryEdited = "EntryEdited";

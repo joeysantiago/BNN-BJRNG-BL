@@ -4,6 +4,8 @@ public class KhataOptions
 {
     public const string SectionName = "Khata";
 
+    public KhataPinOptions Pin { get; set; } = new();
+
     public KhataLimitsOptions Limits { get; set; } = new();
 
     public KhataNewUserOptions NewUser { get; set; } = new();

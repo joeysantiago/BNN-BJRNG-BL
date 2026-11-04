@@ -2,7 +2,7 @@ import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { I18nService } from './i18n.service';
 import { Injectable, inject } from '@angular/core';
-import { KhataAttachment, KhataBook, KhataBookContacts, KhataBookRequest, KhataBookSummary, KhataContact, KhataContactRequest, KhataCurrency, KhataCurrencyRequest, KhataEntry, KhataEntryDetail, KhataEntryHistory, KhataEntryPage, KhataEntryQuery, KhataEntryRequest, KhataUpload, KhataExportFormat, KhataNotify, KhataSettings, KhataStorage, KhataStorageRequest } from './models/khata.model';
+import { KhataAttachment, KhataBook, KhataBookContacts, KhataBookRequest, KhataBookSummary, KhataContact, KhataContactRequest, KhataCurrency, KhataCurrencyRequest, KhataEntry, KhataEntryDetail, KhataEntryHistory, KhataEntryPage, KhataEntryQuery, KhataEntryRequest, KhataUpload, KhataExportFormat, KhataNotify, KhataPinSaved, KhataPinStatus, KhataSettings, KhataStorage, KhataStorageRequest } from './models/khata.model';
 
 const TIMEOUT = 30000;
 const UPLOAD_TIMEOUT = 120000;
@@ -37,6 +37,10 @@ export class KhataApiService {
     return this.call('GET', '/khata/settings');
   }
 
+  pinStatus(): Promise<KhataPinStatus> {
+    return this.call('GET', '/khata/pin');
+  }
+
   currencies(): Promise<KhataCurrency[]> {
     return this.call('GET', '/khata/currencies');
   }
@@ -56,6 +60,11 @@ export class KhataApiService {
 
   deleteEntry(entryId: number): Promise<string> {
     return this.call('DELETE', `/khata/transactions/${entryId}`, undefined, {}, true);
+  }
+
+  /** Checks the app lock PIN on the server; wrong tries are counted there. */
+  verifyPin(pin: string): Promise<KhataPinStatus> {
+    return this.call('POST', '/khata/pin/verify', { pin });
   }
 
   entry(entryId: number): Promise<KhataEntryDetail> {
@@ -110,6 +119,12 @@ export class KhataApiService {
 
   addCurrency(request: KhataCurrencyRequest): Promise<KhataCurrency> {
     return this.call('POST', '/khata/currencies', request);
+  }
+
+  /** Sets or changes the app lock PIN; `currentPin` is needed to change it unless the login is fresh. Resolves with the status and the server's message. */
+  async setPin(pin: string, currentPin?: string): Promise<KhataPinSaved> {
+    const res = await this.api.sendFull<KhataPinStatus>('PUT', '/khata/pin', this.api.json({ pin, currentPin }, this.headers()), TIMEOUT);
+    return { status: res.data, message: res.message ?? '' };
   }
 
   createBook(request: KhataBookRequest, key: string): Promise<KhataBook> {

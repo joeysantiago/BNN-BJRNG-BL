@@ -1,0 +1,145 @@
+/* ---------- App lock (PIN screen of the installed app) ---------- */
+.khata .k-lock {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 14px;
+  min-height: 100dvh;
+  padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+  text-align: center;
+}
+
+.khata .k-lock h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.khata .k-lock p {
+  max-width: 320px;
+  margin: 0;
+}
+
+.khata .k-lock-mark {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 22px;
+  background: var(--k-brand-grad);
+  color: var(--k-on-brand);
+  box-shadow: var(--k-shadow-lg);
+}
+
+.khata .k-lock-dots {
+  display: flex;
+  gap: 16px;
+  min-height: 24px;
+  align-items: center;
+}
+
+.khata .k-lock-dots i {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--k-line-strong);
+  transition: background 0.15s var(--k-ease), border-color 0.15s var(--k-ease), transform 0.15s var(--k-ease);
+}
+
+.khata .k-lock-dots i.on {
+  background: var(--k-brand);
+  border-color: var(--k-brand);
+  transform: scale(1.1);
+}
+
+.khata .k-lock-dots.is-error i {
+  border-color: var(--k-give);
+}
+
+.khata .k-lock-dots.is-error {
+  animation: k-lock-shake 0.35s var(--k-ease);
+}
+
+.khata .k-lock-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 72px);
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.khata .k-lock-key {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 1px solid var(--k-line);
+  background: var(--k-surface);
+  color: var(--k-text);
+  font: 600 1.5rem/1 var(--k-font);
+  box-shadow: var(--k-shadow-sm);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.khata .k-lock-key:active:not(:disabled) {
+  background: var(--k-brand-soft);
+  transform: scale(0.96);
+}
+
+.khata .k-lock-key:focus-visible {
+  outline: none;
+  box-shadow: var(--k-focus);
+}
+
+.khata .k-lock-key:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.khata .k-lock-key.fn {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.khata .k-lock-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  align-items: center;
+}
+
+@keyframes k-lock-shake {
+  0%,
+  100% {
+    translate: 0;
+  }
+
+  25% {
+    translate: -8px;
+  }
+
+  75% {
+    translate: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .khata .k-lock-dots.is-error {
+    animation: none;
+  }
+}
+
+@media (max-width: 340px) {
+  .khata .k-lock-pad {
+    grid-template-columns: repeat(3, 64px);
+    gap: 12px;
+  }
+
+  .khata .k-lock-key {
+    width: 64px;
+    height: 64px;
+  }
+}

@@ -1,0 +1,44 @@
+<main class="k-lock" aria-labelledby="k-lock-h">
+  <span class="k-lock-mark"><svg kIco="lock" [size]="28" [stroke]="2.2"></svg></span>
+  @if (lock.mode() === 'checking') {
+    <h1 id="k-lock-h" class="sr-only">{{ i18n.t('khata.lock.unlockTitle') }}</h1>
+    <span class="k-spin" role="status" [attr.aria-label]="i18n.t('khata.loading')"></span>
+  } @else if (!lock.status()) {
+    <h1 id="k-lock-h">{{ i18n.t('khata.lock.unlockTitle') }}</h1>
+    <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ i18n.t('khata.lock.failed') }}</span></p>
+    <div class="k-lock-foot">
+      <button type="button" class="k-btn pri" (click)="retry()">{{ i18n.t('khata.lock.retry') }}</button>
+      <button type="button" class="k-btn ghost" (click)="logout()">{{ i18n.t('khata.pin.logout') }}</button>
+    </div>
+  } @else {
+    <h1 id="k-lock-h">{{ i18n.t(title()) }}</h1>
+    <p class="k-muted">{{ i18n.t(step() === 'unlock' ? 'khata.lock.unlockLead' : 'khata.lock.createLead', { n: length() }) }}</p>
+    <div class="k-lock-dots" [class.is-error]="!!error()" role="status" [attr.aria-label]="i18n.t('khata.lock.entered', { n: digits().length, total: length() })">
+      @for (on of dots(); track $index) {
+        <i [class.on]="on"></i>
+      }
+    </div>
+    @if (error()) {
+      <p class="k-err" role="alert"><svg kIco="alert" [size]="18"></svg><span>{{ error() }}</span></p>
+    }
+    <div class="k-lock-pad" role="group" [attr.aria-label]="i18n.t('khata.lock.keypad')" dir="ltr">
+      @for (k of keys; track k) {
+        <button type="button" class="k-lock-key" [disabled]="busy()" (click)="press(k)">{{ k }}</button>
+      }
+      <span aria-hidden="true"></span>
+      <button type="button" class="k-lock-key" [disabled]="busy()" (click)="press('0')">0</button>
+      <button type="button" class="k-lock-key fn" [disabled]="busy() || !digits().length" [attr.aria-label]="i18n.t('khata.lock.backspace')" (click)="back()"><svg kIco="back" [size]="22"></svg></button>
+    </div>
+    <div class="k-lock-foot">
+      @if (busy()) {
+        <span class="k-spin" role="status" [attr.aria-label]="i18n.t('khata.loading')"></span>
+      } @else if (lock.mode() === 'change') {
+        <button type="button" class="k-btn ghost" (click)="lock.cancel()">{{ i18n.t('khata.cancel') }}</button>
+      } @else if (step() === 'unlock') {
+        <button type="button" class="k-btn ghost" (click)="forgot()">{{ i18n.t('khata.lock.forgot') }}</button>
+      } @else {
+        <button type="button" class="k-btn ghost" (click)="logout()"><svg kIco="logout" [size]="16"></svg>{{ i18n.t('khata.pin.logout') }}</button>
+      }
+    </div>
+  }
+</main>

@@ -7,6 +7,7 @@ BEGIN
         NotifyPush             BIT               NOT NULL CONSTRAINT DF_KhataNotificationPrefs_NotifyPush DEFAULT (0)              ,
         NotifySms              BIT               NOT NULL CONSTRAINT DF_KhataNotificationPrefs_NotifySms DEFAULT (0)               ,
         NotifyEmail            BIT               NOT NULL CONSTRAINT DF_KhataNotificationPrefs_NotifyEmail DEFAULT (0)             ,
+        NotifyWhatsApp         BIT               NOT NULL CONSTRAINT DF_KhataNotificationPrefs_NotifyWhatsApp DEFAULT (0)          ,
         ConsentChangedByUserId INT               NULL                                                                              ,
         ConsentChangedOn       DATETIME2         NULL                                                                              ,
         IsActive               BIT               NOT NULL CONSTRAINT DF_KhataNotificationPrefs_IsActive DEFAULT (1)                ,

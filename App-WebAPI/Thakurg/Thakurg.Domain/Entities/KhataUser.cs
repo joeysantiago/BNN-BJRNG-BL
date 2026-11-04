@@ -12,11 +12,15 @@ public class KhataUser : BaseEntity
 
     public int? LastBookId { get; set; }
 
+    public string? PinHash { get; set; }
+
     public byte UpiQrSource { get; set; }
 
     public bool NotifyMePush { get; set; }
 
     public bool NotifyMeEmail { get; set; }
+
+    public int PinFailedCount { get; set; }
 
     public byte StorageProvider { get; set; }
 
@@ -31,6 +35,8 @@ public class KhataUser : BaseEntity
     public bool DailySummaryEmail { get; set; }
 
     public int? UpiQrStoredFileId { get; set; }
+
+    public DateTime? PinLockedUntil { get; set; }
 
     public bool DailySummaryEnabled { get; set; }
 

@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Thakurg.Application.Common;
 using Thakurg.Application.Repositories;
 using Thakurg.Application.Services;
 using Thakurg.Contracts.Configurations;
@@ -16,14 +17,12 @@ namespace Thakurg.Infrastructure.Services;
 
 // Tells a party about an entry added, changed or deleted on their account, by every channel they have on, when the book owner has notifications on.
 // The text is in the owner's language (KhataUsers.Language) and names the owner's company (UserProfiles), business or display name.
-// Every attempt is written to KhataNotificationLog (errors cut to Khata:Notifications:ErrorLength); "app" waits there as Pending (no push provider yet). A failed e-mail or SMS is logged, never thrown.
+// Every attempt is written to KhataNotificationLog (errors cut to Khata:Notifications:ErrorLength); "app" waits there as Pending (no push provider yet). A failed e-mail, SMS or WhatsApp message is logged, never thrown.
 public class KhataNotificationService : IKhataNotificationService
 {
     private readonly int _errorLength;
 
-    private readonly ISmsSender _smsSender;
-
-    private readonly IEmailSender _emailSender;
+    private readonly IKhataMessageSenders _senders;
 
     private const string DateFormat = "dd-MM-yyyy";
 
@@ -37,12 +36,11 @@ public class KhataNotificationService : IKhataNotificationService
 
     private static readonly Dictionary<KhataChangeType, string> ChangeCodes = new() { [KhataChangeType.Created] = MessageCodes.KhataNotifyAdded, [KhataChangeType.Edited] = MessageCodes.KhataNotifyEdited, [KhataChangeType.Deleted] = MessageCodes.KhataNotifyDeleted };
 
-    public KhataNotificationService(IOptions<KhataOptions> options, IKhataNotificationRepository notificationRepository, IEmailSender emailSender, ISmsSender smsSender, IMessageService messageService, ILogger<KhataNotificationService> logger)
+    public KhataNotificationService(IOptions<KhataOptions> options, IKhataNotificationRepository notificationRepository, IKhataMessageSenders senders, IMessageService messageService, ILogger<KhataNotificationService> logger)
     {
         _errorLength = options.Value.Notifications.ErrorLength;
         _notificationRepository = notificationRepository;
-        _emailSender = emailSender;
-        _smsSender = smsSender;
+        _senders = senders;
         _messageService = messageService;
         _logger = logger;
     }
@@ -54,7 +52,7 @@ public class KhataNotificationService : IKhataNotificationService
         var owner = await _notificationRepository.GetOwnerAsync(job.UserId, cancellationToken);
         var pref = await _notificationRepository.GetPrefAsync(job.ContactId, cancellationToken);
 
-        if (owner is not { NotificationsEnabled: true } || pref is null || !(pref.NotifyPush || pref.NotifySms || pref.NotifyEmail))
+        if (owner is not { NotificationsEnabled: true } || pref is null || !(pref.NotifyPush || pref.NotifySms || pref.NotifyEmail || pref.NotifyWhatsApp))
             return;
 
         var contact = await _notificationRepository.GetContactAsync(job.ContactId, cancellationToken);
@@ -74,14 +72,17 @@ public class KhataNotificationService : IKhataNotificationService
             logs.Add(NewLog(job, KhataNotifyChannel.App, template, KhataNotifyStatus.Pending, null));
 
         if (pref.NotifySms)
-            logs.Add(await TrySendAsync(job, KhataNotifyChannel.Sms, template, contact.Mobile, mobile => _smsSender.SendAsync(mobile, string.Join(" ", lines), cancellationToken)));
+            logs.Add(await TrySendAsync(job, KhataNotifyChannel.Sms, template, contact.Mobile, mobile => _senders.Sms.SendAsync(mobile, string.Join(" ", lines), cancellationToken)));
+
+        if (pref.NotifyWhatsApp)
+            logs.Add(await TrySendAsync(job, KhataNotifyChannel.WhatsApp, template, contact.Mobile, mobile => _senders.WhatsApp.SendAsync(mobile, string.Join(" ", lines), cancellationToken)));
 
         if (pref.NotifyEmail)
         {
             var subject = await _messageService.GetInAsync(owner.Language, MessageCodes.KhataNotifySubject, sender);
             var frame = await EmailHtml.FrameAsync(_messageService, owner.Language);
             var html = EmailHtml.Notice(frame, sender, [lines[0]], lines[1], Tone(contact.BalanceMinor));
-            logs.Add(await TrySendAsync(job, KhataNotifyChannel.Email, template, contact.Email, email => _emailSender.SendAsync(MailPurposes.Notification, email, subject, html, cancellationToken)));
+            logs.Add(await TrySendAsync(job, KhataNotifyChannel.Email, template, contact.Email, email => _senders.Email.SendAsync(MailPurposes.Notification, email, subject, html, cancellationToken)));
         }
 
         await _notificationRepository.AddLogsAsync(logs, cancellationToken);
@@ -102,6 +103,17 @@ public class KhataNotificationService : IKhataNotificationService
         };
     }
 
+    // The message code logged when the party has no address for the channel.
+    private static string MissingCode(KhataNotifyChannel channel)
+    {
+        return channel switch
+        {
+            KhataNotifyChannel.Sms => MessageCodes.KhataNotifyMobileMissing,
+            KhataNotifyChannel.WhatsApp => MessageCodes.KhataNotifyWhatsAppMissing,
+            _ => MessageCodes.KhataNotifyEmailMissing
+        };
+    }
+
     private static string Money(long amountMinor, KhataCurrency? currency)
     {
         return KhataMoney.Format(amountMinor, currency?.Symbol ?? string.Empty, currency?.Decimals ?? 0);
@@ -116,7 +128,7 @@ public class KhataNotificationService : IKhataNotificationService
     private async Task<KhataNotificationLog> TrySendAsync(KhataNotificationJobDto job, KhataNotifyChannel channel, string template, string? destination, Func<string, Task> send)
     {
         if (string.IsNullOrEmpty(destination))
-            return NewLog(job, channel, template, KhataNotifyStatus.Failed, channel == KhataNotifyChannel.Sms ? MessageCodes.KhataNotifyMobileMissing : MessageCodes.KhataNotifyEmailMissing);
+            return NewLog(job, channel, template, KhataNotifyStatus.Failed, MissingCode(channel));
 
         try
         {

@@ -35,7 +35,7 @@ public static class KhataMapper
     // No row yet = every channel off.
     public static ContactNotifyDto ToDto(KhataNotificationPref? pref)
     {
-        return new ContactNotifyDto { App = pref?.NotifyPush ?? false, Sms = pref?.NotifySms ?? false, Email = pref?.NotifyEmail ?? false };
+        return new ContactNotifyDto { App = pref?.NotifyPush ?? false, Sms = pref?.NotifySms ?? false, Email = pref?.NotifyEmail ?? false, WhatsApp = pref?.NotifyWhatsApp ?? false };
     }
 
     public static TransactionSnapshotDto Snapshot(KhataTransaction entry)
