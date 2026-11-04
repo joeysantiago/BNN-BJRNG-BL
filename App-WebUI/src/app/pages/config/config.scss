@@ -59,11 +59,6 @@ h1 {
   scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
 }
-.tab {
-  flex: 0 0 auto;
-  white-space: nowrap;
-  scroll-snap-align: start;
-}
 /* Phones: tighter tabs, no scrollbar, and faded edges to show there is more to swipe to. */
 @media (max-width: 640px) {
   .tabs {
@@ -78,6 +73,9 @@ h1 {
 }
 .tab {
   position: relative;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  scroll-snap-align: start;
   min-height: 46px;
   padding: 10px 14px;
   border: 0;
