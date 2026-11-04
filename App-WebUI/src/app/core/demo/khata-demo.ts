@@ -67,7 +67,7 @@ export class KhataDemo {
       case 'GET /khata/books/{id}/summary':
         return { data: this.summary(id, params.get('today') ?? '') };
       case 'GET /khata/books/{id}/contacts':
-        return { data: { book: this.bookDto(this.book(id)), contacts: this.contactsOf(id).map((c) => this.contactDto(c)) } };
+        return { data: { book: this.bookDto(this.book(id)), contacts: this.contactsOf(id, params.get('includeDeleted') === 'true').map((c) => this.contactDto(c)) } };
       case 'POST /khata/books/{id}/contacts':
         return { data: this.createContact(id, form) };
       case 'GET /khata/books/{id}/transactions':
@@ -77,9 +77,9 @@ export class KhataDemo {
       case 'GET /khata/books/{id}/contacts/export':
         return this.exportParties(this.book(id), params);
       case 'GET /khata/contacts/{id}/transactions':
-        return { data: this.page(this.bookOf(this.contact(id)), this.contact(id), params) };
+        return { data: this.page(this.bookOf(this.readableContact(id)), this.readableContact(id), params) };
       case 'GET /khata/contacts/{id}/transactions/export':
-        return this.exportEntries(this.bookOf(this.contact(id)), this.contact(id), params);
+        return this.exportEntries(this.bookOf(this.readableContact(id)), this.readableContact(id), params);
       case 'POST /khata/contacts/{id}/transactions':
         return { data: this.addEntry(id, form) };
       case 'PUT /khata/contacts/{id}':
@@ -87,6 +87,8 @@ export class KhataDemo {
       case 'DELETE /khata/contacts/{id}':
         this.contact(id).deleted = true;
         return { code: 'KHATA_CONTACT_DELETED' };
+      case 'POST /khata/contacts/{id}/restore':
+        return this.restoreContact(id);
       case 'PUT /khata/contacts/{id}/permissions':
         this.contact(id).allowContactEntries = !!form['allowContactEntries'];
         return { data: this.contactDto(this.contact(id)) };
@@ -273,8 +275,9 @@ export class KhataDemo {
     return this.book(contact.bookId);
   }
 
-  private contactsOf(bookId: number): KhataDemoContact[] {
-    return this.k.contacts.filter((c) => c.bookId === bookId && !c.deleted);
+  /** The book's live contacts; `includeDeleted` adds the deleted ones (their details and entries stay readable). */
+  private contactsOf(bookId: number, includeDeleted = false): KhataDemoContact[] {
+    return this.k.contacts.filter((c) => c.bookId === bookId && (includeDeleted || !c.deleted));
   }
 
   /** A live contact of one of the caller's books. */
@@ -283,6 +286,23 @@ export class KhataDemo {
     if (!contact || !this.myBooks().some((b) => b.id === contact.bookId))
       throw new DemoFailure(404, 'KHATA_CONTACT_NOT_FOUND');
     return contact;
+  }
+
+  /** A contact (live or deleted) of one of the caller's books: a deleted one's history stays readable. */
+  private readableContact(contactId: number): KhataDemoContact {
+    const contact = this.k.contacts.find((c) => c.id === contactId);
+    if (!contact || !this.myBooks().some((b) => b.id === contact.bookId))
+      throw new DemoFailure(404, 'KHATA_CONTACT_NOT_FOUND');
+    return contact;
+  }
+
+  /** Brings a deleted contact back with its entries; the book's contact limit still applies. */
+  private restoreContact(contactId: number): KhataDemoResult {
+    const contact = this.readableContact(contactId);
+    if (contact.deleted && this.contactsOf(contact.bookId).length >= LIMITS.maxContacts)
+      throw new DemoFailure(409, 'KHATA_CONTACT_LIMIT', [LIMITS.maxContacts]);
+    contact.deleted = false;
+    return { code: 'KHATA_CONTACT_RESTORED' };
   }
 
   /** An entry (live or deleted) of one of the caller's books. */
@@ -332,7 +352,7 @@ export class KhataDemo {
 
   private contactDto(contact: KhataDemoContact): KhataContact {
     const last = this.liveEntries((e) => e.contactId === contact.id).map((e) => e.entryDate).sort().pop();
-    return { id: contact.id, name: contact.name, note: contact.note, bookId: contact.bookId, email: contact.email, mobile: contact.mobile, address: contact.address, rowVersion: contact.rowVersion, shareStatus: 0, balanceMinor: this.balance(contact.id), lastEntryOn: last, notify: contact.notify, photo: contact.photo, allowContactEntries: contact.allowContactEntries, contactType: contact.contactType };
+    return { id: contact.id, name: contact.name, note: contact.note, bookId: contact.bookId, email: contact.email, mobile: contact.mobile, address: contact.address, rowVersion: contact.rowVersion, shareStatus: 0, balanceMinor: this.balance(contact.id), lastEntryOn: last, notify: contact.notify, photo: contact.photo, allowContactEntries: contact.allowContactEntries, contactType: contact.contactType, isDeleted: !!contact.deleted };
   }
 
   /** The entry as the lists show it: the party's name, the photo count and the running balance (the party's live entries up to this one, by date then id). */
@@ -550,7 +570,7 @@ export class KhataDemo {
       photos: (e) => !e.deleted && photos.has(e.id),
       deleted: (e) => !!e.deleted,
     };
-    const live = new Set(this.contactsOf(book.id).map((c) => c.id));
+    const live = new Set(this.contactsOf(book.id, true).map((c) => c.id));
     const rows = this.k.entries.filter((e) => e.bookId === book.id && (contact ? e.contactId === contact.id : live.has(e.contactId)) && kinds[kind](e) && (!from || e.entryDate >= from) && (!to || e.entryDate <= to)
       && (!q || (e.note ?? '').toLowerCase().includes(q) || (!contact && (names.get(e.contactId) ?? '').includes(q))));
     const byDate = (a: KhataDemoEntry, b: KhataDemoEntry) => b.entryDate.localeCompare(a.entryDate) || b.id - a.id;

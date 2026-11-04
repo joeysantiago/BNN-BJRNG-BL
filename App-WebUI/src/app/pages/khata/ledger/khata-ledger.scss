@@ -2,3 +2,23 @@
 :host {
   display: block;
 }
+
+// Shown on a deleted contact: its history stays readable and it can be restored.
+.k-deleted-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  color: var(--k-give);
+}
+
+.k-deleted-note p {
+  flex: 1 1 200px;
+  margin: 0;
+  color: var(--k-text);
+}
+
+.k-deleted-note .k-btn {
+  min-height: 44px;
+}

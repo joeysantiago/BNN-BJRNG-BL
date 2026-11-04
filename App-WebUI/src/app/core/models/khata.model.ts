@@ -24,6 +24,9 @@ export type KhataPartyKind = 'all' | 'customers' | 'suppliers';
 
 export type KhataPartyStatus = 'all' | 'collect' | 'pay' | 'settled';
 
+/** The record tabs of the parties screen: every contact, only the active ones, or only the deleted ones. */
+export type KhataPartyRecord = 'all' | 'active' | 'deleted';
+
 /** Names of the line icons in khata-icons.ts. */
 export type KhataIconName = 'home' | 'users' | 'list' | 'book' | 'user' | 'plus' | 'search' | 'sun' | 'moon' | 'monitor' | 'lock' | 'back' | 'next' | 'chev' | 'chevL' | 'chevD' | 'camera' | 'image' | 'x' | 'trash' | 'edit' | 'history' | 'gave' | 'got' | 'sort' | 'check' | 'alert' | 'phone' | 'mail' | 'settings' | 'logout' | 'wallet' | 'calendar' | 'note' | 'clip' | 'swap' | 'shield' | 'zap' | 'trend' | 'download' | 'globe' | 'store' | 'truck' | 'hash' | 'logo' | 'install' | 'filePdf' | 'fileSheet' | 'fileCsv' | 'palette' | 'chat';
 
@@ -84,6 +87,7 @@ export interface KhataContact {
   mobile?: string;
   address?: string;
   dueDate?: string;
+  isDeleted: boolean;
   rowVersion: string;
   shareStatus: number;
   balanceMinor: number;

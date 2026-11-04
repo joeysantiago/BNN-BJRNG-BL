@@ -4,6 +4,7 @@ import { SeoService } from '../../core/seo.service';
 import type { TranslationKey } from '../../i18n/en';
 import { isPlatformBrowser } from '@angular/common';
 import { I18nService } from '../../core/i18n.service';
+import { AppPwaService } from '../../core/app-pwa.service';
 import { SettingsService } from '../../core/settings.service';
 import { YT_ENDED, YT_PAUSED, YT_PLAYING, YtInput, YtMessage, YtPlayer, YtPlayerApi, YtPlaylist, YtVideo, YtWindow } from './youtube.model';
 import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
@@ -73,6 +74,7 @@ const parseInput = (text: string): YtInput => {
 export class Youtube implements OnDestroy {
   protected readonly i18n = inject(I18nService);
   private readonly seo = inject(SeoService);
+  private readonly pwa = inject(AppPwaService);
   protected readonly cfg = inject(SettingsService);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly host = viewChild<ElementRef<HTMLElement>>('host');
@@ -135,6 +137,8 @@ export class Youtube implements OnDestroy {
   };
 
   constructor() {
+    // The YouTube player installs as its own app.
+    this.pwa.enter('youtube');
     if (this.browser) {
       this.canFullscreen = !!document.fullscreenEnabled;
       this.cfg.restore();
@@ -230,6 +234,7 @@ export class Youtube implements OnDestroy {
   // #region Public Methods
 
   ngOnDestroy(): void {
+    this.pwa.leave();
     clearInterval(this.ticker);
     this.keepAlive?.pause();
     this.audio?.pause();

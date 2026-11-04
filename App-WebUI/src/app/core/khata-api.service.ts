@@ -89,6 +89,11 @@ export class KhataApiService {
     return this.call('DELETE', `/khata/attachments/${attachmentId}`, undefined, {}, true);
   }
 
+  /** Brings a deleted contact back; the answer is the server's message. */
+  restoreContact(contactId: number): Promise<string> {
+    return this.call('POST', `/khata/contacts/${contactId}/restore`, undefined, {}, true);
+  }
+
   /** The installed app has opened: lock this session on the server, unless the user has just logged in (`keepOpen`). */
   lockPin(keepOpen: boolean): Promise<KhataPinStatus> {
     return this.call('POST', '/khata/pin/lock', { keepOpen });
@@ -96,10 +101,6 @@ export class KhataApiService {
 
   deleteCurrency(currencyId: number): Promise<string> {
     return this.call('DELETE', `/khata/currencies/${currencyId}`, undefined, {}, true);
-  }
-
-  contacts(bookId: number): Promise<KhataBookContacts> {
-    return this.call('GET', `/khata/books/${bookId}/contacts`);
   }
 
   history(entryId: number): Promise<KhataEntryHistory[]> {
@@ -156,6 +157,11 @@ export class KhataApiService {
 
   entries(contactId: number, query: KhataEntryQuery): Promise<KhataEntryPage> {
     return this.call('GET', `/khata/contacts/${contactId}/transactions?${this.query(query)}`);
+  }
+
+  /** The book's contacts; `includeDeleted` adds the deleted ones (isDeleted), whose details and entries stay readable. */
+  contacts(bookId: number, includeDeleted = false): Promise<KhataBookContacts> {
+    return this.call('GET', `/khata/books/${bookId}/contacts${includeDeleted ? '?includeDeleted=true' : ''}`);
   }
 
   bookEntries(bookId: number, query: KhataEntryQuery): Promise<KhataEntryPage> {

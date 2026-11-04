@@ -6,6 +6,7 @@ import { SiteFooter } from './shared/site-footer';
 import { SiteHeader } from './shared/site-header';
 import { ThemeService } from './core/theme.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { AppPwaService } from './core/app-pwa.service';
 import { SettingsService } from './core/settings.service';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Component, afterNextRender, computed, effect, inject } from '@angular/core';
@@ -51,6 +52,8 @@ export class App {
   protected readonly bare = computed(() => /^\/(HR|kunal|preetik)(\/|$|[?#])/.test(this.url()));
 
   constructor() {
+    // Started with the page, so an installed app's own window (/apps/<code>/) points at its manifest before the browser reads it.
+    inject(AppPwaService);
     // A page that is switched off in appSettings.ts or on the /config page shows "page not found".
     effect(() => {
       const feature = pageFeature(this.url());

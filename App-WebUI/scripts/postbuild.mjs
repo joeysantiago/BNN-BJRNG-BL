@@ -3,8 +3,9 @@
  *  1. Creates 404.html. GitHub Pages shows it for any address without a file. It is the browser shell of the app,
  *     so the router can decide: redirect (/hr to /HR, /Creta to /creta) or show the "Page not found" page.
  *  2. Checks that every page that must exist was prerendered.
+ *  3. Writes the app shell of every app that installs on its own, at /apps/<code>/.
  */
-import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -12,6 +13,15 @@ const dist = join(resolve(dirname(fileURLToPath(import.meta.url)), '..'), 'dist'
 
 copyFileSync(join(dist, 'index.csr.html'), join(dist, '404.html'));
 console.log('created 404.html');
+
+// Every app installs on its own at /apps/<code>/ (the scope and start address of its manifest, public/apps/<code>/manifest.webmanifest). The address
+// needs a real file, so GitHub Pages answers 200 with the app shell (index.html keeps the path and opens the app's screen).
+const installable = ['speedtest', 'creta', 'nexon', 'youtube', 'khata'];
+for (const code of installable) {
+  mkdirSync(join(dist, 'apps', code), { recursive: true });
+  copyFileSync(join(dist, 'index.csr.html'), join(dist, 'apps', code, 'index.html'));
+}
+console.log(`created the app shells: ${installable.map((c) => '/apps/' + c + '/').join(', ')}`);
 
 const pages = ['', 'hi', 'ar', 'HR', 'creta', 'nexon', 'youtube', 'khata', 'kunal', 'preetik', 'about', 'privacy', 'terms', 'master', 'offline', 'error', 'login', 'signup', 'profile'];
 const missing = pages.filter((p) => !existsSync(join(dist, p, 'index.html')));

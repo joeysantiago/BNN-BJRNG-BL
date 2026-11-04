@@ -68,6 +68,7 @@ export const APP_SETTINGS: AppSettings = {
     nexon: { en: 'Nexon audio', hi: 'नेक्सॉन ऑडियो', ar: 'مشغل نيكسون' },
     hr: { en: 'Atrium HR', hi: 'एट्रियम एचआर', ar: 'أتريوم للموارد البشرية' },
     khata: { en: 'SnapKhata', hi: 'स्नैपखाता', ar: 'سناب خاتا' },
+    youtube: { en: 'YouTube player', hi: 'यूट्यूब प्लेयर', ar: 'مشغل يوتيوب' },
   },
 
   // "Your connection details". Set a row to false to hide it, or enabled to false to hide the whole section.

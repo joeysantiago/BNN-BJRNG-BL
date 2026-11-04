@@ -21,6 +21,7 @@ export const KHATA_DEMO_MESSAGES: DemoMessages = {
   KHATA_CONTACT_NOT_FOUND: { en: 'This contact was not found.', hi: 'यह संपर्क नहीं मिला।', ar: 'لم يتم العثور على جهة الاتصال هذه.' },
   KHATA_CONTACT_INVALID: { en: 'Enter a name of up to {0} characters. A mobile number or email, if given, must be valid.', hi: 'अधिकतम {0} अक्षरों का नाम दर्ज करें। मोबाइल नंबर या ईमेल देने पर वह मान्य होना चाहिए।', ar: 'أدخل اسمًا لا يزيد عن {0} حرف. يجب أن يكون رقم الجوال أو البريد الإلكتروني صالحًا إذا أدخلته.' },
   KHATA_CONTACT_DELETED: { en: 'The contact has been deleted.', hi: 'संपर्क हटा दिया गया है।', ar: 'تم حذف جهة الاتصال.' },
+  KHATA_CONTACT_RESTORED: { en: 'The contact has been restored.', hi: 'संपर्क फिर से चालू कर दिया गया है।', ar: 'تمت استعادة جهة الاتصال.' },
   KHATA_ENTRY_NOT_FOUND: { en: 'This entry was not found.', hi: 'यह एंट्री नहीं मिली।', ar: 'لم يتم العثور على هذا القيد.' },
   KHATA_ENTRY_INVALID: { en: 'Enter an amount above zero, a valid date and a note of up to {0} characters.', hi: 'शून्य से अधिक राशि, मान्य तारीख और अधिकतम {0} अक्षरों का नोट दर्ज करें।', ar: 'أدخل مبلغًا أكبر من صفر وتاريخًا صالحًا وملاحظة لا تزيد عن {0} حرف.' },
   KHATA_ENTRY_NOT_YOURS: { en: 'You can only change entries you added.', hi: 'आप केवल अपनी जोड़ी हुई एंट्री ही बदल सकते हैं।', ar: 'يمكنك تعديل القيود التي أضفتها أنت فقط.' },

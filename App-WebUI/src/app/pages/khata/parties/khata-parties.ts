@@ -16,7 +16,7 @@ import { KhataStateService } from '../../../core/khata-state.service';
 import { KhataEmptyArt } from '../ui/khata-empty-art/khata-empty-art';
 import { PHOTO_LIMITS, PHOTO_TYPES, photoName, squarePhoto } from '../../../core/khata-photos';
 import { Component, DestroyRef, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
-import { KHATA_CUSTOMER, KHATA_SUPPLIER, KhataBookContacts, KhataContactType, KhataPartyKind, KhataPartyRow, KhataPartySort, KhataPartyStatus, KhataUpload } from '../../../core/models/khata.model';
+import { KHATA_CUSTOMER, KHATA_SUPPLIER, KhataBookContacts, KhataContactType, KhataPartyKind, KhataPartyRecord, KhataPartyRow, KhataPartySort, KhataPartyStatus, KhataUpload } from '../../../core/models/khata.model';
 
 /** /khata/app/b/:bookId/parties: customers and suppliers of a book with their balance; search, sort, filter by type and status, and add a party. */
 @Component({
@@ -33,6 +33,7 @@ export class KhataParties {
   protected readonly missing = signal('');
   protected readonly preview = signal('');
   private requestKey = crypto.randomUUID();
+  protected readonly restoring = signal(0);
   protected readonly adding = signal(false);
   protected readonly formError = signal('');
   private readonly ui = inject(KhataUiService);
@@ -46,8 +47,10 @@ export class KhataParties {
   protected readonly sort = signal<KhataPartySort>('recent');
   protected readonly photo = signal<KhataUpload | null>(null);
   protected readonly status = signal<KhataPartyStatus>('all');
+  protected readonly record = signal<KhataPartyRecord>('active');
   protected readonly data = signal<KhataBookContacts | null>(null);
   protected readonly invalid = signal<Record<string, boolean>>({});
+  protected readonly records: KhataPartyRecord[] = ['all', 'active', 'deleted'];
   protected readonly kinds: KhataPartyKind[] = ['all', 'customers', 'suppliers'];
   protected readonly sorts: KhataPartySort[] = ['recent', 'name', 'high', 'low'];
   protected readonly bookId = computed(() => Number(this.params().get('bookId')));
@@ -56,12 +59,22 @@ export class KhataParties {
   private readonly params = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
   private readonly query = toSignal(this.route.queryParamMap, { initialValue: this.route.snapshot.queryParamMap });
   protected readonly filtered = computed(() => !!this.q().trim() || this.kind() !== 'all' || this.status() !== 'all');
-  protected readonly counts = computed(() => {
+  /** The contacts of the open record tab: all, only the active ones, or only the deleted ones. */
+  protected readonly shown = computed(() => {
+    const record = this.record();
+    return (this.data()?.contacts ?? []).filter((c) => record === 'all' || c.isDeleted === (record === 'deleted'));
+  });
+  protected readonly recordCounts = computed(() => {
     const all = this.data()?.contacts ?? [];
+    const deleted = all.filter((c) => c.isDeleted).length;
+    return { all: all.length, active: all.length - deleted, deleted };
+  });
+  protected readonly counts = computed(() => {
+    const all = this.shown();
     return { all: all.length, customers: all.filter((c) => c.contactType === KHATA_CUSTOMER).length, suppliers: all.filter((c) => c.contactType === KHATA_SUPPLIER).length };
   });
   protected readonly sums = computed(() => {
-    const all = this.data()?.contacts ?? [];
+    const all = (this.data()?.contacts ?? []).filter((c) => !c.isDeleted);
     return { get: all.filter((c) => c.balanceMinor > 0).reduce((s, c) => s + c.balanceMinor, 0), give: all.filter((c) => c.balanceMinor < 0).reduce((s, c) => s - c.balanceMinor, 0) };
   });
   protected readonly rows = computed<KhataPartyRow[]>(() => {
@@ -70,7 +83,7 @@ export class KhataParties {
     const kind = this.kind();
     const status = this.status();
     const locale = this.i18n.info().locale.replace('_', '-');
-    const rows = (this.data()?.contacts ?? []).map((contact) => ({ contact, balance: contact.balanceMinor, last: contact.lastEntryOn ?? null }))
+    const rows = this.shown().map((contact) => ({ contact, balance: contact.balanceMinor, last: contact.lastEntryOn ?? null }))
       .filter(({ contact }) => kind === 'all' || contact.contactType === (kind === 'customers' ? KHATA_CUSTOMER : KHATA_SUPPLIER))
       .filter(({ balance, last }) => status === 'all' || (status === 'collect' ? balance > 0 : status === 'pay' ? balance < 0 : balance === 0 && !!last))
       .filter(({ contact }) => !q || contact.name.toLowerCase().includes(q) || (contact.mobile ?? '').replace(/\s/g, '').includes(digits) || (contact.email ?? '').toLowerCase().includes(q));
@@ -109,6 +122,15 @@ export class KhataParties {
     this.status.set('all');
   }
 
+  /** The empty-state title: nothing in the book, nothing on the open record tab, or no match for the search and filters. */
+  emptyTitle(): string {
+    if (this.counts().all)
+      return this.i18n.t('khata.c.noMatch');
+    if (!this.recordCounts().all)
+      return this.i18n.t('khata.c.none');
+    return this.i18n.t(this.record() === 'deleted' ? 'khata.c.noneDeleted' : 'khata.c.noneActive');
+  }
+
   toggleAdd(open = !this.adding()): void {
     this.adding.set(open);
     this.formError.set('');
@@ -122,8 +144,29 @@ export class KhataParties {
     return this.i18n.t('khata.f.' + kind);
   }
 
+  recordLabel(record: KhataPartyRecord): string {
+    return this.i18n.t({ all: 'khata.c.recAll', active: 'khata.c.recActive', deleted: 'khata.c.recDeleted' }[record]);
+  }
+
   statusLabel(status: KhataPartyStatus): string {
     return this.i18n.t({ all: 'khata.f.all', collect: 'khata.s.toCollect', pay: 'khata.s.toPay', settled: 'khata.s.paid' }[status]);
+  }
+
+  /** Brings a deleted contact back with its entries; the list and the book totals are read again. */
+  async restore(contactId: number): Promise<void> {
+    if (this.restoring())
+      return;
+    this.restoring.set(contactId);
+    this.error.set('');
+    try {
+      this.ui.notify(await this.api.restoreContact(contactId));
+      await this.load(this.bookId(), false);
+      void this.state.loadBooks().catch(() => null);
+    } catch (e) {
+      this.ui.notify((e as Error).message);
+    } finally {
+      this.restoring.set(0);
+    }
   }
 
   async create(form: HTMLFormElement): Promise<void> {
@@ -203,7 +246,7 @@ export class KhataParties {
     this.missing.set('');
     this.state.bookId.set(bookId);
     try {
-      const data = await this.api.contacts(bookId);
+      const data = await this.api.contacts(bookId, true);
       if (this.bookId() === bookId)
         this.data.set(data);
     } catch (e) {

@@ -2,3 +2,45 @@
 :host {
   display: block;
 }
+
+// The All / Active / Deleted record tabs: one row across the screen, buttons tall enough to tap.
+.k-records {
+  display: flex;
+  width: 100%;
+}
+
+.k-records button {
+  flex: 1;
+  justify-content: center;
+  min-height: 44px;
+}
+
+// A deleted contact keeps its row (dimmed) with a Restore button under it.
+.k-party-row.is-deleted {
+  display: grid;
+  gap: 6px;
+}
+
+.k-restore {
+  justify-self: end;
+  min-height: 44px;
+}
+
+// Mobile and e-mail under the name, on every tab; long addresses are cut, never pushed sideways.
+.k-contact-info {
+  min-width: 0;
+}
+
+.k-contact-info span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.k-contact-info bdi {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -4,7 +4,7 @@ export type ServiceGroup = 'apps' | 'telecom';
 
 export type PageName = Record<Lang, string>;
 
-export type PageId = 'speed' | 'connection' | 'services' | 'about' | 'privacy' | 'terms' | 'creta' | 'nexon' | 'hr' | 'khata';
+export type PageId = 'speed' | 'connection' | 'services' | 'about' | 'privacy' | 'terms' | 'creta' | 'nexon' | 'hr' | 'khata' | 'youtube';
 
 export type ConnectionField = 'isp' | 'ip' | 'ipv4' | 'ipv6' | 'mac' | 'location' | 'testServer' | 'networkType';
 
