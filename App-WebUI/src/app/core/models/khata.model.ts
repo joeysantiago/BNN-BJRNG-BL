@@ -25,7 +25,7 @@ export type KhataPartyKind = 'all' | 'customers' | 'suppliers';
 export type KhataPartyStatus = 'all' | 'collect' | 'pay' | 'settled';
 
 /** Names of the line icons in khata-icons.ts. */
-export type KhataIconName = 'home' | 'users' | 'list' | 'book' | 'user' | 'plus' | 'search' | 'sun' | 'moon' | 'monitor' | 'lock' | 'back' | 'next' | 'chev' | 'chevL' | 'chevD' | 'camera' | 'image' | 'x' | 'trash' | 'edit' | 'history' | 'gave' | 'got' | 'sort' | 'check' | 'alert' | 'phone' | 'mail' | 'settings' | 'logout' | 'wallet' | 'calendar' | 'note' | 'clip' | 'swap' | 'shield' | 'zap' | 'trend' | 'download' | 'globe' | 'store' | 'truck' | 'hash' | 'logo' | 'install' | 'filePdf' | 'fileSheet' | 'fileCsv' | 'palette';
+export type KhataIconName = 'home' | 'users' | 'list' | 'book' | 'user' | 'plus' | 'search' | 'sun' | 'moon' | 'monitor' | 'lock' | 'back' | 'next' | 'chev' | 'chevL' | 'chevD' | 'camera' | 'image' | 'x' | 'trash' | 'edit' | 'history' | 'gave' | 'got' | 'sort' | 'check' | 'alert' | 'phone' | 'mail' | 'settings' | 'logout' | 'wallet' | 'calendar' | 'note' | 'clip' | 'swap' | 'shield' | 'zap' | 'trend' | 'download' | 'globe' | 'store' | 'truck' | 'hash' | 'logo' | 'install' | 'filePdf' | 'fileSheet' | 'fileCsv' | 'palette' | 'chat';
 
 /** One shape of a line icon; only the attributes of its tag are set. */
 export interface KhataIconShape {
@@ -316,14 +316,44 @@ export interface KhataLandingFeature {
   icon: KhataIconName;
 }
 
-/** Which channels tell a party about a new or changed entry. Email needs the party's email, SMS their mobile number. */
+/** Which channels tell a party about a new or changed entry. Email needs the party's email, SMS and WhatsApp their mobile number. */
 export interface KhataNotify {
   app: boolean;
   sms: boolean;
   email: boolean;
+  whatsApp: boolean;
 }
 
 export type KhataStorageProvider = 'local' | 'azure';
+
+/**
+ * The app lock of the installed app: checking = asking the server, open = unlocked, locked = asks the PIN, create = first PIN after login,
+ * change = new PIN from Settings, reset = new PIN after "Forgot PIN?" and a fresh login.
+ */
+export type KhataLockMode = 'checking' | 'open' | 'locked' | 'create' | 'change' | 'reset';
+
+/** One step of the PIN screen: the PIN to unlock, the current one (to change it), a new one, or the new one again. */
+export type KhataPinStep = 'unlock' | 'current' | 'new' | 'confirm';
+
+/**
+ * GET api/khata/pin. `canReset`: this login is fresh, so a new PIN can be chosen without the old one. `protected`: the installed app locks
+ * this login session on the server; `locked`: it is locked now, so ledger calls are refused until the PIN is entered.
+ */
+export interface KhataPinStatus {
+  length: number;
+  hasPin: boolean;
+  locked: boolean;
+  canReset: boolean;
+  protected: boolean;
+  lockAfterMinutes: number;
+  lockedUntil: string | null;
+}
+
+/** PUT api/khata/pin: the new status and the server's message. */
+export interface KhataPinSaved {
+  message: string;
+  status: KhataPinStatus;
+}
 
 /** The reader's own SnapKhata settings. */
 export interface KhataSettings {

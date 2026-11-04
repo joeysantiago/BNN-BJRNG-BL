@@ -2,6 +2,7 @@ import { filter, map } from 'rxjs';
 import { Lang } from '../../../core/site';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { KhataIcon } from '../ui/khata-icon/khata-icon';
+import { KhataLock } from '../ui/khata-lock/khata-lock';
 import { AuthService } from '../../../core/auth.service';
 import { I18nService } from '../../../core/i18n.service';
 import { UserAvatar } from '../../../shared/user-avatar';
@@ -10,11 +11,12 @@ import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import { KhataUiService } from '../../../core/khata-ui.service';
 import { KhataPwaService } from '../../../core/khata-pwa.service';
 import { Skin, ThemeMode } from '../../../core/models/theme.model';
+import { KhataLockService } from '../../../core/khata-lock.service';
 import { KhataStateService } from '../../../core/khata-state.service';
 import { KhataStyleService } from '../../../core/khata-style.service';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { KhataIconName, KhataMenu, KhataNavItem } from '../../../core/models/khata.model';
-import { Component, ElementRef, OnDestroy, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 
 const SWIPE_PX = 50;
 const THEME_FADE_MS = 450;
@@ -25,14 +27,15 @@ const MODE_ICONS: Record<ThemeMode, KhataIconName> = { light: 'sun', dark: 'moon
 /**
  * SnapKhata app frame (/khata/app/...), mobile first: a top bar and a bottom tab bar with a big "new entry" button on phones,
  * a side rail on wide screens. It also hosts the "are you sure?" sheet, the photo viewer and the toast, and carries the
- * SnapKhata design system (styles/*.scss), so its styles are not scoped to this component.
+ * SnapKhata design system (styles/*.scss), so its styles are not scoped to this component. While the installed app is locked
+ * (KhataLockService) it shows the PIN screen instead of the pages.
  */
 @Component({
   selector: 'app-khata-shell',
   templateUrl: './khata-shell.html',
   styleUrl: './khata-shell.scss',
   host: { '(document:keydown)': 'key($event)', '(document:click)': 'outside($event)' },
-  imports: [RouterOutlet, RouterLink, NgTemplateOutlet, KhataIcon, UserAvatar],
+  imports: [RouterOutlet, RouterLink, NgTemplateOutlet, KhataIcon, KhataLock, UserAvatar],
 })
 
 export class KhataShell implements OnDestroy {
@@ -46,6 +49,7 @@ export class KhataShell implements OnDestroy {
   private readonly pwa = inject(KhataPwaService);
   protected readonly ui = inject(KhataUiService);
   protected readonly theme = inject(ThemeService);
+  protected readonly lock = inject(KhataLockService);
   protected readonly state = inject(KhataStateService);
   protected readonly style = inject(KhataStyleService);
   /** The open top-bar menu (language or theme), if any. */
@@ -91,7 +95,12 @@ export class KhataShell implements OnDestroy {
     this.style.load();
     afterNextRender(() => {
       this.pwa.enter();
-      void this.state.loadBooks().catch(() => null);
+      void this.lock.start();
+    });
+    // The books (and every page) load only while the installed app is unlocked; unlocking again reloads them.
+    effect(() => {
+      if (this.lock.open())
+        untracked(() => void this.state.loadBooks().catch(() => null));
     });
     // The browser's address-bar colour follows the SnapKhata theme.
     effect(() => this.doc.querySelector('meta[name=theme-color]')?.setAttribute('content', CHROME[this.theme.brightness()]));

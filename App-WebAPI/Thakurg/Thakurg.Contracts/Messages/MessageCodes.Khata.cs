@@ -2,11 +2,21 @@ namespace Thakurg.Contracts.Messages;
 
 public static partial class MessageCodes
 {
+    public const string KhataPinWeak = "KHATA_PIN_WEAK";
+
+    public const string KhataPinSaved = "KHATA_PIN_SAVED";
+
+    public const string KhataPinWrong = "KHATA_PIN_WRONG";
+
     public const string KhataBookLimit = "KHATA_BOOK_LIMIT";
 
     public const string KhataExportGot = "KHATA_EXPORT_GOT";
 
     public const string KhataNotifyGot = "KHATA_NOTIFY_GOT";
+
+    public const string KhataPinLocked = "KHATA_PIN_LOCKED";
+
+    public const string KhataPinNotSet = "KHATA_PIN_NOT_SET";
 
     public const string KhataExportDate = "KHATA_EXPORT_DATE";
 
@@ -20,6 +30,10 @@ public static partial class MessageCodes
 
     public const string KhataPhotoLimit = "KHATA_PHOTO_LIMIT";
 
+    public const string KhataPinCleared = "KHATA_PIN_CLEARED";
+
+    public const string KhataPinInvalid = "KHATA_PIN_INVALID";
+
     public const string KhataBookDeleted = "KHATA_BOOK_DELETED";
 
     public const string KhataExportEmail = "KHATA_EXPORT_EMAIL";
@@ -31,6 +45,8 @@ public static partial class MessageCodes
     public const string KhataNotifyAdded = "KHATA_NOTIFY_ADDED";
 
     public const string KhataNotifySaved = "KHATA_NOTIFY_SAVED";
+
+    public const string KhataPinRequired = "KHATA_PIN_REQUIRED";
 
     public const string KhataContactLimit = "KHATA_CONTACT_LIMIT";
 
@@ -149,4 +165,6 @@ public static partial class MessageCodes
     public const string KhataExportStatementTitle = "KHATA_EXPORT_STATEMENT_TITLE";
 
     public const string KhataContactPhotoNotFound = "KHATA_CONTACT_PHOTO_NOT_FOUND";
+
+    public const string KhataNotifyWhatsAppMissing = "KHATA_NOTIFY_WHATSAPP_MISSING";
 }

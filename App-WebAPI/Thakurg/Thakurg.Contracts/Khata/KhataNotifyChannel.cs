@@ -5,5 +5,6 @@ public enum KhataNotifyChannel : byte
 {
     App = 1,
     Sms = 2,
-    Email = 3
+    Email = 3,
+    WhatsApp = 4
 }

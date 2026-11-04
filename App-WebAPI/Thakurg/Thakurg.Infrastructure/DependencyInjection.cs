@@ -75,6 +75,7 @@ public static partial class DependencyInjection
         services.AddScoped<IRolePermissionService, RolePermissionService>();
 
         AddSmsSender(services, configuration);
+        AddWhatsAppSender(services, configuration);
         AddSpeedTestFeature(services, configuration);
         AddMusicFeature(services, configuration);
         AddYoutubeFeature(services, configuration);
@@ -93,6 +94,14 @@ public static partial class DependencyInjection
     {
         services.AddOptions<SmsOptions>().Bind(configuration.GetSection(SmsOptions.SectionName)).Validate(o => o.Provider == SmsOptions.None, "Sms:Provider must be None: no SMS provider is built in yet.").ValidateOnStart();
         services.AddScoped<ISmsSender, NotConfiguredSmsSender>();
+    }
+
+    // WhatsApp:Provider picks the WhatsApp sender. Only "None" exists yet (every send fails with WhatsAppNotConfigured); a provider such as the Meta Cloud API
+    // is another IWhatsAppSender with its own options section, registered here under its name.
+    private static void AddWhatsAppSender(IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions<WhatsAppOptions>().Bind(configuration.GetSection(WhatsAppOptions.SectionName)).Validate(o => o.Provider == WhatsAppOptions.None, "WhatsApp:Provider must be None: no WhatsApp provider is built in yet.").ValidateOnStart();
+        services.AddScoped<IWhatsAppSender, NotConfiguredWhatsAppSender>();
     }
 
     static partial void AddKhataFeature(IServiceCollection services, IConfiguration configuration);

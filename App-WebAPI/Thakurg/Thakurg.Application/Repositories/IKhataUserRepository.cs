@@ -12,5 +12,9 @@ public interface IKhataUserRepository
 
     Task<bool> TryAddUserAsync(KhataUser user, CancellationToken cancellationToken);
 
+    Task AddLockSessionAsync(KhataLockSession lockSession, CancellationToken cancellationToken);
+
     Task<KhataUser?> FindByAccountAsync(int accountUserId, CancellationToken cancellationToken);
+
+    Task<KhataLockSession?> GetLockSessionAsync(int sessionId, CancellationToken cancellationToken);
 }

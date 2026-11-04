@@ -54,5 +54,16 @@ public class KhataUserRepository : IKhataUserRepository
         return _dbContext.KhataUsers.WhereActive().FirstOrDefaultAsync(u => u.UserId == accountUserId, cancellationToken);
     }
 
+    public Task<KhataLockSession?> GetLockSessionAsync(int sessionId, CancellationToken cancellationToken)
+    {
+        return _dbContext.KhataLockSessions.WhereActive().FirstOrDefaultAsync(l => l.SessionId == sessionId, cancellationToken);
+    }
+
+    public async Task AddLockSessionAsync(KhataLockSession lockSession, CancellationToken cancellationToken)
+    {
+        _dbContext.KhataLockSessions.Add(lockSession);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     #endregion
 }

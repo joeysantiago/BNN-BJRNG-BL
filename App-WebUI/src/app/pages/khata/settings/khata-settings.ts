@@ -9,12 +9,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ThemeService } from '../../../core/theme.service';
 import { ThemeMode } from '../../../core/models/theme.model';
 import { KhataApiService } from '../../../core/khata-api.service';
+import { KhataLockService } from '../../../core/khata-lock.service';
 import { KhataStateService } from '../../../core/khata-state.service';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { KhataIconName, KhataNotice, KhataSettingsTab, KhataStorage, KhataStorageProvider } from '../../../core/models/khata.model';
 
 /**
- * /khata/app/settings (?tab=): SnapKhata's settings in tabs, like the site's Settings page. General: theme and language. Notifications: whether
+ * /khata/app/settings (?tab=): SnapKhata's settings in tabs, like the site's Settings page. General: theme, language and (in the installed app) changing the app lock PIN. Notifications: whether
  * SnapKhata sends notifications at all (each party's channels are on that party's settings). File storage: where bill photos are kept for the
  * whole site, local or Azure Blob. Mail: the mail servers for one-time codes and notifications. Users: every account, to edit, archive / activate,
  * delete or restore. Only a super admin who logged in with a password sees
@@ -36,6 +37,7 @@ export class KhataSettings {
   private readonly route = inject(ActivatedRoute);
   protected readonly theme = inject(ThemeService);
   private readonly state = inject(KhataStateService);
+  protected readonly lock = inject(KhataLockService);
   protected readonly notice = signal<KhataNotice | null>(null);
   protected readonly storage = signal<KhataStorage | null>(null);
   protected readonly notifications = signal<boolean | null>(null);

@@ -15,6 +15,8 @@ public class KhataNotificationPref : BaseEntity
 
     public bool NotifyEmail { get; set; }
 
+    public bool NotifyWhatsApp { get; set; }
+
     public DateTime? ConsentChangedOn { get; set; }
 
     public int? ConsentChangedByUserId { get; set; }

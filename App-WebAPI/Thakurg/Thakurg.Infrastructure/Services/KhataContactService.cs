@@ -169,7 +169,7 @@ public class KhataContactService : IKhataContactService
         }, cancellationToken);
     }
 
-    // E-mail messages need the party's e-mail address and SMS their mobile number. Who changed the choice and when is kept (consent) and audited.
+    // E-mail messages need the party's e-mail address, SMS and WhatsApp their mobile number. Who changed the choice and when is kept (consent) and audited.
     public async Task<ServiceResultDto<ContactNotifyDto>> SetNotificationsAsync(KhataCallerDto caller, int contactId, ContactNotifyDto request, CancellationToken cancellationToken)
     {
         var contact = await RequireContactAsync(caller, contactId, cancellationToken);
@@ -180,11 +180,15 @@ public class KhataContactService : IKhataContactService
         if (request.Sms && contact.Mobile is null)
             throw new BusinessException(MessageCodes.KhataNotifyMobileMissing, 400);
 
+        if (request.WhatsApp && contact.Mobile is null)
+            throw new BusinessException(MessageCodes.KhataNotifyWhatsAppMissing, 400);
+
         var now = DateTime.UtcNow;
         var pref = await _contactRepository.GetNotificationPrefAsync(contactId, cancellationToken) ?? new KhataNotificationPref { ContactId = contactId };
         pref.NotifyPush = request.App;
         pref.NotifySms = request.Sms;
         pref.NotifyEmail = request.Email;
+        pref.NotifyWhatsApp = request.WhatsApp;
         pref.ConsentChangedByUserId = caller.UserId;
         pref.ConsentChangedOn = now;
 
@@ -198,7 +202,7 @@ public class KhataContactService : IKhataContactService
             await _contactRepository.SaveChangesAsync(cancellationToken);
         }
 
-        await _common.Audit.WriteAsync(KhataAuditActions.NotifyChanged, caller.UserId, caller, new { ContactId = contactId, request.App, request.Sms, request.Email }, cancellationToken);
+        await _common.Audit.WriteAsync(KhataAuditActions.NotifyChanged, caller.UserId, caller, new { ContactId = contactId, request.App, request.Sms, request.Email, request.WhatsApp }, cancellationToken);
 
         return new ServiceResultDto<ContactNotifyDto> { Data = KhataMapper.ToDto(pref), Message = await _common.Messages.GetAsync(MessageCodes.KhataNotifySaved) };
     }
