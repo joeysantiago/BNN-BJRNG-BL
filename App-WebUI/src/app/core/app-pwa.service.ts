@@ -10,7 +10,7 @@ import { AppWindow, InstallableApp } from './models/app-pwa.model';
  * copy of the app shell written by scripts/postbuild.mjs). Different scopes and manifest ids keep each install apart, and one never replaces another.
  * - In an app's own window (/apps/<code>/) the page keeps that app's manifest whatever screen is open.
  * - On the plain site, an app's screen points the page at that app's manifest while it is open (installing from there installs that app), and
- *   leaving puts the site's back. iOS gets the app's home-screen title and icon (icons/<app>-apple-touch-icon.png).
+ *   leaving puts the site's back. iOS gets the app's home-screen title and icon (icons/<app>-apple-touch-icon.png), and the browser tab shows the app's icon (icons/<app>-192.png).
  * Mojito has no API: apiBaseUrl is empty, so the manifest is the static file public/apps/<app>/manifest.webmanifest (English name).
  */
 @Injectable({ providedIn: 'root' })
@@ -39,6 +39,8 @@ export class AppPwaService {
     manifest?.setAttribute('href', this.saved[0]);
     title?.setAttribute('content', this.saved[1]);
     icon?.setAttribute('href', this.saved[2]);
+    for (const [i, favicon] of this.favicons().entries())
+      favicon.setAttribute('href', this.saved[3 + i]);
     this.saved = null;
   }
 
@@ -48,13 +50,18 @@ export class AppPwaService {
       return;
     const [manifest, title, icon] = this.links();
     if (!this.saved)
-      this.saved = [manifest?.getAttribute('href') ?? '', title?.getAttribute('content') ?? '', icon?.getAttribute('href') ?? ''];
+      this.saved = [manifest?.getAttribute('href') ?? '', title?.getAttribute('content') ?? '', icon?.getAttribute('href') ?? '', ...this.favicons().map((f) => f.getAttribute('href') ?? '')];
     this.point(app);
   }
 
   // #endregion
 
   // #region Private Methods
+
+  /** The browser-tab icons (link rel=icon); an app's screen shows that app's icon there. */
+  private favicons(): Element[] {
+    return Array.from(this.doc.head.querySelectorAll('link[rel=icon]'));
+  }
 
   /** The manifest link, iOS title and iOS icon. In an app's own window index.html drops the site's manifest link before any fetch, so it is made here. */
   private links(): (Element | null)[] {
@@ -73,6 +80,8 @@ export class AppPwaService {
     manifest?.setAttribute('href', this.api.url(`/apps/${app}/manifest.webmanifest?lang=${this.i18n.lang()}`));
     title?.setAttribute('content', this.i18n.page(app));
     icon?.setAttribute('href', `icons/${app}-apple-touch-icon.png`);
+    for (const favicon of this.favicons())
+      favicon.setAttribute('href', `icons/${app}-192.png`);
   }
 
   // #endregion
