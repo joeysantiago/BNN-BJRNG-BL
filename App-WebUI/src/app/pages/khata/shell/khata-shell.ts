@@ -9,6 +9,7 @@ import { UserAvatar } from '../../../shared/user-avatar';
 import { ThemeService } from '../../../core/theme.service';
 import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import { AppPwaService } from '../../../core/app-pwa.service';
+import { InstallService } from '../../../core/install.service';
 import { KhataUiService } from '../../../core/khata-ui.service';
 import { Skin, ThemeMode } from '../../../core/models/theme.model';
 import { KhataLockService } from '../../../core/khata-lock.service';
@@ -50,6 +51,7 @@ export class KhataShell implements OnDestroy {
   protected readonly ui = inject(KhataUiService);
   protected readonly theme = inject(ThemeService);
   protected readonly lock = inject(KhataLockService);
+  protected readonly install = inject(InstallService);
   protected readonly state = inject(KhataStateService);
   protected readonly style = inject(KhataStyleService);
   /** The open top-bar menu (language or theme), if any. */

@@ -8,6 +8,7 @@ import { formatMoney } from '../../../core/khata-format';
 import { ThemeService } from '../../../core/theme.service';
 import { ThemeMode } from '../../../core/models/theme.model';
 import { AppPwaService } from '../../../core/app-pwa.service';
+import { InstallService } from '../../../core/install.service';
 import { KhataStyleService } from '../../../core/khata-style.service';
 import { Component, OnDestroy, computed, effect, inject } from '@angular/core';
 import { KhataCurrency, KhataIconName, KhataLandingFeature } from '../../../core/models/khata.model';
@@ -38,6 +39,7 @@ export class KhataLanding implements OnDestroy {
   protected readonly i18n = inject(I18nService);
   protected readonly theme = inject(ThemeService);
   protected readonly year = new Date().getFullYear();
+  protected readonly install = inject(InstallService);
   protected readonly style = inject(KhataStyleService);
   protected readonly modeIcon = computed(() => MODE_ICONS[this.theme.activeMode()]);
   protected readonly modeLabel = computed(() => this.i18n.t('khata.theme.toggle', { name: this.i18n.t('khata.theme.' + this.theme.activeMode()) }));
