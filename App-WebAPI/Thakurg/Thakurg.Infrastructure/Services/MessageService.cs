@@ -18,6 +18,8 @@ public class MessageService : IMessageService
 
     private readonly IHttpContextAccessor _httpContextAccessor;
 
+    private static readonly string[] Languages = ["en", "hi", "ar"];
+
     public MessageService(IMemoryCache cache, IHttpContextAccessor httpContextAccessor, IMessageRepository messageRepository)
     {
         _cache = cache;
@@ -26,6 +28,15 @@ public class MessageService : IMessageService
     }
 
     #region Public Methods
+
+    // The first language of the request's Accept-Language the site has texts in (en, hi, ar), else English.
+    public string CurrentLanguage()
+    {
+        var header = _httpContextAccessor.HttpContext?.Request.Headers.AcceptLanguage.ToString() ?? string.Empty;
+        var tags = header.Split(',').Select(part => part.Split(';')[0].Trim().Split('-')[0].ToLowerInvariant());
+
+        return tags.FirstOrDefault(Languages.Contains) ?? FallbackLanguage;
+    }
 
     public async Task<string> GetAsync(string code, params object[] arguments)
     {
