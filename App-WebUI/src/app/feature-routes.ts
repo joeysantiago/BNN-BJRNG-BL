@@ -27,7 +27,7 @@ export const FEATURE_PAGES: SitePages[] = [SPEEDTEST_PAGES, MUSIC_PAGES, YOUTUBE
 export const FEATURE_APPS: string[] = ['speedtest', 'creta', 'nexon', 'youtube', 'khata', 'tasks', 'tracker', 'hr'];
 
 /** The settings each app brings to Settings > General (its own section there), loaded lazily. Each feature branch lists its own; shared lists none. */
-export const FEATURE_SETTINGS: FeaturePanel[] = [];
+export const FEATURE_SETTINGS: FeaturePanel[] = [{ app: 'khata', order: 1, load: () => import('./pages/khata/settings-panel/khata-settings-panel').then((m) => m.KhataSettingsPanel) }];
 
 /** The parts each app brings to the Profile page (for example deleting the data a user keeps in that app), loaded lazily. Each feature branch lists its own; shared lists none. */
 export const FEATURE_PROFILE: FeaturePanel[] = [];

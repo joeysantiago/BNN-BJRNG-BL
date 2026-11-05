@@ -1,0 +1,75 @@
+@if (notice(); as n) {
+  <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+}
+
+<section class="sec" aria-labelledby="kp-nt">
+  <h3 id="kp-nt" class="sec-h">{{ i18n.t('khata.st.tab.notifications') }}</h3>
+  @if (notifications() !== null) {
+    <label class="opt">
+      <span class="txt"><b>{{ i18n.t('khata.st.notifyAll') }}</b><small>{{ i18n.t('khata.st.notifyAllHint') }}</small></span>
+      <input #notify type="checkbox" role="switch" class="switch" [checked]="notifications()" [disabled]="busy()" (change)="toggleNotifications(notify)" />
+    </label>
+    <p class="help">{{ i18n.t('khata.st.notifyParties') }}</p>
+  } @else {
+    <p class="help" role="status">{{ i18n.t('khata.loading') }}</p>
+  }
+</section>
+
+@if (pin(); as p) {
+  @if (p.hasPin && p.protected) {
+    <section class="sec" aria-labelledby="kp-lock">
+      <h3 id="kp-lock" class="sec-h">{{ i18n.t('khata.lock.title') }}</h3>
+      <div class="field-row">
+        <span class="txt"><small>{{ i18n.t('khata.lock.hint', { n: p.length }) }}</small></span>
+        <!-- The PIN screen belongs to the SnapKhata app, so the button opens it there. -->
+        <a class="btn sm" routerLink="/khata/app" [queryParams]="{ pin: 'change' }">{{ i18n.t('khata.lock.change') }}</a>
+      </div>
+    </section>
+  }
+}
+
+@if (canStorage()) {
+  <section class="sec" aria-labelledby="kp-fs">
+    <h3 id="kp-fs" class="sec-h">{{ i18n.t('khata.st.tab.storage') }}</h3>
+    <p class="help">{{ i18n.t('khata.st.storageLead') }}</p>
+    @if (storage(); as s) {
+      <form #store novalidate [attr.aria-busy]="busy()" (submit)="$event.preventDefault(); saveStorage(store)">
+        <fieldset class="bare" [disabled]="busy()">
+          <legend class="sr-only">{{ i18n.t('khata.st.provider') }}</legend>
+          <div class="opts">
+            <label class="opt"><span class="txt"><b>{{ i18n.t('khata.st.local') }}</b></span><input type="radio" name="provider" value="local" [checked]="provider() === 'local'" (change)="provider.set('local')" /></label>
+            <label class="opt"><span class="txt"><b>{{ i18n.t('khata.st.azure') }}</b></span><input type="radio" name="provider" value="azure" [checked]="provider() === 'azure'" (change)="provider.set('azure')" /></label>
+          </div>
+          @if (provider() === 'azure') {
+            <label class="opt">
+              <span class="txt"><b>{{ i18n.t('khata.st.enabled') }}</b><small>{{ i18n.t('khata.st.enabledHint') }}</small></span>
+              <input name="enabled" type="checkbox" role="switch" class="switch" [checked]="s.enabled" />
+            </label>
+            <label class="field-row">
+              <span class="txt"><b>{{ i18n.t('khata.st.account') }}</b></span>
+              <input name="accountName" type="text" autocomplete="off" maxlength="100" required [value]="s.accountName" />
+            </label>
+            <label class="field-row">
+              <span class="txt"><b>{{ i18n.t('khata.st.container') }}</b></span>
+              <input name="containerName" type="text" autocomplete="off" maxlength="100" required [value]="s.containerName" />
+            </label>
+            <label class="field-row">
+              <span class="txt"><b>{{ i18n.t('khata.st.connection') }}</b><small>{{ i18n.t(s.hasKey ? 'khata.st.keyStored' : 'khata.st.keyNone') }}</small></span>
+              <input name="connectionString" type="password" autocomplete="off" spellcheck="false" [placeholder]="s.hasKey ? i18n.t('khata.st.keyKept') : ''" />
+            </label>
+          } @else {
+            <p class="help">{{ i18n.t('khata.st.localHint') }}</p>
+          }
+        </fieldset>
+        <div class="foot">
+          <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t('khata.save') }}</button>
+          @if (provider() === 'azure' && s.hasKey) {
+            <button type="button" class="btn" [disabled]="busy()" (click)="testStorage()">{{ i18n.t('khata.st.test') }}</button>
+          }
+        </div>
+      </form>
+    } @else {
+      <p class="help" role="status">{{ i18n.t('khata.loading') }}</p>
+    }
+  </section>
+}
