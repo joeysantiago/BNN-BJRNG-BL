@@ -69,6 +69,22 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<AuthResultDto>.SuccessResponse(signIn.Auth));
     }
 
+    [HttpGet("quick-logins")]
+    public async Task<ActionResult<ApiResponse<List<QuickLoginDto>>>> QuickLogins(CancellationToken cancellationToken)
+    {
+        return Ok(ApiResponse<List<QuickLoginDto>>.SuccessResponse(await _authService.GetQuickLoginsAsync(cancellationToken)));
+    }
+
+    [HttpPost("quick-logins/{userId:int}/login")]
+    [EnableRateLimiting(SecurityExtensions.AuthLoginPolicy)]
+    public async Task<ActionResult<ApiResponse<AuthResultDto>>> QuickLogin(int userId, CancellationToken cancellationToken)
+    {
+        var signIn = await _authService.QuickLoginAsync(userId, HttpContext.AuthCaller(), cancellationToken);
+        Response.WriteAuthCookies(_auth, signIn);
+
+        return Ok(ApiResponse<AuthResultDto>.SuccessResponse(signIn.Auth));
+    }
+
     [HttpPost("login")]
     [EnableRateLimiting(SecurityExtensions.AuthLoginPolicy)]
     public async Task<ActionResult<ApiResponse<AuthResultDto>>> Login([FromBody] LoginRequestDto request, CancellationToken cancellationToken)

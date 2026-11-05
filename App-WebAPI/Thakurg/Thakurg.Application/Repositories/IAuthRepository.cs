@@ -21,9 +21,9 @@ public interface IAuthRepository
 
     Task<List<App>> GetAutoGrantAppsAsync(CancellationToken cancellationToken);
 
-    Task AddSessionAsync(UserSession session, CancellationToken cancellationToken);
+    Task<List<User>> GetQuickLoginUsersAsync(CancellationToken cancellationToken);
 
-    Task AddProfileAsync(UserProfile profile, CancellationToken cancellationToken);
+    Task AddSessionAsync(UserSession session, CancellationToken cancellationToken);
 
     Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken);
 

@@ -7,9 +7,13 @@ public interface IUserAccessService
 {
     Task<UserAccessDto> GetAsync(string? status, CancellationToken cancellationToken);
 
+    Task<List<QuickLoginDto>> GetQuickLoginsAsync(CancellationToken cancellationToken);
+
     Task<string> DeleteAsync(AuthCallerDto caller, int userId, CancellationToken cancellationToken);
 
     Task<string> RestoreAsync(AuthCallerDto caller, int userId, CancellationToken cancellationToken);
+
+    Task<string> SetQuickLoginAsync(QuickLoginRequestDto request, CancellationToken cancellationToken);
 
     Task<string> SetActiveAsync(AuthCallerDto caller, int userId, bool active, CancellationToken cancellationToken);
 

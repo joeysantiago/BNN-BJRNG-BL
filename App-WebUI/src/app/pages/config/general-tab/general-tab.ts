@@ -1,5 +1,6 @@
 import { ApiService } from '../../../core/api.service';
 import { I18nService } from '../../../core/i18n.service';
+import { QuickLoginsCard } from '../quick-logins-card/quick-logins-card';
 import { Component, afterNextRender, inject, signal } from '@angular/core';
 import { GeneralNotice, MailSecurity, MailServer } from './general-tab.model';
 
@@ -14,6 +15,7 @@ const PORTS: Record<MailSecurity, number> = { starttls: 587, ssl: 465, none: 25 
  */
 @Component({
   selector: 'app-general-tab',
+  imports: [QuickLoginsCard],
   templateUrl: './general-tab.html',
   styleUrl: './general-tab.scss',
 })

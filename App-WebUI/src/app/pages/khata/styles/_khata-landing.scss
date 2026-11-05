@@ -43,38 +43,6 @@
   gap: 6px;
 }
 
-.khata.k-land .kl-lang {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 40px;
-  padding-inline: 10px;
-  border-radius: 12px;
-  border: 1px solid var(--k-line);
-  background: var(--k-surface);
-  color: var(--k-muted);
-}
-
-.khata.k-land .kl-lang select {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--k-text);
-  font: 700 14px var(--k-font);
-  cursor: pointer;
-  outline: none;
-  min-height: 38px;
-}
-
-.khata.k-land .kl-lang select option {
-  background: var(--k-surface-solid);
-  color: var(--k-text);
-}
-
-.khata.k-land .kl-lang:focus-within {
-  box-shadow: var(--k-focus);
-}
-
 /* ---------- Hero ---------- */
 .khata.k-land .kl-hero {
   padding-block: 28px 8px;
