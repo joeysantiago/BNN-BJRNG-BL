@@ -24,6 +24,7 @@ export const FEATURES: FeatureInfo[] = [
   { id: 'page.privacy', group: 'pages', label: 'Privacy', help: '/privacy' },
   { id: 'page.terms', group: 'pages', label: 'Terms', help: '/terms' },
   { id: 'page.khata', group: 'pages', label: 'SnapKhata', help: '/khata and the whole SnapKhata app' },
+  { id: 'page.tasks', group: 'pages', label: 'My Tasks', help: '/tasks and the whole My Tasks app' },
 
   { id: 'speed.clock', group: 'speed', label: 'Clock and elapsed time', help: 'The two chips under the gauge.' },
   { id: 'speed.progress', group: 'speed', label: 'Progress bar', help: 'Whole-test progress.' },
@@ -68,6 +69,7 @@ const PAGE_FEATURES: Record<string, FeatureId> = {
   '/privacy': 'page.privacy',
   '/terms': 'page.terms',
   '/khata': 'page.khata',
+  '/tasks': 'page.tasks',
 };
 
 /** The apps that own each app-only settings group and switch (FEATURE_APPS codes). Anything not listed is site-wide and always shown. */
@@ -82,6 +84,7 @@ const FEATURE_OWNERS: Partial<Record<FeatureGroup | FeatureId, string[]>> = {
   'page.nexon': ['nexon'],
   'page.hr': ['hr'],
   'page.khata': ['khata'],
+  'page.tasks': ['tasks'],
 };
 
 /** True when the setting is site-wide or belongs to one of the apps this branch holds (FEATURE_APPS of feature-routes.ts). */
@@ -90,8 +93,8 @@ export function featureBuilt(id: FeatureGroup | FeatureId, apps: readonly string
   return !owners || owners.some((a) => apps.includes(a));
 }
 
-/** The switch that controls the page at this address, or null for pages that cannot be switched off (config, errors). Every SnapKhata screen follows page.khata. */
+/** The switch that controls the page at this address, or null for pages that cannot be switched off (config, errors). Every SnapKhata screen follows page.khata, every My Tasks screen page.tasks. */
 export function pageFeature(url: string): FeatureId | null {
   const path = url.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
-  return PAGE_FEATURES[path] ?? (path.startsWith('/khata/') ? 'page.khata' : null);
+  return PAGE_FEATURES[path] ?? (path.startsWith('/khata/') ? 'page.khata' : path.startsWith('/tasks/') ? 'page.tasks' : null);
 }

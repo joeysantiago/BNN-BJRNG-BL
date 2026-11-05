@@ -1,16 +1,17 @@
 # Branch architecture
 
-`matrix` holds the code every app uses. Each feature branch starts from `matrix` and **adds** its own feature. `banni-linux` is the merge of all of them.
+`matrix` holds the code every app uses. Each feature branch starts from `matrix` and **adds** its own feature. `main` is the merge of all of them.
 Nothing is ever deleted to make a branch, so a feature branch never contains, or has in its history, another feature's files, and merging it into
-`banni-linux` cannot delete anything there.
+`main` cannot delete anything there.
 
 ```
 matrix ──┬── Features/App/Creta ───────┐
          ├── Features/App/Nexon ───────┤
          ├── Features/App/Youtube ─────┤
-         ├── Features/App/Khata ───────┼──► banni-linux (everything + Atrium HR)
+         ├── Features/App/Khata ───────┼──► main (everything + Atrium HR)
          ├── Features/App/snapTracker ─┤
          ├── Features/App/speedtest ───┤
+         ├── Features/App/Planner ─────┤
          └─────────────────────────────┘
 ```
 
@@ -23,26 +24,27 @@ matrix ──┬── Features/App/Creta ───────┐
 | `Features/App/Khata` | Shared + SnapKhata (landing page and ledger app) | `/khata/app` |
 | `Features/App/snapTracker` | Shared + SnapTracker (prototype only; it has no WebUI, API or database code yet) | `/profile` |
 | `Features/App/speedtest` | Shared + Speed test | Speed test |
+| `Features/App/Planner` | Shared + My Tasks (app code `tasks`: tasks, checklists, calendar, App Lock) | `/tasks/app` |
 | `banni-linux` | Everything: all features, Atrium HR (only here), the common login | Speed test |
 
 ## Where to make a change
 
 | Change | Make it on | Then |
 |---|---|---|
-| Shared code (login, header, pages, settings, infrastructure, Common SQL, docs) | `matrix` | `git merge matrix` in every feature branch and in `banni-linux` |
-| One feature | its feature branch | `git merge Features/App/<Name>` in `banni-linux` |
-| Code Creta and Nexon both use (the music code) | one of them | bring the same commit to the other with `git cherry-pick`, then merge both into `banni-linux` |
-| Atrium HR | `banni-linux` | nothing |
+| Shared code (login, header, pages, settings, infrastructure, Common SQL, docs) | `matrix` | `git merge matrix` in every feature branch and in `main` |
+| One feature | its feature branch | `git merge Features/App/<Name>` in `main` |
+| Code Creta and Nexon both use (the music code) | one of them | bring the same commit to the other with `git cherry-pick`, then merge both into `main` |
+| Atrium HR | `main` | nothing |
 
 ## Rules
-1. **Never merge `banni-linux` into `matrix` or into a feature branch.** `banni-linux` has every feature; merging it down would add all of them to that branch.
+1. **Never merge `main` into `matrix` or into a feature branch.** `main` has every feature; merging it down would add all of them to that branch.
 2. **Never merge one feature branch into another**, for the same reason (Creta and Nexon share code through cherry-pick, not merge).
 3. A shared file must not import a feature file. If two features need the same code, it is shared (for example `shared/models/player.model.ts`).
 4. A new file of an existing feature goes on that feature's branch. Add its path to that feature in `feature-branches.json` (on `matrix`), which
    records which files belong to which feature.
 5. A new feature: branch it from `matrix` (`git switch -c Features/App/<Name> matrix`), give it its own files (see below), and add it to
    `feature-branches.json`.
-6. Never modify, merge into or rebase the old `main` and `master` branches (old history, not used).
+6. Never modify, merge into or rebase `master` (old line, not used).
 
 ## How a feature plugs in
 Shared files call feature files through partial methods and lists, so most shared files are identical on every branch.
@@ -58,18 +60,18 @@ Shared files call feature files through partial methods and lists, so most share
 
 C# drops a call to a partial method that has no implementation, so a branch without the feature file still compiles.
 
-**Files that differ per branch.** Each branch lists only its own features in these files; on `matrix` they list none, on `banni-linux` all:
+**Files that differ per branch.** Each branch lists only its own features in these files; on `matrix` they list none, on `main` all:
 - `App-WebUI/src/app/feature-routes.ts`: the feature routes and pages, and `FEATURE_APPS` (the apps the branch holds; the Settings page and the
   header show only their settings, panels and access boxes); a branch without the speed test sends `/` to its own app.
 - `App-Prototype/assets/js/routes.js`: the prototype pages; a branch without the speed test sends `/` to its own app.
-- `App-WebAPI/Thakurg/Thakurg.API/appsettings.json`: `AppManifests:Apps`, the apps that install on their own (`khata`, `creta`, `nexon`, `youtube`),
+- `App-WebAPI/Thakurg/Thakurg.API/appsettings.json`: `AppManifests:Apps`, the apps that install on their own (`khata`, `creta`, `nexon`, `youtube`, `tasks`),
   each with its own manifest id, start address, scope and icons (`public/icons/<app>-*`). `matrix` keeps the section with an empty `Apps`.
 - The `apps` list of the feature's `*.pages.json` (`speedtest`, `creta` or `nexon`, `youtube`, `khata`): `scripts/postbuild.mjs` writes each app's
   shell at `/apps/<code>/`.
 
 ## Installable apps
 Every app installs on its own, at its own address `/apps/<code>/` (`/apps/speedtest/`, `/apps/creta/`, `/apps/nexon/`, `/apps/youtube/`,
-`/apps/khata/`). Routes live in the hash, so every screen shares the path `/`; only a path gives each app its own manifest **scope**, which is what
+`/apps/khata/`, `/apps/tasks/`). Routes live in the hash, so every screen shares the path `/`; only a path gives each app its own manifest **scope**, which is what
 lets a phone or computer keep several installs from one domain apart. Each manifest keeps its `id` (`/` for the speed test, `/<app>-app` for the
 others), so an app installed before keeps working and updates in place.
 - `public/manifest.webmanifest` is the speed test's (scope `/apps/speedtest/`); the others are built by the API (`GET api/apps/{code}/manifest.webmanifest`,
@@ -82,7 +84,7 @@ others), so an app installed before keeps working and updates in place.
   own player, and the prototype keeps only its own player page.
 
 A change to one of these files on `matrix` conflicts in every branch: keep the branch's own list and take the rest of the change. Merging a branch
-into `banni-linux` touches them only if the branch changed them; then keep `banni-linux`'s full list.
+into `main` touches them only if the branch changed them; then keep `main`'s full list.
 
 ## Seed rows
 `Common/001_Messages.sql`, `007_Translations.sql` and `003_Features.sql` keep every feature's rows on every branch on purpose (unused rows are harmless).
