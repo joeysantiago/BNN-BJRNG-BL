@@ -15,6 +15,11 @@ public partial interface ICommonDbContext
 
     DbSet<User> Users { get; }
 
+    DbSet<City> Cities { get; }
+
+    DbSet<State> States { get; }
+
+    DbSet<Country> Countries { get; }
     DatabaseFacade Database { get; }
 
     DbSet<Feature> Features { get; }

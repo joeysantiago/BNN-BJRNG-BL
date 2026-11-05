@@ -1,0 +1,8 @@
+@use '../config';
+
+:host {
+  display: grid;
+}
+app-choice-group {
+  max-width: 520px;
+}

@@ -164,6 +164,14 @@ h1 {
 .field-row {
   cursor: default;
 }
+/* A row whose control is a choice group: the options take the room they need and move below the label on narrow screens. */
+.pick-row {
+  flex-wrap: wrap;
+}
+.pick-row app-choice-group {
+  flex: 1 1 280px;
+  max-width: 520px;
+}
 .lead-opt {
   margin-block-end: 4px;
 }

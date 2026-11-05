@@ -17,7 +17,7 @@ public class AuthOptions
 
     public AuthOtpOptions Otp { get; set; } = new();
 
-    public List<string> AdminEmails { get; set; } = [];
+    public List<string> BlockedEmailDomains { get; set; } = [];
 
     public AuthCookieOptions AccessCookie { get; set; } = new();
 

@@ -1,0 +1,65 @@
+/* One row of options in an inset track; the chosen one is filled with the skin's primary colour. Options wrap on narrow screens; tap targets stay 44px. */
+:host {
+  display: block;
+  min-width: 0;
+}
+.choice {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 5px;
+  border: var(--inset-border, 1px solid rgba(128, 128, 128, 0.25));
+  border-radius: var(--inset-radius, 18px);
+  background: var(--inset-bg, rgba(128, 128, 128, 0.12));
+  box-shadow: var(--inset-shadow, none);
+}
+.choice:disabled {
+  opacity: 0.6;
+}
+label {
+  display: flex;
+  min-width: 0;
+}
+input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+span {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  color: var(--inset-muted, var(--muted));
+  font: 700 15px/1.2 var(--font-body);
+  text-align: center;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+}
+.choice:disabled span {
+  cursor: default;
+}
+label:hover input:not(:checked) + span {
+  color: var(--inset-text, var(--text));
+}
+input:checked + span {
+  background: var(--pri-bg, var(--accent));
+  color: var(--pri-color, var(--on-accent));
+  border: var(--pri-border, 1px solid transparent);
+  box-shadow: var(--pri-shadow, none);
+}
+input:focus-visible + span {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: 2px;
+}
+svg {
+  flex: none;
+}

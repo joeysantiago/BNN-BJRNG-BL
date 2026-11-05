@@ -1,7 +1,9 @@
 import { ApiService } from '../../../core/api.service';
 import { I18nService } from '../../../core/i18n.service';
+import { ChoiceGroup } from '../../../shared/choice-group';
+import { ChoiceOption } from '../../../shared/models/choice.model';
 import { MailNotice, MailSecurity, MailServer } from './mail-server-form.model';
-import { Component, afterNextRender, inject, input, signal } from '@angular/core';
+import { Component, afterNextRender, computed, inject, input, signal } from '@angular/core';
 
 /** The usual port of each kind of connection, offered when the security choice changes. */
 const PORTS: Record<MailSecurity, number> = { starttls: 587, ssl: 465, none: 25 };
@@ -13,6 +15,7 @@ const PORTS: Record<MailSecurity, number> = { starttls: 587, ssl: 465, none: 25 
  */
 @Component({
   selector: 'app-mail-server-form',
+  imports: [ChoiceGroup],
   templateUrl: './mail-server-form.html',
   styleUrl: './mail-server-form.scss',
 })
@@ -28,6 +31,8 @@ export class MailServerForm {
   protected readonly notice = signal<MailNotice | null>(null);
   protected readonly server = signal<MailServer | null>(null);
   protected readonly securities: MailSecurity[] = ['starttls', 'ssl', 'none'];
+
+  protected readonly securityOptions = computed<ChoiceOption[]>(() => this.securities.map((m) => ({ value: m, label: this.i18n.t('gen.sec.' + m) })));
 
   constructor() {
     afterNextRender(() => void this.load());
