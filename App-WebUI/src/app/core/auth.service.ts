@@ -200,8 +200,9 @@ export class AuthService {
   }
 
   /** Sends a one-time login code by e-mail or SMS, for an app that allows code login (SnapKhata, SnapTracker). */
-  otpRequest(channel: OtpChannel, destination: string, app: string): Promise<OtpRequestResult> {
-    return this.api.send<OtpRequestResult>('POST', '/auth/otp/request', this.init({ channel, destination, app }), TIMEOUT);
+  async otpRequest(channel: OtpChannel, destination: string, app: string): Promise<OtpRequestResult> {
+    const res = await this.api.sendFull<OtpRequestResult>('POST', '/auth/otp/request', this.init({ channel, destination, app }), TIMEOUT);
+    return { ...res.data, message: res.message ?? undefined };
   }
 
   /** Logs in with a one-time code; the session is the same common login, limited to the apps that allow code login. */

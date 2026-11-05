@@ -147,7 +147,8 @@ export class AuthPage implements OnDestroy {
       const result = await this.auth.otpRequest(this.channel(), to, app);
       this.destination.set(to);
       this.step.set('code');
-      this.info.set(this.i18n.t(this.channel() === 'email' ? 'auth.otp.sentEmail' : 'auth.otp.sentSms', { to }));
+      // The server's own answer (how long the code works), as every API message is shown; the page's text only when it gives none.
+      this.info.set(result.message || this.i18n.t(this.channel() === 'email' ? 'auth.otp.sentEmail' : 'auth.otp.sentSms', { to }));
       this.countdown(result.resendInSeconds);
     });
   }
