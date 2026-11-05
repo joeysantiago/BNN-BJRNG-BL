@@ -64,6 +64,8 @@ public static partial class DependencyInjection
         services.AddScoped<ITranslationRepository, TranslationRepository>();
 
         services.AddScoped<IOtpService, OtpService>();
+        services.AddScoped<IOtpSenders, OtpSenders>();
+        services.AddScoped<ISignupService, SignupService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IExportService, ExportService>();
         services.AddScoped<IEmailSender, SmtpEmailSender>();

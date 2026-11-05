@@ -1,5 +1,6 @@
 using Thakurg.Application.Repositories;
 using Thakurg.Application.Services;
+using Thakurg.Contracts.Auth;
 using Thakurg.Contracts.Exceptions;
 using Thakurg.Contracts.Messages;
 using Thakurg.Contracts.Settings;
@@ -20,6 +21,8 @@ public class SettingsService : ISettingsService
     private static readonly string[] Languages = ["en", "hi", "ar"];
 
     private static readonly int[] DefaultStops = [0, 5, 10, 25, 50, 75, 100, 250, 500, 1000, 2500, 5000, 10000];
+
+    private static readonly string[] SignupChannels = [OtpChannels.Email, OtpChannels.WhatsApp, OtpChannels.Sms];
 
     public SettingsService(IMessageService messageService, ISettingsRepository settingsRepository)
     {
@@ -42,6 +45,7 @@ public class SettingsService : ISettingsService
             Features = features.ToDictionary(f => f.Code, f => f.IsEnabled),
             PageNames = pageNames.GroupBy(p => p.PageCode).ToDictionary(g => g.Key, g => g.ToDictionary(p => p.LanguageCode, p => p.Name)),
             Speed = new SpeedSettingsDto { GaugeStops = ReadStops(settings) },
+            SignupVerification = settings.TryGetValue(SettingCodes.SignupVerification, out var signup) && SignupChannels.Contains(signup) ? signup : OtpChannels.Email,
             Connection = new ConnectionSettingsDto { Enabled = ReadBool(settings, "Connection.Enabled", true), Fields = fields.ToDictionary(f => f.Code, f => f.IsEnabled) },
             Services = new ServicesSettingsDto
             {
@@ -84,6 +88,19 @@ public class SettingsService : ISettingsService
             appSettings["Services.RefreshSeconds"] = refreshSeconds.ToString();
 
         await _settingsRepository.UpdateAsync(features, fields, items, appSettings, cancellationToken);
+
+        return new ServiceResultDto<AppSettingsDto> { Data = await GetAsync(cancellationToken), Message = await _messageService.GetAsync(MessageCodes.SettingsSaved) };
+    }
+
+    // The controller lets only a super admin in. WhatsApp and SMS need their sender set up (Settings > Keys); a sign-up then also asks for the mobile number.
+    public async Task<ServiceResultDto<AppSettingsDto>> SaveSignupVerificationAsync(SignupVerificationUpdateDto request, CancellationToken cancellationToken)
+    {
+        var channel = (request.Channel ?? string.Empty).Trim().ToLowerInvariant();
+
+        if (!SignupChannels.Contains(channel))
+            throw new BusinessException(MessageCodes.SettingsInvalid, 400);
+
+        await _settingsRepository.UpdateAsync([], [], [], new Dictionary<string, string> { [SettingCodes.SignupVerification] = channel }, cancellationToken);
 
         return new ServiceResultDto<AppSettingsDto> { Data = await GetAsync(cancellationToken), Message = await _messageService.GetAsync(MessageCodes.SettingsSaved) };
     }

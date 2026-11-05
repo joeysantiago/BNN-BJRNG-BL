@@ -4,6 +4,8 @@ public class AppSettingsDto
 {
     public SpeedSettingsDto Speed { get; set; } = new();
 
+    public string SignupVerification { get; set; } = string.Empty;
+
     public ServicesSettingsDto Services { get; set; } = new();
 
     public ConnectionSettingsDto Connection { get; set; } = new();

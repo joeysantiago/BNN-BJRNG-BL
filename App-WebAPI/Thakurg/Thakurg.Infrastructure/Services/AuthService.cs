@@ -92,6 +92,18 @@ public class AuthService : IAuthService
         return await _messageService.GetAsync(MessageCodes.AuthLoggedOut);
     }
 
+    // A one-time code is sent only to an address that belongs to an account (FindOtpAccountAsync).
+    // A valid e-mail address that has no account yet, in its stored form.
+    public async Task<string> RequireNewAccountAsync(string? email, CancellationToken cancellationToken)
+    {
+        var address = EmailAddress.Normalize(email) ?? throw new BusinessException(MessageCodes.AuthEmailInvalid, 400);
+
+        if (await _authRepository.FindByEmailAsync(address, cancellationToken) is not null)
+            throw new BusinessException(MessageCodes.AuthEmailTaken, 409);
+
+        return address;
+    }
+
     // The user deletes their own account (soft delete): every session ends at once and the e-mail can no longer log in. The last super admin cannot.
     // The user is then told by e-mail (AccountMailService), so a deletion they did not make does not go unnoticed.
     public async Task<string> DeleteAccountAsync(AuthCallerDto caller, CancellationToken cancellationToken)
@@ -114,7 +126,6 @@ public class AuthService : IAuthService
         return await _messageService.GetAsync(MessageCodes.AuthAccountDeleted);
     }
 
-    // A one-time code is sent only to an address that belongs to an account (FindOtpAccountAsync).
     public async Task RequireOtpAccountAsync(string channel, string destination, CancellationToken cancellationToken)
     {
         await FindOtpAccountAsync(channel, destination, cancellationToken);
@@ -194,15 +205,11 @@ public class AuthService : IAuthService
         return await StartSessionAsync(user, caller, LoginMethods.Password, now, cancellationToken);
     }
 
-    // Self sign-up: the account gets the sign-up role (Roles.IsDefault, the Standard User) and the apps marked AutoGrant (Khata, SnapTracker); the others wait for an administrator.
-    // An e-mail listed in Auth:AdminEmails signs up as a super admin with every app.
+    // Self sign-up (after SignupService checked its one-time code): the account gets the sign-up role (Roles.IsDefault, the Standard User) and the apps marked AutoGrant
+    // (Khata, SnapTracker); the others wait for an administrator. A sign-up never gets another role.
     public async Task<SignInDto> RegisterAsync(RegisterRequestDto request, AuthCallerDto caller, CancellationToken cancellationToken)
     {
-        var email = EmailAddress.Normalize(request.Email) ?? throw new BusinessException(MessageCodes.AuthEmailInvalid, 400);
-
-        if (await _authRepository.FindByEmailAsync(email, cancellationToken) is not null)
-            throw new BusinessException(MessageCodes.AuthEmailTaken, 409);
-
+        var email = await RequireNewAccountAsync(request.Email, cancellationToken);
         var now = DateTime.UtcNow;
         var displayName = string.IsNullOrWhiteSpace(request.DisplayName) ? email[..email.IndexOf('@')] : request.DisplayName.Trim();
 
@@ -350,14 +357,13 @@ public class AuthService : IAuthService
         throw new BusinessException(MessageCodes.AuthOtpAccountNotFound, 404);
     }
 
-    // Super admins come from Auth:AdminEmails and get every app; everyone else gets the sign-up role and the AutoGrant apps.
+    // The sign-up role (the Standard User) and the AutoGrant apps.
     private async Task<User> CreateAccountAsync(string email, string displayName, string passwordHash, DateTime now, CancellationToken cancellationToken)
     {
-        var isOwner = _options.AdminEmails.Any(a => string.Equals(a.Trim(), email, StringComparison.OrdinalIgnoreCase));
-        var role = (isOwner ? await _authRepository.GetRoleByCodeAsync(RoleCodes.SuperAdmin, cancellationToken) : await _authRepository.GetDefaultRoleAsync(cancellationToken)) ?? throw new BusinessException(MessageCodes.RoleNotFound, 500);
+        var role = await _authRepository.GetDefaultRoleAsync(cancellationToken) ?? throw new BusinessException(MessageCodes.RoleNotFound, 500);
         var user = new User { Email = email, PasswordHash = passwordHash, DisplayName = displayName, Language = Languages[0], RoleId = role.Id, LastLoginOn = now };
         await _authRepository.AddUserAsync(user, cancellationToken);
-        var apps = isOwner ? await _authRepository.GetAllAppsAsync(cancellationToken) : await _authRepository.GetAutoGrantAppsAsync(cancellationToken);
+        var apps = await _authRepository.GetAutoGrantAppsAsync(cancellationToken);
         await _authRepository.AddAccessAsync(apps.Select(a => new UserAppAccess { UserId = user.Id, AppId = a.Id, CreatedBy = user.Id }), cancellationToken);
 
         return user;

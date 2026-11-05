@@ -37,11 +37,11 @@ export class AuthService {
   private refreshing: Promise<boolean> | null = null;
   private renewTimer?: ReturnType<typeof setTimeout>;
   readonly apps = computed(() => this.user()?.apps ?? []);
+  /** Every logged-in user: Settings > General holds the settings of their own apps, the other tabs follow the rights of their role. */
+  readonly canOpenSettings = computed(() => !!this.user());
   readonly isAdmin = computed(() => this.user()?.isAdmin ?? false);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   readonly isSuperAdmin = computed(() => this.user()?.roleCode === 'super-admin');
-  /** Every logged-in user: Settings > General holds the settings of their own apps, the other tabs follow the rights of their role. */
-  readonly canOpenSettings = computed(() => !!this.user());
 
   constructor() {
     this.api.useAuth({ token: () => this.token, refresh: () => this.recover() });
@@ -141,7 +141,6 @@ export class AuthService {
     return text;
   }
 
-
   /** The address of a user's profile picture, or null when they have none. The file name in ?v= changes with every upload, so the browser may keep the picture. */
   avatarUrl(user: AuthUser | null): string | null {
     return user?.avatar ? this.api.url(`/auth/avatar/${user.id}?v=${encodeURIComponent(user.avatar)}`) : null;
@@ -190,13 +189,15 @@ export class AuthService {
     return res.message ?? '';
   }
 
+  /** Sends the code that checks a new sign-up: by e-mail, or to the mobile number by WhatsApp or SMS (Settings > General). */
+  async signupCode(email: string, mobile: string | null): Promise<OtpRequestResult> {
+    const res = await this.api.sendFull<OtpRequestResult>('POST', '/auth/register/code', this.init({ email, mobile }), TIMEOUT);
+    return { ...res.data, message: res.message ?? undefined };
+  }
+
   /** Changes the password. The server logs out every other session; this one stays. Resolves with the server's message. */
   async changePassword(currentPassword: string, newPassword: string): Promise<string> {
     return this.api.message('PUT', '/auth/me/password', this.init({ currentPassword, newPassword }), TIMEOUT);
-  }
-
-  async register(email: string, password: string, displayName: string): Promise<AuthUser> {
-    return this.signIn(await this.api.send<AuthResult>('POST', '/auth/register', this.init({ email, password, displayName }), TIMEOUT));
   }
 
   /** Sends a one-time login code by e-mail or SMS, for an app that allows code login (SnapKhata, SnapTracker). */
@@ -208,6 +209,11 @@ export class AuthService {
   /** Logs in with a one-time code; the session is the same common login, limited to the apps that allow code login. */
   async otpVerify(channel: OtpChannel, destination: string, code: string, app: string): Promise<AuthUser> {
     return this.signIn(await this.api.send<AuthResult>('POST', '/auth/otp/verify', this.init({ channel, destination, code, app }), TIMEOUT));
+  }
+
+  /** Makes the account with the code of signupCode (the server checks it first); the account is a Standard User. */
+  async register(email: string, password: string, displayName: string, mobile: string | null, code: string): Promise<AuthUser> {
+    return this.signIn(await this.api.send<AuthResult>('POST', '/auth/register', this.init({ email, password, displayName, mobile, code }), TIMEOUT));
   }
 
   // #endregion
