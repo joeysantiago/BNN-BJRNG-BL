@@ -1,13 +1,16 @@
 import { FEATURES } from '../features';
 import { DemoFailure } from './demo-failure';
 import { randomToken, sha256 } from './demo-hash';
+import { DEMO_PLACES } from './demo-places';
 import { DEMO_MESSAGES } from './demo-messages';
+import { LookupItem } from '../models/lookup.model';
+import { environment } from '../../../environments/environment';
 import { APP_SETTINGS } from '../../appSettings';
 import { DEMO_MAIL, DEMO_RULES, DEMO_WHATSAPP, demoSeed } from './demo-seed';
 import { validStops } from '../settings.service';
 import { WhatsAppAccount } from '../../pages/config/whatsapp-card/whatsapp-card.model';
 import { AuthUser, LoginMethod, OtpChannel, OtpRequestResult, ProfileDetails, QuickLogin, UserStatus } from '../models/auth.model';
-import { SettingsOverrides } from '../models/app-settings.model';
+import { SettingsOverrides, SignupChannel } from '../models/app-settings.model';
 import { MailPurpose, MailSecurity, MailSetting } from '../models/mail.model';
 import { RoleForm, RoleInfo, RolePermission } from '../models/role.model';
 import { DemoDb, DemoMessages, DemoPermission, DemoReply, DemoRequest, DemoRole, DemoUser } from './demo.model';
@@ -294,6 +297,15 @@ export class DemoBackend {
     switch (key) {
       case 'POST /auth/login':
         return { data: await this.login(db, body) };
+      case 'POST /auth/register/code':
+        return this.signupCode(db, body);
+      case 'PUT /settings/signup-verification':
+        return this.saveSignupChannel(db, req.token, body);
+      case 'GET /lookups/countries':
+      case 'GET /lookups/countries/{id}/states':
+      case 'GET /lookups/states/{id}/cities':
+        this.caller(db, req.token);
+        return this.places(path, id);
       case 'POST /auth/register':
         return { data: await this.register(db, body) };
       case 'POST /auth/otp/request':
@@ -509,7 +521,82 @@ export class DemoBackend {
     return { code: 'WHATSAPP_SAVED', data: db.whatsapp };
   }
 
-  /** A sign-up gets the default role and the apps every new account gets (AutoGrant). */
+  /** The address choices of the Profile page: the countries, the states of a country or the cities of a state, in their sort order. */
+  private places(path: string, id: number): { data: LookupItem[] } {
+    if (path === '/lookups/countries')
+      return { data: DEMO_PLACES.countries.map((c) => ({ id: c.id, code: c.code, name: c.name })) };
+    if (path.endsWith('/states'))
+      return { data: DEMO_PLACES.states.filter((s) => s.countryId === id).map((s) => ({ id: s.id, code: s.code, name: s.name })) };
+    return { data: DEMO_PLACES.cities.filter((c) => c.stateId === id).map((c) => ({ id: c.id, code: null, name: c.name })) };
+  }
+
+  /** Where the code that checks a new sign-up goes (Settings > General), e-mail when nothing is saved. */
+  private signupChannel(db: DemoDb): SignupChannel {
+    return db.settings.signupVerification ?? APP_SETTINGS.signupVerification;
+  }
+
+  /**
+   * Where the sign-up code goes, for a new, allowed e-mail address: that address, or the mobile number (not used by another account) for WhatsApp or SMS.
+   * Refuses as the API refuses: an e-mail taken, a disposable mail domain (environment.blockedEmailDomains), no mobile number.
+   */
+  private signupTarget(db: DemoDb, body: Record<string, unknown>): { channel: SignupChannel; destination: string } {
+    const email = this.email(body['email']);
+    if (!email)
+      throw new DemoFailure(400, 'AUTH_EMAIL_INVALID');
+    if (db.users.some((u) => u.email === email))
+      throw new DemoFailure(409, 'AUTH_EMAIL_TAKEN');
+    if (environment.blockedEmailDomains.includes(email.slice(email.lastIndexOf('@') + 1)))
+      throw new DemoFailure(400, 'AUTH_EMAIL_BLOCKED');
+    const channel = this.signupChannel(db);
+    if (channel === 'email')
+      return { channel, destination: email };
+    const mobile = String(body['mobile'] ?? '').replace(/[^\d+]/g, '');
+    if (!mobile)
+      throw new DemoFailure(400, 'AUTH_SIGNUP_MOBILE_REQUIRED');
+    const last10 = (v: string | null | undefined) => (v ?? '').replace(/\D/g, '').slice(-10);
+    if (db.users.some((u) => this.live(u) && !!u.details?.mobile && last10(u.details.mobile) === last10(mobile)))
+      throw new DemoFailure(409, 'PROFILE_MOBILE_TAKEN');
+    return { channel, destination: mobile };
+  }
+
+  /** Sends the sign-up code; a new one waits Auth:Otp:ResendSeconds. Mojito sends no message, so the answer shows the code. */
+  private signupCode(db: DemoDb, body: Record<string, unknown>): { code: string; args: (string | number)[]; data: OtpRequestResult } {
+    const rules = DEMO_RULES.otp;
+    const { channel, destination } = this.signupTarget(db, body);
+    const last = (db.signupCodes ?? []).find((o) => o.channel === channel && o.destination === destination);
+    const wait = last ? Math.ceil((last.sentAt + rules.resendSeconds * 1000 - Date.now()) / 1000) : 0;
+    if (wait > 0)
+      throw new DemoFailure(429, 'OTP_TOO_MANY_REQUESTS', [wait]);
+    const code = Array.from({ length: rules.codeLength }, () => Math.floor(Math.random() * 10)).join('');
+    db.signupCodes = [...(db.signupCodes ?? []).filter((o) => o !== last), { code, channel, destination, attempts: 0, sentAt: Date.now(), expiresAt: Date.now() + rules.codeMinutes * 60000 }];
+    this.store(db);
+    return { code: 'DEMO_SIGNUP_CODE_SENT', args: [code, rules.codeMinutes], data: { resendInSeconds: rules.resendSeconds, expiresInSeconds: rules.codeMinutes * 60 } };
+  }
+
+  /** Uses up the sign-up code of the address: a wrong code counts a try and Auth:Otp:MaxAttempts use it up; an expired one never works. */
+  private useSignupCode(db: DemoDb, channel: SignupChannel, destination: string, code: unknown): void {
+    const otp = (db.signupCodes ?? []).find((o) => o.channel === channel && o.destination === destination && o.expiresAt > Date.now() && o.attempts < DEMO_RULES.otp.maxAttempts);
+    if (!otp || otp.code !== String(code ?? '').trim()) {
+      if (otp)
+        otp.attempts++;
+      this.store(db);
+      throw new DemoFailure(400, 'AUTH_OTP_INVALID');
+    }
+    db.signupCodes = (db.signupCodes ?? []).filter((o) => o !== otp);
+  }
+
+  /** PUT /settings/signup-verification (super admin): where the code that checks a new sign-up goes. */
+  private saveSignupChannel(db: DemoDb, token: string | null, body: Record<string, unknown>): { code: string; data: SettingsOverrides } {
+    this.superCaller(db, token);
+    const channel = String(body['channel'] ?? '').trim().toLowerCase();
+    if (channel !== 'email' && channel !== 'whatsapp' && channel !== 'sms')
+      throw new DemoFailure(400, 'SETTINGS_INVALID');
+    db.settings = { ...db.settings, signupVerification: channel };
+    this.store(db);
+    return { code: 'SETTINGS_SAVED', data: db.settings };
+  }
+
+  /** A sign-up (after its code is checked) gets the default role, the Standard User, and the apps every new account gets (AutoGrant). */
   private async register(db: DemoDb, body: Record<string, unknown>): Promise<unknown> {
     const email = this.email(body['email']);
     if (!email)
@@ -521,8 +608,12 @@ export class DemoBackend {
     if (!role)
       throw new DemoFailure(500, 'ROLE_NOT_FOUND');
     const password = this.checkPassword(body['password']);
+    const { channel, destination } = this.signupTarget(db, body);
+    this.useSignupCode(db, channel, destination, body['code']);
     const now = this.now();
     const user: DemoUser = { id: this.next(db), email, passwordHash: await this.hash(password), displayName, language: 'en', roleId: role.id, apps: db.apps.filter((a) => a.autoGrant).map((a) => a.code), hidden: [], avatar: null, avatarData: null, createdOn: now, lastLoginOn: now, failedLogins: 0, lockedUntil: null };
+    if (channel !== 'email')
+      user.details = { mobile: destination, addressLine1: null, addressLine2: null, city: null, state: null, postalCode: null, country: null, companyName: null, companyTaxId: null, companyEmail: null, companyPhone: null, companyAddress: null };
     db.users.push(user);
     return this.signIn(db, user);
   }
@@ -720,6 +811,9 @@ export class DemoBackend {
     // The app names are saved by the apps themselves (PUT /tasks/settings/app-name), never by this form; they stay.
     if (s.pageNames)
       out.pageNames = s.pageNames;
+    // The sign-up channel has its own Save (PUT /settings/signup-verification); it stays.
+    if (s.signupVerification)
+      out.signupVerification = s.signupVerification;
     db.settings = JSON.parse(JSON.stringify(out)) as SettingsOverrides;
     return { code: 'SETTINGS_SAVED', data: db.settings };
   }

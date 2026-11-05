@@ -5,6 +5,7 @@ import { MailSetting } from '../models/mail.model';
 import { WhatsAppAccount } from '../../pages/config/whatsapp-card/whatsapp-card.model';
 import { SettingsOverrides } from '../models/app-settings.model';
 import { LoginMethod, OtpChannel, ProfileDetails, ProfileLimits } from '../models/auth.model';
+import { SignupChannel } from '../models/app-settings.model';
 
 /** One text of the API's Messages table, in the three languages. */
 export interface DemoText {
@@ -93,8 +94,15 @@ export interface DemoOtp {
   sentAt: number;
   attempts: number;
   expiresAt: number;
-  channel: OtpChannel;
   destination: string;
+  channel: OtpChannel | SignupChannel;
+}
+
+/** The address choices of the demo (DEMO_PLACES): countries, their states and the states' cities. */
+export interface DemoPlaces {
+  cities: { id: number; stateId: number; name: string }[];
+  countries: { id: number; code: string; name: string }[];
+  states: { id: number; countryId: number; code: string; name: string }[];
 }
 
 /** Auth:Otp of the API: the code, how long it works, wrong tries, the wait before another one, and the apps that may use a code login. */
@@ -117,6 +125,8 @@ export interface DemoDb {
   khata?: KhataDemoDb;
   tasks?: TasksDemoDb;
   otp?: DemoOtp[];
+  /** The codes that check a new sign-up (the OneTimeCodes rows with AppCode "signup" of the API branches). */
+  signupCodes?: DemoOtp[];
   whatsapp?: WhatsAppAccount;
   sessions: DemoSession[];
   settings: SettingsOverrides;

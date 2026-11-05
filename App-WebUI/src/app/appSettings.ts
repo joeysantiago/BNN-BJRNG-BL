@@ -9,6 +9,8 @@ export const APP_SETTINGS: AppSettings = {
   // `server` is the https address of the helper that makes the 320 kbps MP3 downloads (npm run youtube); `token` is its YT_TOKEN, if any.
   // Leave it empty to use the same host as the page on port 8787 when testing locally, or let visitors enter it on the page.
   youtube: { apiKey: '', server: '', token: '' },
+  // Where the code that checks a new sign-up goes: 'email', 'whatsapp' or 'sms' (a super admin changes it on Settings > General).
+  signupVerification: 'email',
   // Speeds in Mbps printed on the speed test gauge (Settings > Features > Speed test page). 2 to 20 whole numbers, the first 0, each larger than the one before.
   speed: { gaugeStops: [0, 5, 10, 25, 50, 75, 100, 250, 500, 1000, 2500, 5000, 10000] },
 

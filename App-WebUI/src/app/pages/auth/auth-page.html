@@ -9,16 +9,37 @@
 
     @if (way() === 'password') {
       <form class="form" [attr.aria-busy]="busy()" (submit)="submit($event)">
+        @if (mode === 'signup' && signupStep() === 'code') {
+          @if (info()) {
+            <p class="hint" role="status">{{ info() }}</p>
+          }
+          <label class="field">
+            <span>{{ i18n.t('auth.otp.code') }}</span>
+            <input name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="8" required [disabled]="busy()" />
+          </label>
+          <button type="submit" class="btn pri lg" [disabled]="busy()">{{ i18n.t(busy() ? 'auth.busy' : 'auth.signup.btn') }}</button>
+          <div class="way">
+            <button type="button" class="btn sm ghost" [disabled]="busy() || resendIn() > 0" (click)="sendSignupCode()">{{ resendIn() > 0 ? i18n.t('auth.otp.resendIn', { n: resendIn() }) : i18n.t('auth.otp.resend') }}</button>
+            <button type="button" class="btn sm ghost" [disabled]="busy()" (click)="editSignup()">{{ i18n.t('auth.signup.edit') }}</button>
+          </div>
+        } @else {
         @if (mode === 'signup') {
           <label class="field">
             <span>{{ i18n.t('auth.name') }}</span>
-            <input name="displayName" type="text" autocomplete="name" maxlength="100" required [disabled]="busy()" />
+            <input name="displayName" type="text" autocomplete="name" maxlength="100" required [disabled]="busy()" [value]="signup()?.name ?? ''" />
           </label>
         }
         <label class="field">
           <span>{{ i18n.t('auth.email') }}</span>
-          <input name="email" type="email" inputmode="email" autocomplete="username" spellcheck="false" maxlength="256" required [disabled]="busy()" />
+          <input name="email" type="email" inputmode="email" autocomplete="username" spellcheck="false" maxlength="256" required [disabled]="busy()" [value]="signup()?.email ?? ''" />
         </label>
+        @if (mode === 'signup' && needsMobile()) {
+          <label class="field">
+            <span>{{ i18n.t('auth.p.mobile') }}</span>
+            <input name="mobile" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" required aria-describedby="auth-mobile-hint" [disabled]="busy()" [value]="signup()?.mobile ?? ''" />
+            <small id="auth-mobile-hint" class="hint">{{ i18n.t('auth.signup.mobileHint') }}</small>
+          </label>
+        }
         <div class="field">
           <label for="auth-pw">{{ i18n.t('auth.password') }}</label>
           <div class="pw">
@@ -44,7 +65,8 @@
             <small id="auth-pw-hint" class="hint">{{ i18n.t('auth.pwHint') }}</small>
           }
         </div>
-        <button type="submit" class="btn pri lg" [disabled]="busy()">{{ i18n.t(busy() ? 'auth.busy' : mode === 'signup' ? 'auth.signup.btn' : 'auth.login.btn') }}</button>
+        <button type="submit" class="btn pri lg" [disabled]="busy()">{{ i18n.t(busy() ? 'auth.busy' : mode === 'signup' ? 'auth.signup.send' : 'auth.login.btn') }}</button>
+        }
         @if (error()) {
           <p class="err" role="alert">{{ error() }}</p>
         }

@@ -5,21 +5,14 @@
 @if (settings(); as s) {
   <section class="sec" aria-labelledby="tp-defaults">
     <h3 id="tp-defaults" class="sec-h">{{ i18n.t('tasks.set.general') }}</h3>
-    <div class="field-row">
+    <div class="field-row pick-row">
       <span class="txt"><b>{{ i18n.t('tasks.set.weekStart') }}</b><small>{{ i18n.t('tasks.set.weekStartHelp') }}</small></span>
-      <select [attr.aria-label]="i18n.t('tasks.set.weekStart')" (change)="set('weekStart', $any($event.target).value)">
-        <option value="mon" [selected]="s.weekStart === 'mon'">{{ i18n.t('tasks.set.monday') }}</option>
-        <option value="sun" [selected]="s.weekStart === 'sun'">{{ i18n.t('tasks.set.sunday') }}</option>
-      </select>
+      <app-choice-group name="weekStart" [label]="i18n.t('tasks.set.weekStart')" [options]="weekStarts()" [value]="s.weekStart" (picked)="set('weekStart', $event)" />
     </div>
-    <label class="field-row">
+    <div class="field-row pick-row">
       <span class="txt"><b>{{ i18n.t('tasks.set.defaultTab') }}</b></span>
-      <select (change)="set('defaultTab', $any($event.target).value)">
-        @for (t of ['all', 'active', 'completed']; track t) {
-          <option [value]="t" [selected]="s.defaultTab === t">{{ i18n.t('tasks.tab.' + t) }}</option>
-        }
-      </select>
-    </label>
+      <app-choice-group name="defaultTab" [label]="i18n.t('tasks.set.defaultTab')" [options]="tabs()" [value]="s.defaultTab" (picked)="set('defaultTab', $any($event))" />
+    </div>
     <label class="field-row">
       <span class="txt"><b>{{ i18n.t('tasks.set.defaultCategory') }}</b></span>
       <select (change)="set('defaultCategoryId', $any($event.target).value ? +$any($event.target).value : null)">
@@ -29,14 +22,10 @@
         }
       </select>
     </label>
-    <label class="field-row">
+    <div class="field-row pick-row">
       <span class="txt"><b>{{ i18n.t('tasks.set.defaultPriority') }}</b></span>
-      <select (change)="set('defaultPriority', +$any($event.target).value)">
-        @for (p of [1, 2, 3]; track p) {
-          <option [value]="p" [selected]="s.defaultPriority === p">{{ i18n.t('tasks.pri.' + p) }}</option>
-        }
-      </select>
-    </label>
+      <app-choice-group name="defaultPriority" [label]="i18n.t('tasks.set.defaultPriority')" [options]="priorities()" [value]="'' + s.defaultPriority" (picked)="set('defaultPriority', +$event)" />
+    </div>
   </section>
 
   @if (pin(); as p) {
@@ -55,14 +44,10 @@
           }
         </span>
       </div>
-      <label class="field-row">
+      <div class="field-row pick-row">
         <span class="txt"><b>{{ i18n.t('tasks.set.lockAfter') }}</b><small>{{ i18n.t('tasks.set.lockAfterHelp') }}</small></span>
-        <select [disabled]="!p.hasPin" (change)="set('lockAfterMinutes', +$any($event.target).value)">
-          @for (m of lockTimes; track m) {
-            <option [value]="m" [selected]="s.lockAfterMinutes === m">{{ m === 0 ? i18n.t('tasks.set.lockNowOption') : i18n.t('tasks.set.minutes', { n: m }) }}</option>
-          }
-        </select>
-      </label>
+        <app-choice-group name="lockAfter" [label]="i18n.t('tasks.set.lockAfter')" [options]="lockOptions()" [value]="'' + s.lockAfterMinutes" [disabled]="!p.hasPin" (picked)="set('lockAfterMinutes', +$event)" />
+      </div>
     </section>
   }
 
@@ -73,14 +58,10 @@
       <span class="txt"><b>{{ i18n.t('tasks.set.notify') }}</b><small>{{ i18n.t('tasks.set.notifyHelp') }}</small></span>
       <input type="checkbox" role="switch" class="switch" [checked]="s.notificationsEnabled" (change)="set('notificationsEnabled', $any($event.target).checked)" />
     </label>
-    <label class="field-row">
+    <div class="field-row pick-row">
       <span class="txt"><b>{{ i18n.t('tasks.set.before') }}</b><small>{{ i18n.t('tasks.set.beforeHelp') }}</small></span>
-      <select [disabled]="!s.notificationsEnabled" (change)="set('remindBefore', $any($event.target).value)">
-        @for (b of befores; track b) {
-          <option [value]="b" [selected]="s.remindBefore === b">{{ i18n.t('tasks.before.' + b) }}</option>
-        }
-      </select>
-    </label>
+      <app-choice-group name="remindBefore" [label]="i18n.t('tasks.set.before')" [options]="befores()" [value]="s.remindBefore" [disabled]="!s.notificationsEnabled" (picked)="set('remindBefore', $event)" />
+    </div>
     <label class="field-row">
       <span class="txt"><b>{{ i18n.t('tasks.set.daily') }}</b><small>{{ i18n.t('tasks.set.dailyHelp') }}</small></span>
       <input type="time" [disabled]="!s.notificationsEnabled" [value]="s.reminderTime" (change)="$any($event.target).value && set('reminderTime', $any($event.target).value)" />

@@ -1,12 +1,21 @@
 import { SeoService } from '../../core/seo.service';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
-import { AuthMode, LoginWay, OtpStep } from './auth-page.model';
+import { ToastService } from '../../core/toast.service';
+import { ChoiceGroup } from '../../shared/choice-group';
+import { SettingsService } from '../../core/settings.service';
+import { environment } from '../../../environments/environment';
+import { ChoiceOption } from '../../shared/models/choice.model';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { OtpChannel, QuickLogin } from '../../core/models/auth.model';
-import { Component, OnDestroy, afterNextRender, effect, inject, signal } from '@angular/core';
+import { AuthMode, LoginWay, OtpStep, SignupDetails, SignupStep } from './auth-page.model';
+import { Component, OnDestroy, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 
 /** The apps that also offer a one-time code login, by the start of the address they open. */
+/** The line icons of the two ways to log in (fixed drawings). */
+const LOCK_ICON = ['M6 11h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z', 'M8 11V7a4 4 0 0 1 8 0v4'];
+const PHONE_ICON = ['M8.5 2h7A2.5 2.5 0 0 1 18 4.5v15a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 6 19.5v-15A2.5 2.5 0 0 1 8.5 2z', 'M11 18h2'];
+
 const OTP_APPS: Record<string, string> = { '/khata': 'khata', '/tracker': 'tracker', '/tasks': 'tasks' };
 
 /** Where a code goes, from what was typed: an e-mail address or a mobile number (digits, optional +, spaces or dashes); null = neither. */
@@ -23,7 +32,7 @@ const safeNext = (value: string | null): string | null => (value && value.starts
  */
 @Component({
   selector: 'app-auth-page',
-  imports: [RouterLink],
+  imports: [RouterLink, ChoiceGroup],
   templateUrl: './auth-page.html',
   styleUrl: './auth-page.scss',
 })
@@ -38,7 +47,9 @@ export class AuthPage implements OnDestroy {
   private readonly seo = inject(SeoService);
   private readonly auth = inject(AuthService);
   protected readonly destination = signal('');
+  private readonly toast = inject(ToastService);
   protected readonly i18n = inject(I18nService);
+  private readonly cfg = inject(SettingsService);
   private readonly route = inject(ActivatedRoute);
   protected readonly step = signal<OtpStep>('ask');
   protected readonly way = signal<LoginWay>('password');
@@ -46,10 +57,16 @@ export class AuthPage implements OnDestroy {
   private timer: ReturnType<typeof setInterval> | undefined;
   /** The users a super admin shows on the login page (Settings > General): e-mails only, a tap logs in as them on the server. */
   protected readonly quickLogins = signal<QuickLogin[]>([]);
+  private readonly signup = signal<SignupDetails | null>(null);
+  protected readonly signupStep = signal<SignupStep>('details');
   protected readonly next = safeNext(this.route.snapshot.queryParamMap.get('next'));
+  /** WhatsApp or SMS sign-up codes go to a mobile number, so the sign-up asks for it. */
+  protected readonly needsMobile = computed(() => this.cfg.settings().signupVerification !== 'email');
   protected readonly mode: AuthMode = this.route.snapshot.data['mode'] === 'signup' ? 'signup' : 'login';
-  /** The app that allows a code login here, from ?app= or from the address the login returns to; null = password only. */
-  protected readonly otpApp: string | null = Object.values(OTP_APPS).find((a) => a === this.route.snapshot.queryParamMap.get('app')) ?? Object.entries(OTP_APPS).find(([path]) => this.next?.startsWith(path))?.[1] ?? null;
+  /** Password or one-time code, offered on every login page. */
+  protected readonly ways = computed<ChoiceOption[]>(() => [{ value: 'password', label: this.i18n.t('auth.otp.byPassword'), icon: LOCK_ICON }, { value: 'otp', label: this.i18n.t('auth.otp.byCode'), icon: PHONE_ICON }]);
+  /** The app the code login is for: from ?app= or from the address the login returns to, otherwise the first app that allows it (the session opens only those apps). */
+  protected readonly otpApp: string = Object.values(OTP_APPS).find((a) => a === this.route.snapshot.queryParamMap.get('app')) ?? Object.entries(OTP_APPS).find(([path]) => this.next?.startsWith(path))?.[1] ?? Object.values(OTP_APPS)[0];
 
   constructor() {
     effect(() => {
@@ -72,6 +89,13 @@ export class AuthPage implements OnDestroy {
 
   // #region Public Methods
 
+  /** Back to the sign-up details (to change the e-mail address or the mobile number). */
+  editSignup(): void {
+    this.signupStep.set('details');
+    this.error.set('');
+    this.info.set('');
+  }
+
   ngOnDestroy(): void {
     clearInterval(this.timer);
   }
@@ -89,25 +113,52 @@ export class AuthPage implements OnDestroy {
     this.info.set('');
   }
 
-  /** Reads the form before the fields are disabled (disabled fields are not part of the form data). */
+  /** Sends (or sends again) the code that checks the sign-up. */
+  async sendSignupCode(): Promise<void> {
+    const pending = this.signup();
+    if (!pending || this.resendIn() > 0)
+      return;
+    await this.attempt(async () => {
+      const result = await this.auth.signupCode(pending.email, pending.mobile);
+      this.signupStep.set('code');
+      this.info.set(result.message ?? '');
+      this.countdown(result.resendInSeconds);
+    });
+  }
+
+  /**
+   * Reads the form before the fields are disabled (disabled fields are not part of the form data). A login logs in; a sign-up first sends the code that checks the
+   * address (an address of a disposable mail domain is refused before), then makes the account with that code.
+   */
   async submit(ev: Event): Promise<void> {
     ev.preventDefault();
     if (this.busy())
       return;
     const data = new FormData(ev.target as HTMLFormElement);
-    const email = String(data.get('email') ?? '').trim();
-    const password = String(data.get('password') ?? '');
-    const name = String(data.get('displayName') ?? '').trim();
-    this.busy.set(true);
-    this.error.set('');
-    try {
-      await (this.mode === 'signup' ? this.auth.register(email, password, name) : this.auth.login(email, password));
-      this.go();
-    } catch (e) {
-      this.error.set((e as { status?: number }).status !== undefined ? (e as Error).message : this.i18n.t('auth.serverDown'));
-    } finally {
-      this.busy.set(false);
+    const text = (name: string): string => String(data.get(name) ?? '').trim();
+    if (this.mode === 'login') {
+      await this.attempt(async () => {
+        await this.auth.login(text('email'), String(data.get('password') ?? ''));
+        this.go();
+      });
+      return;
     }
+    const pending = this.signup();
+    if (this.signupStep() === 'code' && pending) {
+      await this.attempt(async () => {
+        await this.auth.register(pending.email, pending.password, pending.name, pending.mobile, text('code'));
+        this.go();
+      });
+      return;
+    }
+    const details = { name: text('displayName'), email: text('email'), password: String(data.get('password') ?? ''), mobile: this.needsMobile() ? text('mobile') || null : null };
+    if (this.blocked(details.email)) {
+      this.info.set('');
+      this.error.set(this.i18n.t('auth.signup.blocked'));
+      return;
+    }
+    this.signup.set(details);
+    await this.sendSignupCode();
   }
 
   async verifyCode(code: string): Promise<void> {
@@ -144,7 +195,9 @@ export class AuthPage implements OnDestroy {
     }
     this.channel.set(channel);
     await this.attempt(async () => {
-      const result = await this.auth.otpRequest(this.channel(), to, app);
+      const result = await this.noAccount(() => this.auth.otpRequest(this.channel(), to, app));
+      if (!result)
+        return;
       this.destination.set(to);
       this.step.set('code');
       // The server's own answer when it gives one (the demo backend shows the code there, as Mojito sends no message).
@@ -159,6 +212,12 @@ export class AuthPage implements OnDestroy {
 
   private go(): void {
     void this.router.navigateByUrl(this.next ?? '/profile', { replaceUrl: true });
+  }
+
+  /** An address of a disposable mail domain (environment.blockedEmailDomains); the API refuses the same. */
+  private blocked(email: string): boolean {
+    const domain = email.slice(email.lastIndexOf('@') + 1).toLowerCase();
+    return environment.blockedEmailDomains.includes(domain);
   }
 
   private countdown(seconds: number): void {
@@ -190,6 +249,18 @@ export class AuthPage implements OnDestroy {
       this.error.set((e as { status?: number }).status !== undefined ? (e as Error).message : this.i18n.t('auth.serverDown'));
     } finally {
       this.busy.set(false);
+    }
+  }
+
+  /** A code login for an address without an account: the server's "no account" answer as a toast with a link to the sign-up, and no code is sent. */
+  private async noAccount<T>(work: () => Promise<T>): Promise<T | null> {
+    try {
+      return await work();
+    } catch (e) {
+      if ((e as { status?: number }).status !== 404)
+        throw e;
+      this.toast.show((e as Error).message, true, { path: '/signup', label: this.i18n.t('auth.toSignup'), query: this.next ? { next: this.next } : undefined });
+      return null;
     }
   }
 

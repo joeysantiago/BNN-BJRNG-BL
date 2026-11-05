@@ -1,0 +1,27 @@
+<section class="card wide" aria-labelledby="khata-company-h">
+  <h2 id="khata-company-h">{{ i18n.t('auth.p.company') }}</h2>
+  <p class="note">{{ i18n.t('khata.company.lead') }}</p>
+  @if (details(); as d) {
+    <form class="form" [attr.aria-busy]="busy()" (submit)="save($event)">
+      <fieldset class="group" [disabled]="busy()">
+        <legend class="sr-only">{{ i18n.t('auth.p.company') }}</legend>
+        <div class="two">
+          @for (f of fields; track f.name) {
+            <label class="field">
+              <span>{{ i18n.t(f.label) }}</span>
+              <input [name]="f.name" [type]="f.type" [attr.autocomplete]="f.autocomplete" [attr.maxlength]="d.limits?.[f.limit]" [value]="d[f.name] ?? ''" />
+            </label>
+          }
+        </div>
+      </fieldset>
+      <div class="bar">
+        <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t(busy() ? 'auth.busy' : 'auth.p.save') }}</button>
+        @if (notice(); as n) {
+          <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+        }
+      </div>
+    </form>
+  } @else if (notice(); as n) {
+    <p class="status bad" role="alert">{{ n.text }}</p>
+  }
+</section>

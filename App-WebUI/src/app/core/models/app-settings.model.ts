@@ -2,6 +2,9 @@ import { Lang } from '../site';
 
 export type ServiceGroup = 'apps' | 'telecom';
 
+/** Where the code that checks a new sign-up goes (Settings > General, super admin). */
+export type SignupChannel = 'email' | 'whatsapp' | 'sms';
+
 export type PageName = Record<Lang, string>;
 
 export type PageId = 'speed' | 'connection' | 'services' | 'about' | 'privacy' | 'terms' | 'creta' | 'nexon' | 'hr' | 'khata' | 'youtube' | 'tasks';
@@ -35,6 +38,7 @@ export interface SettingsOverrides {
   connection?: { enabled?: boolean; fields?: Partial<Record<ConnectionField, boolean>> };
   services?: { enabled?: boolean; refreshSeconds?: number; items?: Record<string, boolean> };
   youtube?: Partial<AppSettings['youtube']>;
+  signupVerification?: SignupChannel;
   speed?: { gaugeStops?: number[] };
   /** App names saved by the apps themselves (My Tasks: Settings > General, super admins only), like the PageNames rows of the API branches. */
   pageNames?: Partial<Record<PageId, Partial<PageName>>>;
@@ -61,6 +65,8 @@ export interface AppSettings {
     /** Speeds in Mbps printed on the speed test gauge, evenly spaced around the ring. The first is 0 and each is larger than the one before. */
     gaugeStops: number[];
   };
+  /** Where the code that checks a new sign-up goes; WhatsApp and SMS also ask for the mobile number. */
+  signupVerification: SignupChannel;
   youtube: {
     /** YouTube Data API v3 key. Leave empty to play pasted links only. */
     apiKey: string;

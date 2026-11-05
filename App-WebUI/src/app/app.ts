@@ -4,6 +4,7 @@ import { AuthService } from './core/auth.service';
 import { I18nService } from './core/i18n.service';
 import { SiteFooter } from './shared/site-footer';
 import { SiteHeader } from './shared/site-header';
+import { SiteToasts } from './shared/site-toasts';
 import { ThemeService } from './core/theme.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AppPwaService } from './core/app-pwa.service';
@@ -13,7 +14,7 @@ import { Component, afterNextRender, computed, effect, inject } from '@angular/c
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, SiteHeader, SiteFooter],
+  imports: [RouterOutlet, SiteHeader, SiteFooter, SiteToasts],
   template: `
     @if (!bare()) {
       <a class="skip" href="#main" (click)="skip($event)">{{ i18n.t('a11y.skip') }}</a>
@@ -25,6 +26,7 @@ import { Component, afterNextRender, computed, effect, inject } from '@angular/c
     @if (!bare()) {
       <app-site-footer />
     }
+    <app-site-toasts />
   `,
   styles: `
     main {

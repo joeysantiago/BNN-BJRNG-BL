@@ -12,4 +12,4 @@ export const FEATURE_APPS: string[] = ['speedtest', 'youtube', 'creta', 'nexon',
 export const FEATURE_SETTINGS: FeaturePanel[] = [{ app: 'khata', order: 1, load: () => import('./pages/khata/settings-panel/khata-settings-panel.mojito').then((m) => m.KhataSettingsPanelMojito) }, { app: 'tasks', order: 2, load: () => import('./pages/tasks/settings-panel/tasks-settings-panel.mojito').then((m) => m.TasksSettingsPanelMojito) }];
 
 /** The parts each app brings to the Profile page (for example deleting the data a user keeps in that app), loaded lazily. */
-export const FEATURE_PROFILE: FeaturePanel[] = [{ app: 'tasks', order: 1, load: () => import('./pages/tasks/profile-panel/tasks-profile-panel.mojito').then((m) => m.TasksProfilePanelMojito) }];
+export const FEATURE_PROFILE: FeaturePanel[] = [{ app: 'khata', order: 1, load: () => import('./pages/khata/profile-panel/khata-profile-panel.mojito').then((m) => m.KhataProfilePanelMojito) }, { app: 'tasks', order: 2, load: () => import('./pages/tasks/profile-panel/tasks-profile-panel.mojito').then((m) => m.TasksProfilePanelMojito) }];

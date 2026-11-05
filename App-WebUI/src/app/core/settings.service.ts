@@ -162,6 +162,7 @@ export class SettingsService {
       ...d,
       features: { ...d.features, ...o.features },
       youtube: { ...d.youtube, ...o.youtube },
+      signupVerification: o.signupVerification ?? d.signupVerification,
       speed: { gaugeStops: o.speed?.gaugeStops ?? d.speed.gaugeStops },
       pageNames: Object.fromEntries(Object.entries(d.pageNames).map(([id, n]) => [id, { ...n, ...o.pageNames?.[id as PageId] }])) as AppSettings['pageNames'],
       connection: { enabled: o.connection?.enabled ?? d.connection.enabled, fields: { ...d.connection.fields, ...o.connection?.fields } },

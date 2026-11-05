@@ -191,8 +191,15 @@ export class AuthService {
     return this.api.message('PUT', '/auth/me/password', this.init({ currentPassword, newPassword }), TIMEOUT);
   }
 
-  async register(email: string, password: string, displayName: string): Promise<AuthUser> {
-    return this.signIn(await this.api.send<AuthResult>('POST', '/auth/register', this.init({ email, password, displayName }), TIMEOUT));
+  /** Makes the account with the code of signupCode (the demo backend checks it first); the account is a Standard User. */
+  async register(email: string, password: string, displayName: string, mobile: string | null, code: string): Promise<AuthUser> {
+    return this.signIn(await this.api.send<AuthResult>('POST', '/auth/register', this.init({ email, password, displayName, mobile, code }), TIMEOUT));
+  }
+
+  /** Sends the code that checks a new sign-up (Mojito sends no message: the demo backend shows the code in its answer). */
+  async signupCode(email: string, mobile: string | null): Promise<OtpRequestResult> {
+    const res = await this.api.sendFull<OtpRequestResult>('POST', '/auth/register/code', this.init({ email, mobile }), TIMEOUT);
+    return { ...res.data, message: res.message ?? undefined };
   }
 
   /** Asks for a one-time login code, for an app that allows code login (SnapKhata, SnapTracker, My Tasks). Mojito sends no message: the demo backend shows the code. */

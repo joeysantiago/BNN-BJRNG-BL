@@ -387,6 +387,7 @@ export const KHATA_TEXTS: Record<Lang, Record<string, string>> = {
     'khata.theme.menu': 'Theme and style',
     'khata.theme.mode': 'Light or dark',
     'khata.theme.skins': 'Style',
+    'khata.company.lead': 'Shown on the PDFs you export, so your parties know who sent them.',
   },
   hi: {
     'seo.khata.title': '{page:khata}: मुफ़्त डिजिटल उधार खाता',
@@ -770,6 +771,7 @@ export const KHATA_TEXTS: Record<Lang, Record<string, string>> = {
     'khata.theme.menu': 'थीम और शैली',
     'khata.theme.mode': 'लाइट या डार्क',
     'khata.theme.skins': 'शैली',
+    'khata.company.lead': 'आपकी एक्सपोर्ट की गई PDF पर दिखता है, ताकि पार्टियों को पता रहे कि किसने भेजी।',
   },
   ar: {
     'seo.khata.title': '{page:khata}: دفتر ديون رقمي مجاني',
@@ -1153,5 +1155,6 @@ export const KHATA_TEXTS: Record<Lang, Record<string, string>> = {
     'khata.theme.menu': 'السمة والنمط',
     'khata.theme.mode': 'فاتح أو داكن',
     'khata.theme.skins': 'النمط',
+    'khata.company.lead': 'يظهر في ملفات PDF التي تصدّرها، ليعرف الطرف الآخر من أرسلها.',
   },
 };
