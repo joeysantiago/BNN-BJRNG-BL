@@ -1,10 +1,10 @@
 import { appLink } from '../../../core/apps';
-import { UserNotice } from '../config.model';
 import { ApiService } from '../../../core/api.service';
 import { FEATURE_APPS } from '../../../feature-routes';
 import { AuthService } from '../../../core/auth.service';
 import { I18nService } from '../../../core/i18n.service';
 import { UserAvatar } from '../../../shared/user-avatar';
+import { UserNotice, UserStatus } from '../config.model';
 import { RoleInfo } from '../../../core/models/role.model';
 import { AuthUser, UserAccess } from '../../../core/models/auth.model';
 import { Component, afterNextRender, computed, inject, signal } from '@angular/core';
@@ -14,6 +14,8 @@ const NEW = 0;
 
 /**
  * The Users tab of the Settings page: add a user with a role from the dropdown (roles come from the database), change a user's name, role and apps, delete a user.
+ * The list is filtered by All / Active / Archived / Deleted (each fetched from GET /admin/users?status=) and searched by name or e-mail; an archived user cannot log in
+ * until activated, and a deleted one can be restored. Archive and Delete ask again on the same row.
  * Each button shows only with that right of the caller's role. Only a super admin can add, change or delete a super admin or give the super admin role;
  * for everyone else those rows are read-only and that role is not in the dropdown. The API checks every rule again.
  */
@@ -26,18 +28,23 @@ const NEW = 0;
 
 export class UsersTab {
   protected readonly NEW = NEW;
+  protected readonly q = signal('');
   protected readonly error = signal('');
   private readonly api = inject(ApiService);
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
   protected readonly busy = signal<number | null>(null);
+  protected readonly status = signal<UserStatus>('all');
   /** The user whose row is open for editing. */
   protected readonly editing = signal<number | null>(null);
+  /** The user whose Archive button was pressed once and now asks again. */
+  protected readonly archiving = signal<number | null>(null);
   protected readonly access = signal<UserAccess | null>(null);
   protected readonly confirming = signal<number | null>(null);
   protected readonly notice = signal<UserNotice | null>(null);
   protected readonly canAdd = computed(() => this.auth.can('settings.users', 'add'));
   protected readonly canEdit = computed(() => this.auth.can('settings.users', 'edit'));
+  protected readonly statuses: UserStatus[] = ['all', 'active', 'archived', 'deleted'];
   protected readonly canDelete = computed(() => this.auth.can('settings.users', 'delete'));
   /** Only this branch's apps: a Creta build shows no access boxes for the other apps (their access is kept on save). */
   protected readonly apps = computed(() => (this.access()?.apps ?? []).filter((a) => FEATURE_APPS.includes(a.code)));
@@ -45,6 +52,12 @@ export class UsersTab {
   protected readonly autoApps = computed(() => this.apps().filter((a) => a.autoGrant).map((a) => this.appName(a.code)).join(', '));
   /** The roles the caller may give: a super admin every role, everyone else every role but super admin. */
   protected readonly roles = computed(() => (this.access()?.roles ?? []).filter((r) => this.auth.isSuperAdmin() || r.code !== 'super-admin'));
+  /** Active users first, then archived, then deleted ones (on the All list); each group by name. The search matches the name or the e-mail. */
+  protected readonly rows = computed(() => {
+    const q = this.q().trim().toLowerCase();
+    const locale = this.i18n.info().locale.replace('_', '-');
+    return (this.access()?.users ?? []).filter((u) => !q || u.displayName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)).sort((a, b) => this.rank(a) - this.rank(b) || a.displayName.localeCompare(b.displayName, locale));
+  });
 
   constructor() {
     afterNextRender(() => void this.load());
@@ -59,6 +72,16 @@ export class UsersTab {
 
   appName(code: string): string {
     return this.i18n.t(appLink(code).name);
+  }
+
+  /** Shows another list; only that list is fetched. */
+  pick(status: UserStatus): void {
+    if (status === this.status())
+      return;
+    this.status.set(status);
+    this.editing.set(null);
+    this.access.set(null);
+    void this.load();
   }
 
   /** A super admin's row, for a caller who is not a super admin: shown, but not changeable. */
@@ -108,6 +131,24 @@ export class UsersTab {
     });
   }
 
+  async restore(user: AuthUser): Promise<void> {
+    await this.change(user, 'restore');
+  }
+
+  /** First press asks again on the same row; the second archives the user, who is logged out at once and cannot log in until activated. */
+  async archive(user: AuthUser): Promise<void> {
+    if (this.archiving() !== user.id) {
+      this.archiving.set(user.id);
+      return;
+    }
+    this.archiving.set(null);
+    await this.change(user, 'archive');
+  }
+
+  async activate(user: AuthUser): Promise<void> {
+    await this.change(user, 'activate');
+  }
+
   /** Saves one user's name, role and app boxes. Apps this branch does not show keep their access. */
   async save(ev: Event, user: AuthUser): Promise<void> {
     ev.preventDefault();
@@ -127,10 +168,18 @@ export class UsersTab {
 
   private async load(): Promise<void> {
     try {
-      this.access.set(await this.api.get<UserAccess>('/admin/users'));
+      const status = this.status();
+      const access = await this.api.get<UserAccess>(`/admin/users?status=${status}`);
+      // A slower answer for a list the reader already left is dropped.
+      if (status === this.status())
+        this.access.set(access);
     } catch (e) {
       this.error.set(this.failureText(e));
     }
+  }
+
+  private rank(user: AuthUser): number {
+    return user.isDeleted ? 2 : user.isArchived ? 1 : 0;
   }
 
   /** The server's own message when it answered; "server unreachable" when it did not. */
@@ -150,6 +199,15 @@ export class UsersTab {
     } finally {
       this.busy.set(null);
     }
+  }
+
+  /** Archives, activates or restores one user, then reloads the list (the user may move to another list). */
+  private async change(user: AuthUser, action: 'archive' | 'activate' | 'restore'): Promise<void> {
+    await this.run(user.id, async () => {
+      const text = await this.api.message('PUT', `/admin/users/${user.id}/${action}`);
+      await this.load();
+      return text;
+    });
   }
 
   // #endregion
