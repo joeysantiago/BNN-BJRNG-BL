@@ -218,8 +218,6 @@ BEGIN
         ('TASKS_PHOTO_LIMIT', N'{"en":"A task can have up to {0} pictures.","hi":"एक कार्य में अधिकतम {0} तस्वीरें हो सकती हैं।","ar":"يمكن أن تحتوي المهمة على {0} صور كحد أقصى."}'),
         ('TASKS_PHOTO_INVALID', N'{"en":"Only JPG, PNG, WebP or GIF pictures up to {0} MB can be attached.","hi":"केवल {0} MB तक की JPG, PNG, WebP या GIF तस्वीरें जोड़ी जा सकती हैं।","ar":"يمكن إرفاق صور JPG أو PNG أو WebP أو GIF فقط بحجم يصل إلى {0} ميغابايت."}'),
         ('TASKS_SETTINGS_SAVED', N'{"en":"Settings saved.","hi":"सेटिंग्स सहेजी गईं।","ar":"تم حفظ الإعدادات."}'),
-        ('TASKS_NAME_SAVED', N'{"en":"App name saved.","hi":"ऐप का नाम सहेजा गया।","ar":"تم حفظ اسم التطبيق."}'),
-        ('TASKS_NAME_INVALID', N'{"en":"Enter an English name of up to {0} characters.","hi":"अधिकतम {0} अक्षरों का अंग्रेज़ी नाम लिखें।","ar":"أدخل اسمًا باللغة الإنجليزية لا يزيد عن {0} حرفًا."}'),
         ('TASKS_PIN_INVALID', N'{"en":"The PIN must be {0} digits.","hi":"पिन {0} अंकों का होना चाहिए।","ar":"يجب أن يتكون الرقم السري من {0} أرقام."}'),
         ('TASKS_PIN_WEAK', N'{"en":"This PIN is too easy to guess. Avoid repeated or sequential digits.","hi":"यह पिन आसानी से अनुमान लगाया जा सकता है। एक जैसे या क्रमागत अंकों से बचें।","ar":"هذا الرقم السري سهل التخمين. تجنب الأرقام المتكررة أو المتسلسلة."}'),
         ('TASKS_PIN_SAVED', N'{"en":"App Lock PIN saved.","hi":"ऐप लॉक पिन सहेजा गया।","ar":"تم حفظ الرقم السري لقفل التطبيق."}'),
@@ -236,6 +234,6 @@ BEGIN
         ('TASKS_WA_TEST', N'{"en":"{0}: WhatsApp reminders are on. Your task reminders will arrive here.","hi":"{0}: व्हाट्सऐप रिमाइंडर चालू हैं। आपके कार्य रिमाइंडर यहां आएंगे।","ar":"{0}: تذكيرات واتساب مفعّلة. ستصلك تذكيرات المهام هنا."}'),
         ('TASKS_WA_NO_MOBILE', N'{"en":"Add your mobile number in your profile first.","hi":"पहले अपनी प्रोफ़ाइल में मोबाइल नंबर जोड़ें।","ar":"أضف رقم جوالك في ملفك الشخصي أولًا."}'),
         ('TASKS_WA_TEST_SENT', N'{"en":"Test message sent to {0}.","hi":"{0} पर टेस्ट संदेश भेजा गया।","ar":"تم إرسال رسالة اختبار إلى {0}."}'),
-        ('TASKS_ACCOUNT_DELETED', N'{"en":"Your My Tasks account was deleted: its tasks, pictures and settings are gone, and you no longer have access to the app. Your login and other apps stay.","hi":"आपका My Tasks खाता हटा दिया गया: इसके कार्य, तस्वीरें और सेटिंग्स मिट गईं, और अब आपके पास इस ऐप की पहुंच नहीं है। आपका लॉगिन और दूसरे ऐप बने रहेंगे।","ar":"تم حذف حسابك في My Tasks: حُذفت مهامه وصوره وإعداداته، ولم يعد لديك وصول إلى التطبيق. يبقى تسجيل دخولك وتطبيقاتك الأخرى."}');
+        ('TASKS_ACCOUNT_DELETED', N'{"en":"Your My Tasks account was deleted: its tasks, pictures and settings are gone, and you no longer have access to the app. Your login and other apps stay.","hi":"आपका My Tasks खाता हटा दिया गया: इसके कार्य, तस्वीरें और सेटिंग्स मिट गईं, और अब आपके पास इस ऐप की पहुंच नहीं है। आपका लॉगिन और दूसरे ऐप बने रहेंगे।","ar":"تم حذف حسابك في My Tasks: حُذفت مهامه وصوره وإعداداته، ولم يعد لديك وصول إلى التطبيق. يبقى تسجيل دخولك وتطبيقاتك الأخرى."}'),
 END
 GO

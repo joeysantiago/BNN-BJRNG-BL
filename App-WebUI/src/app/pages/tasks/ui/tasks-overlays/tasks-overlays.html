@@ -12,7 +12,7 @@
       } @empty {
         <p class="muted">{{ state.settings()?.notificationsEnabled ? i18n.t('tasks.rem.none') : i18n.t('tasks.rem.off') }}</p>
       }
-      <a class="btn sm ghost" routerLink="/tasks/app/profile" [queryParams]="{ tab: 'notifications' }" (click)="state.bell.set(false)">{{ i18n.t('tasks.rem.settings') }}</a>
+      <a class="btn sm ghost" routerLink="/master" [queryParams]="{ tab: 'general', app: 'tasks' }" (click)="state.bell.set(false)">{{ i18n.t('tasks.rem.settings') }}</a>
     </div>
   }
 

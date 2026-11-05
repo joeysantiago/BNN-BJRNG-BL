@@ -9,11 +9,9 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Services;
 
-// The My Tasks settings of a user (they never touch SnapKhata), and the name of the app: the "tasks" rows of PageNames, which only a super admin may change.
+// The My Tasks settings of a user (they never touch SnapKhata). The name of the app is renamed on Settings > General like every app (SettingsService.RenameAsync).
 public class TaskSettingsService : ITaskSettingsService
 {
-    private const int NameLength = 40;
-
     private readonly IWhatsAppSender _sender;
 
     private readonly ITaskLimitsService _limits;
@@ -29,8 +27,6 @@ public class TaskSettingsService : ITaskSettingsService
     private static readonly string[] WeekStarts = ["mon", "sun"];
 
     private static readonly int[] LockMinutes = [0, 1, 5, 15, 30];
-
-    private static readonly string[] Languages = ["en", "hi", "ar"];
 
     private static readonly string[] Tabs = ["all", "active", "completed"];
 
@@ -96,33 +92,6 @@ public class TaskSettingsService : ITaskSettingsService
         return new ServiceResultDto<TaskSettingsDto> { Data = ToDto(user, caller, await _limits.GetAsync(cancellationToken), await MobileAsync(caller, cancellationToken)), Message = await _messageService.GetAsync(MessageCodes.TasksSettingsSaved) };
     }
 
-    // English is required; a Hindi or Arabic name left empty keeps the one it has.
-    public async Task<ServiceResultDto<Dictionary<string, string>>> RenameAsync(TaskCallerDto caller, TaskAppNameRequestDto request, CancellationToken cancellationToken)
-    {
-        if (!caller.IsSuperAdmin)
-            throw new BusinessException(MessageCodes.AuthForbidden, 403);
-
-        var names = request.Names.Where(n => !string.IsNullOrWhiteSpace(n.Value)).ToDictionary(n => n.Key, n => n.Value.Trim());
-
-        if (!names.ContainsKey("en") || names.Keys.Any(k => !Languages.Contains(k)) || names.Values.Any(v => v.Length > NameLength))
-            throw new BusinessException(MessageCodes.TasksNameInvalid, 400, NameLength);
-
-        var rows = await _userRepository.GetPageNamesAsync(AppCodes.Tasks, cancellationToken);
-        var now = DateTime.UtcNow;
-
-        foreach (var row in rows.Where(r => names.ContainsKey(r.LanguageCode)))
-        {
-            row.Name = names[row.LanguageCode];
-            row.ModifiedBy = caller.AccountUserId;
-            row.ModifiedOn = now;
-        }
-
-        var added = names.Where(n => rows.All(r => r.LanguageCode != n.Key)).Select(n => new PageName { PageCode = AppCodes.Tasks, LanguageCode = n.Key, Name = n.Value, CreatedBy = caller.AccountUserId });
-        await _userRepository.AddPageNamesAsync(added, cancellationToken);
-        var saved = (await _userRepository.GetPageNamesAsync(AppCodes.Tasks, cancellationToken)).ToDictionary(r => r.LanguageCode, r => r.Name);
-
-        return new ServiceResultDto<Dictionary<string, string>> { Data = saved, Message = await _messageService.GetAsync(MessageCodes.TasksNameSaved) };
-    }
 
     #endregion
 
@@ -137,7 +106,6 @@ public class TaskSettingsService : ITaskSettingsService
     {
         return new TaskSettingsDto
         {
-            CanRename = caller.IsSuperAdmin,
             Limits = limits,
             Mobile = mobile,
             WhatsAppReminders = user.WhatsAppReminders,

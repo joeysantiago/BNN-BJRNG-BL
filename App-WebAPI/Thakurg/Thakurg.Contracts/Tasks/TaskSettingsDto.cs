@@ -1,10 +1,8 @@
 namespace Thakurg.Contracts.Tasks;
 
-// The My Tasks settings of the user, plus whether they may rename the app (super admins only).
+// The My Tasks settings of the user.
 public class TaskSettingsDto
 {
-    public bool CanRename { get; set; }
-
     public string? Mobile { get; set; }
 
     public int DefaultPriority { get; set; }

@@ -29,8 +29,6 @@ public static partial class MessageCodes
 
     public const string TasksCompleted = "TASKS_COMPLETED";
 
-    public const string TasksNameSaved = "TASKS_NAME_SAVED";
-
     public const string TasksPinLocked = "TASKS_PIN_LOCKED";
 
     public const string TasksWhatsAppTest = "TASKS_WA_TEST";
@@ -50,8 +48,6 @@ public static partial class MessageCodes
     public const string TasksPinInvalid = "TASKS_PIN_INVALID";
 
     public const string TasksPinRemoved = "TASKS_PIN_REMOVED";
-
-    public const string TasksNameInvalid = "TASKS_NAME_INVALID";
 
     public const string TasksPinRequired = "TASKS_PIN_REQUIRED";
 

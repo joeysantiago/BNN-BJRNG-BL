@@ -1,0 +1,37 @@
+@use '../../config/config';
+
+:host {
+  display: grid;
+}
+.field-row select,
+.field-row input:not([type='checkbox']) {
+  width: min(100%, 240px);
+}
+.acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cat {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.cat input[type='text'] {
+  flex: 1 1 160px;
+  min-height: 44px;
+}
+.swatch {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.grow {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
