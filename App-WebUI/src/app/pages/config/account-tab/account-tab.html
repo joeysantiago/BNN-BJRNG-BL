@@ -2,30 +2,18 @@
   <section class="sec" aria-labelledby="acc-look">
     <h2 id="acc-look" class="sec-h">{{ i18n.t('acc.look.h') }}</h2>
     <p class="help">{{ i18n.t('acc.look.help') }}</p>
-    <label class="field-row">
+    <div class="field-row pick-row">
       <span class="txt"><b>{{ i18n.t('auth.p.language') }}</b></span>
-      <select name="language" [disabled]="!canEdit() || saving() !== null" (change)="saveLanguage($event)">
-        @for (l of i18n.languages; track l.code) {
-          <option [value]="l.code" [selected]="l.code === (u.language || i18n.lang())">{{ l.native }}</option>
-        }
-      </select>
-    </label>
-    <label class="field-row">
+      <app-choice-group name="language" [label]="i18n.t('auth.p.language')" [options]="languages()" [value]="u.language || i18n.lang()" [disabled]="!canEdit() || saving() !== null" (picked)="saveLanguage($event)" />
+    </div>
+    <div class="field-row pick-row">
       <span class="txt"><b>{{ i18n.t('theme.mode') }}</b></span>
-      <select name="mode" (change)="pickMode($event)">
-        @for (m of theme.modes; track m.id) {
-          <option [value]="m.id" [selected]="theme.activeMode() === m.id">{{ i18n.t(m.labelKey) }}</option>
-        }
-      </select>
-    </label>
-    <label class="field-row">
+      <app-choice-group name="mode" [label]="i18n.t('theme.mode')" [options]="modes()" [value]="theme.activeMode()" (picked)="pickMode($event)" />
+    </div>
+    <div class="field-row pick-row">
       <span class="txt"><b>{{ i18n.t('theme.label') }}</b></span>
-      <select name="skin" (change)="pickSkin($event)">
-        @for (s of theme.skins; track s.id) {
-          <option [value]="s.id" [selected]="theme.skin() === s.id">{{ i18n.t(s.labelKey) }}</option>
-        }
-      </select>
-    </label>
+      <app-choice-group name="skin" [label]="i18n.t('theme.label')" [options]="skins()" [value]="theme.skin()" (picked)="pickSkin($event)" />
+    </div>
     @if (noticeFor('language'); as n) {
       <p class="status note-line" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
     }

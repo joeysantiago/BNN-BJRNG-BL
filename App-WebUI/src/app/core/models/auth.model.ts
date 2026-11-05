@@ -80,6 +80,7 @@ export type LoginMethod = 'password' | 'otp';
 export type OtpChannel = 'email' | 'sms';
 
 export interface OtpRequestResult {
+  message?: string;
   resendInSeconds: number;
   expiresInSeconds: number;
 }
