@@ -25,6 +25,12 @@ public partial interface ICommonDbContext
 
     DbSet<AppSetting> AppSettings { get; }
 
+    DbSet<UserProfile> UserProfiles { get; }
+
+    DbSet<MailSetting> MailSettings { get; }
+
+    DbSet<OneTimeCode> OneTimeCodes { get; }
+
     DbSet<ServiceItem> ServiceItems { get; }
 
     DbSet<UserFeature> UserFeatures { get; }
@@ -36,6 +42,8 @@ public partial interface ICommonDbContext
     DbSet<PageTranslation> Translations { get; }
 
     DbSet<RolePermission> RolePermissions { get; }
+
+    DbSet<WhatsAppSetting> WhatsAppSettings { get; }
 
     DbSet<ConnectionField> ConnectionFields { get; }
 

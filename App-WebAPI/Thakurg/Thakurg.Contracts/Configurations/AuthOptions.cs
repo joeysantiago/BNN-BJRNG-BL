@@ -15,6 +15,8 @@ public class AuthOptions
 
     public AuthJwtOptions Jwt { get; set; } = new();
 
+    public AuthOtpOptions Otp { get; set; } = new();
+
     public List<string> AdminEmails { get; set; } = [];
 
     public AuthCookieOptions AccessCookie { get; set; } = new();

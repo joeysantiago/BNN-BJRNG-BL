@@ -19,6 +19,8 @@ public static partial class SecurityExtensions
 {
     public const string StreamPolicy = "stream";
 
+    public const string AuthOtpPolicy = "auth-otp";
+
     public const string SensitivePolicy = "sensitive";
 
     public const string AuthLoginPolicy = "auth-login";
@@ -71,6 +73,7 @@ public static partial class SecurityExtensions
             options.AddPolicy(StreamPolicy, context => RateLimitPartition.GetFixedWindowLimiter(ClientKey(context), _ => FixedWindow(limits.StreamPermitLimit, window)));
             options.AddPolicy(SensitivePolicy, context => RateLimitPartition.GetFixedWindowLimiter(ClientKey(context), _ => FixedWindow(limits.SensitivePermitLimit, window)));
             options.AddPolicy(AuthLoginPolicy, context => RateLimitPartition.GetSlidingWindowLimiter(ClientKey(context), _ => SlidingWindow(limits.Auth.Login)));
+            options.AddPolicy(AuthOtpPolicy, context => RateLimitPartition.GetSlidingWindowLimiter(ClientKey(context), _ => SlidingWindow(limits.Auth.Otp)));
             options.AddPolicy(AuthRefreshPolicy, context => RateLimitPartition.GetFixedWindowLimiter(ClientKey(context), _ => FixedWindow(limits.Auth.Refresh.Permit, TimeSpan.FromSeconds(limits.Auth.Refresh.WindowSeconds))));
             AddKhataRateLimits(options, limits);
             options.OnRejected = async (context, cancellationToken) =>

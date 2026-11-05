@@ -1,0 +1,9 @@
+@use '../config';
+
+:host {
+  display: grid;
+}
+.field-row input:not([type='checkbox']),
+.test-to {
+  width: min(100%, 320px);
+}
