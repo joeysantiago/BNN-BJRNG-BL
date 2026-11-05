@@ -4,27 +4,17 @@
       <h1 id="tasks-h1">{{ greeting() }}</h1>
       <p>{{ i18n.t('tasks.dayLine', { day: weekday(), date: formatYmd(state.clock().today), n: dueToday() }) }}</p>
     </div>
-    <div class="row">
-      <button type="button" class="btn sm" [attr.aria-pressed]="state.selecting()" (click)="state.selecting() ? state.stopSelecting() : state.selecting.set(true)">
-        <app-task-icon name="tasks" [size]="16" />{{ i18n.t(state.selecting() ? 'tasks.select.done' : 'tasks.select.start') }}
-      </button>
-      <button type="button" class="btn pri sm" (click)="state.openEditor(null)"><app-task-icon name="plus" [size]="16" />{{ i18n.t('tasks.add') }}</button>
-    </div>
-  </div>
-
-  <div class="stats">
-    <button type="button" class="card stat total" (click)="quickFilter('all', 'all')"><small><app-task-icon name="tasks" [size]="15" />{{ i18n.t('tasks.sum.total') }}</small><b class="num">{{ state.summary().total }}</b></button>
-    <button type="button" class="card stat" (click)="quickFilter('active', 'all')"><small><app-task-icon name="clock" [size]="15" />{{ i18n.t('tasks.sum.active') }}</small><b class="num">{{ state.summary().active }}</b></button>
-    <button type="button" class="card stat done" (click)="quickFilter('completed', 'all')"><small><app-task-icon name="check" [size]="15" />{{ i18n.t('tasks.sum.done') }}</small><b class="num">{{ state.summary().done }}</b></button>
-    <button type="button" class="card stat overdue" (click)="quickFilter('active', 'overdue')"><small><app-task-icon name="alert" [size]="15" />{{ i18n.t('tasks.sum.overdue') }}</small><b class="num">{{ state.summary().overdue }}</b></button>
   </div>
 
   <div class="ptabs" role="tablist" [attr.aria-label]="i18n.t('tasks.tabs.label')">
     @for (tab of tabs; track tab) {
-      <button type="button" role="tab" class="ptab" [id]="'tasks-tab-' + tab" aria-controls="tasks-list" [attr.aria-selected]="state.tab() === tab" (click)="setTab(tab)">
-        {{ i18n.t('tasks.tab.' + tab) }}<span class="c num">{{ state.count(tab, null, null) }}</span>
+      <button type="button" role="tab" class="ptab" [id]="'tasks-tab-' + tab" aria-controls="tasks-list" [attr.aria-selected]="state.tab() === tab && !overdueOn()" (click)="setTab(tab)">
+        {{ i18n.t('tasks.tab.' + tab) }}<span class="c num">{{ state.count(tab, overdueOn() ? 'all' : null, null) }}</span>
       </button>
     }
+    <button type="button" role="tab" class="ptab od" id="tasks-tab-overdue" aria-controls="tasks-list" [attr.aria-selected]="overdueOn()" (click)="showOverdue()">
+      {{ i18n.t('tasks.scope.overdue') }}<span class="c num">{{ state.count('active', 'overdue', null) }}</span>
+    </button>
   </div>
 
   <div class="toolbar">
@@ -84,9 +74,9 @@
     </select>
   </div>
 
-  @if (state.scope() !== 'all' || state.category() !== 'all') {
+  @if ((state.scope() !== 'all' && !overdueOn()) || state.category() !== 'all') {
     <div class="active-filter" role="group" [attr.aria-label]="i18n.t('tasks.filter.active')">
-      @if (state.scope() !== 'all') {
+      @if (state.scope() !== 'all' && !overdueOn()) {
         <button type="button" class="chip on" [attr.aria-label]="i18n.t('tasks.filter.remove', { name: scopeName() })" (click)="state.scope.set('all')">
           <app-task-icon name="clock" [size]="15" />{{ scopeName() }}<app-task-icon name="x" [size]="14" />
         </button>
@@ -99,16 +89,21 @@
     </div>
   }
 
-  @if (state.tab() !== 'completed') {
-    <form class="card quick" (submit)="addQuick($event)">
-      <span class="cc" aria-hidden="true"></span>
-      <input class="in" name="title" autocomplete="off" maxlength="120" [attr.aria-label]="i18n.t('tasks.quick.label')"
-        [placeholder]="state.quickDue() ? i18n.t('tasks.quick.due', { date: formatYmd(state.quickDue()) }) : i18n.t('tasks.quick.placeholder')" [value]="quick()" (input)="quick.set($any($event.target).value)" />
-      <button class="btn pri icon" [attr.aria-label]="i18n.t('tasks.add')"><app-task-icon name="plus" /></button>
-    </form>
-  }
+  <div class="quick-row">
+    @if (state.tab() !== 'completed') {
+      <form class="card quick" (submit)="addQuick($event)">
+        <span class="cc" aria-hidden="true"></span>
+        <input class="in" name="title" autocomplete="off" maxlength="120" [attr.aria-label]="i18n.t('tasks.quick.label')"
+          [placeholder]="state.quickDue() ? i18n.t('tasks.quick.due', { date: formatYmd(state.quickDue()) }) : i18n.t('tasks.quick.placeholder')" [value]="quick()" (input)="quick.set($any($event.target).value)" />
+        <button class="btn pri icon" [attr.aria-label]="i18n.t('tasks.add')"><app-task-icon name="plus" /></button>
+      </form>
+    }
+    <button type="button" class="btn sm" [attr.aria-pressed]="state.selecting()" (click)="state.selecting() ? state.stopSelecting() : state.selecting.set(true)">
+      <app-task-icon name="tasks" [size]="16" />{{ i18n.t(state.selecting() ? 'tasks.select.done' : 'tasks.select.start') }}
+    </button>
+  </div>
 
-  <div id="tasks-list" role="tabpanel" [attr.aria-labelledby]="'tasks-tab-' + state.tab()">
+  <div id="tasks-list" role="tabpanel" [attr.aria-labelledby]="overdueOn() ? 'tasks-tab-overdue' : 'tasks-tab-' + state.tab()">
     @if (!state.loaded()) {
       <div class="card empty"><p class="muted">{{ i18n.t('tasks.loading') }}</p></div>
     } @else if (state.groups().length) {
