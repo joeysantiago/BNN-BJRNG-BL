@@ -70,6 +70,8 @@ BEGIN
         ('YOUTUBE_KEY_REJECTED', N'{"en":"YouTube did not accept this API key. Check the key and that the YouTube Data API v3 is enabled for it.","hi":"YouTube ने यह API कुंजी स्वीकार नहीं की। कुंजी जाँचें और देखें कि उसके लिए YouTube Data API v3 चालू है।","ar":"لم يقبل YouTube مفتاح API هذا. تحقق من المفتاح ومن تفعيل YouTube Data API v3 له."}'),
         ('SETTINGS_SAVED', N'{"en":"Settings saved.","hi":"सेटिंग्स सहेजी गईं।","ar":"تم حفظ الإعدادات."}'),
         ('SETTINGS_INVALID', N'{"en":"Some of the settings are not valid.","hi":"कुछ सेटिंग्स मान्य नहीं हैं।","ar":"بعض الإعدادات غير صالحة."}'),
+        ('APP_NAME_SAVED', N'{"en":"App name saved.","hi":"ऐप का नाम सहेजा गया।","ar":"تم حفظ اسم التطبيق."}'),
+        ('APP_NAME_INVALID', N'{"en":"Enter an English name of up to {0} characters.","hi":"अधिकतम {0} अक्षरों का अंग्रेज़ी नाम लिखें।","ar":"أدخل اسمًا باللغة الإنجليزية لا يزيد عن {0} حرفًا."}'),
         ('KHATA_BOOK_NOT_FOUND', N'{"en":"This book was not found.","hi":"यह खाता-बही नहीं मिली।","ar":"لم يتم العثور على هذا الدفتر."}'),
         ('KHATA_BOOK_NAME_INVALID', N'{"en":"Enter a book name of up to {0} characters.","hi":"अधिकतम {0} अक्षरों का बही का नाम दर्ज करें।","ar":"أدخل اسم دفتر لا يزيد عن {0} حرفًا."}'),
         ('KHATA_BOOK_NAME_TAKEN', N'{"en":"You already have a book with this name.","hi":"इस नाम की बही आपके पास पहले से है।","ar":"لديك بالفعل دفتر بهذا الاسم."}'),

@@ -55,6 +55,7 @@ Shared files call feature files through partial methods and lists, so most share
 | API settings | `Configurations/RateLimitOptions.cs` (partial) | `RateLimitOptions.Khata.cs` |
 | Database | `Seeding/SeederRegistration.cs` (partial) | `SeederRegistration.<App>.cs` and the app's SQL folders |
 | WebUI prerender/sitemap | `app.routes.server.ts`, `scripts/postbuild.mjs` | `pages/<feature>/*.pages.json` (found automatically) |
+| WebUI settings / profile | `pages/config/general-tab` (Settings > General, one section per app), `pages/profile` | `FEATURE_SETTINGS` / `FEATURE_PROFILE` entries in `feature-routes.ts`, loading the app's own panel component lazily |
 
 C# drops a call to a partial method that has no implementation, so a branch without the feature file still compiles.
 

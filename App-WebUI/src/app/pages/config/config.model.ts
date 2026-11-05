@@ -32,9 +32,9 @@ export interface UserNotice {
 }
 
 /** A tab of the Settings page. */
-export type SettingsTab = 'general' | 'account' | 'users' | 'roles' | 'permissions' | 'features' | 'connection' | 'services' | 'youtube' | 'json';
+export type SettingsTab = 'general' | 'keys' | 'account' | 'users' | 'roles' | 'permissions' | 'features' | 'connection' | 'services' | 'youtube' | 'json';
 
-/** A tab of the Settings page and the page code whose View right shows it; null = super admin with a password login only (General). */
+/** A tab of the Settings page and the page code whose View right shows it; null = General (every logged-in user) or Keys (super admin with a password login). */
 export interface TabInfo {
   id: SettingsTab;
   page: PageCode | null;
