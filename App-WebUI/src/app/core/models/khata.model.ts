@@ -252,6 +252,7 @@ export interface KhataNavItem {
   key: string;
   link: string;
   icon: KhataIconName;
+  query?: Record<string, string>;
 }
 
 /** A party on the parties screen with the values it is filtered and sorted by. */
@@ -384,14 +385,8 @@ export interface KhataStorageRequest {
 
 export type KhataExportFormat = 'pdf' | 'xlsx' | 'csv';
 
-/** A tab of the SnapKhata settings screen. */
-export type KhataSettingsTab = 'general' | 'notifications' | 'storage' | 'mail' | 'users';
-
 /** A menu of the SnapKhata top bar. */
 export type KhataMenu = 'lang' | 'theme' | 'book';
-
-/** Which form of the SnapKhata profile is saving. */
-export type KhataProfileForm = 'photo' | 'details' | 'address' | 'password' | 'delete';
 
 /** The result line under a form: the server's message, or its error. */
 export interface KhataNotice {
@@ -449,24 +444,3 @@ export interface KhataDateQuick {
   days: number;
 }
 
-/** Which users the Settings > Users tab lists (GET /admin/users?status=). */
-export type KhataUserStatus = 'all' | 'active' | 'archived' | 'deleted';
-
-/** What a mail server profile of Settings > Mail sends: one-time sign-in codes, or SnapKhata notifications. */
-export type KhataMailPurpose = 'otp' | 'notification';
-
-/** How the connection to the mail server is secured: STARTTLS (port 587), SSL/TLS from the start (port 465) or none. */
-export type KhataMailSecurity = 'starttls' | 'ssl' | 'none';
-
-/** A mail server profile (GET /admin/mail). The password is never sent back: hasPassword says one is saved. */
-export interface KhataMailSetting {
-  host: string;
-  port: number;
-  enabled: boolean;
-  fromName: string;
-  userName: string;
-  fromAddress: string;
-  hasPassword: boolean;
-  purpose: KhataMailPurpose;
-  security: KhataMailSecurity;
-}
