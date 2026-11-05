@@ -3,7 +3,7 @@ main {
   outline: none;
 }
 
-/* Room for the fixed footer at the bottom (see site-footer.scss), so the end of the page is never hidden behind it. */
+/* Room for the fixed footer at the bottom (its measured height, see site-footer.ts), so the end of the page is never hidden behind it. */
 main:not(.bare) {
-  padding-block-end: calc(var(--foot-h) + 16px + env(safe-area-inset-bottom));
+  padding-block-end: calc(var(--foot-space, calc(var(--foot-h) + env(safe-area-inset-bottom))) + 24px);
 }
