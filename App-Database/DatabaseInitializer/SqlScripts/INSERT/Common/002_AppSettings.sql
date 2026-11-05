@@ -2,6 +2,7 @@ IF NOT EXISTS (SELECT 1 FROM AppSettings)
 BEGIN
     INSERT INTO AppSettings (Code, Value, Description)
     VALUES
+        ('Auth.SignupVerification', N'email', N'Where the code that checks a new sign-up goes: email, whatsapp or sms (Settings > General, super admin).'),
         ('Connection.Enabled', N'true', N'Show the "Your connection details" section.'),
         ('Services.Enabled', N'true', N'Show the "Services status" section.'),
         ('Services.RefreshSeconds', N'120', N'Seconds between automatic status re-checks. 0 turns it off.'),

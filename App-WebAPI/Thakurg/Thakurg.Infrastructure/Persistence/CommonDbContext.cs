@@ -15,9 +15,15 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
 
     public DbSet<User> Users => Set<User>();
 
+    public DbSet<City> Cities => Set<City>();
+
+    public DbSet<State> States => Set<State>();
+
     public DbSet<Feature> Features => Set<Feature>();
 
     public DbSet<Message> Messages => Set<Message>();
+
+    public DbSet<Country> Countries => Set<Country>();
 
     public DbSet<PageName> PageNames => Set<PageName>();
 
@@ -44,7 +50,6 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
     public DbSet<ConnectionField> ConnectionFields => Set<ConnectionField>();
 
     public DbSet<WhatsAppSetting> WhatsAppSettings => Set<WhatsAppSetting>();
-
     public CommonDbContext(DbContextOptions<CommonDbContext> options) : base(options)
     {
     }
@@ -91,6 +96,9 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<App>().ToTable("Apps");
+        modelBuilder.Entity<City>().ToTable("Cities");
+        modelBuilder.Entity<State>().ToTable("States");
+        modelBuilder.Entity<Country>().ToTable("Countries");
         modelBuilder.Entity<Page>().ToTable("Pages");
         modelBuilder.Entity<Role>().ToTable("Roles");
         modelBuilder.Entity<User>().ToTable("Users");

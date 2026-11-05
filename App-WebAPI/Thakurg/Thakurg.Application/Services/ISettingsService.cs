@@ -9,5 +9,7 @@ public interface ISettingsService
 
     Task<ServiceResultDto<AppSettingsDto>> SaveAsync(SettingsUpdateDto update, CancellationToken cancellationToken);
 
+    Task<ServiceResultDto<AppSettingsDto>> SaveSignupVerificationAsync(SignupVerificationUpdateDto request, CancellationToken cancellationToken);
+
     Task<ServiceResultDto<Dictionary<string, string>>> RenameAsync(int userId, string pageCode, AppNameUpdateDto request, CancellationToken cancellationToken);
 }
