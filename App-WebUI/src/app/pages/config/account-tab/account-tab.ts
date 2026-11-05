@@ -14,7 +14,7 @@ import { FeatureId, FeatureGroup } from '../../../core/models/app-settings.model
 const OWN_GROUP_APPS: Partial<Record<FeatureGroup, string[]>> = { site: [], speed: [], youtube: ['youtube'], audio: ['creta', 'nexon'] };
 
 /**
- * The My settings tab of the Settings page, for every user whose role may view it (the Standard User sees only this tab): the language, the skin, the password,
+ * The For me tab of the Settings page, for every user whose role may view it (the Standard User sees only this tab): the language, the skin, the password,
  * and which options of their own pages (the header, the speed test and the apps they can open) are shown to them. A switched-off option is hidden only for this user.
  */
 @Component({

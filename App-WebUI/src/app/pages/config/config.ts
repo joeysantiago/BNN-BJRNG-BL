@@ -35,7 +35,7 @@ const TABS: TabInfo[] = [
 
 /**
  * /master, the Settings page, the same as in the API branches. One tab per area, shown by the rights of the user's role (Role rights tab; a super admin sees every tab):
- * My settings (language, skin, password and the options of their own pages, for every user), Users, Roles, Role rights, and the site settings of this build's apps
+ * For me (language, skin, password and the options of their own pages, for every user), Users, Roles, Role rights, and the site settings of this build's apps
  * (FEATURE_APPS). Site setting edits are drafts that preview at once; a Save button in every section (and Save all) saves them. Mojito has no API: the demo backend
  * in the browser checks every right again and keeps the data in this browser.
  */

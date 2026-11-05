@@ -2,7 +2,7 @@ import { AuthMode } from './auth-page.model';
 import { SeoService } from '../../core/seo.service';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
-import { TestLoginOption } from '../../core/models/auth.model';
+import { QuickLogin } from '../../core/models/auth.model';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Component, afterNextRender, effect, inject, signal } from '@angular/core';
 
@@ -29,8 +29,8 @@ export class AuthPage {
   private readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
   private readonly route = inject(ActivatedRoute);
-  /** The test logins a super admin switched on (Settings > General): e-mails only, a tap logs in with the password the backend keeps. */
-  protected readonly testLogins = signal<TestLoginOption[]>([]);
+  /** The users a super admin shows on the login page (Settings > General): e-mails only, a tap logs in as them in the backend. */
+  protected readonly quickLogins = signal<QuickLogin[]>([]);
   protected readonly next = safeNext(this.route.snapshot.queryParamMap.get('next'));
   protected readonly mode: AuthMode = this.route.snapshot.data['mode'] === 'signup' ? 'signup' : 'login';
 
@@ -49,7 +49,7 @@ export class AuthPage {
     afterNextRender(() => {
       void this.skipWhenLoggedIn();
       if (this.mode === 'login')
-        void this.loadTestLogins();
+        void this.loadQuickLogins();
     });
   }
 
@@ -76,14 +76,14 @@ export class AuthPage {
     }
   }
 
-  /** Logs in with one of the test logins; the password is kept by the backend. */
-  async useLogin(login: TestLoginOption): Promise<void> {
+  /** Logs in as one of the quick login users; the session is started by the backend. */
+  async useLogin(login: QuickLogin): Promise<void> {
     if (this.busy())
       return;
     this.busy.set(true);
     this.error.set('');
     try {
-      await this.auth.testLogin(login.id);
+      await this.auth.quickLogin(login.id);
       this.go();
     } catch (e) {
       this.error.set((e as { status?: number }).status !== undefined ? (e as Error).message : this.i18n.t('auth.serverDown'));
@@ -100,8 +100,8 @@ export class AuthPage {
     void this.router.navigateByUrl(this.next ?? '/profile', { replaceUrl: true });
   }
 
-  private async loadTestLogins(): Promise<void> {
-    this.testLogins.set(await this.auth.testLogins());
+  private async loadQuickLogins(): Promise<void> {
+    this.quickLogins.set(await this.auth.quickLogins());
   }
 
   private async skipWhenLoggedIn(): Promise<void> {

@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 import { PageCode, PermissionAction } from './models/role.model';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Injectable, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
-import { AuthResult, AuthTabMessage, AuthUser, ProfileDetails, TestLoginOption } from './models/auth.model';
+import { AuthResult, AuthTabMessage, AuthUser, ProfileDetails, QuickLogin } from './models/auth.model';
 
 const TIMEOUT = environment.timings.authCallMs;
 const HELLO_WAIT_MS = environment.timings.tabHelloMs;
@@ -116,6 +116,11 @@ export class AuthService {
     return this.api.send<ProfileDetails>('GET', '/auth/me/details', this.init(), TIMEOUT);
   }
 
+  /** The users a super admin shows on the login page (Settings > General). An empty list when there are none or the backend cannot be reached. */
+  quickLogins(): Promise<QuickLogin[]> {
+    return this.api.send<QuickLogin[]>('GET', '/auth/quick-logins', this.init(), TIMEOUT).catch(() => []);
+  }
+
   async removeAvatar(): Promise<string> {
     const res = await this.api.sendFull<AuthUser>('DELETE', '/auth/avatar', this.init(), TIMEOUT);
     this.patchUser(res.data);
@@ -134,14 +139,9 @@ export class AuthService {
     return text;
   }
 
-  /** The test logins a super admin switched on (Settings > General). An empty list when there are none or the backend cannot be reached. */
-  testLogins(): Promise<TestLoginOption[]> {
-    return this.api.send<TestLoginOption[]>('GET', '/auth/test-logins', this.init(), TIMEOUT).catch(() => []);
-  }
-
-  /** Logs in with a test login: the backend uses the password it keeps, so the page never sees it. */
-  async testLogin(id: number): Promise<AuthUser> {
-    return this.signIn(await this.api.send<AuthResult>('POST', `/auth/test-logins/${id}/login`, this.init(), TIMEOUT));
+  /** Logs in as one of the quick login users; the backend starts the session, so no password is typed or sent. */
+  async quickLogin(id: number): Promise<AuthUser> {
+    return this.signIn(await this.api.send<AuthResult>('POST', `/auth/quick-logins/${id}/login`, this.init(), TIMEOUT));
   }
 
   /** The profile picture of a user, or null when they have none. Mojito keeps it in the demo backend as a data: URL. */

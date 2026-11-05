@@ -45,10 +45,10 @@
       }
     </form>
 
-    @if (mode === 'login' && testLogins().length) {
+    @if (mode === 'login' && quickLogins().length) {
       <div class="dev" role="group" aria-labelledby="auth-dev-h">
         <p id="auth-dev-h" class="hint">{{ i18n.t('auth.dev.h') }}</p>
-        @for (l of testLogins(); track l.id) {
+        @for (l of quickLogins(); track l.id) {
           <button type="button" class="btn sm" [disabled]="busy()" (click)="useLogin(l)">{{ l.email }}</button>
         }
       </div>

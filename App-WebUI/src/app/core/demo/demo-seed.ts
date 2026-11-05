@@ -22,7 +22,6 @@ export const DEMO_MAIL: Omit<MailSetting, 'purpose'> = { host: '', port: 587, en
 /**
  * A fresh demo database, the same rows as the INSERT scripts of the API branches: 008_Roles, 009_Users, 011_Apps, 012_UserAppAccess, 013_Pages and 014_RolePermissions.
  * The passwords of the seeded accounts are kept as SHA-256 hashes only (the plain passwords are in the comment of INSERT/Common/009_Users.sql of the API branches).
- * The test logins (020_TestLogins) list the three accounts with no password and switched off: a super admin types each password once on Settings > General.
  */
 export const demoSeed = (now: string): DemoDb => ({
   nextId: 100,
@@ -41,9 +40,9 @@ export const demoSeed = (now: string): DemoDb => ({
     { id: 3, code: 'standard', name: 'Standard User', description: 'Every self sign-up. Own language, theme, password and page options only.', isSystem: true, isDefault: true, sortOrder: 3 },
   ],
   users: [
-    { id: 1, email: 'superadmin@thakurg.com', passwordHash: '875c1163262a3170c4dae7ce2a32d17e7ee1e9a35911b2f9dee6b6b8984acbd6', displayName: 'Super Admin', language: 'en', roleId: 1, apps: ['khata', 'tracker', 'creta', 'nexon', 'youtube', 'hr'], hidden: [], avatar: null, avatarData: null, createdOn: now, lastLoginOn: null, failedLogins: 0, lockedUntil: null },
-    { id: 2, email: 'admin@thakurg.com', passwordHash: 'bc78e58d55cde1346e68f8e5fe588dedf62fa457aa646a500a53347faff6ee24', displayName: 'Admin', language: 'en', roleId: 2, apps: ['khata', 'tracker', 'creta', 'nexon', 'youtube', 'hr'], hidden: [], avatar: null, avatarData: null, createdOn: now, lastLoginOn: null, failedLogins: 0, lockedUntil: null },
-    { id: 3, email: 'user@thakurg.com', passwordHash: '1b992a2bb0984ad12a5efc86fb260801e275d71419c7b748b5ff33a497af8423', displayName: 'Standard User', language: 'en', roleId: 3, apps: ['khata', 'tracker', 'creta'], hidden: [], avatar: null, avatarData: null, createdOn: now, lastLoginOn: null, failedLogins: 0, lockedUntil: null },
+    { id: 1, email: 'superadmin@thakurg.com', passwordHash: '875c1163262a3170c4dae7ce2a32d17e7ee1e9a35911b2f9dee6b6b8984acbd6', displayName: 'Super Admin', language: 'en', roleId: 1, apps: ['khata', 'tracker', 'creta', 'nexon', 'youtube', 'hr'], hidden: [], avatar: null, avatarData: null, createdOn: now, lastLoginOn: null, failedLogins: 0, lockedUntil: null, showOnLogin: false },
+    { id: 2, email: 'admin@thakurg.com', passwordHash: 'bc78e58d55cde1346e68f8e5fe588dedf62fa457aa646a500a53347faff6ee24', displayName: 'Admin', language: 'en', roleId: 2, apps: ['khata', 'tracker', 'creta', 'nexon', 'youtube', 'hr'], hidden: [], avatar: null, avatarData: null, createdOn: now, lastLoginOn: null, failedLogins: 0, lockedUntil: null, showOnLogin: false },
+    { id: 3, email: 'user@thakurg.com', passwordHash: '1b992a2bb0984ad12a5efc86fb260801e275d71419c7b748b5ff33a497af8423', displayName: 'Standard User', language: 'en', roleId: 3, apps: ['khata', 'tracker', 'creta'], hidden: [], avatar: null, avatarData: null, createdOn: now, lastLoginOn: null, failedLogins: 0, lockedUntil: null, showOnLogin: false },
   ],
   pages: [
     { id: 1, code: 'settings.account', hasAdd: false, hasDelete: false },
@@ -63,9 +62,4 @@ export const demoSeed = (now: string): DemoDb => ({
   ],
   sessions: [],
   settings: {},
-  testLogins: [
-    { id: 1, email: 'superadmin@thakurg.com', deleted: false, sortOrder: 1, showOnLogin: false, passwordHash: null },
-    { id: 2, email: 'admin@thakurg.com', deleted: false, sortOrder: 2, showOnLogin: false, passwordHash: null },
-    { id: 3, email: 'user@thakurg.com', deleted: false, sortOrder: 3, showOnLogin: false, passwordHash: null },
-  ],
 });

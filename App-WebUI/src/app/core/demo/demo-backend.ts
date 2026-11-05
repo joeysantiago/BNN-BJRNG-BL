@@ -4,11 +4,11 @@ import { randomToken, sha256 } from './demo-hash';
 import { DEMO_MESSAGES } from './demo-messages';
 import { APP_SETTINGS } from '../../appSettings';
 import { DEMO_MAIL, DEMO_RULES, demoSeed } from './demo-seed';
-import { AuthUser, ProfileDetails, UserStatus } from '../models/auth.model';
+import { AuthUser, ProfileDetails, QuickLogin, UserStatus } from '../models/auth.model';
 import { SettingsOverrides } from '../models/app-settings.model';
 import { MailPurpose, MailSecurity, MailSetting } from '../models/mail.model';
 import { RoleForm, RoleInfo, RolePermission } from '../models/role.model';
-import { DemoDb, DemoMessages, DemoPermission, DemoReply, DemoRequest, DemoRole, DemoTestLogin, DemoUser } from './demo.model';
+import { DemoDb, DemoMessages, DemoPermission, DemoReply, DemoRequest, DemoRole, DemoUser } from './demo.model';
 
 const DB_KEY = 'thakurg-demo-db';
 const SESSION_KEY = 'thakurg-demo-session';
@@ -90,11 +90,10 @@ export class DemoBackend {
     }
   }
 
-  /** Data saved by an older build gets what was added since (the My Tasks app, the test logins), as the INSERT scripts of a new database would have them. */
+  /** Data saved by an older build gets what was added since (the My Tasks app), as the INSERT scripts of a new database would have them. A missing showOnLogin reads as false. */
   private upgrade(db: DemoDb): DemoDb {
     if (!db.apps.some((a) => a.code === 'tasks'))
       db.apps.push({ code: 'tasks', autoGrant: false });
-    db.testLogins ??= demoSeed(this.now()).testLogins;
     return db;
   }
 
@@ -361,22 +360,16 @@ export class DemoBackend {
         return this.updateRight(db, this.require(db, req.token, 'settings.permissions:edit'), id, body);
       case 'DELETE /admin/role-permissions/{id}':
         return this.deleteRight(db, this.require(db, req.token, 'settings.permissions:delete'), id);
-      case 'GET /auth/test-logins':
-        return { data: this.testLogins(db).filter((l) => l.showOnLogin && l.passwordHash).map((l) => ({ id: l.id, email: l.email })) };
-      case 'POST /auth/test-logins/{id}/login':
-        return { data: await this.testLogin(db, id) };
-      case 'GET /admin/test-logins':
+      case 'GET /auth/quick-logins':
+        return { data: this.quickLogins(db) };
+      case 'POST /auth/quick-logins/{id}/login':
+        return { data: this.quickLogin(db, id) };
+      case 'GET /admin/users/quick-logins':
         this.superCaller(db, req.token);
-        return { data: this.testLogins(db).map((l) => this.testLoginDto(l)) };
-      case 'POST /admin/test-logins':
+        return { data: this.quickLogins(db) };
+      case 'PUT /admin/users/quick-logins':
         this.superCaller(db, req.token);
-        return this.saveTestLogin(db, null, body);
-      case 'PUT /admin/test-logins/{id}':
-        this.superCaller(db, req.token);
-        return this.saveTestLogin(db, id, body);
-      case 'DELETE /admin/test-logins/{id}':
-        this.superCaller(db, req.token);
-        return this.deleteTestLogin(db, id);
+        return this.setQuickLogin(db, body);
       case 'GET /auth/me/details':
         return { data: this.detailsOf(this.caller(db, req.token)) };
       case 'PUT /auth/me/details':
@@ -395,11 +388,8 @@ export class DemoBackend {
    * ("your account is archived"), but only with the right password, so the answer never shows which e-mails exist.
    */
   private async login(db: DemoDb, body: Record<string, unknown>): Promise<unknown> {
-    return this.passwordLogin(db, this.email(body['email']), await this.hash(String(body['password'] ?? '')));
-  }
-
-  /** The login of an e-mail and the SHA-256 of a password: the sign-in form sends the password, a test login its stored hash. */
-  private passwordLogin(db: DemoDb, email: string | null, hash: string): unknown {
+    const email = this.email(body['email']);
+    const hash = await this.hash(String(body['password'] ?? ''));
     const user = email ? db.users.find((u) => u.email === email && this.live(u)) : undefined;
     const inactive = email && !user ? db.users.find((u) => u.email === email) : undefined;
     if (inactive && hash === inactive.passwordHash)
@@ -451,56 +441,33 @@ export class DemoBackend {
     return { accessToken: session.token, expiresInSeconds: DEMO_RULES.accessMinutes * 60, user: this.dto(db, user) };
   }
 
-  /** The test logins that are not deleted, in their order (TestLoginRepository.ListAsync). */
-  private testLogins(db: DemoDb): DemoTestLogin[] {
-    return (db.testLogins ?? []).filter((l) => !l.deleted).sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+  /** A tap on a quick login of the login page (AuthService.QuickLoginAsync): only a user shown there, and not while the account is locked. No password is checked. */
+  private quickLogin(db: DemoDb, userId: number): unknown {
+    const user = db.users.find((u) => u.id === userId && u.showOnLogin && this.live(u));
+    if (!user)
+      throw new DemoFailure(404, 'AUTH_QUICK_LOGIN_UNAVAILABLE');
+    if (user.lockedUntil && user.lockedUntil > Date.now())
+      throw new DemoFailure(423, 'AUTH_LOCKED', [Math.ceil((user.lockedUntil - Date.now()) / 60000)]);
+    user.failedLogins = 0;
+    user.lastLoginOn = this.now();
+    return this.signIn(db, user);
   }
 
-  /** A test login as Settings > General shows it: never the password, only whether one is saved. */
-  private testLoginDto(l: DemoTestLogin): unknown {
-    return { id: l.id, email: l.email, sortOrder: l.sortOrder, hasPassword: !!l.passwordHash, showOnLogin: l.showOnLogin };
+  /** The users a super admin shows on the login page (Users.ShowOnLogin, AuthService.GetQuickLoginsAsync): e-mail only. */
+  private quickLogins(db: DemoDb): QuickLogin[] {
+    return db.users.filter((u) => u.showOnLogin && this.live(u)).sort((a, b) => a.id - b.id).map((u) => ({ id: u.id, email: u.email }));
   }
 
-  /** A tap on the login page: only a login that is switched on and has a password, through the normal login with its lockout (TestLoginService.LoginAsync). */
-  private async testLogin(db: DemoDb, id: number): Promise<unknown> {
-    const login = this.testLogins(db).find((l) => l.id === id);
-    if (!login?.showOnLogin || !login.passwordHash)
-      throw new DemoFailure(404, 'TEST_LOGIN_NOT_FOUND');
-    return this.passwordLogin(db, login.email, login.passwordHash);
-  }
-
-  private deleteTestLogin(db: DemoDb, id: number): { code: string } {
-    const login = this.testLogins(db).find((l) => l.id === id);
-    if (!login)
-      throw new DemoFailure(404, 'TEST_LOGIN_NOT_FOUND');
-    login.deleted = true;
-    return { code: 'TEST_LOGIN_DELETED' };
-  }
-
-  /**
-   * The rules of TestLoginService.SaveAsync: a valid e-mail, a password of up to 128 characters (empty keeps the saved one), a login switched on only with a
-   * password, and an e-mail listed once. The demo keeps the password's SHA-256 only, never the password.
-   */
-  private async saveTestLogin(db: DemoDb, id: number | null, body: Record<string, unknown>): Promise<{ code: string; data: unknown }> {
+  /** Settings > General > Quick logins (UserAccessService.SetQuickLoginAsync): shows or hides an existing user on the login page. No password is kept for it. */
+  private setQuickLogin(db: DemoDb, body: Record<string, unknown>): { code: string } {
     const email = this.email(body['email']);
-    const login = id === null ? null : this.testLogins(db).find((l) => l.id === id);
-    if (login === undefined)
-      throw new DemoFailure(404, 'TEST_LOGIN_NOT_FOUND');
-    const password = typeof body['password'] === 'string' && body['password'] ? body['password'] : null;
-    const showOnLogin = !!body['showOnLogin'];
-    if (!email || (password?.length ?? 0) > DEMO_RULES.passwordMaxLength || (showOnLogin && !password && !login?.passwordHash))
-      throw new DemoFailure(400, 'TEST_LOGIN_INVALID', [DEMO_RULES.passwordMaxLength]);
-    if (this.testLogins(db).some((l) => l.email === email && l.id !== login?.id))
-      throw new DemoFailure(409, 'TEST_LOGIN_TAKEN');
-    const row: DemoTestLogin = login ?? { id: this.next(db), email, deleted: false, sortOrder: 0, showOnLogin: false, passwordHash: null };
-    row.email = email;
-    row.showOnLogin = showOnLogin;
-    row.sortOrder = Number(body['sortOrder']) || 0;
-    if (password)
-      row.passwordHash = await this.hash(password);
-    if (!login)
-      (db.testLogins ??= []).push(row);
-    return { code: 'TEST_LOGIN_SAVED', data: this.testLoginDto(row) };
+    if (!email)
+      throw new DemoFailure(400, 'AUTH_EMAIL_INVALID');
+    const user = db.users.find((u) => u.email === email && this.live(u));
+    if (!user)
+      throw new DemoFailure(404, 'AUTH_USER_NOT_FOUND');
+    user.showOnLogin = !!body['showOnLogin'];
+    return { code: user.showOnLogin ? 'AUTH_QUICK_LOGIN_SAVED' : 'AUTH_QUICK_LOGIN_REMOVED' };
   }
 
   /**

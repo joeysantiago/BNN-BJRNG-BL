@@ -1,7 +1,7 @@
 /**
  * Mojito is the Angular-only demo: there is no API and no database. The login, profile and Settings pages talk to a demo backend inside the
- * browser (core/demo), which keeps its data in this browser's storage. No login or password is kept here: the one-tap test logins of the
- * login page live in the demo database and are edited on Settings > General, as the API branches keep them in the TestLogins table.
+ * browser (core/demo), which keeps its data in this browser's storage. No login or password is kept here: the one-tap logins of the
+ * login page are a switch on the demo users (showOnLogin), set on Settings > General, as the API branches keep them on the Users table.
  */
 export const environment = {
   name: 'demo',

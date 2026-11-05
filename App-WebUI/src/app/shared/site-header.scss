@@ -90,14 +90,6 @@
   flex-wrap: wrap;
 }
 
-.lang-pop {
-  width: min(200px, calc(100vw - 32px));
-}
-.lang-pop .skin-opt {
-  /* Language names are written in their own scripts, so use system fonts and skip downloading web fonts for them. */
-  font-family: system-ui, 'Segoe UI', 'Nirmala UI', 'Noto Sans', sans-serif;
-}
-
 .menu {
   position: relative;
 }
@@ -141,75 +133,9 @@
   font-weight: 800;
 }
 
-/* Dark / Light / System side by side on top, the skins listed below. */
-.modes {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  padding-block-end: 8px;
-  border-block-end: 1px solid var(--line, rgba(128, 128, 128, 0.25));
-}
-.mode-opt {
-  display: grid;
-  place-items: center;
-  min-height: 44px;
-  padding: 8px 4px;
-  border: 0;
-  border-radius: 14px;
-  background: transparent;
-  color: var(--muted);
-  font: 600 12.5px var(--font-body);
-  cursor: pointer;
-}
-.mode-opt:hover {
-  color: var(--text);
-  box-shadow: var(--btn-shadow);
-}
-.mode-opt.on {
-  color: var(--accent-ink);
-  box-shadow: var(--btn-active-shadow);
-  font-weight: 800;
-}
-.mode-opt:focus-visible,
 .skin-opt:focus-visible {
   outline: 2px solid var(--focus, currentColor);
   outline-offset: 2px;
-}
-
-/* Small previews, each drawn in its own skin so the choice is visible before picking */
-.swatch {
-  flex: none;
-  width: 30px;
-  height: 30px;
-  border-radius: 10px;
-}
-.swatch[data-skin='glass'] {
-  background: linear-gradient(135deg, #9d4a82, #3a1631);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.4);
-}
-.swatch[data-skin='clay'] {
-  background: #f1d8ff;
-  border-radius: 14px;
-  box-shadow: 3px 3px 6px rgba(137, 104, 190, 0.5), -3px -3px 6px #fff, inset -2px -2px 4px rgba(137, 104, 190, 0.3);
-}
-.swatch[data-skin='skeu'] {
-  background: linear-gradient(180deg, #fff, #c4c8ce);
-  border: 1px solid #737982;
-  box-shadow: 0 1px 0 #fff inset, 0 2px 3px rgba(0, 0, 0, 0.4);
-}
-.swatch[data-skin='neu'] {
-  background: #e0e5ec;
-  box-shadow: 3px 3px 6px #a3b1c6, -3px -3px 6px #fff;
-}
-
-.ios {
-  max-width: 420px;
-  margin: auto;
-  color: var(--text);
-  border: var(--card-border);
-}
-.ios::backdrop {
-  background: rgba(0, 0, 0, 0.55);
 }
 
 @media (min-width: 820px) {

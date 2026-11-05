@@ -71,8 +71,8 @@ export interface AuthHooks {
   refresh: () => Promise<boolean>;
 }
 
-/** A test login button of the login page (GET /auth/test-logins): the e-mail only; the password stays with the backend, which logs in with it. */
-export interface TestLoginOption {
+/** A quick login button of the login page (GET /auth/quick-logins): a user a super admin shows there, by e-mail; a tap logs in as them in the backend. */
+export interface QuickLogin {
   id: number;
   email: string;
 }

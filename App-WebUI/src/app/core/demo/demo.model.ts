@@ -33,6 +33,8 @@ export interface DemoUser {
   displayName: string;
   failedLogins: number;
   avatar: string | null;
+  /** Shown as a one-tap login on the login page (Users.ShowOnLogin). Data saved by older builds has no flag: false. */
+  showOnLogin?: boolean;
   lockedUntil: number | null;
   avatarData: string | null;
   details?: ProfileDetails;
@@ -69,19 +71,6 @@ export interface DemoPermission {
   canDelete: boolean;
 }
 
-/**
- * A test login of the login page (TestLogins table). The API keeps the password encrypted; this browser keeps only its SHA-256, the same as a
- * user's password hash, so a tap logs in by comparing the two and the password itself is never stored.
- */
-export interface DemoTestLogin {
-  id: number;
-  email: string;
-  deleted: boolean;
-  sortOrder: number;
-  showOnLogin: boolean;
-  passwordHash: string | null;
-}
-
 /** An app a user can be given (Apps table). `autoGrant` apps are given to every sign-up. */
 export interface DemoApp {
   code: string;
@@ -108,7 +97,6 @@ export interface DemoDb {
   tasks?: TasksDemoDb;
   sessions: DemoSession[];
   settings: SettingsOverrides;
-  testLogins?: DemoTestLogin[];
   permissions: DemoPermission[];
 }
 
