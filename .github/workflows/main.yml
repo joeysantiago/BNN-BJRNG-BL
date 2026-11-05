@@ -48,3 +48,7 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # GitHub Pages sometimes takes far longer than usual to publish (one run waited over 10 minutes, the default limit, and failed
+          # although the build was fine). Wait up to 30 minutes before giving up.
+          timeout: 1800000
