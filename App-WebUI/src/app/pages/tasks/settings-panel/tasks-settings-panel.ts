@@ -1,8 +1,10 @@
 import { RouterLink } from '@angular/router';
 import { I18nService } from '../../../core/i18n.service';
 import { formatYmd, ymd } from '../../../core/tasks-dates';
+import { ChoiceGroup } from '../../../shared/choice-group';
 import { TasksPanelNotice } from './tasks-settings-panel.model';
 import { TasksApiService } from '../../../core/tasks-api.service';
+import { ChoiceOption } from '../../../shared/models/choice.model';
 import { TasksStateService } from '../../../core/tasks-state.service';
 import { Component, afterNextRender, computed, inject, signal } from '@angular/core';
 import { TaskCategory, TaskItem, TaskPinStatus, TaskSettings } from '../../../core/models/tasks.model';
@@ -16,7 +18,7 @@ const PALETTE = ['#d6489a', '#3a66f5', '#1f9d63', '#f5a524', '#8b5cf6', '#e5484d
  */
 @Component({
   selector: 'app-tasks-settings-panel',
-  imports: [RouterLink],
+  imports: [RouterLink, ChoiceGroup],
   templateUrl: './tasks-settings-panel.html',
   styleUrl: './tasks-settings-panel.scss',
 })
@@ -26,10 +28,8 @@ export class TasksSettingsPanel {
   protected readonly newName = signal('');
   protected readonly i18n = inject(I18nService);
   private readonly api = inject(TasksApiService);
-  protected readonly lockTimes = [0, 1, 5, 15, 30];
   protected readonly newColor = signal(PALETTE[1]);
   private readonly state = inject(TasksStateService);
-  protected readonly befores = ['0', '15m', '1h', '1d'];
   protected readonly categories = signal<TaskCategory[]>([]);
   protected readonly pin = signal<TaskPinStatus | null>(null);
   protected readonly deleted = signal<TaskItem[] | null>(null);
@@ -37,6 +37,12 @@ export class TasksSettingsPanel {
   protected readonly notice = signal<TasksPanelNotice | null>(null);
   protected readonly appName = computed(() => this.i18n.page('tasks'));
   protected readonly permission = signal<NotificationPermission | 'unsupported'>(typeof Notification === 'undefined' ? 'unsupported' : 'default');
+  protected readonly priorities = computed<ChoiceOption[]>(() => [1, 2, 3].map((p) => ({ value: String(p), label: this.i18n.t('tasks.pri.' + p) })));
+  /** The pick-one settings, as choice groups. */
+  protected readonly befores = computed<ChoiceOption[]>(() => ['0', '15m', '1h', '1d'].map((b) => ({ value: b, label: this.i18n.t('tasks.before.' + b) })));
+  protected readonly tabs = computed<ChoiceOption[]>(() => ['all', 'active', 'completed'].map((v) => ({ value: v, label: this.i18n.t('tasks.tab.' + v) })));
+  protected readonly weekStarts = computed<ChoiceOption[]>(() => [{ value: 'mon', label: this.i18n.t('tasks.set.monday') }, { value: 'sun', label: this.i18n.t('tasks.set.sunday') }]);
+  protected readonly lockOptions = computed<ChoiceOption[]>(() => [0, 1, 5, 15, 30].map((m) => ({ value: String(m), label: m === 0 ? this.i18n.t('tasks.set.lockNowOption') : this.i18n.t('tasks.set.minutes', { n: m }) })));
 
   constructor() {
     afterNextRender(() => void this.load());
