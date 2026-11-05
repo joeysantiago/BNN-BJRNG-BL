@@ -43,6 +43,8 @@ public partial interface ICommonDbContext
 
     DbSet<RolePermission> RolePermissions { get; }
 
+    DbSet<WhatsAppSetting> WhatsAppSettings { get; }
+
     DbSet<ConnectionField> ConnectionFields { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);

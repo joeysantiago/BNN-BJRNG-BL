@@ -1,14 +1,13 @@
 import { SeoService } from '../../core/seo.service';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
-import { environment } from '../../../environments/environment';
 import { AuthMode, LoginWay, OtpStep } from './auth-page.model';
-import { DevLogin, OtpChannel } from '../../core/models/auth.model';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { OtpChannel, QuickLogin } from '../../core/models/auth.model';
 import { Component, OnDestroy, afterNextRender, effect, inject, signal } from '@angular/core';
 
 /** The apps that also offer a one-time code login, by the start of the address they open. */
-const OTP_APPS: Record<string, string> = { '/khata': 'khata', '/tracker': 'tracker' };
+const OTP_APPS: Record<string, string> = { '/khata': 'khata', '/tracker': 'tracker', '/tasks': 'tasks' };
 
 /** Where a code goes, from what was typed: an e-mail address or a mobile number (digits, optional +, spaces or dashes); null = neither. */
 const channelOf = (to: string): OtpChannel | null => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to) ? 'email' : /^\+?[\d\s-]{7,16}$/.test(to) ? 'sms' : null);
@@ -45,8 +44,8 @@ export class AuthPage implements OnDestroy {
   protected readonly way = signal<LoginWay>('password');
   protected readonly channel = signal<OtpChannel>('email');
   private timer: ReturnType<typeof setInterval> | undefined;
-  /** Development builds only: the seeded logins, the first pre-filled. Empty in QA, UAT and live. */
-  protected readonly devLogins: DevLogin[] = environment.devLogins;
+  /** The users a super admin shows on the login page (Settings > General): e-mails only, a tap logs in as them on the server. */
+  protected readonly quickLogins = signal<QuickLogin[]>([]);
   protected readonly next = safeNext(this.route.snapshot.queryParamMap.get('next'));
   protected readonly mode: AuthMode = this.route.snapshot.data['mode'] === 'signup' ? 'signup' : 'login';
   /** The app that allows a code login here, from ?app= or from the address the login returns to; null = password only. */
@@ -64,7 +63,11 @@ export class AuthPage implements OnDestroy {
     });
 
     // Already logged in (this tab, another tab or the refresh cookie): no need to log in again.
-    afterNextRender(() => void this.skipWhenLoggedIn());
+    afterNextRender(() => {
+      void this.skipWhenLoggedIn();
+      if (this.mode === 'login')
+        void this.loadQuickLogins();
+    });
   }
 
   // #region Public Methods
@@ -117,6 +120,16 @@ export class AuthPage implements OnDestroy {
     });
   }
 
+  /** Logs in as one of the quick login users; the session is started by the server. */
+  async useLogin(login: QuickLogin): Promise<void> {
+    if (this.busy())
+      return;
+    await this.attempt(async () => {
+      await this.auth.quickLogin(login.id);
+      this.go();
+    });
+  }
+
   /** Sends (or sends again) the one-time code. One field: an e-mail address gets the code by e-mail, a mobile number by SMS. */
   async sendCode(destination: string): Promise<void> {
     const app = this.otpApp;
@@ -139,12 +152,6 @@ export class AuthPage implements OnDestroy {
     });
   }
 
-  /** Fills the form with one of the seeded development logins. */
-  useLogin(login: DevLogin, email: HTMLInputElement, password: HTMLInputElement): void {
-    email.value = login.email;
-    password.value = login.password;
-  }
-
   // #endregion
 
   // #region Private Methods
@@ -161,6 +168,10 @@ export class AuthPage implements OnDestroy {
       if (!this.resendIn())
         clearInterval(this.timer);
     }, 1000);
+  }
+
+  private async loadQuickLogins(): Promise<void> {
+    this.quickLogins.set(await this.auth.quickLogins());
   }
 
   private async skipWhenLoggedIn(): Promise<void> {

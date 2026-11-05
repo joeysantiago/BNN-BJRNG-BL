@@ -1,0 +1,19 @@
+// The App Lock screen. The design system of My Tasks (the same as SnapKhata's): every colour is a token on .mt, Light and Dark are two sets of the same tokens.
+// Global under .mt (ViewEncapsulation.None), so the shell, its screens and its dialogs share one look.
+/* ---------- Lock (same as SnapKhata's PIN screen) ---------- */
+.mt .lock { position: fixed; inset: 0; z-index: 100; display: grid; justify-items: center; align-content: center; gap: 14px; padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); text-align: center; background-color: var(--k-bg); background-image: var(--k-bg-image); overflow-y: auto; }
+.mt .lock h1 { font-size: 1.4rem; font-weight: 800; }
+.mt .lock p { max-width: 320px; color: var(--k-muted); }
+.mt .lock-mark { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 22px; background: var(--k-brand-grad); color: var(--k-on-brand); box-shadow: var(--k-shadow-lg); }
+.mt .lock-dots { display: flex; gap: 16px; min-height: 24px; align-items: center; }
+.mt .lock-dots i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--k-line-strong); transition: background 0.15s, border-color 0.15s, transform 0.15s; }
+.mt .lock-dots i.on { background: var(--k-brand); border-color: var(--k-brand); transform: scale(1.1); }
+.mt .lock-dots.err i { border-color: var(--k-give); }
+.mt .lock-dots.err { animation: mt-shake 0.35s var(--k-ease); }
+@keyframes mt-shake { 25% { translate: -8px; } 75% { translate: 8px; } }
+.mt .lock-pad { display: grid; grid-template-columns: repeat(3, 72px); gap: 14px; margin-top: 6px; }
+.mt .lock-key { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--k-line); background: var(--k-surface); color: var(--k-text); font: 600 1.5rem/1 var(--k-font); box-shadow: var(--k-shadow-sm); cursor: pointer; touch-action: manipulation; }
+.mt .lock-key:active:not(:disabled) { background: var(--k-brand-soft); transform: scale(0.96); }
+.mt .lock-key:disabled { opacity: 0.5; cursor: default; }
+.mt .lock-key.fn { background: transparent; border-color: transparent; box-shadow: none; }
+.mt .lock-err { min-height: 22px; color: var(--k-give); font-weight: 700; font-size: 14px; }

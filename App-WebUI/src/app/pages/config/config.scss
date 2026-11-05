@@ -73,6 +73,9 @@ h1 {
 }
 .tab {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   flex: 0 0 auto;
   white-space: nowrap;
   scroll-snap-align: start;
@@ -84,6 +87,13 @@ h1 {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+}
+.tab .tab-ico {
+  flex: none;
+  opacity: 0.85;
+}
+.tab[aria-selected='true'] .tab-ico {
+  opacity: 1;
 }
 .tab:hover {
   color: var(--text);

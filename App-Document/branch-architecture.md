@@ -11,6 +11,7 @@ matrix ──┬── Features/App/Creta ───────┐
          ├── Features/App/Khata ───────┼──► main (everything + Atrium HR)
          ├── Features/App/snapTracker ─┤
          ├── Features/App/speedtest ───┤
+         ├── Features/App/Planner ─────┤
          └─────────────────────────────┘
 ```
 
@@ -23,7 +24,8 @@ matrix ──┬── Features/App/Creta ───────┐
 | `Features/App/Khata` | Shared + SnapKhata (landing page and ledger app) | `/khata/app` |
 | `Features/App/snapTracker` | Shared + SnapTracker (prototype only; it has no WebUI, API or database code yet) | `/profile` |
 | `Features/App/speedtest` | Shared + Speed test | Speed test |
-| `main` | Everything: all features, Atrium HR (only here), the common login | Speed test |
+| `Features/App/Planner` | Shared + My Tasks (app code `tasks`: tasks, checklists, calendar, App Lock) | `/tasks/app` |
+| `banni-linux` | Everything: all features, Atrium HR (only here), the common login | Speed test |
 
 ## Where to make a change
 
@@ -63,14 +65,14 @@ C# drops a call to a partial method that has no implementation, so a branch with
   header show only their settings, panels and access boxes); a branch without the speed test sends `/` to its own app.
 - `App-Prototype/assets/js/routes.js`: the prototype pages; a branch without the speed test sends `/` to its own app.
 - `App-WebUI/angular.json`: the SnapKhata style bundle (`pages/khata/styles/khata.scss`) is listed only on a branch that holds Khata.
-- `App-WebAPI/Thakurg/Thakurg.API/appsettings.json`: `AppManifests:Apps`, the apps that install on their own (`khata`, `creta`, `nexon`, `youtube`),
+- `App-WebAPI/Thakurg/Thakurg.API/appsettings.json`: `AppManifests:Apps`, the apps that install on their own (`khata`, `creta`, `nexon`, `youtube`, `tasks`),
   each with its own manifest id, start address, scope and icons (`public/icons/<app>-*`). `matrix` keeps the section with an empty `Apps`.
 - The `apps` list of the feature's `*.pages.json` (`speedtest`, `creta` or `nexon`, `youtube`, `khata`): `scripts/postbuild.mjs` writes each app's
   shell at `/apps/<code>/`.
 
 ## Installable apps
 Every app installs on its own, at its own address `/apps/<code>/` (`/apps/speedtest/`, `/apps/creta/`, `/apps/nexon/`, `/apps/youtube/`,
-`/apps/khata/`). Routes live in the hash, so every screen shares the path `/`; only a path gives each app its own manifest **scope**, which is what
+`/apps/khata/`, `/apps/tasks/`). Routes live in the hash, so every screen shares the path `/`; only a path gives each app its own manifest **scope**, which is what
 lets a phone or computer keep several installs from one domain apart. Each manifest keeps its `id` (`/` for the speed test, `/<app>-app` for the
 others), so an app installed before keeps working and updates in place.
 - `public/manifest.webmanifest` is the speed test's (scope `/apps/speedtest/`); the others are built by the API (`GET api/apps/{code}/manifest.webmanifest`,

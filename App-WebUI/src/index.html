@@ -27,7 +27,7 @@
       (function () {
         var p = location.pathname;
         var a = /^\/apps\/([a-z]+)\/?$/.exec(p);
-        var homes = { speedtest: '/', creta: '/creta', nexon: '/nexon', youtube: '/youtube', khata: '/khata/app' };
+        var homes = { speedtest: '/', creta: '/creta', nexon: '/nexon', youtube: '/youtube', khata: '/khata/app', tasks: '/tasks/app' };
         if (a && homes[a[1]]) {
           if (!/^#\//.test(location.hash)) location.replace('/apps/' + a[1] + '/' + location.search + '#' + homes[a[1]]);
           var m = a[1] !== 'speedtest' && document.querySelector('link[rel=manifest]');

@@ -21,7 +21,7 @@ public static class AuthSecurityExtensions
 {
     private const int MinimumSecretLength = 32;
 
-    private static readonly string[] AllApps = [AppCodes.Hr, AppCodes.Creta, AppCodes.Khata, AppCodes.Nexon, AppCodes.Youtube, AppCodes.Tracker];
+    private static readonly string[] AllApps = [AppCodes.Hr, AppCodes.Creta, AppCodes.Khata, AppCodes.Nexon, AppCodes.Youtube, AppCodes.Tracker, AppCodes.Tasks];
 
     #region Public Methods
 

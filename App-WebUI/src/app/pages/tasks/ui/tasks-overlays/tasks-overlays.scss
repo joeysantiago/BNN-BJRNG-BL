@@ -1,0 +1,81 @@
+// Form controls, the circular checks and checklist lines, the empty state, toasts, the reminders bell and the picture viewer of My Tasks.
+// Global under .mt (ViewEncapsulation.None); this component is always on screen, so every screen and dialog of the app shares these styles.
+.mt .seg { display: inline-flex; padding: 4px; gap: 4px; border-radius: 14px; background: var(--k-surface-3); border: 1px solid var(--k-line); flex-wrap: wrap; }
+.mt .seg button { min-height: 36px; padding: 6px 14px; border: 0; border-radius: 10px; background: transparent; color: var(--k-muted); font: 700 13.5px var(--k-font); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.mt .seg button[aria-pressed=true] { background: var(--k-surface-solid); color: var(--k-text); box-shadow: var(--k-shadow-sm); }
+.mt .switch { position: relative; flex: none; width: 48px; height: 28px; }
+.mt .switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; z-index: 1; }
+.mt .switch i { position: absolute; inset: 0; border-radius: 999px; background: var(--k-switch-off); box-shadow: inset 0 0 0 1px var(--k-line-strong); transition: background 0.2s; }
+.mt .switch i::after { content: ''; position: absolute; top: 3px; inset-inline-start: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); transition: transform 0.2s var(--k-ease); }
+.mt .switch input:checked + i { background: var(--k-brand); box-shadow: none; }
+.mt .switch input:checked + i::after { transform: translateX(20px); }
+.mt[dir=rtl] .switch input:checked + i::after { transform: translateX(-20px); }
+.mt .switch input:disabled + i { opacity: 0.5; }
+.mt .switch input:focus-visible + i { box-shadow: var(--k-focus); }
+.mt .set-row { display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 10px 0; border-top: 1px solid var(--k-line); }
+.mt .set-row:first-of-type { border-top: 0; }
+.mt .set-row .txt { flex: 1; min-width: 0; display: grid; }
+.mt .set-row .txt small { color: var(--k-muted); font-size: 13px; }
+.mt .pill { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 750; background: var(--k-surface-3); color: var(--k-muted); white-space: nowrap; }
+.mt .pill.ok { background: var(--k-get-soft); color: var(--k-get); }
+.mt .pill.bad { background: var(--k-give-soft); color: var(--k-give); }
+.mt .pill.warn { background: var(--k-warn-soft); color: var(--k-warn); }
+.mt .pill.brand { background: var(--k-brand-soft); color: var(--k-brand); }
+.mt .pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+.mt .note { padding: 10px 14px; border-radius: 14px; background: var(--k-brand-soft); color: var(--k-text); font-size: 13.5px; display: flex; gap: 10px; align-items: flex-start; }
+.mt .note .ico { color: var(--k-brand); margin-top: 1px; }
+/* Circular check: the task and every checklist item */
+.mt .cc { flex: none; width: 26px; height: 26px; margin: 1px; padding: 0; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--k-line-strong); background: transparent; color: transparent; cursor: pointer; transition: background 0.2s var(--k-ease), border-color 0.2s, transform 0.15s; position: relative; }
+.mt .cc::after { content: ''; position: absolute; inset: -9px; }
+.mt .cc:hover { border-color: var(--k-brand); color: color-mix(in srgb, var(--k-brand) 45%, transparent); }
+.mt .cc:active { transform: scale(0.9); }
+.mt .cc.on { background: var(--k-get); border-color: var(--k-get); color: #fff; animation: mt-pop 0.3s var(--k-ease); }
+.mt[data-kt=dark] .cc.on { color: #0e0b19; }
+.mt .cc.sm { width: 22px; height: 22px; }
+.mt .cc.sq { border-radius: 7px; }
+.mt .cc.sq.on { background: var(--k-brand); border-color: var(--k-brand); }
+@keyframes mt-pop { 50% { transform: scale(1.15); } }
+.mt .inline-cl { grid-column: 2 / -1; display: grid; gap: 2px; padding-top: 4px; border-top: 1px dashed var(--k-line); }
+.mt .cl-item { display: flex; align-items: center; gap: 10px; min-height: 40px; }
+.mt .cl-item .tx { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; transition: color 0.2s; }
+.mt .cl-item.done .tx { text-decoration: line-through; color: var(--k-faint); }
+.mt .expand { transition: transform 0.2s var(--k-ease); }
+.mt .expand[aria-expanded=true] .ico { transform: rotate(180deg); }
+.mt .empty { display: grid; justify-items: center; gap: 10px; padding: 40px 20px; text-align: center; }
+.mt .empty .big { width: 64px; height: 64px; border-radius: 22px; display: grid; place-items: center; background: var(--k-brand-soft); color: var(--k-brand); }
+.mt .lightbox { position: fixed; inset: 0; z-index: 80; background: rgba(4, 2, 10, 0.9); display: grid; grid-template-rows: auto 1fr auto; color: #fff; animation: mt-fade 0.2s; }
+.mt .lightbox .lb-h, .mt .lightbox .lb-f { display: flex; align-items: center; gap: 8px; padding: 12px 16px; }
+.mt .lightbox .lb-h b { flex: 1; }
+.mt .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; margin: auto; display: block; min-height: 0; }
+.mt .lightbox .lb-body { display: grid; min-height: 0; padding: 0 12px; }
+.mt .lightbox .btn { --b-bg: rgba(255, 255, 255, 0.12); --b-fg: #fff; --b-bd: rgba(255, 255, 255, 0.2); }
+.mt .lightbox .lb-f { justify-content: center; }
+
+/* ---------- Toast, popover ---------- */
+.mt .toasts { position: fixed; z-index: 90; inset-inline: 0; bottom: calc(var(--k-tabs) + 28px + env(safe-area-inset-bottom)); display: grid; justify-items: center; gap: 8px; pointer-events: none; padding-inline: 16px; }
+@media (min-width: 1024px) { .mt .toasts { bottom: 24px; } }
+.mt .toast { pointer-events: auto; display: flex; align-items: center; gap: 12px; max-width: 520px; padding: 10px 10px 10px 16px; border-radius: 16px; background: var(--k-text); color: var(--k-bg); font-weight: 700; font-size: 14px; box-shadow: var(--k-shadow-lg); animation: mt-up 0.3s var(--k-ease); }
+.mt .toast.err { background: var(--k-give); color: #fff; }
+.mt .toast button { border: 0; background: transparent; color: inherit; font: 800 14px var(--k-font); text-decoration: underline; cursor: pointer; min-height: 36px; padding: 0 8px; }
+.mt .pop { position: fixed; z-index: 55; top: 62px; inset-inline-end: 12px; width: min(380px, calc(100% - 24px)); max-height: 70dvh; overflow: auto; padding: 14px; border-radius: 20px; background: var(--k-surface-solid); border: 1px solid var(--k-line-strong); box-shadow: var(--k-shadow-lg); display: grid; gap: 8px; animation: mt-fade 0.15s; }
+.mt .pop h2 { font-size: 15px; font-weight: 800; }
+.mt .rem { display: flex; gap: 10px; align-items: center; padding: 8px; border-radius: 12px; cursor: pointer; border: 0; background: var(--k-surface-3); color: inherit; font: inherit; text-align: start; width: 100%; }
+.mt .rem .ic { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; flex: none; }
+.mt .rem .ic.od { background: var(--k-give-soft); color: var(--k-give); }
+.mt .rem .ic.td { background: var(--k-brand-soft); color: var(--k-brand); }
+.mt .rem .ic.up { background: var(--k-warn-soft); color: var(--k-warn); }
+.mt .rem div { min-width: 0; flex: 1; }
+.mt .rem b { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mt .rem small { color: var(--k-muted); font-size: 12px; }
+.mt .rem-txt { min-width: 0; flex: 1; display: grid; }
+.mt .lb-body img { max-width: 100%; max-height: 100%; object-fit: contain; margin: auto; display: block; min-height: 0; }
+.mt .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+.mt .row.center { justify-content: center; }
+.mt .in.auto { width: auto; }
+.mt .small { font-size: 13px; }
+
+.mt .confirm-scrim { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 16px; background: var(--k-overlay); animation: mt-confirm-in 0.2s; }
+@keyframes mt-confirm-in { from { opacity: 0; } }
+.mt .confirm { width: min(440px, 100%); display: grid; gap: 18px; padding: 22px; border-radius: var(--k-r-lg); background: var(--k-surface-solid); border: 1px solid var(--k-line-strong); box-shadow: var(--k-shadow-lg); animation: mt-pop 0.18s var(--k-ease); }
+.mt .confirm-t { font-weight: 700; font-size: 15.5px; }
+.mt .row.end { justify-content: flex-end; }

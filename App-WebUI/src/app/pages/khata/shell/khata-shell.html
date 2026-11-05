@@ -29,42 +29,7 @@
           <ng-container *ngTemplateOutlet="picker; context: { $implicit: 'top' }" />
           <span class="crumb">{{ state.title() }}</span>
           <div class="k-top-actions">
-            @if (!install.installed() && install.canPrompt()) {
-              <button type="button" class="k-btn ghost icon" [title]="i18n.t('install.btn')" [attr.aria-label]="i18n.t('install.btn')" (click)="install.prompt()"><svg kIco="install"></svg></button>
-            }
-            <div class="k-menu">
-              <button type="button" class="k-btn ghost icon" aria-haspopup="true" aria-controls="k-lang-menu" [attr.aria-expanded]="menu() === 'lang'" [title]="i18n.t('lang.label')" [attr.aria-label]="i18n.t('lang.label')"
-                (click)="toggleMenu('lang')">
-                <svg kIco="globe"></svg>
-              </button>
-              @if (menu() === 'lang') {
-                <div id="k-lang-menu" class="k-pop" role="group" [attr.aria-label]="i18n.t('lang.label')">
-                  @for (l of i18n.languages; track l.code) {
-                    <button type="button" class="k-pop-opt" [attr.lang]="l.code" [attr.aria-pressed]="i18n.lang() === l.code" (click)="setLang(l.code)">{{ l.native }}@if (i18n.lang() === l.code) {<svg kIco="check" [size]="16"></svg>}</button>
-                  }
-                </div>
-              }
-            </div>
-            <div class="k-menu">
-              <button type="button" class="k-btn ghost icon" aria-haspopup="true" aria-controls="k-theme-menu" [attr.aria-expanded]="menu() === 'theme'" [title]="i18n.t('khata.theme.menu')"
-                [attr.aria-label]="i18n.t('khata.theme.menu')" (click)="toggleMenu('theme')"><svg kIco="palette"></svg></button>
-              @if (menu() === 'theme') {
-                <div id="k-theme-menu" class="k-pop" role="group" [attr.aria-label]="i18n.t('khata.theme.menu')">
-                  <div class="k-pop-modes" role="group" [attr.aria-label]="i18n.t('khata.theme.mode')">
-                    @for (m of modes; track m) {
-                      <button type="button" class="k-pop-opt" [attr.aria-pressed]="theme.activeMode() === m" [title]="i18n.t('khata.theme.' + m)" [attr.aria-label]="i18n.t('khata.theme.' + m)" (click)="setMode(m)">
-                        <svg [kIco]="modeIcons[m]" [size]="18"></svg>
-                      </button>
-                    }
-                  </div>
-                  <div class="k-pop-skins" role="group" [attr.aria-label]="i18n.t('khata.theme.skins')">
-                    @for (s of theme.skins; track s.id) {
-                      <button type="button" class="k-pop-opt" [attr.aria-pressed]="theme.skin() === s.id" (click)="setSkin(s.id)"><span [class]="'k-swatch ' + s.id" aria-hidden="true"></span>{{ i18n.t(s.labelKey) }}</button>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
+            <app-site-tools />
           </div>
         </header>
         <div class="k-content k-enter">

@@ -1,5 +1,7 @@
 import { ApiService } from '../../../core/api.service';
 import { I18nService } from '../../../core/i18n.service';
+import { WhatsAppCard } from '../whatsapp-card/whatsapp-card';
+import { QuickLoginsCard } from '../quick-logins-card/quick-logins-card';
 import { Component, afterNextRender, inject, signal } from '@angular/core';
 import { GeneralNotice, MailSecurity, MailServer } from './general-tab.model';
 
@@ -14,6 +16,7 @@ const PORTS: Record<MailSecurity, number> = { starttls: 587, ssl: 465, none: 25 
  */
 @Component({
   selector: 'app-general-tab',
+  imports: [WhatsAppCard, QuickLoginsCard],
   templateUrl: './general-tab.html',
   styleUrl: './general-tab.scss',
 })
@@ -37,13 +40,6 @@ export class GeneralTab {
     await this.run(() => this.api.message('POST', `/admin/mail/${PURPOSE}/test`));
   }
 
-  /** Moves the port to the usual one of the new security choice, unless a custom port was typed. */
-  suggestPort(form: HTMLFormElement, security: MailSecurity): void {
-    const port = form.elements.namedItem('port') as HTMLInputElement | null;
-    if (port && (!port.value || Object.values(PORTS).includes(Number(port.value))))
-      port.value = String(PORTS[security]);
-  }
-
   async save(form: HTMLFormElement): Promise<void> {
     const data = new FormData(form);
     const text = (name: string): string => String(data.get(name) ?? '').trim();
@@ -57,6 +53,13 @@ export class GeneralTab {
         password.value = '';
       return res.message ?? '';
     });
+  }
+
+  /** Moves the port to the usual one of the new security choice, unless a custom port was typed. */
+  suggestPort(form: HTMLFormElement, security: MailSecurity): void {
+    const port = form.elements.namedItem('port') as HTMLInputElement | null;
+    if (port && (!port.value || Object.values(PORTS).includes(Number(port.value))))
+      port.value = String(PORTS[security]);
   }
 
   // #endregion

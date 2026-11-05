@@ -1,0 +1,56 @@
+<button type="button" class="dp-trigger" aria-haspopup="dialog" [attr.aria-expanded]="open()" [attr.aria-controls]="id" [attr.aria-label]="(label() || i18n.t('tasks.dp.choose')) + ': ' + display().main" (click)="toggle()">
+  <span class="ic"><app-task-icon name="cal" [size]="18" /></span>
+  <span class="txt"><b>{{ display().main }}</b>@if (display().sub) {<small>{{ display().sub }}</small>}</span>
+  <span class="chev"><app-task-icon name="chev" [size]="18" /></span>
+</button>
+@if (open()) {
+  <div class="dp-backdrop" aria-hidden="true" (click)="close(true)"></div>
+  <div class="dp-pop" role="dialog" [id]="id" [attr.aria-label]="label() || i18n.t('tasks.dp.choose')">
+    <span class="dp-grab" aria-hidden="true"></span>
+    <div class="dp-quick" role="group" [attr.aria-label]="i18n.t('tasks.dp.choose')">
+      @for (q of quick(); track q.iso) {
+        <button type="button" class="chip" [attr.aria-pressed]="q.selected" [disabled]="q.disabled" (click)="pick(q.iso)">{{ q.label }}</button>
+      }
+    </div>
+    <div class="dp-head">
+      <button type="button" class="dp-nav" [attr.aria-label]="i18n.t(view() === 'years' ? 'tasks.dp.prevYears' : 'tasks.dp.prev')" (click)="step(-1)"><app-task-icon name="left" [size]="18" /></button>
+      <button type="button" class="dp-title" aria-live="polite" [attr.aria-label]="title() + ' · ' + i18n.t('tasks.dp.pickView')" [disabled]="view() === 'years'" (click)="zoomOut()">
+        {{ title() }}@if (view() !== 'years') {<app-task-icon name="chev" [size]="16" />}
+      </button>
+      <button type="button" class="dp-nav" [attr.aria-label]="i18n.t(view() === 'years' ? 'tasks.dp.nextYears' : 'tasks.dp.next')" (click)="step(1)"><app-task-icon name="right" [size]="18" /></button>
+    </div>
+    @switch (view()) {
+      @case ('days') {
+        <div class="dp-week" aria-hidden="true">
+          @for (w of weekdays(); track $index) {
+            <span>{{ w }}</span>
+          }
+        </div>
+        <div class="dp-grid" role="group" [attr.aria-label]="title()" (keydown)="key($event)">
+          @for (c of cells(); track c.iso) {
+            <button type="button" class="dp-day" [attr.data-iso]="c.iso" [class.out]="c.out" [class.today]="c.today" [class.sel]="c.selected" [attr.aria-pressed]="c.selected" [attr.aria-current]="c.today ? 'date' : null" [attr.aria-label]="c.label"
+              [tabindex]="c.iso === cursor() ? 0 : -1" [disabled]="c.disabled" (click)="pick(c.iso)">{{ c.day }}</button>
+          }
+        </div>
+      }
+      @case ('months') {
+        <div class="dp-picks">
+          @for (m of months(); track m.key) {
+            <button type="button" class="dp-pick" [class.today]="m.current" [attr.aria-pressed]="m.selected" (click)="pickMonth(m.key)">{{ m.label }}</button>
+          }
+        </div>
+      }
+      @case ('years') {
+        <div class="dp-picks">
+          @for (y of years(); track y.key) {
+            <button type="button" class="dp-pick" [class.today]="y.current" [attr.aria-pressed]="y.selected" (click)="pickYear(y.key)">{{ y.label }}</button>
+          }
+        </div>
+      }
+    }
+    <div class="dp-foot">
+      <button type="button" class="btn sm ghost" [disabled]="!value()" (click)="clear()">{{ i18n.t('tasks.dp.clear') }}</button>
+      <button type="button" class="btn sm ghost" (click)="close(true)">{{ i18n.t('tasks.close') }}</button>
+    </div>
+  </div>
+}

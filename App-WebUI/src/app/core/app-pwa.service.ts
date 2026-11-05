@@ -6,13 +6,13 @@ import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { AppWindow, InstallableApp } from './models/app-pwa.model';
 
 /** The apps whose manifest the API builds (InstallableApp). */
-const INSTALLABLE: readonly string[] = ['khata', 'creta', 'nexon', 'youtube'];
+const INSTALLABLE: readonly string[] = ['khata', 'creta', 'nexon', 'youtube', 'tasks'];
 
 /** How long the API may take to answer an app's manifest before the site's own copy is kept. */
 const MANIFEST_MS = 8000;
 
 /**
- * Makes every app (Speed test, Creta, Nexon, YouTube, SnapKhata) installable as its own app on a phone or computer. Routes live in the hash, so
+ * Makes every app (Speed test, Creta, Nexon, YouTube, SnapKhata, My Tasks) installable as its own app on a phone or computer. Routes live in the hash, so
  * every screen shares the path "/"; an installed app therefore runs at its own path /apps/<code>/ (the scope and start address of its manifest, a
  * copy of the app shell written by scripts/postbuild.mjs). Different scopes and manifest ids keep each install apart, and one never replaces another.
  * - In an app's own window (/apps/<code>/) the page keeps that app's manifest whatever screen is open.
@@ -34,7 +34,7 @@ export class AppPwaService {
   /** The branch's own app when it has no speed test (the site's manifest is then that app's), else null. */
   private readonly home = FEATURE_APPS.includes('speedtest') ? null : ((FEATURE_APPS.find((a) => INSTALLABLE.includes(a)) ?? null) as InstallableApp | null);
   /** The app whose own window this is (the path /apps/<code>/), or null on the plain site and on the server. */
-  private readonly own = (this.browser ? /^\/apps\/(khata|creta|nexon|youtube|speedtest)\/?$/.exec(location.pathname)?.[1] ?? null : null) as AppWindow | null;
+  private readonly own = (this.browser ? /^\/apps\/(khata|creta|nexon|youtube|tasks|speedtest)\/?$/.exec(location.pathname)?.[1] ?? null : null) as AppWindow | null;
 
   constructor() {
     const app = this.own ?? this.home;

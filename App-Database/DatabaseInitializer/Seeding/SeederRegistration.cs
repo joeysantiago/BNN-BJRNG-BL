@@ -13,6 +13,7 @@ public static partial class SeederRegistration
         services.AddSingleton<IDatabaseSeeder, CommonDatabaseSeeder>();
         AddMusicSeeder(services);
         AddSnapKhataSeeder(services);
+        AddTasksSeeder(services);
 
         return services;
     }
@@ -22,6 +23,8 @@ public static partial class SeederRegistration
     #region Private Methods
 
     static partial void AddMusicSeeder(IServiceCollection services);
+
+    static partial void AddTasksSeeder(IServiceCollection services);
 
     static partial void AddSnapKhataSeeder(IServiceCollection services);
 

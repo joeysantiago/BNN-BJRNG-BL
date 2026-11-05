@@ -1,6 +1,6 @@
 import { filter, map } from 'rxjs';
-import { Lang } from '../../../core/site';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { SiteTools } from '../../../shared/site-tools';
 import { KhataIcon } from '../ui/khata-icon/khata-icon';
 import { KhataLock } from '../ui/khata-lock/khata-lock';
 import { AuthService } from '../../../core/auth.service';
@@ -9,21 +9,16 @@ import { UserAvatar } from '../../../shared/user-avatar';
 import { ThemeService } from '../../../core/theme.service';
 import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import { AppPwaService } from '../../../core/app-pwa.service';
-import { InstallService } from '../../../core/install.service';
 import { KhataUiService } from '../../../core/khata-ui.service';
-import { Skin, ThemeMode } from '../../../core/models/theme.model';
 import { KhataLockService } from '../../../core/khata-lock.service';
 import { KhataStateService } from '../../../core/khata-state.service';
 import { KhataStyleService } from '../../../core/khata-style.service';
+import { KhataMenu, KhataNavItem } from '../../../core/models/khata.model';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
-import { KhataIconName, KhataMenu, KhataNavItem } from '../../../core/models/khata.model';
 import { Component, ElementRef, OnDestroy, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 
 const SWIPE_PX = 50;
-const THEME_FADE_MS = 450;
 const CHROME = { dark: '#0e0b19', light: '#eef1f7' };
-const MODES: ThemeMode[] = ['light', 'dark', 'system'];
-const MODE_ICONS: Record<ThemeMode, KhataIconName> = { light: 'sun', dark: 'moon', system: 'monitor' };
 
 /**
  * SnapKhata app frame (/khata/app/...), mobile first: a top bar and a bottom tab bar with a big "new entry" button on phones,
@@ -36,27 +31,23 @@ const MODE_ICONS: Record<ThemeMode, KhataIconName> = { light: 'sun', dark: 'moon
   templateUrl: './khata-shell.html',
   styleUrl: './khata-shell.scss',
   host: { '(document:keydown)': 'key($event)', '(document:click)': 'outside($event)' },
-  imports: [RouterOutlet, RouterLink, NgTemplateOutlet, KhataIcon, KhataLock, UserAvatar],
+  imports: [RouterOutlet, RouterLink, NgTemplateOutlet, KhataIcon, KhataLock, SiteTools, UserAvatar],
 })
 
 export class KhataShell implements OnDestroy {
-  protected readonly modes = MODES;
   private swipeX: number | null = null;
   private readonly doc = inject(DOCUMENT);
   private readonly router = inject(Router);
-  protected readonly modeIcons = MODE_ICONS;
   private readonly pwa = inject(AppPwaService);
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
   protected readonly ui = inject(KhataUiService);
   protected readonly theme = inject(ThemeService);
   protected readonly lock = inject(KhataLockService);
-  protected readonly install = inject(InstallService);
   protected readonly state = inject(KhataStateService);
   protected readonly style = inject(KhataStyleService);
-  /** The open top-bar menu (language or theme), if any. */
+  /** The open top-bar menu (the book picker), if any; Install, Theme and Language are SiteTools. */
   protected readonly menu = signal<KhataMenu | null>(null);
-  private readonly root = viewChild<ElementRef<HTMLElement>>('root');
   protected readonly bookId = computed(() => this.state.current()?.id ?? 0);
   private readonly sheet = viewChild<ElementRef<HTMLDialogElement>>('sheet');
   private readonly viewer = viewChild<ElementRef<HTMLDialogElement>>('viewer');
@@ -119,19 +110,6 @@ export class KhataShell implements OnDestroy {
     this.ui.closeViewer();
   }
 
-  setLang(lang: Lang): void {
-    this.i18n.set(lang);
-    this.menu.set(null);
-  }
-
-  /** One of the four styles (Glass, Clay, Skeu, Neu); the same choice as the site's theme menu. */
-  setSkin(skin: Skin): void {
-    const root = this.root()?.nativeElement;
-    root?.classList.add('k-theming');
-    this.theme.set(skin);
-    setTimeout(() => root?.classList.remove('k-theming'), THEME_FADE_MS);
-  }
-
   /** Left / Right step through the photo viewer; in Arabic they swap, like the layout. */
   key(ev: KeyboardEvent): void {
     if (ev.key === 'Escape' && this.menu()) {
@@ -154,13 +132,6 @@ export class KhataShell implements OnDestroy {
   switchBook(bookId: number): void {
     this.menu.set(null);
     void this.router.navigateByUrl(bookId ? `/khata/app/b/${bookId}` : '/khata/app/books');
-  }
-
-  setMode(mode: ThemeMode): void {
-    const root = this.root()?.nativeElement;
-    root?.classList.add('k-theming');
-    this.theme.setMode(mode);
-    setTimeout(() => root?.classList.remove('k-theming'), THEME_FADE_MS);
   }
 
   swipeEnd(ev: PointerEvent): void {

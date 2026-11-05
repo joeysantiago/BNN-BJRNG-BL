@@ -1,0 +1,29 @@
+// The Settings screen. The design system of My Tasks (the same as SnapKhata's): every colour is a token on .mt, Light and Dark are two sets of the same tokens.
+// Global under .mt (ViewEncapsulation.None), so the shell, its screens and its dialogs share one look.
+/* ---------- Settings ---------- */
+.mt .stabs { display: flex; gap: 6px; overflow-x: auto; padding: 4px; border-radius: 18px; background: var(--k-surface); border: 1px solid var(--k-line); }
+.mt .stab { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 8px 14px; border-radius: 14px; border: 0; background: transparent; color: var(--k-muted); font: 750 14px var(--k-font); cursor: pointer; }
+.mt .stab[aria-selected=true] { background: var(--k-surface-solid); color: var(--k-text); box-shadow: var(--k-shadow-sm); }
+.mt .stab[aria-selected=true] .ico { color: var(--k-brand); }
+.mt .sgrid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .mt .sgrid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+.mt .users { display: grid; gap: 10px; }
+.mt .urow { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px; border-radius: 16px; background: var(--k-surface-3); }
+.mt .urow .perms { grid-column: 1 / -1; display: grid; gap: 4px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.mt .urow .perm { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 12px; background: var(--k-surface-solid); font-weight: 700; font-size: 13.5px; }
+.mt .urow .perm > span:not(.switch):not(.pill) { flex: 1; min-width: 0; }
+.mt .cats { display: grid; gap: 6px; }
+.mt .cat-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 14px; background: var(--k-surface-3); }
+.mt .cat-row .in { min-height: 38px; padding: 6px 10px; flex: 1; }
+.mt .swatch { width: 26px; height: 26px; border-radius: 9px; border: 2px solid var(--k-surface-solid); box-shadow: 0 0 0 1px var(--k-line-strong); cursor: pointer; flex: none; padding: 0; }
+.mt .swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+.mt .swatches .swatch[aria-pressed=true] { box-shadow: 0 0 0 2px var(--k-text); }
+.mt pre.code { margin: 0; padding: 14px; border-radius: 14px; background: #0f172a; color: #d6e2ff; font: 12.5px/1.55 ui-monospace, Menlo, Consolas, monospace; overflow: auto; direction: ltr; text-align: left; }
+.mt .stack { display: grid; gap: 14px; }
+.mt .sec-title { font-size: clamp(1.25rem, 3.4vw, 1.6rem); font-weight: 800; letter-spacing: -0.02em; }
+.mt .stack-tight { display: grid; gap: 4px; }
+.mt .top-gap { margin-top: 10px; }
+.mt .del-title { flex: 1; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mt input.swatch { appearance: none; -webkit-appearance: none; }
+.mt input.swatch::-webkit-color-swatch-wrapper { padding: 0; }
+.mt input.swatch::-webkit-color-swatch { border: 0; border-radius: 7px; }

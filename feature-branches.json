@@ -128,6 +128,37 @@
       "App-Prototype/assets/js/data/currencies.js",
       "App-Prototype/assets/css/khata.css"
     ],
+    "tasks": [
+      "App-WebAPI/Thakurg/Thakurg.API/Controllers/Task*.cs",
+      "App-WebAPI/Thakurg/Thakurg.API/Controllers/TasksController.cs",
+      "App-WebAPI/Thakurg/Thakurg.API/Extensions/TasksHttpExtensions.cs",
+      "App-WebAPI/Thakurg/Thakurg.API/Filters/Tasks*.cs",
+      "App-WebAPI/Thakurg/Thakurg.Application/Common/ICommonDbContext.Tasks.cs",
+      "App-WebAPI/Thakurg/Thakurg.Application/Repositories/ITask*.cs",
+      "App-WebAPI/Thakurg/Thakurg.Application/Services/ITask*.cs",
+      "App-WebAPI/Thakurg/Thakurg.Application/Storage/ITaskFileStore.cs",
+      "App-WebAPI/Thakurg/Thakurg.Contracts/Tasks/**",
+      "App-WebAPI/Thakurg/Thakurg.Contracts/Configurations/Tasks*.cs",
+      "App-WebAPI/Thakurg/Thakurg.Contracts/Messages/MessageCodes.Tasks.cs",
+      "App-WebAPI/Thakurg/Thakurg.Domain/Entities/Task*.cs",
+      "App-WebAPI/Thakurg/Thakurg.Infrastructure/Common/Task*.cs",
+      "App-WebAPI/Thakurg/Thakurg.Infrastructure/DependencyInjection.Tasks.cs",
+      "App-WebAPI/Thakurg/Thakurg.Infrastructure/Persistence/CommonDbContext.Tasks.cs",
+      "App-WebAPI/Thakurg/Thakurg.Infrastructure/Repositories/Task*.cs",
+      "App-WebAPI/Thakurg/Thakurg.Infrastructure/Services/Task*.cs",
+      "App-WebAPI/Thakurg/Thakurg.Infrastructure/Storage/LocalTaskFileStore.cs",
+      "App-WebAPI/Thakurg/Thakurg.Infrastructure/Notifications/TaskReminderWorker.cs",
+      "App-Database/DatabaseInitializer/SqlScripts/CREATE/Tasks/**",
+      "App-Database/DatabaseInitializer/Seeding/TasksDatabaseSeeder.cs",
+      "App-Database/DatabaseInitializer/Seeding/SeederRegistration.Tasks.cs",
+      "App-WebUI/src/app/pages/tasks/**",
+      "App-WebUI/src/app/core/tasks-*.ts",
+      "App-WebUI/src/app/core/models/tasks.model.ts",
+      "App-WebUI/public/apps/tasks/**",
+      "App-WebUI/public/icons/tasks-*",
+      "App-WebUI/public/og/tasks.png",
+      "App-Prototype/pages/mytasks.html"
+    ],
     "tracker": [
       "App-Prototype/pages/snaptracker.html",
       "App-Prototype/assets/js/snaptracker.js",
@@ -152,6 +183,7 @@
     "Features/App/Youtube": { "keep": ["youtube", "media"], "home": "youtube" },
     "Features/App/Khata": { "keep": ["khata"], "home": "khata/app" },
     "Features/App/snapTracker": { "keep": ["tracker"], "home": "profile" },
+    "Features/App/Planner": { "keep": ["tasks"], "home": "tasks/app" },
     "Features/App/speedtest": { "keep": ["speedtest"], "home": "" }
   }
 }

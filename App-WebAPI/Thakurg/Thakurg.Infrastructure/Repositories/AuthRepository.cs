@@ -60,6 +60,11 @@ public class AuthRepository : IAuthRepository
         return _dbContext.Apps.AsNoTracking().WhereActive().Where(a => a.AutoGrant).ToListAsync(cancellationToken);
     }
 
+    public Task<List<User>> GetQuickLoginUsersAsync(CancellationToken cancellationToken)
+    {
+        return _dbContext.Users.AsNoTracking().WhereActive().Where(u => u.ShowOnLogin).OrderBy(u => u.Id).ToListAsync(cancellationToken);
+    }
+
     public Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken)
     {
         return _dbContext.Users.WhereActive().FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
@@ -86,12 +91,6 @@ public class AuthRepository : IAuthRepository
     public async Task AddSessionAsync(UserSession session, CancellationToken cancellationToken)
     {
         _dbContext.UserSessions.Add(session);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task AddProfileAsync(UserProfile profile, CancellationToken cancellationToken)
-    {
-        _dbContext.UserProfiles.Add(profile);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 

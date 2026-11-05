@@ -3,19 +3,7 @@
     <div class="kl-in">
       <a class="k-logo" routerLink="/khata" [attr.aria-label]="i18n.t('khata.app.name')"><span class="mark"><svg kIco="logo" [stroke]="2.2"></svg></span><span>{{ i18n.t('khata.app.name') }}</span></a>
       <div class="kl-tools">
-        @if (!install.installed() && install.canPrompt()) {
-          <button type="button" class="k-btn ghost icon" [title]="i18n.t('install.btn')" [attr.aria-label]="i18n.t('install.btn')" (click)="install.prompt()"><svg kIco="install"></svg></button>
-        }
-        <label class="kl-lang">
-          <svg kIco="globe" [size]="16"></svg>
-          <span class="sr-only">{{ i18n.t('lang.label') }}</span>
-          <select (change)="setLang($any($event.target).value)">
-            @for (l of i18n.languages; track l.code) {
-              <option [value]="l.code" [selected]="l.code === i18n.lang()" [attr.lang]="l.code">{{ l.native }}</option>
-            }
-          </select>
-        </label>
-        <button type="button" class="k-btn ghost icon" [title]="modeLabel()" [attr.aria-label]="modeLabel()" (click)="cycleMode()"><svg [kIco]="modeIcon()"></svg></button>
+        <app-site-tools />
         @if (auth.user()) {
           <a class="k-btn ghost sm kl-login" routerLink="/profile">{{ i18n.t('auth.profile') }}</a>
         } @else {

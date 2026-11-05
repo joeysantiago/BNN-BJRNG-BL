@@ -16,7 +16,7 @@ using Thakurg.Infrastructure.Email;
 namespace Thakurg.Infrastructure.Services;
 
 // Login with a one-time code, sent by e-mail or SMS, for the apps in Auth:Otp:Apps. The code is stored only as an HMAC (keyed with Auth:Jwt:Secret) and compared in constant time.
-// A code is sent to any valid address, so the answer never shows whether an account exists; the account is found or made when the code is verified.
+// A code is sent only to the e-mail address or mobile number of an existing account; any other address gets 404 (AUTH_OTP_ACCOUNT_NOT_FOUND) and no code. Verify never makes an account.
 // Limits per address are counted in OneTimeCodes (so they hold across API instances); the per-IP limit is the auth-otp rate-limit policy.
 public class OtpService : IOtpService
 {
@@ -74,6 +74,7 @@ public class OtpService : IOtpService
         var app = RequireApp(request.App);
         var (channel, destination) = Destination(request.Channel, request.Destination);
         var now = DateTime.UtcNow;
+        await _authService.RequireOtpAccountAsync(channel, destination, cancellationToken);
         await RequireAllowedAsync(destination, now, cancellationToken);
         var plainCode = NewCode();
         var ipLength = _options.Otp.IpLength;
@@ -143,7 +144,7 @@ public class OtpService : IOtpService
         var address = name switch
         {
             OtpChannels.Email => EmailAddress.Normalize(destination),
-            OtpChannels.Sms => KhataIdentifier.Mobile(destination),
+            OtpChannels.Sms => PhoneNumber.Normalize(destination),
             _ => null
         };
 

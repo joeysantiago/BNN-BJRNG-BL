@@ -7,6 +7,7 @@ import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
 import { AccountTab } from './account-tab/account-tab';
 import { GeneralTab } from './general-tab/general-tab';
+import { SettingsIcon } from '../../shared/settings-icon';
 import { TranslationKey } from '../../core/models/i18n.model';
 import { KeyStatus } from '../../core/models/key-status.model';
 import { PermissionsTab } from './permissions-tab/permissions-tab';
@@ -34,13 +35,13 @@ const TABS: TabInfo[] = [
 /**
  * /master, the Settings page. One tab per area, shown by the rights of the user's role (Role rights tab; a super admin sees every tab).
  * General comes first, for a super admin who logged in with a password: the settings with a login, key or password, kept encrypted in the database.
- * My settings (language, skin, password and the options of their own pages, for every user), Users, Roles, Role rights, and the site settings of this branch's apps
+ * For me (language, skin, password and the options of their own pages, for every user), Users, Roles, Role rights, and the site settings of this branch's apps
  * (FEATURE_APPS). Site setting edits are drafts that preview at once in this browser; a Save button in every section (and Save all) writes them to the database.
  * The API checks every right again, so a hidden button is a convenience, not the protection.
  */
 @Component({
   selector: 'app-config',
-  imports: [RouterLink, GeneralTab, AccountTab, UsersTab, RolesTab, PermissionsTab],
+  imports: [RouterLink, GeneralTab, AccountTab, UsersTab, RolesTab, PermissionsTab, SettingsIcon],
   templateUrl: './config.html',
   styleUrl: './config.scss',
 })

@@ -40,6 +40,7 @@ BEGIN
         ('audio.volume', 1, 36),
         ('audio.playlist', 1, 37),
         ('audio.edit', 1, 38),
-        ('page.khata', 1, 39);
+        ('page.khata', 1, 39),
+        ('page.tasks', 1, 40);
 END
 GO

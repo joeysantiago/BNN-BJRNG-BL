@@ -7,11 +7,17 @@ public interface IAuthService
 {
     Task<UserDto> GetMeAsync(int userId, CancellationToken cancellationToken);
 
+    Task<List<QuickLoginDto>> GetQuickLoginsAsync(CancellationToken cancellationToken);
+
     Task<UserDto> GetMeAsync(AuthCallerDto caller, CancellationToken cancellationToken);
 
     Task<string> LogoutAsync(AuthCallerDto caller, CancellationToken cancellationToken);
 
     Task<string> DeleteAccountAsync(AuthCallerDto caller, CancellationToken cancellationToken);
+
+    Task RequireOtpAccountAsync(string channel, string destination, CancellationToken cancellationToken);
+
+    Task<SignInDto> QuickLoginAsync(int userId, AuthCallerDto caller, CancellationToken cancellationToken);
 
     Task<SignInDto> RefreshAsync(string? refreshToken, AuthCallerDto caller, CancellationToken cancellationToken);
 

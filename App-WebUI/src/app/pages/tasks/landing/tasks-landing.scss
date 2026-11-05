@@ -1,0 +1,27 @@
+.page {
+  padding-block: 24px 0;
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 600;
+}
+.lead {
+  font-size: 1.1rem;
+}
+.cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 10px 22px;
+  border-radius: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  background: var(--accent, #2f5bea);
+  color: var(--on-accent, #fff);
+}
+.features {
+  display: grid;
+  gap: 10px;
+  padding-inline-start: 20px;
+}

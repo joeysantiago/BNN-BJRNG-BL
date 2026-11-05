@@ -1,0 +1,5 @@
+{
+  "apps": ["tasks"],
+  "prerender": ["tasks"],
+  "sitemap": [{ "path": "/tasks/", "priority": "0.6" }]
+}

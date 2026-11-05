@@ -1,0 +1,60 @@
+<div class="mt" [attr.data-kt]="theme.brightness()" [attr.data-ks]="theme.skin()" [attr.dir]="i18n.dir()" [attr.lang]="i18n.info().code">
+  @if (lock.open()) {
+    <a class="sr-only" href="#tasks-main">{{ i18n.t('tasks.skip') }}</a>
+    <div class="app">
+      <aside class="rail" [attr.aria-label]="appName()">
+        <a class="logo" routerLink="/tasks/app"><span class="mark"><app-task-icon name="check" [size]="20" /></span><span class="name">{{ appName() }}</span></a>
+        <button type="button" class="btn pri wide" (click)="state.openEditor(null)"><app-task-icon name="plus" [size]="18" />{{ i18n.t('tasks.add') }}</button>
+        <nav [attr.aria-label]="i18n.t('tasks.nav.label')">
+          @for (n of nav; track n.path) {
+            <a class="nav" [routerLink]="n.path" [attr.aria-current]="current(n.path)"><app-task-icon [name]="n.icon" />{{ i18n.t(n.label) }}@if (n.exact) {<span class="cnt num">{{ state.summary().active }}</span>}</a>
+          }
+        </nav>
+        <div class="grow"></div>
+        @if (auth.user(); as u) {
+          <a class="who" routerLink="/tasks/app/profile" [attr.aria-current]="current('/tasks/app/profile')" [attr.aria-label]="i18n.t('tasks.nav.profileAndSettings')">
+            <app-user-avatar [user]="u" [size]="40" /><span class="who-txt"><b>{{ u.displayName }}</b><small>{{ i18n.t('tasks.nav.profileAndSettings') }}</small></span><app-task-icon name="gear" [size]="18" />
+          </a>
+        }
+      </aside>
+      <div class="main-col">
+        <header class="top">
+          <a class="logo" routerLink="/tasks/app"><span class="mark"><app-task-icon name="check" [size]="20" /></span><span class="name">{{ appName() }}</span></a>
+          <span class="crumb">{{ crumb() }}</span>
+          <div class="top-actions">
+            <button type="button" class="btn ghost icon" [attr.aria-label]="i18n.t('tasks.search.label')" (click)="search()"><app-task-icon name="search" /></button>
+            <button type="button" class="btn ghost icon badge-dot" [attr.aria-label]="i18n.t('tasks.rem.label', { n: state.reminders().length })" [attr.aria-expanded]="state.bell()" (click)="state.bell.set(!state.bell())">
+              <app-task-icon name="bell" />@if (state.reminders().length) {<b>{{ state.reminders().length }}</b>}
+            </button>
+            @if (lock.enabled()) {
+              <button type="button" class="btn ghost icon" [attr.aria-label]="i18n.t('tasks.lock.now')" (click)="lock.lockNow()"><app-task-icon name="lock" /></button>
+            }
+            <app-tasks-menus />
+          </div>
+        </header>
+        <main class="content" id="tasks-main">
+          @if (state.failed()) {
+            <div class="card note-bad" role="alert"><app-task-icon name="alert" /><span>{{ i18n.t('tasks.loadFailed') }}</span><button type="button" class="btn sm" (click)="state.load()">{{ i18n.t('tasks.retry') }}</button></div>
+          }
+          <router-outlet />
+        </main>
+      </div>
+      <nav class="tabs" [attr.aria-label]="i18n.t('tasks.nav.label')">
+        <a class="tab" routerLink="/tasks/app" [attr.aria-current]="current('/tasks/app')"><app-task-icon name="tasks" [size]="22" />{{ i18n.t('tasks.nav.tasks') }}</a>
+        <a class="tab" routerLink="/tasks/app/calendar" [attr.aria-current]="current('/tasks/app/calendar')"><app-task-icon name="cal" [size]="22" />{{ i18n.t('tasks.nav.calendar') }}</a>
+        <button type="button" class="fab" [attr.aria-label]="i18n.t('tasks.add')" (click)="state.openEditor(null)"><app-task-icon name="plus" [size]="26" /></button>
+        <button type="button" class="tab" [attr.aria-label]="i18n.t('tasks.search.label')" (click)="search()"><app-task-icon name="search" [size]="22" />{{ i18n.t('tasks.nav.search') }}</button>
+        <a class="tab" routerLink="/tasks/app/profile" [attr.aria-current]="current('/tasks/app/profile')"><app-task-icon name="user" [size]="22" />{{ i18n.t('tasks.nav.profile') }}</a>
+      </nav>
+    </div>
+
+    @if (state.editor(); as ed) {
+      <app-task-editor [editor]="ed" />
+    }
+
+  } @else {
+    <app-tasks-lock />
+  }
+
+  <app-tasks-overlays />
+</div>

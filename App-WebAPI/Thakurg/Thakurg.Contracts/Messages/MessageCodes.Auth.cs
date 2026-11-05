@@ -73,4 +73,10 @@ public static partial class MessageCodes
     public const string AuthDeletedEmailSubject = "AUTH_DELETED_EMAIL_SUBJECT";
 
     public const string AuthDeletedEmailWarning = "AUTH_DELETED_EMAIL_WARNING";
+
+    public const string AuthQuickLoginSaved = "AUTH_QUICK_LOGIN_SAVED";
+
+    public const string AuthQuickLoginRemoved = "AUTH_QUICK_LOGIN_REMOVED";
+
+    public const string AuthQuickLoginUnavailable = "AUTH_QUICK_LOGIN_UNAVAILABLE";
 }

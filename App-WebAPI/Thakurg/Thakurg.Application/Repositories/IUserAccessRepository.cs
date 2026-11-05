@@ -18,7 +18,11 @@ public interface IUserAccessRepository
 
     Task<List<UserAppAccess>> GetAccessAsync(CancellationToken cancellationToken);
 
+    Task<List<User>> GetQuickLoginUsersAsync(CancellationToken cancellationToken);
+
     Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken);
+
+    Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken);
 
     Task<User?> GetDeletedUserAsync(int userId, CancellationToken cancellationToken);
 

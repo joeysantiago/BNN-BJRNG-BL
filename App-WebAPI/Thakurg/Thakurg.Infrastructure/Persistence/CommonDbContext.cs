@@ -43,6 +43,8 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
 
     public DbSet<ConnectionField> ConnectionFields => Set<ConnectionField>();
 
+    public DbSet<WhatsAppSetting> WhatsAppSettings => Set<WhatsAppSetting>();
+
     public CommonDbContext(DbContextOptions<CommonDbContext> options) : base(options)
     {
     }
@@ -82,6 +84,8 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
     // Each feature maps its own tables in its own file (CommonDbContext.<Feature>.cs). A branch without that file still builds: the call is dropped.
     partial void OnMusicModelCreating(ModelBuilder modelBuilder);
 
+    partial void OnTasksModelCreating(ModelBuilder modelBuilder);
+
     partial void OnKhataModelCreating(ModelBuilder modelBuilder);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -95,6 +99,7 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
         modelBuilder.Entity<PageName>().ToTable("PageNames");
         modelBuilder.Entity<AppSetting>().ToTable("AppSettings");
         modelBuilder.Entity<MailSetting>().ToTable("MailSettings");
+        modelBuilder.Entity<WhatsAppSetting>().ToTable("WhatsAppSettings");
         modelBuilder.Entity<UserProfile>().ToTable("UserProfiles");
         modelBuilder.Entity<OneTimeCode>().ToTable("OneTimeCodes");
         modelBuilder.Entity<ServiceItem>().ToTable("ServiceItems");
@@ -107,6 +112,7 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
 
         OnMusicModelCreating(modelBuilder);
         OnKhataModelCreating(modelBuilder);
+        OnTasksModelCreating(modelBuilder);
     }
 
     #endregion
