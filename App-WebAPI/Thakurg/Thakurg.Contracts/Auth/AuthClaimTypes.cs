@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Auth;
 
-// Claim names of the common login. The token carries only sub and sid; adm, rol, prm and app are added from the database on every request, so access changes apply at once.
+// Claim names of the common login. The token carries only sub, sid and mtd (how the session logged in, LoginMethods); adm, rol, prm and app are added from the database on every request, so access changes apply at once.
 public static class AuthClaimTypes
 {
     public const string App = "app";
@@ -8,6 +8,8 @@ public static class AuthClaimTypes
     public const string Role = "rol";
 
     public const string Admin = "adm";
+
+    public const string Method = "mtd";
 
     public const string Session = "sid";
 
