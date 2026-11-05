@@ -1,21 +1,14 @@
 // The task list: summary, the three tabs, filters, search, quick add, groups, bulk bar. The design system of My Tasks (the same as SnapKhata's): every colour is a token on .mt, Light and Dark are two sets of the same tokens.
 // Global under .mt (ViewEncapsulation.None), so the shell, its screens and its dialogs share one look.
 /* ---------- Dashboard ---------- */
-.mt .stats { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-@media (min-width: 720px) { .mt .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-.mt .stat { display: grid; gap: 2px; padding: 14px 16px; text-align: start; cursor: pointer; font: inherit; color: inherit; transition: transform 0.2s var(--k-ease), border-color 0.2s; }
-.mt .stat:hover { transform: translateY(-2px); border-color: var(--k-line-strong); }
-.mt .stat small { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 750; color: var(--k-muted); }
-.mt .stat b { font-size: 28px; letter-spacing: -0.02em; line-height: 1.15; }
-.mt .stat.total { background: var(--k-brand-grad); color: var(--k-on-brand); border-color: transparent; }
-.mt .stat.total small { color: inherit; opacity: 0.85; }
-.mt .stat.overdue b { color: var(--k-give); }
-.mt .stat.done b { color: var(--k-get); }
-.mt .ptabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 5px; border-radius: 18px; background: var(--k-surface); border: 1px solid var(--k-line); -webkit-backdrop-filter: var(--k-glass); backdrop-filter: var(--k-glass); box-shadow: var(--k-shadow); }
+.mt .ptabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 5px; border-radius: 18px; background: var(--k-surface); border: 1px solid var(--k-line); -webkit-backdrop-filter: var(--k-glass); backdrop-filter: var(--k-glass); box-shadow: var(--k-shadow); }
 .mt .ptab { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border: 0; border-radius: 14px; background: transparent; color: var(--k-muted); font: 800 15px var(--k-font); cursor: pointer; }
 .mt .ptab .c { min-width: 24px; padding: 1px 7px; border-radius: 999px; background: var(--k-surface-3); font-size: 12px; }
 .mt .ptab[aria-selected=true] { background: var(--k-brand-grad); color: var(--k-on-brand); box-shadow: 0 8px 20px color-mix(in srgb, var(--k-brand) 30%, transparent); }
 .mt .ptab[aria-selected=true] .c { background: rgba(255, 255, 255, 0.25); }
+.mt .ptab.od[aria-selected=false] .c { color: var(--k-give); font-weight: 800; }
+/* Four tabs on a phone: the count goes under the name so every name fits. */
+@media (max-width: 440px) { .mt .ptab { flex-direction: column; gap: 2px; min-height: 54px; padding: 4px 2px; font-size: 13px; } }
 .mt .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
 .mt .chip { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 6px 13px; border-radius: 999px; border: 1px solid var(--k-line); background: var(--k-surface); color: var(--k-muted); font: 700 13.5px var(--k-font); cursor: pointer; white-space: nowrap; }
 .mt .chip .c { font-size: 11.5px; color: var(--k-faint); }
@@ -33,6 +26,9 @@
 .mt .search { position: relative; flex: 1; min-width: 0; }
 .mt .search .ico { position: absolute; top: 50%; inset-inline-start: 14px; transform: translateY(-50%); color: var(--k-faint); pointer-events: none; }
 .mt .search input { padding-inline-start: 42px; }
+.mt .quick-row { display: flex; gap: 8px; align-items: center; }
+.mt .quick-row .quick { flex: 1; min-width: 0; }
+.mt .quick-row > .btn { flex: none; min-height: 44px; margin-inline-start: auto; }
 .mt .quick { display: flex; gap: 8px; padding: 6px; border-radius: 18px; }
 .mt .quick .in { border: 0; background: transparent; box-shadow: none; }
 .mt .quick .in:focus { box-shadow: none; }

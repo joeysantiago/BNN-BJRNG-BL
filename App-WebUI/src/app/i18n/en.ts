@@ -9,6 +9,7 @@ export const EN = {
   'brand.sub': 'Connection check',
   'lang.label': 'Language',
   'theme.label': 'Theme',
+  'theme.agni': 'Agni',
   'theme.glass': 'Glassmorphism',
   'theme.clay': 'Claymorphism',
   'theme.skeu': 'Skeuomorphism',

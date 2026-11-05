@@ -11,6 +11,7 @@ export const HI: Translations = {
   'brand.sub': 'कनेक्शन जांच',
   'lang.label': 'भाषा',
   'theme.label': 'थीम',
+  'theme.agni': 'अग्नि',
   'theme.glass': 'ग्लासमॉर्फिज़्म',
   'theme.clay': 'क्लेमॉर्फिज़्म',
   'theme.skeu': 'स्कियोमॉर्फिज़्म',

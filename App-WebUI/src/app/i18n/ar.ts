@@ -11,6 +11,7 @@ export const AR: Translations = {
   'brand.sub': 'فحص الاتصال',
   'lang.label': 'اللغة',
   'theme.label': 'المظهر',
+  'theme.agni': 'أغني (نار)',
   'theme.glass': 'زجاجي (Glassmorphism)',
   'theme.clay': 'طيني (Claymorphism)',
   'theme.skeu': 'واقعي (Skeuomorphism)',
