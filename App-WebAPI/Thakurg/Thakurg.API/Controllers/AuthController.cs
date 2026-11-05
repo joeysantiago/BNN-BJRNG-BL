@@ -20,9 +20,12 @@ public class AuthController : ControllerBase
 
     private readonly IAuthService _authService;
 
-    public AuthController(IAuthService authService, IOptions<AuthOptions> options)
+    private readonly ISignupService _signupService;
+
+    public AuthController(IAuthService authService, ISignupService signupService, IOptions<AuthOptions> options)
     {
         _authService = authService;
+        _signupService = signupService;
         _auth = options.Value;
     }
 
@@ -115,11 +118,12 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<object?>.SuccessResponse(null, message));
     }
 
+    // The account is made only with the code of POST register/code.
     [HttpPost("register")]
     [EnableRateLimiting(SecurityExtensions.AuthLoginPolicy)]
     public async Task<ActionResult<ApiResponse<AuthResultDto>>> Register([FromBody] RegisterRequestDto request, CancellationToken cancellationToken)
     {
-        var signIn = await _authService.RegisterAsync(request, HttpContext.AuthCaller(), cancellationToken);
+        var signIn = await _signupService.RegisterAsync(request, HttpContext.AuthCaller(), cancellationToken);
         Response.WriteAuthCookies(_auth, signIn);
 
         return Ok(ApiResponse<AuthResultDto>.SuccessResponse(signIn.Auth));
@@ -134,6 +138,16 @@ public class AuthController : ControllerBase
         var result = await _authService.UpdateFeaturesAsync(HttpContext.AuthCaller(), request, cancellationToken);
 
         return Ok(ApiResponse<UserDto>.SuccessResponse(result.Data, result.Message));
+    }
+
+    // A one-time code that proves the address of a new sign-up (e-mail, WhatsApp or SMS, as set on Settings > General).
+    [HttpPost("register/code")]
+    [EnableRateLimiting(SecurityExtensions.AuthOtpPolicy)]
+    public async Task<ActionResult<ApiResponse<OtpRequestDto>>> RegisterCode([FromBody] SignupCodeRequestDto request, CancellationToken cancellationToken)
+    {
+        var result = await _signupService.RequestCodeAsync(request, HttpContext.AuthCaller(), cancellationToken);
+
+        return Ok(ApiResponse<OtpRequestDto>.SuccessResponse(result.Data, result.Message));
     }
 
     #endregion

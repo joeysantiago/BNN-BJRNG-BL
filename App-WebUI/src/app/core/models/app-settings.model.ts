@@ -2,6 +2,9 @@ import { Lang } from '../site';
 
 export type ServiceGroup = 'apps' | 'telecom';
 
+/** Where the code that checks a new sign-up goes (Settings > General, super admin). */
+export type SignupChannel = 'email' | 'whatsapp' | 'sms';
+
 export type PageName = Record<Lang, string>;
 
 export type PageId = 'speed' | 'connection' | 'services' | 'about' | 'privacy' | 'terms' | 'creta' | 'nexon' | 'hr' | 'khata' | 'youtube';
@@ -55,6 +58,8 @@ export interface ServiceConfig {
 export interface AppSettings {
   /** Turn single features on or off. A page that is off shows "page not found"; a feature that is off disappears from its page. */
   features: FeatureFlags;
+  /** Where the code that checks a new sign-up goes; WhatsApp and SMS also ask for the mobile number. */
+  signupVerification: SignupChannel;
   speed: {
     /** Speeds in Mbps printed on the speed test gauge, evenly spaced around the ring. The first is 0 and each is larger than the one before. */
     gaugeStops: number[];

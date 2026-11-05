@@ -123,7 +123,7 @@ BEGIN
         ('EMAIL_FOOTER', N'{"en":"This is an automatic message from {0}. Please do not reply.","hi":"यह {0} का स्वचालित संदेश है। कृपया इसका उत्तर न दें।","ar":"هذه رسالة تلقائية من {0}. يرجى عدم الرد عليها."}'),
         ('AUTH_OTP_APP_INVALID', N'{"en":"Login with a code is not available for this app.","hi":"इस ऐप के लिए कोड से लॉग इन उपलब्ध नहीं है।","ar":"تسجيل الدخول برمز غير متاح لهذا التطبيق."}'),
         ('AUTH_OTP_DESTINATION_INVALID', N'{"en":"Enter a valid e-mail address or mobile number.","hi":"मान्य ई-मेल पता या मोबाइल नंबर दर्ज करें।","ar":"أدخل بريدًا إلكترونيًا أو رقم جوال صالحًا."}'),
-        ('AUTH_OTP_ACCOUNT_NOT_FOUND', N'{"en":"No account is registered with this e-mail address or mobile number.","hi":"इस ई-मेल पते या मोबाइल नंबर से कोई खाता पंजीकृत नहीं है।","ar":"لا يوجد حساب مسجل بهذا البريد الإلكتروني أو رقم الجوال."}'),
+        ('AUTH_OTP_ACCOUNT_NOT_FOUND', N'{"en":"No account found. Please sign up.","hi":"कोई खाता नहीं मिला। कृपया साइन अप करें।","ar":"لم يُعثر على حساب. يرجى التسجيل."}'),
         ('EMAIL_NOT_CONFIGURED', N'{"en":"Sending e-mail is not set up yet. Please try again later.","hi":"ई-मेल भेजना अभी सेट नहीं है। कृपया बाद में प्रयास करें।","ar":"إرسال البريد الإلكتروني غير مُعدّ بعد. يرجى المحاولة لاحقًا."}'),
         ('EMAIL_SEND_FAILED', N'{"en":"The e-mail could not be sent. Please try again later.","hi":"ई-मेल नहीं भेजा जा सका। कृपया बाद में प्रयास करें।","ar":"تعذّر إرسال البريد الإلكتروني. يرجى المحاولة لاحقًا."}'),
         ('MAIL_SAVED', N'{"en":"The mail settings were saved.","hi":"मेल सेटिंग्स सहेज ली गईं।","ar":"تم حفظ إعدادات البريد."}'),
@@ -194,6 +194,12 @@ BEGIN
         ('WHATSAPP_TEST_SENT', N'{"en":"Test message sent to {0}.","hi":"{0} पर टेस्ट संदेश भेजा गया।","ar":"تم إرسال رسالة اختبار إلى {0}."}'),
         ('WHATSAPP_TEST_TEXT', N'{"en":"This is a test message from thakurg.com. WhatsApp messages are working.","hi":"यह thakurg.com का टेस्ट संदेश है। व्हाट्सऐप संदेश काम कर रहे हैं।","ar":"هذه رسالة اختبار من thakurg.com. رسائل واتساب تعمل."}'),
         ('WHATSAPP_SEND_FAILED', N'{"en":"WhatsApp did not accept the message. Check the account, token and template in Settings.","hi":"व्हाट्सऐप ने संदेश स्वीकार नहीं किया। सेटिंग्स में अकाउंट, टोकन और टेम्पलेट जांचें।","ar":"لم يقبل واتساب الرسالة. تحقق من الحساب والرمز والقالب في الإعدادات."}'),
-        ('WHATSAPP_NUMBER_INVALID', N'{"en":"Enter a valid mobile number, for example +91 98765 43210.","hi":"सही मोबाइल नंबर लिखें, जैसे +91 98765 43210।","ar":"أدخل رقم جوال صالحًا، مثل +91 98765 43210."}');
+        ('WHATSAPP_NUMBER_INVALID', N'{"en":"Enter a valid mobile number, for example +91 98765 43210.","hi":"सही मोबाइल नंबर लिखें, जैसे +91 98765 43210।","ar":"أدخل رقم جوال صالحًا، مثل +91 98765 43210."}'),
+        ('AUTH_EMAIL_BLOCKED', N'{"en":"Disposable e-mail addresses cannot sign up. Use your own e-mail address.","hi":"अस्थायी ई-मेल पते से साइन अप नहीं हो सकता। अपना ई-मेल पता इस्तेमाल करें।","ar":"لا يمكن التسجيل بعناوين البريد المؤقتة. استخدم بريدك الإلكتروني الخاص."}'),
+        ('AUTH_SIGNUP_CODE_SENT', N'{"en":"We sent you a code to check your sign-up. It works for {0} minutes.","hi":"आपका साइन अप जाँचने के लिए हमने एक कोड भेजा है। यह {0} मिनट तक काम करेगा।","ar":"أرسلنا إليك رمزًا للتحقق من تسجيلك. يعمل لمدة {0} دقيقة."}'),
+        ('AUTH_SIGNUP_MOBILE_REQUIRED', N'{"en":"Enter your mobile number: the sign-up code is sent to it.","hi":"अपना मोबाइल नंबर लिखें: साइन अप कोड उसी पर भेजा जाता है।","ar":"أدخل رقم جوالك: يُرسل إليه رمز التسجيل."}'),
+        ('AUTH_SIGNUP_EMAIL_SUBJECT', N'{"en":"Your sign-up code: {0}","hi":"आपका साइन अप कोड: {0}","ar":"رمز التسجيل الخاص بك: {0}"}'),
+        ('AUTH_SIGNUP_EMAIL_LEAD', N'{"en":"Your code to finish signing up is","hi":"साइन अप पूरा करने के लिए आपका कोड है","ar":"رمزك لإكمال التسجيل هو"}'),
+        ('AUTH_SIGNUP_SMS_TEXT', N'{"en":"{0} is your sign-up code. It works for {1} minutes. Do not share it with anyone.","hi":"{0} आपका साइन अप कोड है। यह {1} मिनट तक काम करेगा। इसे किसी से साझा न करें।","ar":"{0} هو رمز التسجيل الخاص بك. يعمل لمدة {1} دقيقة. لا تشاركه مع أي شخص."}');
 END
 GO
