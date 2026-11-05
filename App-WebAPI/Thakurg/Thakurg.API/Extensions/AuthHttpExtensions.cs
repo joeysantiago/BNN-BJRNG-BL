@@ -13,7 +13,7 @@ public static class AuthHttpExtensions
 
     public static AuthCallerDto AuthCaller(this HttpContext context)
     {
-        return new AuthCallerDto { UserId = ClaimAsInt(context, AuthClaimTypes.Subject), SessionId = ClaimAsInt(context, AuthClaimTypes.Session), Ip = context.Connection.RemoteIpAddress?.ToString(), UserAgent = context.Request.Headers.UserAgent.ToString(), DeviceId = context.Request.Headers[DeviceHeader].ToString(), RoleCode = context.User.FindFirst(AuthClaimTypes.Role)?.Value };
+        return new AuthCallerDto { UserId = ClaimAsInt(context, AuthClaimTypes.Subject), SessionId = ClaimAsInt(context, AuthClaimTypes.Session), Ip = context.Connection.RemoteIpAddress?.ToString(), UserAgent = context.Request.Headers.UserAgent.ToString(), DeviceId = context.Request.Headers[DeviceHeader].ToString(), RoleCode = context.User.FindFirst(AuthClaimTypes.Role)?.Value, LoginMethod = context.User.FindFirst(AuthClaimTypes.Method)?.Value };
     }
 
     public static void DeleteAuthCookies(this HttpResponse response, AuthOptions auth)

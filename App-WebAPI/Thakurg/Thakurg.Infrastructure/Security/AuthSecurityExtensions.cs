@@ -13,6 +13,7 @@ using Thakurg.Contracts.Auth;
 using Thakurg.Contracts.Configurations;
 using Thakurg.Contracts.Messages;
 using Thakurg.Contracts.Wrappers;
+using Thakurg.Infrastructure.Common;
 
 namespace Thakurg.Infrastructure.Security;
 
@@ -20,7 +21,7 @@ public static class AuthSecurityExtensions
 {
     private const int MinimumSecretLength = 32;
 
-    private static readonly string[] AllApps = [AppCodes.Hr, AppCodes.Creta, AppCodes.Khata, AppCodes.Nexon, AppCodes.Youtube, AppCodes.Tracker];
+    private static readonly string[] AllApps = [AppCodes.Hr, AppCodes.Creta, AppCodes.Khata, AppCodes.Nexon, AppCodes.Youtube, AppCodes.Tracker, AppCodes.Tasks];
 
     #region Public Methods
 
@@ -41,12 +42,13 @@ public static class AuthSecurityExtensions
     // Perm:<page>:<action> = a right of the role on a Settings page (HasPermissionAttribute).
     public static IServiceCollection AddThakurgAuthentication(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
-        services.AddOptions<AuthOptions>().Bind(configuration.GetSection(AuthOptions.SectionName)).PostConfigure(options => UseDevelopmentSecret(options, environment)).Validate(IsValid, "Auth:Jwt:Secret must be at least 32 characters (set it with dotnet user-secrets), Auth:PasswordMinLength at least 8, and every other Auth number above 0.").ValidateOnStart();
+        services.AddOptions<AuthOptions>().Bind(configuration.GetSection(AuthOptions.SectionName)).PostConfigure(options => UseDevelopmentSecret(options, environment)).Validate(IsValid, "Auth:Jwt:Secret must be at least 32 characters (set it with dotnet user-secrets), Auth:PasswordMinLength at least 8, Auth:Otp:CodeLength 4 to 9, Auth:Otp:Apps and Auth:Otp:PhoneEmailDomain set, and every other Auth number above 0.").ValidateOnStart();
         services.AddAuthentication(AuthPolicies.Scheme).AddJwtBearer(AuthPolicies.Scheme, _ => { });
         services.AddOptions<JwtBearerOptions>(AuthPolicies.Scheme).Configure<IOptions<AuthOptions>>((bearer, auth) => ConfigureBearer(bearer, auth.Value));
         var authorization = services.AddAuthorizationBuilder()
             .AddPolicy(AuthPolicies.User, policy => policy.AddAuthenticationSchemes(AuthPolicies.Scheme).RequireAuthenticatedUser())
-            .AddPolicy(AuthPolicies.Admin, policy => policy.AddAuthenticationSchemes(AuthPolicies.Scheme).RequireAuthenticatedUser().RequireClaim(AuthClaimTypes.Admin, "true"));
+            .AddPolicy(AuthPolicies.Admin, policy => policy.AddAuthenticationSchemes(AuthPolicies.Scheme).RequireAuthenticatedUser().RequireClaim(AuthClaimTypes.Admin, "true"))
+            .AddPolicy(AuthPolicies.SuperAdminPassword, policy => policy.AddAuthenticationSchemes(AuthPolicies.Scheme).RequireAuthenticatedUser().RequireClaim(AuthClaimTypes.Role, RoleCodes.SuperAdmin).RequireClaim(AuthClaimTypes.Method, LoginMethods.Password));
 
         foreach (var app in AllApps)
             authorization.AddPolicy(AuthPolicies.AppPrefix + app, policy => policy.AddAuthenticationSchemes(AuthPolicies.Scheme).RequireAuthenticatedUser().RequireAssertion(context => context.User.HasApp(app)));
@@ -62,12 +64,18 @@ public static class AuthSecurityExtensions
 
     #region Private Methods
 
+    private static bool IsValid(AuthOtpOptions otp)
+    {
+        return otp is { CodeLength: >= 4 and <= 9, CodeMinutes: > 0, MaxAttempts: > 0, ResendSeconds: > 0, MaxPerDestination: > 0, DestinationWindowMinutes: > 0, MaxPerDestinationPerDay: > 0, LockAfterFailedCodes: > 0, LockMinutes: > 0, IpLength: > 0, Apps.Count: > 0, PhoneEmailDomain.Length: > 0 };
+    }
+
     private static bool IsValid(AuthOptions options)
     {
-        return options.Jwt.Secret.Length >= MinimumSecretLength && options.Jwt is { AccessMinutes: > 0, RefreshDays: > 0 } && options is { PasswordMinLength: >= 8, MaxFailedLogins: > 0, LockoutMinutes: > 0, SessionCacheSeconds: > 0 };
+        return options.Jwt.Secret.Length >= MinimumSecretLength && options.Jwt is { AccessMinutes: > 0, RefreshDays: > 0 } && options is { PasswordMinLength: >= 8, MaxFailedLogins: > 0, LockoutMinutes: > 0, SessionCacheSeconds: > 0 } && IsValid(options.Otp);
     }
 
     // A logout or a password change ends the session, so its access tokens stop working at once, not only when they expire.
+    // A session that did not log in with the password gets only the apps in Auth:Otp:Apps and no administrator rights (LoginMethodAccess).
     private static async Task ValidateSessionAsync(TokenValidatedContext context)
     {
         var identity = context.Principal?.Identity as ClaimsIdentity;
@@ -80,6 +88,9 @@ public static class AuthSecurityExtensions
             context.Fail(MessageCodes.AuthSessionInvalid);
             return;
         }
+
+        var otpApps = context.HttpContext.RequestServices.GetRequiredService<IOptions<AuthOptions>>().Value.Otp.Apps;
+        access = LoginMethodAccess.Limit(access, identity.FindFirst(AuthClaimTypes.Method)?.Value, otpApps);
 
         identity.AddClaim(new Claim(AuthClaimTypes.Admin, access.IsAdmin ? "true" : "false"));
         identity.AddClaim(new Claim(AuthClaimTypes.Role, access.RoleCode));
