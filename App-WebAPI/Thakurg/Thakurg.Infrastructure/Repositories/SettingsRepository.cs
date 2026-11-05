@@ -47,6 +47,23 @@ public class SettingsRepository : ISettingsRepository
         return _dbContext.ConnectionFields.AsNoTracking().WhereActive().OrderBy(f => f.SortOrder).ToListAsync(cancellationToken);
     }
 
+    // Writes the given languages of one page's name; a language that has no row yet gets one.
+    public async Task SavePageNamesAsync(string pageCode, Dictionary<string, string> names, int userId, CancellationToken cancellationToken)
+    {
+        var rows = await _dbContext.PageNames.WhereActive().Where(p => p.PageCode == pageCode).ToListAsync(cancellationToken);
+        var now = DateTime.UtcNow;
+
+        foreach (var row in rows.Where(r => names.ContainsKey(r.LanguageCode)))
+        {
+            row.Name = names[row.LanguageCode];
+            row.ModifiedBy = userId;
+            row.ModifiedOn = now;
+        }
+
+        _dbContext.PageNames.AddRange(names.Where(n => rows.All(r => r.LanguageCode != n.Key)).Select(n => new PageName { PageCode = pageCode, LanguageCode = n.Key, Name = n.Value, CreatedBy = userId }));
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task UpdateAsync(Dictionary<string, bool> features, Dictionary<string, bool> fields, Dictionary<string, bool> services, Dictionary<string, string> appSettings, CancellationToken cancellationToken)
     {
         var featureCodes = features.Keys.ToList();

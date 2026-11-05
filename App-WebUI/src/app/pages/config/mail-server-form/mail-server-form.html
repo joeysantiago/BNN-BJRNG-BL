@@ -1,0 +1,61 @@
+<section class="sec" [attr.aria-labelledby]="'mail-' + purpose()">
+  <h2 class="sec-h" [id]="'mail-' + purpose()">{{ i18n.t(heading()) }}</h2>
+  @if (lead()) {
+    <p class="help">{{ i18n.t(lead()) }}</p>
+  }
+  @if (error()) {
+    <p class="status bad" role="alert">{{ error() }}</p>
+  }
+  @if (server(); as s) {
+    <form #f [attr.aria-busy]="busy()" (submit)="$event.preventDefault(); save(f)">
+      <fieldset class="bare" [disabled]="busy()">
+        <legend class="sr-only">{{ i18n.t(heading()) }}</legend>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.enabled') }}</b><small>{{ i18n.t('gen.enabledHint') }}</small></span>
+          <input name="enabled" type="checkbox" role="switch" class="switch" [checked]="s.enabled" />
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.host') }}</b></span>
+          <input name="host" type="text" inputmode="url" autocomplete="off" spellcheck="false" maxlength="255" placeholder="smtp.example.com" [value]="s.host" />
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.security') }}</b></span>
+          <select name="security" (change)="suggestPort(f, $any($event.target).value)">
+            @for (m of securities; track m) {
+              <option [value]="m" [selected]="s.security === m">{{ i18n.t('gen.sec.' + m) }}</option>
+            }
+          </select>
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.port') }}</b></span>
+          <input name="port" type="number" inputmode="numeric" min="1" max="65535" required [value]="s.port" />
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.user') }}</b></span>
+          <input name="userName" type="text" autocomplete="off" spellcheck="false" maxlength="256" [value]="s.userName" />
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.password') }}</b><small>{{ i18n.t(s.hasPassword ? 'gen.passwordKeep' : 'gen.passwordNone') }}</small></span>
+          <input name="password" type="password" autocomplete="new-password" spellcheck="false" maxlength="256" />
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.fromName') }}</b></span>
+          <input name="fromName" type="text" autocomplete="off" maxlength="100" [value]="s.fromName" />
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.fromAddress') }}</b></span>
+          <input name="fromAddress" type="email" inputmode="email" autocomplete="off" spellcheck="false" maxlength="256" [value]="s.fromAddress" />
+        </label>
+      </fieldset>
+      <div class="foot">
+        <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t(busy() ? 'gen.saving' : 'gen.save') }}</button>
+        <button type="button" class="btn" [disabled]="busy()" (click)="test()">{{ i18n.t('gen.test') }}</button>
+        @if (notice(); as n) {
+          <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+        }
+      </div>
+    </form>
+  } @else if (!error()) {
+    <p class="note" role="status">{{ i18n.t('gen.loading') }}</p>
+  }
+</section>

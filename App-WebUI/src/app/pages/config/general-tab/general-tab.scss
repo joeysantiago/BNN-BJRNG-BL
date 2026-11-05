@@ -1,0 +1,29 @@
+@use '../config';
+
+:host {
+  display: grid;
+  gap: 12px;
+}
+.lead-note {
+  padding-block-start: 14px;
+}
+.app {
+  border: 1px solid var(--line, rgba(128, 128, 128, 0.25));
+  border-radius: 12px;
+}
+.app-h {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 14px;
+  cursor: pointer;
+}
+.app-h .sec-h {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.app-body {
+  display: grid;
+  gap: 8px;
+  padding: 0 14px 14px;
+}

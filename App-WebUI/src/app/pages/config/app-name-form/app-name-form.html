@@ -1,0 +1,18 @@
+<form #f class="name-form" [attr.aria-busy]="busy()" (submit)="$event.preventDefault(); save(f)">
+  <fieldset class="bare" [disabled]="busy()">
+    <legend class="sub-h">{{ i18n.t('cfg.app.name') }}</legend>
+    <p class="help">{{ i18n.t('cfg.app.nameHelp') }}</p>
+    @for (l of langs; track l.code) {
+      <label class="field-row">
+        <span class="txt"><b>{{ l.native }}</b></span>
+        <input type="text" maxlength="40" autocomplete="off" [name]="l.code" [attr.lang]="l.code" [attr.dir]="l.dir" [required]="l.code === 'en'" [value]="names()[l.code] ?? ''" />
+      </label>
+    }
+  </fieldset>
+  <div class="foot">
+    <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t(busy() ? 'cfg.save.saving' : 'cfg.app.rename') }}</button>
+    @if (notice(); as n) {
+      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+    }
+  </div>
+</form>

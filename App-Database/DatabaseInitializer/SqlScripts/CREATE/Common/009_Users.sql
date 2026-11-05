@@ -12,6 +12,7 @@ BEGIN
         FailedLoginCount INT               NOT NULL CONSTRAINT DF_Users_FailedLoginCount DEFAULT (0)        ,
         LockedUntil      DATETIME2         NULL                                                             ,
         LastLoginOn      DATETIME2         NULL                                                             ,
+        ShowOnLogin      BIT               NOT NULL CONSTRAINT DF_Users_ShowOnLogin DEFAULT (0)             ,
         IsActive         BIT               NOT NULL CONSTRAINT DF_Users_IsActive DEFAULT (1)                ,
         IsSoftDeleted    BIT               NOT NULL CONSTRAINT DF_Users_IsSoftDeleted DEFAULT (0)           ,
         IsDeleted        BIT               NOT NULL CONSTRAINT DF_Users_IsDeleted DEFAULT (0)               ,

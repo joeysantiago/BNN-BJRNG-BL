@@ -21,15 +21,23 @@ public interface IAuthRepository
 
     Task<List<App>> GetAutoGrantAppsAsync(CancellationToken cancellationToken);
 
+    Task<List<User>> GetQuickLoginUsersAsync(CancellationToken cancellationToken);
+
     Task AddSessionAsync(UserSession session, CancellationToken cancellationToken);
 
     Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken);
 
     Task<Role?> GetRoleByCodeAsync(string code, CancellationToken cancellationToken);
 
+    Task<int> CountUsersInRoleAsync(int roleId, CancellationToken cancellationToken);
+
+    Task<User?> FindByMobileAsync(string mobile, CancellationToken cancellationToken);
+
     Task<List<string>> GetAppCodesAsync(int userId, CancellationToken cancellationToken);
 
     Task<UserSession?> GetSessionAsync(int sessionId, CancellationToken cancellationToken);
+
+    Task<User?> FindInactiveByEmailAsync(string email, CancellationToken cancellationToken);
 
     Task<List<string>> GetHiddenFeaturesAsync(int userId, CancellationToken cancellationToken);
 

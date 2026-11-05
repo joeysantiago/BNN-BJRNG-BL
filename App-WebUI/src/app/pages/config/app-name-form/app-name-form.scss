@@ -1,0 +1,12 @@
+@use '../config';
+
+:host {
+  display: grid;
+}
+.field-row input {
+  width: min(100%, 320px);
+}
+.sub-h {
+  padding: 0;
+  font-weight: 600;
+}
