@@ -13,3 +13,54 @@
 .add .apps {
   margin-block-start: 4px;
 }
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  padding-block: 8px;
+}
+.seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.pick {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.pick input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.pick:has(input:checked) {
+  background: var(--accent, currentColor);
+  color: var(--accent-ink, #fff);
+}
+.pick:has(input:focus-visible) {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: 2px;
+}
+.search {
+  flex: 1 1 200px;
+}
+.search input {
+  width: 100%;
+  min-height: 44px;
+}
+.item.off .txt {
+  opacity: 0.65;
+}
+.tag.warn {
+  background: rgba(183, 121, 31, 0.14);
+  color: var(--warn, #b7791f);
+}
+.btn.sure {
+  border-color: var(--bad, #c0392b);
+  color: var(--bad, #c0392b);
+}

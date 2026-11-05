@@ -5,10 +5,23 @@
     <p class="status bad" role="alert">{{ error() }}</p>
   }
 
-  @if (access(); as a) {
+  <div class="filters">
+    <fieldset class="bare seg">
+      <legend class="sr-only">{{ i18n.t('usr.filter') }}</legend>
+      @for (s of statuses; track s) {
+        <label class="pick"><input type="radio" name="userStatus" [value]="s" [checked]="status() === s" (change)="pick(s)" /><span>{{ i18n.t('usr.f.' + s) }}</span></label>
+      }
+    </fieldset>
+    <label class="search">
+      <span class="sr-only">{{ i18n.t('usr.search') }}</span>
+      <input type="search" autocomplete="off" enterkeyhint="search" [placeholder]="i18n.t('usr.search')" [value]="q()" (input)="q.set($any($event.target).value)" />
+    </label>
+  </div>
+
+  @if (access()) {
     <ul class="list">
-      @for (u of a.users; track u.id) {
-        <li class="item">
+      @for (u of rows(); track u.id) {
+        <li class="item" [class.off]="u.isArchived || u.isDeleted">
           <div class="row">
             <app-user-avatar [user]="u" [size]="36" />
             <span class="txt">
@@ -17,6 +30,11 @@
             </span>
             <span class="tags">
               <span class="tag on">{{ u.roleName }}</span>
+              @if (u.isDeleted) {
+                <span class="tag warn">{{ i18n.t('usr.deleted') }}</span>
+              } @else if (u.isArchived) {
+                <span class="tag warn">{{ i18n.t('usr.archived') }}</span>
+              }
               @for (name of appTags(u); track name) {
                 <span class="tag">{{ name }}</span>
               }
@@ -26,7 +44,19 @@
                 <span class="icon-btn" role="img" [attr.aria-label]="i18n.t('usr.locked')" [attr.title]="i18n.t('usr.locked')">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
                 </span>
+              } @else if (u.isDeleted) {
+                @if (canEdit()) {
+                  <button type="button" class="btn sm" [disabled]="busy() !== null" [attr.aria-label]="i18n.t('usr.restore') + ': ' + u.displayName" (click)="restore(u)">{{ i18n.t('usr.restore') }}</button>
+                }
               } @else {
+                @if (canEdit() && u.id !== auth.user()?.id) {
+                  @if (u.isArchived) {
+                    <button type="button" class="btn sm" [disabled]="busy() !== null" [attr.aria-label]="i18n.t('usr.activate') + ': ' + u.displayName" (click)="activate(u)">{{ i18n.t('usr.activate') }}</button>
+                  } @else {
+                    <button type="button" class="btn sm" [class.sure]="archiving() === u.id" [disabled]="busy() !== null" [attr.aria-label]="i18n.t(archiving() === u.id ? 'usr.archive.sure' : 'usr.archive', { name: u.displayName })"
+                      (click)="archive(u)">{{ i18n.t(archiving() === u.id ? 'usr.archive.sure' : 'usr.archive', { name: u.displayName }) }}</button>
+                  }
+                }
                 @if (canEdit()) {
                   <button type="button" class="icon-btn" [attr.aria-expanded]="editing() === u.id" [attr.aria-controls]="'usr-edit-' + u.id" [attr.aria-label]="i18n.t('cfg.edit.name', { name: u.displayName })" [attr.title]="i18n.t('cfg.edit')"
                     (click)="toggleEdit(u.id)">
