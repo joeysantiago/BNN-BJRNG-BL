@@ -45,6 +45,20 @@ public class SettingsController : ControllerBase
         return Ok(ApiResponse<AppSettingsDto>.SuccessResponse(result.Data, result.Message));
     }
 
+    // Where the code that checks a new sign-up goes (e-mail, WhatsApp or SMS): a super admin only.
+    [HttpPut("signup-verification")]
+    [Authorize(Policy = AuthPolicies.User)]
+    [EnableRateLimiting("sensitive")]
+    public async Task<ActionResult<ApiResponse<AppSettingsDto>>> SaveSignupVerification([FromBody] SignupVerificationUpdateDto request, CancellationToken cancellationToken)
+    {
+        if (!User.HasClaim(AuthClaimTypes.Role, RoleCodes.SuperAdmin))
+            return Forbid();
+
+        var result = await _settingsService.SaveSignupVerificationAsync(request, cancellationToken);
+
+        return Ok(ApiResponse<AppSettingsDto>.SuccessResponse(result.Data, result.Message));
+    }
+
     // The name of one app (or page) in every language, shown to everyone: a super admin only.
     [HttpPut("app-names/{pageCode}")]
     [Authorize(Policy = AuthPolicies.User)]

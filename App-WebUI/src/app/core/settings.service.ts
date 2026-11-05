@@ -155,6 +155,7 @@ export class SettingsService {
       connection: { enabled: data.connection?.enabled ?? f.connection.enabled, fields: { ...f.connection.fields, ...data.connection?.fields } },
       services: { ...f.services, ...data.services, items: data.services?.items ?? f.services.items },
       speed: { gaugeStops: validStops(data.speed?.gaugeStops) ? data.speed!.gaugeStops : f.speed.gaugeStops },
+      signupVerification: data.signupVerification ?? f.signupVerification,
     };
   }
 

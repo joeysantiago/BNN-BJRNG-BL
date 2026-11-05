@@ -1,0 +1,13 @@
+<div class="toasts" aria-live="polite">
+  @for (t of toasts.toasts(); track t.id) {
+    <div class="toast" [class.bad]="t.error" [attr.role]="t.error ? 'alert' : 'status'">
+      <span class="text">{{ t.text }}</span>
+      @if (t.link; as l) {
+        <a class="btn sm pri" [routerLink]="l.path" [queryParams]="l.query ?? {}" (click)="toasts.dismiss(t.id)">{{ l.label }}</a>
+      }
+      <button type="button" class="close" [attr.aria-label]="i18n.t('install.close')" (click)="toasts.dismiss(t.id)">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
+    </div>
+  }
+</div>
