@@ -82,6 +82,53 @@
   --card-text-shadow: none;
 }
 
+/* ---------- Skin: Agni (the default): warm saffron page, cream cards, fiery #FF7722 buttons ---------- */
+:root[data-skin='agni'] {
+  color-scheme: light;
+  --bg: #ffe4d1;
+  --bg-image: linear-gradient(135deg, #ffd0b0 0%, #ffe4d1 50%, #fff0e6 100%);
+  --text: #3a1f05;
+  --muted: #6b4420;
+  --accent: #ff7722;
+  --accent-2: #ff7722;
+  --accent-ink: #b84a00;
+  --on-accent: #2a1606;
+  --focus: #b84a00;
+  --card-bg: #fff4eb;
+  --card-border: 1px solid rgba(255, 119, 34, 0.18);
+  --card-shadow: 0 10px 28px rgba(168, 79, 0, 0.14), 0 2px 6px rgba(168, 79, 0, 0.08);
+  --card-filter: none;
+  --card-radius: 24px;
+  --btn-bg: #fff0dc;
+  --btn-color: #3a1f05;
+  --btn-border: 1px solid rgba(255, 119, 34, 0.28);
+  --btn-shadow: 0 2px 6px rgba(168, 79, 0, 0.12);
+  --btn-hover-shadow: 0 6px 14px rgba(168, 79, 0, 0.18);
+  --btn-active-shadow: inset 0 2px 6px rgba(168, 79, 0, 0.22);
+  --btn-radius: 16px;
+  --pri-bg: linear-gradient(145deg, #ff9a5c, #ff7722);
+  --pri-color: #2a1606;
+  --pri-border: 0 solid transparent;
+  --gauge-a: #ff9a5c;
+  --gauge-b: #ff7722;
+  --pri-shadow: 0 6px 16px rgba(255, 119, 34, 0.35);
+  --inset-bg: #ffefd8;
+  --inset-border: 1px solid rgba(255, 119, 34, 0.2);
+  --inset-shadow: inset 0 2px 6px rgba(168, 79, 0, 0.12);
+  --inset-radius: 18px;
+  --inset-text: #3a1f05;
+  --inset-muted: #6b4420;
+  --inset-font: var(--font-body);
+  --track: #f6d3a3;
+  --danger: #b3261e;
+  --ok: #17703f;
+  --warn: #8a5a00;
+  --header-bg: rgba(255, 244, 235, 0.85);
+  --header-border: 1px solid rgba(255, 119, 34, 0.18);
+  --header-filter: blur(12px);
+  --card-text-shadow: none;
+}
+
 /* ---------- Skin: Claymorphism ---------- */
 :root[data-skin='clay'] {
   color-scheme: light;
@@ -382,6 +429,45 @@
   --ok: #8ee6b0;
   --warn: #f6c76b;
   --header-bg: rgba(42, 47, 57, 0.9);
+}
+
+/* Agni, dark: deep brown page, warm cards and fiery #FF7722 buttons. */
+:root[data-skin='agni'][data-mode='dark'] {
+  color-scheme: dark;
+  --bg: #2a1606;
+  --bg-image: linear-gradient(135deg, #3a1c06 0%, #2a1606 50%, #1f1004 100%);
+  --text: #ffe9cc;
+  --muted: #e0bf94;
+  --accent: #ff7722;
+  --accent-2: #ffa36b;
+  --accent-ink: #ffa36b;
+  --on-accent: #2a1606;
+  --focus: #ffa36b;
+  --card-bg: #3a2210;
+  --card-border: 1px solid rgba(255, 119, 34, 0.18);
+  --card-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  --btn-bg: #4a2c14;
+  --btn-color: #ffe9cc;
+  --btn-border: 1px solid rgba(255, 119, 34, 0.25);
+  --btn-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  --btn-hover-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+  --btn-active-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+  --pri-bg: linear-gradient(145deg, #ffa36b, #ff7722);
+  --pri-color: #2a1606;
+  --pri-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+  --gauge-a: #ffa36b;
+  --gauge-b: #ff7722;
+  --inset-bg: #321c0b;
+  --inset-border: 1px solid rgba(255, 119, 34, 0.16);
+  --inset-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.45);
+  --inset-text: #ffe9cc;
+  --inset-muted: #e0bf94;
+  --track: #5a3a1c;
+  --danger: #ff9b9b;
+  --ok: #8ee6b0;
+  --warn: #f6c76b;
+  --header-bg: rgba(42, 22, 6, 0.88);
+  --header-border: 1px solid rgba(255, 119, 34, 0.16);
 }
 
 /* The site's own colours for the top-bar tools (shared/site-tools). My Tasks and SnapKhata set --text, --muted, --bg and --accent-ink
