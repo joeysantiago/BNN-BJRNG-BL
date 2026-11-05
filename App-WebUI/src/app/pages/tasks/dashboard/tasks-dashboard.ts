@@ -8,7 +8,7 @@ import { formatYmd, isDone, monthLabel } from '../../../core/tasks-dates';
 import { Component, ViewEncapsulation, computed, inject, signal } from '@angular/core';
 
 /**
- * The task list. The three primary tabs (All, Active, Completed) come first; the date filters (Today, Current week, Next week, Current month,
+ * The task list. The four primary tabs (All, Active, Completed, Overdue = Active with the Overdue date filter) come first; the date filters (Today, Current week, Next week, Current month,
  * Upcoming, Overdue, No due date, a month, a year) and the category filters (Marketing and the others) narrow the tab, and the search narrows
  * further. Every filter works inside every tab, so "Active + Today" or "Completed + Marketing" show exactly those tasks.
  */
@@ -21,6 +21,8 @@ import { Component, ViewEncapsulation, computed, inject, signal } from '@angular
 })
 
 export class TasksDashboard {
+  /** The menu the pointer opened (hover); the click that follows keeps it open instead of closing it. */
+  private hovered = false;
   protected readonly quick = signal('');
   protected readonly formatYmd = formatYmd;
   protected readonly auth = inject(AuthService);
@@ -30,6 +32,7 @@ export class TasksDashboard {
   protected readonly menu = signal<'when' | 'cat' | null>(null);
   protected readonly tabs: TaskTab[] = ['all', 'active', 'completed'];
   protected readonly scopes = ['all', 'today', 'week', 'nextweek', 'month', 'upcoming', 'overdue', 'nodate'];
+  protected readonly overdueOn = computed(() => this.state.tab() === 'active' && this.state.scope() === 'overdue');
   protected readonly weekday = computed(() => new Intl.DateTimeFormat(this.state.locale(), { weekday: 'long' }).format(this.state.moment()));
   protected readonly dueToday = computed(() => this.state.tasks().filter((t) => t.dueDate === this.state.clock().today && !isDone(t)).length);
   protected readonly scopeName = computed(() => {
@@ -52,7 +55,17 @@ export class TasksDashboard {
   // #region Public Methods
 
   leave(): void {
-    this.closeTimer = setTimeout(() => this.menu.set(null), 200);
+    this.closeTimer = setTimeout(() => {
+      this.hovered = false;
+      this.menu.set(null);
+    }, 200);
+  }
+
+  /** The Overdue tab: the active tasks past their due date (the category and search stay). */
+  showOverdue(): void {
+    this.state.tab.set('active');
+    this.state.scope.set('overdue');
+    this.state.stopSelecting();
   }
 
   month(ym: string): string {
@@ -65,7 +78,10 @@ export class TasksDashboard {
     this.menu.set(null);
   }
 
+  /** One of All, Active, Completed; leaving the Overdue tab also leaves its date filter. */
   setTab(tab: TaskTab): void {
+    if (this.overdueOn())
+      this.state.scope.set('all');
     this.state.tab.set(tab);
     this.state.stopSelecting();
   }
@@ -78,12 +94,14 @@ export class TasksDashboard {
   /** The menus open on hover (mouse) and on a tap or click (touch, keyboard); a short delay lets the pointer reach the list. */
   hover(menu: 'when' | 'cat'): void {
     clearTimeout(this.closeTimer);
+    this.hovered = this.menu() !== menu;
     this.menu.set(menu);
   }
 
   toggle(menu: 'when' | 'cat'): void {
     clearTimeout(this.closeTimer);
-    this.menu.set(this.menu() === menu ? null : menu);
+    this.menu.set(this.menu() === menu && !this.hovered ? null : menu);
+    this.hovered = false;
   }
 
   /** Quick add: the title only; the due date follows the date filter, the category the category filter, the rest the user's defaults. */
@@ -102,12 +120,6 @@ export class TasksDashboard {
   pickCategory(category: number | 'all'): void {
     this.state.category.set(category);
     this.menu.set(null);
-  }
-
-  /** A summary card: its tab and date filter (the category and search stay). */
-  quickFilter(tab: TaskTab, scope: string): void {
-    this.state.tab.set(tab);
-    this.state.scope.set(scope);
   }
 
   // #endregion
