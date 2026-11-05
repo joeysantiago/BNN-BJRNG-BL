@@ -1,0 +1,13 @@
+// The Users tab of the My Tasks settings (super admin), like SnapKhata's. Global under .mt.
+.mt .users-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.mt .user-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.mt .user { display: grid; gap: 12px; padding: 12px; border-radius: 16px; background: var(--k-surface-3); }
+.mt .user.is-off { opacity: 0.75; }
+.mt .user[aria-busy=true] { opacity: 0.6; }
+.mt .user-main { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.mt .user-txt { flex: 1; min-width: 180px; display: grid; gap: 2px; }
+.mt .user-txt b { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.mt .user-txt small { color: var(--k-muted); font-size: 12.5px; overflow-wrap: anywhere; }
+.mt .user-acts { display: flex; flex-wrap: wrap; gap: 4px; }
+.mt .user-edit { display: grid; gap: 12px; padding-top: 12px; border-top: 1px solid var(--k-line); }
+.mt .note.note-err { background: var(--k-give-soft); }

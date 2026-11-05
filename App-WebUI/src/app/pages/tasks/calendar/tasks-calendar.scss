@@ -1,0 +1,26 @@
+// The calendar. The design system of My Tasks (the same as SnapKhata's): every colour is a token on .mt, Light and Dark are two sets of the same tokens.
+// Global under .mt (ViewEncapsulation.None), so the shell, its screens and its dialogs share one look.
+/* ---------- Calendar ---------- */
+.mt .cal-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mt .cal-h h2 { flex: 1; font-size: 1.15rem; font-weight: 800; min-width: 150px; }
+.mt .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.mt .cal .dow { text-align: center; font-size: 11.5px; font-weight: 800; color: var(--k-faint); padding: 4px 0; text-transform: uppercase; }
+.mt .day { position: relative; min-height: 64px; padding: 6px; border-radius: 14px; border: 1px solid transparent; background: var(--k-surface-3); color: var(--k-text); font: 700 13px var(--k-font); text-align: start; cursor: pointer; display: grid; align-content: start; gap: 4px; }
+.mt .day.out { opacity: 0.4; }
+.mt .day.today { border-color: var(--k-brand); }
+.mt .day.today .dn { background: var(--k-brand); color: var(--k-on-brand); }
+.mt .day[aria-pressed=true] { background: var(--k-surface-solid); box-shadow: var(--k-shadow); border-color: var(--k-line-strong); }
+.mt .day .dn { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; }
+.mt .day .dots { display: flex; flex-wrap: wrap; gap: 3px; }
+.mt .day .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--k-brand); }
+.mt .day .dots i.od { background: var(--k-give); }
+.mt .day .dots i.dn2 { background: var(--k-get); }
+.mt .day .lbl { display: none; font-size: 11px; font-weight: 700; color: var(--k-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (min-width: 760px) { .mt .day { min-height: 92px; } .mt .day .lbl { display: block; } .mt .day .dots { display: none; } }
+.mt .cal.week .day { min-height: 140px; }
+.mt .cal.week .day .lbl { display: block; white-space: normal; padding: 3px 5px; border-radius: 6px; background: var(--k-brand-soft); color: var(--k-text); }
+.mt .cal.week .day .dots { display: none; }
+.mt .cal-card { display: grid; gap: 12px; }
+.mt .day-h { font-size: 1.1rem; font-weight: 800; }
+.mt .day .lbl.done { text-decoration: line-through; opacity: 0.6; }
+.mt .day .lbl.od { color: var(--k-give); }

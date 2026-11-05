@@ -1,0 +1,59 @@
+// The task list: summary, the three tabs, filters, search, quick add, groups, bulk bar. The design system of My Tasks (the same as SnapKhata's): every colour is a token on .mt, Light and Dark are two sets of the same tokens.
+// Global under .mt (ViewEncapsulation.None), so the shell, its screens and its dialogs share one look.
+/* ---------- Dashboard ---------- */
+.mt .stats { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 720px) { .mt .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.mt .stat { display: grid; gap: 2px; padding: 14px 16px; text-align: start; cursor: pointer; font: inherit; color: inherit; transition: transform 0.2s var(--k-ease), border-color 0.2s; }
+.mt .stat:hover { transform: translateY(-2px); border-color: var(--k-line-strong); }
+.mt .stat small { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 750; color: var(--k-muted); }
+.mt .stat b { font-size: 28px; letter-spacing: -0.02em; line-height: 1.15; }
+.mt .stat.total { background: var(--k-brand-grad); color: var(--k-on-brand); border-color: transparent; }
+.mt .stat.total small { color: inherit; opacity: 0.85; }
+.mt .stat.overdue b { color: var(--k-give); }
+.mt .stat.done b { color: var(--k-get); }
+.mt .ptabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 5px; border-radius: 18px; background: var(--k-surface); border: 1px solid var(--k-line); -webkit-backdrop-filter: var(--k-glass); backdrop-filter: var(--k-glass); box-shadow: var(--k-shadow); }
+.mt .ptab { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border: 0; border-radius: 14px; background: transparent; color: var(--k-muted); font: 800 15px var(--k-font); cursor: pointer; }
+.mt .ptab .c { min-width: 24px; padding: 1px 7px; border-radius: 999px; background: var(--k-surface-3); font-size: 12px; }
+.mt .ptab[aria-selected=true] { background: var(--k-brand-grad); color: var(--k-on-brand); box-shadow: 0 8px 20px color-mix(in srgb, var(--k-brand) 30%, transparent); }
+.mt .ptab[aria-selected=true] .c { background: rgba(255, 255, 255, 0.25); }
+.mt .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+.mt .chip { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 6px 13px; border-radius: 999px; border: 1px solid var(--k-line); background: var(--k-surface); color: var(--k-muted); font: 700 13.5px var(--k-font); cursor: pointer; white-space: nowrap; }
+.mt .chip .c { font-size: 11.5px; color: var(--k-faint); }
+.mt .chip[aria-pressed=true] { background: var(--k-text); color: var(--k-bg); border-color: transparent; }
+.mt .chip[aria-pressed=true] .c { color: inherit; opacity: 0.7; }
+.mt .chip.mk[aria-pressed=false] { color: #b4387a; border-color: color-mix(in srgb, #d6489a 30%, transparent); }
+.mt[data-kt=dark] .chip.mk[aria-pressed=false] { color: #ff8fc8; }
+.mt .chip.od[aria-pressed=false] .c { color: var(--k-give); font-weight: 800; }
+.mt select.chip { appearance: none; -webkit-appearance: none; padding-inline-end: 28px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a8498' stroke-width='3'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+.mt[dir=rtl] select.chip { background-position: left 10px center; }
+.mt select.chip.on { background-color: var(--k-text); color: var(--k-bg); }
+.mt .filters { display: grid; gap: 6px; }
+.mt .filters .lbl { font-size: 11.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--k-faint); padding-inline: 4px; }
+.mt .toolbar { display: flex; gap: 8px; align-items: center; }
+.mt .search { position: relative; flex: 1; min-width: 0; }
+.mt .search .ico { position: absolute; top: 50%; inset-inline-start: 14px; transform: translateY(-50%); color: var(--k-faint); pointer-events: none; }
+.mt .search input { padding-inline-start: 42px; }
+.mt .quick { display: flex; gap: 8px; padding: 6px; border-radius: 18px; }
+.mt .quick .in { border: 0; background: transparent; box-shadow: none; }
+.mt .quick .in:focus { box-shadow: none; }
+.mt .active-filter { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--k-muted); }
+.mt .list { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }
+.mt .ghead { display: flex; align-items: center; gap: 8px; margin: 10px 4px 0; font-size: 12.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--k-faint); }
+.mt .ghead.od { color: var(--k-give); }
+.mt .ghead .c { font-weight: 700; }
+.mt .bulk { position: fixed; z-index: 35; inset-inline: 10px; bottom: calc(var(--k-tabs) + max(10px, env(safe-area-inset-bottom)) + 10px); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-radius: 20px; background: var(--k-surface-solid); border: 1px solid var(--k-line-strong); box-shadow: var(--k-shadow-lg); }
+.mt .bulk b { margin-inline-end: auto; }
+.mt .bulk select.in { width: auto; min-height: 36px; padding: 6px 10px; font-size: 13.5px; border-radius: 11px; }
+@media (min-width: 1024px) { .mt .bulk { inset-inline-start: calc(var(--k-rail) + 32px); inset-inline-end: 32px; bottom: 20px; } }
+.mt .lbl-row { display: flex; align-items: center; gap: 8px; }
+
+.mt .in.sort { width: auto; }
+.mt .quick .cc { margin: 9px 4px 0 8px; cursor: default; }
+
+.mt .fmenu { position: relative; flex: none; }
+.mt .fbtn.on { --b-bg: var(--k-brand-soft); --b-fg: var(--k-brand); --b-bd: color-mix(in srgb, var(--k-brand) 35%, transparent); }
+.mt .fpop { inset-inline-end: 0; max-height: min(70dvh, 520px); overflow-y: auto; min-width: 230px; }
+.mt .fpop .pop-opt .c { margin-inline-start: auto; font-size: 12px; color: var(--k-faint); }
+.mt .fpop .pop-opt.od .c { color: var(--k-give); font-weight: 800; }
+.mt .pop-lbl { padding: 8px 12px 2px; font-size: 11.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--k-faint); }
+.mt .active-filter .chip.on { background: var(--k-brand-soft); color: var(--k-brand); border-color: transparent; }
