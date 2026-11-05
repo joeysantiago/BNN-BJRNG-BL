@@ -15,6 +15,8 @@ public interface IAuthService
 
     Task<string> DeleteAccountAsync(AuthCallerDto caller, CancellationToken cancellationToken);
 
+    Task<string> RequireNewAccountAsync(string? email, CancellationToken cancellationToken);
+
     Task RequireOtpAccountAsync(string channel, string destination, CancellationToken cancellationToken);
 
     Task<SignInDto> QuickLoginAsync(int userId, AuthCallerDto caller, CancellationToken cancellationToken);
