@@ -1,6 +1,6 @@
 import { TranslationKey } from './i18n.model';
 
-export type Skin = 'glass' | 'clay' | 'skeu' | 'neu';
+export type Skin = 'agni' | 'glass' | 'clay' | 'skeu' | 'neu';
 
 /** Light or dark as shown on the page (data-mode on <html>). */
 export type Brightness = 'dark' | 'light';
