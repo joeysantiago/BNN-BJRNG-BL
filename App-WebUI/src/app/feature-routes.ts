@@ -19,5 +19,5 @@ export const FEATURE_APPS: string[] = ['nexon'];
 /** The settings each app brings to Settings > General (its own section there), loaded lazily. Each feature branch lists its own; shared lists none. */
 export const FEATURE_SETTINGS: FeaturePanel[] = [];
 
-/** The parts each app brings to the Profile page (for example SnapKhata's contact details), loaded lazily. Each feature branch lists its own; shared lists none. */
+/** The parts each app brings to the Profile page (for example deleting the data a user keeps in that app), loaded lazily. Each feature branch lists its own; shared lists none. */
 export const FEATURE_PROFILE: FeaturePanel[] = [];
