@@ -18,5 +18,7 @@ public class UserSession : BaseEntity
 
     public string DeviceId { get; set; } = string.Empty;
 
+    public string LoginMethod { get; set; } = string.Empty;
+
     public string RefreshTokenHash { get; set; } = string.Empty;
 }

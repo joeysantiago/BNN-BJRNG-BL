@@ -13,4 +13,6 @@ public class AuthCallerDto
     public string? RoleCode { get; set; }
 
     public string? UserAgent { get; set; }
+
+    public string? LoginMethod { get; set; }
 }

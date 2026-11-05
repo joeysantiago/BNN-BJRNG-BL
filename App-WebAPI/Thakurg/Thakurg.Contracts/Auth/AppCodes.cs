@@ -11,6 +11,8 @@ public static class AppCodes
 
     public const string Nexon = "nexon";
 
+    public const string Tasks = "tasks";
+
     public const string Tracker = "tracker";
 
     public const string Youtube = "youtube";
