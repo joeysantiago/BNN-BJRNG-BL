@@ -2,7 +2,7 @@
 .toasts {
   position: fixed;
   inset-inline: 16px;
-  inset-block-end: calc(var(--foot-h, 0px) + 16px);
+  inset-block-end: calc(var(--foot-space, var(--foot-h, 0px)) + 16px);
   z-index: 1000;
   display: grid;
   justify-items: center;
