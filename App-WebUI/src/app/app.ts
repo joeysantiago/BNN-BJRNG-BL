@@ -33,6 +33,10 @@ import { Component, afterNextRender, computed, effect, inject } from '@angular/c
       display: block;
       outline: none;
     }
+    /* Room for the fixed footer at the bottom (site-footer), so the end of the page is never hidden behind it. */
+    main:not(.bare) {
+      padding-block-end: calc(var(--foot-space, calc(var(--foot-h) + env(safe-area-inset-bottom))) + 24px);
+    }
   `,
 })
 export class App {
