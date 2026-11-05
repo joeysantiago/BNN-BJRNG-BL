@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Brightness, ModeInfo, Skin, SkinInfo, ThemeMode } from './models/theme.model';
 
 export const SKINS: readonly SkinInfo[] = [
+  { id: 'agni', labelKey: 'theme.agni', natural: 'light', chrome: { dark: '#2a1606', light: '#ffe4d1' } },
   { id: 'glass', labelKey: 'theme.glass', natural: 'dark', chrome: { dark: '#170a1c', light: '#f6eef8' } },
   { id: 'clay', labelKey: 'theme.clay', natural: 'light', chrome: { dark: '#1d1530', light: '#f1e3fb' } },
   { id: 'skeu', labelKey: 'theme.skeu', natural: 'light', chrome: { dark: '#2b2f35', light: '#c9ccd1' } },
@@ -20,7 +21,7 @@ const MODE_KEY = 'thakurg-mode';
 const STORAGE_KEY = 'thakurg-skin';
 
 /**
- * The look of the site: a skin (Glass, Clay, Skeu, Neu) and its brightness (Dark, Light, or System = follow the device, live).
+ * The look of the site: a skin (Agni, the default, Glass, Clay, Skeu, Neu) and its brightness (Dark, Light, or System = follow the device, live).
  * Both are kept in this browser only. Until a brightness is chosen each skin keeps its own (Glass dark, the others light).
  * index.html applies both before the first paint; this service keeps them in step afterwards.
  */
@@ -29,7 +30,7 @@ const STORAGE_KEY = 'thakurg-skin';
 export class ThemeService {
   readonly modes = MODES;
   readonly skins = SKINS;
-  readonly skin = signal<Skin>('glass');
+  readonly skin = signal<Skin>('agni');
   private readonly doc = inject(DOCUMENT);
   private readonly systemDark = signal(false);
   /** The chosen brightness; null = never chosen (the skin's own). */
