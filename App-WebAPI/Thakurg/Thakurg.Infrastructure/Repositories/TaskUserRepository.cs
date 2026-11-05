@@ -43,12 +43,6 @@ public class TaskUserRepository : ITaskUserRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task AddPageNamesAsync(IEnumerable<PageName> names, CancellationToken cancellationToken)
-    {
-        _dbContext.PageNames.AddRange(names);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-    }
-
     public Task<TaskLockSession?> GetLockSessionAsync(int sessionId, CancellationToken cancellationToken)
     {
         return _dbContext.TaskLockSessions.WhereActive().FirstOrDefaultAsync(s => s.SessionId == sessionId, cancellationToken);

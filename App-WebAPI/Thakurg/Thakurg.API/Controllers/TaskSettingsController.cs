@@ -48,14 +48,6 @@ public class TaskSettingsController : ControllerBase
         return Ok(ApiResponse<TaskSettingsDto>.SuccessResponse(result.Data, result.Message));
     }
 
-    [HttpPut("app-name")]
-    [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
-    public async Task<ActionResult<ApiResponse<Dictionary<string, string>>>> Rename([FromBody] TaskAppNameRequestDto request, CancellationToken cancellationToken)
-    {
-        var result = await _settingsService.RenameAsync(HttpContext.TaskCaller(), request, cancellationToken);
-
-        return Ok(ApiResponse<Dictionary<string, string>>.SuccessResponse(result.Data, result.Message));
-    }
 
     #endregion
 }

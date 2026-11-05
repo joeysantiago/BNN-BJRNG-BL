@@ -17,7 +17,7 @@ export const FEATURE_PAGES: SitePages[] = [TASKS_PAGES];
 export const FEATURE_APPS: string[] = ['tasks'];
 
 /** The settings each app brings to Settings > General (its own section there), loaded lazily. Each feature branch lists its own; shared lists none. */
-export const FEATURE_SETTINGS: FeaturePanel[] = [];
+export const FEATURE_SETTINGS: FeaturePanel[] = [{ app: 'tasks', order: 1, load: () => import('./pages/tasks/settings-panel/tasks-settings-panel').then((m) => m.TasksSettingsPanel) }];
 
 /** The parts each app brings to the Profile page (for example deleting the data a user keeps in that app), loaded lazily. Each feature branch lists its own; shared lists none. */
-export const FEATURE_PROFILE: FeaturePanel[] = [];
+export const FEATURE_PROFILE: FeaturePanel[] = [{ app: 'tasks', order: 1, load: () => import('./pages/tasks/profile-panel/tasks-profile-panel').then((m) => m.TasksProfilePanel) }];

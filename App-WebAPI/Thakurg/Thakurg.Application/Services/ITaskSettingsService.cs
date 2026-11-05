@@ -11,5 +11,4 @@ public interface ITaskSettingsService
 
     Task<ServiceResultDto<TaskSettingsDto>> SaveAsync(TaskCallerDto caller, TaskSettingsRequestDto request, CancellationToken cancellationToken);
 
-    Task<ServiceResultDto<Dictionary<string, string>>> RenameAsync(TaskCallerDto caller, TaskAppNameRequestDto request, CancellationToken cancellationToken);
 }

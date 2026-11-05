@@ -1,4 +1,3 @@
-import { TranslationKey } from './i18n.model';
 
 /** The three primary tabs of the dashboard. */
 export type TaskTab = 'all' | 'active' | 'completed';
@@ -14,11 +13,6 @@ export type TaskRepeat = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'c
 export type TaskLockMode = 'checking' | 'open' | 'locked' | 'create' | 'change' | 'remove';
 
 export type TaskPinStep = 'unlock' | 'current' | 'new' | 'confirm';
-
-export type TaskSettingsTab = 'general' | 'lock' | 'notifications' | 'categories' | 'users' | 'deleted';
-
-/** The lists of the Users tab (super admin): every account, or only the active, archived (cannot log in) or deleted ones. */
-export type TaskUserStatus = 'all' | 'active' | 'archived' | 'deleted';
 
 /** A reminder of the bell: overdue, due today, or upcoming (the next three days). */
 export type TaskReminderKind = 'od' | 'td' | 'up';
@@ -110,7 +104,6 @@ export interface TaskLimits {
 export interface TaskSettings {
   timeZone: string;
   weekStart: string;
-  canRename: boolean;
   limits: TaskLimits;
   defaultTab: TaskTab;
   remindBefore: string;
@@ -209,13 +202,6 @@ export interface TaskCalendarDay {
   out: boolean;
   today: boolean;
   tasks: TaskItem[];
-}
-
-/** A tab of the Settings page. */
-export interface TaskSettingsTabInfo {
-  id: TaskSettingsTab;
-  icon: string;
-  label: TranslationKey;
 }
 
 /** A question the user must answer before a change that cannot be undone (delete my account, delete a user). */

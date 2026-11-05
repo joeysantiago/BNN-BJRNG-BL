@@ -13,8 +13,6 @@ public interface ITaskUserRepository
 
     Task<List<PageName>> GetPageNamesAsync(string code, CancellationToken cancellationToken);
 
-    Task AddPageNamesAsync(IEnumerable<PageName> names, CancellationToken cancellationToken);
-
     Task<TaskUser?> FindByAccountAsync(int accountUserId, CancellationToken cancellationToken);
 
     Task<TaskLockSession?> GetLockSessionAsync(int sessionId, CancellationToken cancellationToken);
