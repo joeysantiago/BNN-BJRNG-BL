@@ -7,7 +7,7 @@ import { QuickLoginsCard } from '../quick-logins-card/quick-logins-card';
 /**
  * The Keys tab of the Settings page (super admin, password login; the API checks the same): the site's settings that hold a login, key or password,
  * which are never kept in the configuration files. The site's mail server (the "default" mail profile, used by every e-mail whose own profile is off),
- * the WhatsApp account and the quick logins.
+ * its one-time code and notification profiles, the WhatsApp account and the quick logins.
  */
 @Component({
   selector: 'app-keys-tab',
