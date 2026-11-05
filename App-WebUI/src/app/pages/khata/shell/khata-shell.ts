@@ -63,10 +63,6 @@ export class KhataShell implements OnDestroy {
     const path = this.url().split(/[?#]/)[0];
     if (/^\/khata\/app\/books/.test(path))
       return 'books';
-    if (/^\/khata\/app\/profile/.test(path))
-      return 'profile';
-    if (/^\/khata\/app\/settings/.test(path))
-      return 'settings';
     if (/^\/khata\/app\/b\/\d+\/?$/.test(path))
       return 'home';
     if (/^\/khata\/app\/b\/\d+\/(parties|contact)/.test(path))
@@ -80,7 +76,7 @@ export class KhataShell implements OnDestroy {
     const items: KhataNavItem[] = [{ id: 'home', key: 'khata.nav.home', link: id ? `/khata/app/b/${id}` : '/khata/app', icon: 'home' }];
     if (id)
       items.push({ id: 'parties', key: 'khata.nav.parties', link: `/khata/app/b/${id}/parties`, icon: 'users' }, { id: 'entries', key: 'khata.nav.entries', link: `/khata/app/b/${id}/entries`, icon: 'list' });
-    items.push({ id: 'books', key: 'khata.nav.books', link: '/khata/app/books', icon: 'book' }, { id: 'profile', key: 'khata.nav.profile', link: '/khata/app/profile', icon: 'user' }, { id: 'settings', key: 'khata.nav.settings', link: '/khata/app/settings', icon: 'settings' });
+    items.push({ id: 'books', key: 'khata.nav.books', link: '/khata/app/books', icon: 'book' }, { id: 'profile', key: 'khata.nav.profile', link: '/profile', icon: 'user' }, { id: 'settings', key: 'khata.nav.settings', link: '/master', query: { tab: 'general', app: 'khata' }, icon: 'settings' });
     return items;
   });
 
@@ -88,7 +84,7 @@ export class KhataShell implements OnDestroy {
     this.style.load();
     afterNextRender(() => {
       this.pwa.enter('khata');
-      void this.lock.start();
+      void this.startLock();
     });
     // The books (and every page) load only while the installed app is unlocked; unlocking again reloads them.
     effect(() => {
@@ -154,6 +150,15 @@ export class KhataShell implements OnDestroy {
   // #endregion
 
   // #region Private Methods
+
+  /** Starts the app lock; ?pin=change (the "Change PIN" button of Settings > General) then opens the PIN change here, where the PIN screen lives. */
+  private async startLock(): Promise<void> {
+    await this.lock.start();
+    if (this.router.parseUrl(this.router.url).queryParams['pin'] !== 'change')
+      return;
+    this.lock.change();
+    void this.router.navigate([], { queryParams: { pin: null }, queryParamsHandling: 'merge', replaceUrl: true });
+  }
 
   private toggle(dialog: HTMLDialogElement | undefined, open: boolean): void {
     if (!dialog)

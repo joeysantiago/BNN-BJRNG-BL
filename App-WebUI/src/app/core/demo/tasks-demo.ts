@@ -36,7 +36,6 @@ const ITEM_LENGTH = 200;
 const NAME_LENGTH = 40;
 const FILE_NAME_LENGTH = 120;
 const DESCRIPTION_LENGTH = 2000;
-const LANGS = ['en', 'hi', 'ar'];
 const TABS = ['all', 'active', 'completed'];
 const WEEK_STARTS = ['mon', 'sun'];
 const LOCK_MINUTES = [0, 1, 5, 15, 30];
@@ -128,8 +127,6 @@ export class TasksDemo {
         return { data: this.settingsDto(me, isSuper) };
       case 'PUT /tasks/settings':
         return this.saveSettings(me, form, isSuper);
-      case 'PUT /tasks/settings/app-name':
-        return this.rename(form, isSuper);
       case 'POST /tasks/settings/whatsapp-test':
         if (!this.user.details?.mobile)
           throw new DemoFailure(400, 'TASKS_WA_NO_MOBILE');
@@ -538,7 +535,7 @@ export class TasksDemo {
 
   private settingsDto(me: TasksDemoUser, isSuper: boolean): TaskSettings {
     const { pinHash, pinFailed, pinLockedUntil, ...settings } = me;
-    return { ...settings, canRename: isSuper, limits: LIMITS, mobile: this.user.details?.mobile ?? null };
+    return { ...settings, limits: LIMITS, mobile: this.user.details?.mobile ?? null };
   }
 
   private lines(form: Record<string, unknown>): Record<string, unknown>[] {
@@ -708,19 +705,6 @@ export class TasksDemo {
     category.name = name;
     category.color = color;
     return { code: 'TASKS_CATEGORY_SAVED', data: this.categoryDto(category) };
-  }
-
-  /** The name of the app (super admins only). English is required; a Hindi or Arabic name left empty keeps the one it has. Saved with the site settings of this browser. */
-  private rename(form: Record<string, unknown>, isSuper: boolean): TasksDemoResult {
-    if (!isSuper)
-      throw new DemoFailure(403, 'AUTH_FORBIDDEN');
-    const asked = (form['names'] ?? {}) as Record<string, unknown>;
-    const names: Record<string, string> = Object.fromEntries(Object.entries(asked).map(([k, v]): [string, string] => [k, String(v ?? '').trim()]).filter(([, v]) => v));
-    if (!names['en'] || Object.keys(names).some((k) => !LANGS.includes(k)) || Object.values(names).some((v) => v.length > NAME_LENGTH))
-      throw new DemoFailure(400, 'TASKS_NAME_INVALID', [NAME_LENGTH]);
-    const saved = { ...APP_SETTINGS.pageNames.tasks, ...this.db.settings.pageNames?.tasks, ...names };
-    this.db.settings.pageNames = { ...this.db.settings.pageNames, tasks: saved };
-    return { code: 'TASKS_NAME_SAVED', data: saved };
   }
 
   /** A first PIN needs no old one; to change it the current PIN is checked unless the login is fresh. Saving it unlocks this session. */

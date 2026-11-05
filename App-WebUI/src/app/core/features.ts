@@ -74,9 +74,6 @@ const PAGE_FEATURES: Record<string, FeatureId> = {
   '/tasks': 'page.tasks',
 };
 
-/** The apps this build holds (Mojito holds every app). The Settings page and the header show only their settings. */
-export const FEATURE_APPS: string[] = ['speedtest', 'youtube', 'creta', 'nexon', 'hr', 'khata', 'tasks'];
-
 /** The apps that own each app-only settings group and switch (FEATURE_APPS codes). Anything not listed is site-wide and always shown. */
 const FEATURE_OWNERS: Partial<Record<FeatureGroup | FeatureId, string[]>> = {
   speed: ['speedtest'],
@@ -92,10 +89,15 @@ const FEATURE_OWNERS: Partial<Record<FeatureGroup | FeatureId, string[]>> = {
   'page.tasks': ['tasks'],
 };
 
-/** True when the setting is site-wide or belongs to one of the apps this build holds (FEATURE_APPS). */
+/** True when the setting is site-wide or belongs to one of the apps this build holds (FEATURE_APPS of feature-routes.ts). */
 export function featureBuilt(id: FeatureGroup | FeatureId, apps: readonly string[]): boolean {
   const owners = FEATURE_OWNERS[id];
   return !owners || owners.some((a) => apps.includes(a));
+}
+
+/** The switches that belong to one app (its page switch and the switches of its own groups), for that app's section of Settings > General. */
+export function appFeatures(app: string): FeatureInfo[] {
+  return FEATURES.filter((f) => FEATURE_OWNERS[f.id]?.includes(app) || FEATURE_OWNERS[f.group]?.includes(app));
 }
 
 /** The switch that controls the page at this address, or null for pages that cannot be switched off (config, errors). Every SnapKhata screen follows page.khata, every My Tasks screen page.tasks. */

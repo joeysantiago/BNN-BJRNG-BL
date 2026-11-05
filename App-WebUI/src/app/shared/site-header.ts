@@ -1,11 +1,12 @@
 import { filter, map } from 'rxjs';
 import { SiteTools } from './site-tools';
 import { UserAvatar } from './user-avatar';
+import { featureBuilt } from '../core/features';
+import { FEATURE_APPS } from '../feature-routes';
 import { AuthService } from '../core/auth.service';
 import { I18nService } from '../core/i18n.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '../core/settings.service';
-import { FEATURE_APPS, featureBuilt } from '../core/features';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
 

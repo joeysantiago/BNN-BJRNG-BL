@@ -3,8 +3,10 @@ import { DemoFailure } from './demo-failure';
 import { randomToken, sha256 } from './demo-hash';
 import { DEMO_MESSAGES } from './demo-messages';
 import { APP_SETTINGS } from '../../appSettings';
-import { DEMO_MAIL, DEMO_RULES, demoSeed } from './demo-seed';
-import { AuthUser, ProfileDetails, QuickLogin, UserStatus } from '../models/auth.model';
+import { DEMO_MAIL, DEMO_RULES, DEMO_WHATSAPP, demoSeed } from './demo-seed';
+import { validStops } from '../settings.service';
+import { WhatsAppAccount } from '../../pages/config/whatsapp-card/whatsapp-card.model';
+import { AuthUser, LoginMethod, OtpChannel, OtpRequestResult, ProfileDetails, QuickLogin, UserStatus } from '../models/auth.model';
 import { SettingsOverrides } from '../models/app-settings.model';
 import { MailPurpose, MailSecurity, MailSetting } from '../models/mail.model';
 import { RoleForm, RoleInfo, RolePermission } from '../models/role.model';
@@ -147,15 +149,18 @@ export class DemoBackend {
   }
 
   /** UserDto of the API. The admin list leaves out the rights and the hidden options. */
-  private dto(db: DemoDb, user: DemoUser, full = true): AuthUser {
+  /** A session remembers how it logged in: a code login opens only the apps that allow it and has no administrator rights, as on the API (LoginMethodAccess). */
+  private dto(db: DemoDb, user: DemoUser, full = true, method: LoginMethod = 'password'): AuthUser {
     const role = this.role(db, user.roleId);
     const order = db.apps.map((a) => a.code);
+    const code = method === 'otp';
     return {
       id: user.id,
       email: user.email,
-      apps: [...user.apps].sort((a, b) => order.indexOf(a) - order.indexOf(b)),
+      apps: [...user.apps].filter((a) => !code || DEMO_RULES.otp.apps.includes(a)).sort((a, b) => order.indexOf(a) - order.indexOf(b)),
       roleId: user.roleId,
-      isAdmin: this.isAdmin(db, user),
+      loginMethod: method,
+      isAdmin: !code && this.isAdmin(db, user),
       language: user.language,
       roleCode: role?.code ?? '',
       roleName: role?.name ?? '',
@@ -248,12 +253,12 @@ export class DemoBackend {
   }
 
   /** A new session: login, sign-up and refresh answer { accessToken, expiresInSeconds, user }. The token is kept as the refresh cookie of this browser. */
-  private signIn(db: DemoDb, user: DemoUser): unknown {
+  private signIn(db: DemoDb, user: DemoUser, method: LoginMethod = 'password'): unknown {
     const token = randomToken();
     db.sessions = db.sessions.filter((s) => s.expiresAt > Date.now());
-    db.sessions.push({ token, userId: user.id, loggedInOn: Date.now(), expiresAt: Date.now() + DEMO_RULES.sessionDays * 86400000 });
+    db.sessions.push({ token, method, userId: user.id, loggedInOn: Date.now(), expiresAt: Date.now() + DEMO_RULES.sessionDays * 86400000 });
     this.keepSession(token);
-    return { accessToken: token, expiresInSeconds: DEMO_RULES.accessMinutes * 60, user: this.dto(db, user) };
+    return { accessToken: token, expiresInSeconds: DEMO_RULES.accessMinutes * 60, user: this.dto(db, user, true, method) };
   }
 
   private keepSession(token: string | null): void {
@@ -285,12 +290,26 @@ export class DemoBackend {
     // An id may be followed by an action (/admin/users/5/archive); a mail server is named by its purpose (/admin/mail/otp).
     const id = Number(/\/(\d+)(?:\/|$)/.exec(path)?.[1]);
     const purpose = path.split('/')[3] as MailPurpose;
-    const key = `${req.method} ${path.replace(/\/\d+(?=\/|$)/g, '/{id}').replace(/^\/admin\/mail\/[a-z]+/, '/admin/mail/{purpose}')}`;
+    const key = `${req.method} ${path.replace(/\/\d+(?=\/|$)/g, '/{id}').replace(/^\/admin\/mail\/[a-z]+/, '/admin/mail/{purpose}').replace(/^\/settings\/app-names\/[a-z]+$/, '/settings/app-names/{page}')}`;
     switch (key) {
       case 'POST /auth/login':
         return { data: await this.login(db, body) };
       case 'POST /auth/register':
         return { data: await this.register(db, body) };
+      case 'POST /auth/otp/request':
+        return this.otpRequest(db, body);
+      case 'POST /auth/otp/verify':
+        return { data: this.otpVerify(db, body) };
+      case 'PUT /settings/app-names/{page}':
+        return this.rename(db, req.token, path.split('/')[3], body);
+      case 'GET /admin/whatsapp':
+        this.superCaller(db, req.token);
+        return { data: this.whatsapp(db) };
+      case 'PUT /admin/whatsapp':
+        return this.saveWhatsapp(db, req.token, body);
+      case 'POST /admin/whatsapp/test':
+        this.superCaller(db, req.token);
+        throw new DemoFailure(400, 'DEMO_WHATSAPP_NONE');
       case 'POST /auth/refresh':
         return { data: this.refresh(db) };
       case 'POST /auth/logout':
@@ -412,6 +431,84 @@ export class DemoBackend {
     return this.signIn(db, user);
   }
 
+  /**
+   * A one-time code for an existing account (by its e-mail address or the mobile number of its profile), for an app that allows a code login; anything else is refused
+   * as the API refuses it, and a new code waits Auth:Otp:ResendSeconds. Mojito sends no e-mail or SMS, so the answer shows the code.
+   */
+  private otpRequest(db: DemoDb, body: Record<string, unknown>): { code: string; args: (string | number)[]; data: OtpRequestResult } {
+    const rules = DEMO_RULES.otp;
+    const { channel, destination, user } = this.otpAccount(db, body);
+    if (!rules.apps.includes(String(body['app'] ?? '')))
+      throw new DemoFailure(400, 'AUTH_OTP_APP_INVALID');
+    if (!user)
+      throw new DemoFailure(404, 'AUTH_OTP_ACCOUNT_NOT_FOUND');
+    const last = (db.otp ?? []).find((o) => o.channel === channel && o.destination === destination);
+    const wait = last ? Math.ceil((last.sentAt + rules.resendSeconds * 1000 - Date.now()) / 1000) : 0;
+    if (wait > 0)
+      throw new DemoFailure(429, 'OTP_TOO_MANY_REQUESTS', [wait]);
+    const code = Array.from({ length: rules.codeLength }, () => Math.floor(Math.random() * 10)).join('');
+    db.otp = [...(db.otp ?? []).filter((o) => o !== last), { code, channel, destination, attempts: 0, sentAt: Date.now(), expiresAt: Date.now() + rules.codeMinutes * 60000 }];
+    this.store(db);
+    return { code: 'DEMO_OTP_SENT', args: [code, rules.codeMinutes], data: { resendInSeconds: rules.resendSeconds, expiresInSeconds: rules.codeMinutes * 60 } };
+  }
+
+  /** Logs in with the code: a wrong code counts a try and Auth:Otp:MaxAttempts use it up; a used or expired code never works again. Never makes an account. */
+  private otpVerify(db: DemoDb, body: Record<string, unknown>): unknown {
+    const { channel, destination, user } = this.otpAccount(db, body);
+    const otp = (db.otp ?? []).find((o) => o.channel === channel && o.destination === destination && o.expiresAt > Date.now() && o.attempts < DEMO_RULES.otp.maxAttempts);
+    if (!otp || !user || otp.code !== String(body['code'] ?? '').trim()) {
+      if (otp)
+        otp.attempts++;
+      this.store(db);
+      throw new DemoFailure(400, 'AUTH_OTP_INVALID');
+    }
+    db.otp = (db.otp ?? []).filter((o) => o !== otp);
+    user.lastLoginOn = this.now();
+    return this.signIn(db, user, 'otp');
+  }
+
+  /** The account a code is for: the e-mail address of a live user, or the mobile number of a live user's profile (the last 10 digits). */
+  private otpAccount(db: DemoDb, body: Record<string, unknown>): { channel: OtpChannel; destination: string; user: DemoUser | undefined } {
+    const channel: OtpChannel = body['channel'] === 'sms' ? 'sms' : 'email';
+    const raw = String(body['destination'] ?? '').trim();
+    const destination = channel === 'email' ? (this.email(raw) ?? '') : raw.replace(/[^\d+]/g, '');
+    if (!destination)
+      throw new DemoFailure(400, 'AUTH_OTP_DESTINATION_INVALID');
+    const digits = (v: string | null | undefined) => (v ?? '').replace(/\D/g, '').slice(-10);
+    const user = db.users.find((u) => this.live(u) && (channel === 'email' ? u.email === destination : !!u.details?.mobile && digits(u.details.mobile) === digits(destination)));
+    return { channel, destination, user };
+  }
+
+  /** The name of one app in every language (PUT /settings/app-names/{page}, super admin only): English is required, at most 40 characters; an empty language keeps its name. */
+  private rename(db: DemoDb, token: string | null, page: string, body: Record<string, unknown>): { code: string; data: Record<string, string> } {
+    this.superCaller(db, token);
+    const names: Record<string, string> = Object.fromEntries(Object.entries((body['names'] ?? {}) as Record<string, string>).map(([k, v]) => [k, String(v ?? '').trim()]).filter(([, v]) => v));
+    if (!(page in APP_SETTINGS.pageNames))
+      throw new DemoFailure(400, 'SETTINGS_INVALID');
+    if (!names['en'] || Object.keys(names).some((k) => !['en', 'hi', 'ar'].includes(k)) || Object.values(names).some((v) => v.length > 40))
+      throw new DemoFailure(400, 'APP_NAME_INVALID', [40]);
+    const id = page as keyof typeof APP_SETTINGS.pageNames;
+    const saved = { ...APP_SETTINGS.pageNames[id], ...db.settings.pageNames?.[id], ...names };
+    db.settings.pageNames = { ...db.settings.pageNames, [id]: saved };
+    this.store(db);
+    return { code: 'APP_NAME_SAVED', data: saved };
+  }
+
+  /** The site's WhatsApp Business account (GET /admin/whatsapp). The demo never had a token, so none is ever sent back. */
+  private whatsapp(db: DemoDb): WhatsAppAccount {
+    return db.whatsapp ?? DEMO_WHATSAPP;
+  }
+
+  /** Saves the WhatsApp account (PUT /admin/whatsapp, super admin): the token is kept only as "one is saved", as the API keeps it encrypted and never returns it. */
+  private saveWhatsapp(db: DemoDb, token: string | null, body: Record<string, unknown>): { code: string; data: WhatsAppAccount } {
+    this.superCaller(db, token);
+    const text = (key: string) => String(body[key] ?? '').trim();
+    const current = this.whatsapp(db);
+    db.whatsapp = { enabled: body['enabled'] === true, apiVersion: text('apiVersion') || current.apiVersion, templateName: text('templateName'), phoneNumberId: text('phoneNumberId'), templateLanguage: text('templateLanguage') || current.templateLanguage, businessAccountId: text('businessAccountId') || null, hasAccessToken: current.hasAccessToken || !!text('accessToken') };
+    this.store(db);
+    return { code: 'WHATSAPP_SAVED', data: db.whatsapp };
+  }
+
   /** A sign-up gets the default role and the apps every new account gets (AutoGrant). */
   private async register(db: DemoDb, body: Record<string, unknown>): Promise<unknown> {
     const email = this.email(body['email']);
@@ -438,7 +535,7 @@ export class DemoBackend {
     if (!session || !user)
       throw new DemoFailure(401, 'AUTH_SESSION_INVALID');
     session.expiresAt = Date.now() + DEMO_RULES.sessionDays * 86400000;
-    return { accessToken: session.token, expiresInSeconds: DEMO_RULES.accessMinutes * 60, user: this.dto(db, user) };
+    return { accessToken: session.token, expiresInSeconds: DEMO_RULES.accessMinutes * 60, user: this.dto(db, user, true, session.method) };
   }
 
   /** A tap on a quick login of the login page (AuthService.QuickLoginAsync): only a user shown there, and not while the account is locked. No password is checked. */
@@ -583,13 +680,13 @@ export class DemoBackend {
   private saveSettings(db: DemoDb, token: string | null, body: SettingsOverrides): { code: string; data: SettingsOverrides } {
     const user = this.caller(db, token);
     const may = (page: string) => this.isSuper(db, user) || this.permissions(db, user.roleId).includes(`${page}:edit`);
-    const parts: [unknown, string][] = [[body.features, 'settings.features'], [body.connection, 'settings.connection'], [body.services, 'settings.services'], [body.youtube, 'settings.youtube']];
+    const parts: [unknown, string][] = [[body.speed, 'settings.features'], [body.features, 'settings.features'], [body.connection, 'settings.connection'], [body.services, 'settings.services'], [body.youtube, 'settings.youtube']];
     if (parts.some(([part, page]) => part !== undefined && !may(page)))
       throw new DemoFailure(403, 'AUTH_FORBIDDEN');
     const d = APP_SETTINGS;
     const secs = body.services?.refreshSeconds;
     const badKey = <T extends object>(src: object | undefined, base: T) => Object.keys(src ?? {}).some((k) => !(k in base));
-    if (badKey(body.features, d.features) || badKey(body.connection?.fields, d.connection.fields) || badKey(body.youtube, d.youtube) || Object.keys(body.services?.items ?? {}).some((k) => !d.services.items.some((s) => s.id === k)) || (secs !== undefined && (secs < 0 || secs > 3600)))
+    if (badKey(body.features, d.features) || badKey(body.connection?.fields, d.connection.fields) || badKey(body.youtube, d.youtube) || Object.keys(body.services?.items ?? {}).some((k) => !d.services.items.some((s) => s.id === k)) || (secs !== undefined && (secs < 0 || secs > 3600)) || (body.speed?.gaugeStops !== undefined && !validStops(body.speed.gaugeStops)))
       throw new DemoFailure(400, 'SETTINGS_INVALID');
     const s = db.settings;
     const pick = <T extends object>(src: Partial<T> | undefined, base: T, saved: Partial<T> | undefined): Partial<T> | undefined => {
@@ -600,6 +697,9 @@ export class DemoBackend {
     const out: SettingsOverrides = {};
     out.features = pick(body.features, d.features, s.features);
     out.youtube = pick(body.youtube, d.youtube, s.youtube);
+    const stops = body.speed?.gaugeStops ?? s.speed?.gaugeStops;
+    if (stops && stops.join(',') !== d.speed.gaugeStops.join(','))
+      out.speed = { gaugeStops: stops };
     const fields = pick(body.connection?.fields, d.connection.fields, s.connection?.fields);
     const enabled = body.connection?.enabled ?? s.connection?.enabled;
     if (fields || (enabled !== undefined && enabled !== d.connection.enabled))

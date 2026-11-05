@@ -7,13 +7,13 @@
         <button type="button" class="btn pri wide" (click)="state.openEditor(null)"><app-task-icon name="plus" [size]="18" />{{ i18n.t('tasks.add') }}</button>
         <nav [attr.aria-label]="i18n.t('tasks.nav.label')">
           @for (n of nav; track n.path) {
-            <a class="nav" [routerLink]="n.path" [attr.aria-current]="current(n.path)"><app-task-icon [name]="n.icon" />{{ i18n.t(n.label) }}@if (n.exact) {<span class="cnt num">{{ state.summary().active }}</span>}</a>
+            <a class="nav" [routerLink]="n.path" [queryParams]="n.query" [attr.aria-current]="current(n.path)"><app-task-icon [name]="n.icon" />{{ i18n.t(n.label) }}@if (n.exact) {<span class="cnt num">{{ state.summary().active }}</span>}</a>
           }
         </nav>
         <div class="grow"></div>
         @if (auth.user(); as u) {
-          <a class="who" routerLink="/tasks/app/profile" [attr.aria-current]="current('/tasks/app/profile')" [attr.aria-label]="i18n.t('tasks.nav.profileAndSettings')">
-            <app-user-avatar [user]="u" [size]="40" /><span class="who-txt"><b>{{ u.displayName }}</b><small>{{ i18n.t('tasks.nav.profileAndSettings') }}</small></span><app-task-icon name="gear" [size]="18" />
+          <a class="who" routerLink="/profile" [attr.aria-label]="i18n.t('tasks.nav.profile')">
+            <app-user-avatar [user]="u" [size]="40" /><span class="who-txt"><b>{{ u.displayName }}</b><small>{{ i18n.t('tasks.nav.profile') }}</small></span>
           </a>
         }
       </aside>
@@ -44,7 +44,7 @@
         <a class="tab" routerLink="/tasks/app/calendar" [attr.aria-current]="current('/tasks/app/calendar')"><app-task-icon name="cal" [size]="22" />{{ i18n.t('tasks.nav.calendar') }}</a>
         <button type="button" class="fab" [attr.aria-label]="i18n.t('tasks.add')" (click)="state.openEditor(null)"><app-task-icon name="plus" [size]="26" /></button>
         <button type="button" class="tab" [attr.aria-label]="i18n.t('tasks.search.label')" (click)="search()"><app-task-icon name="search" [size]="22" />{{ i18n.t('tasks.nav.search') }}</button>
-        <a class="tab" routerLink="/tasks/app/profile" [attr.aria-current]="current('/tasks/app/profile')"><app-task-icon name="user" [size]="22" />{{ i18n.t('tasks.nav.profile') }}</a>
+        <a class="tab" routerLink="/profile"><app-task-icon name="user" [size]="22" />{{ i18n.t('tasks.nav.profile') }}</a>
       </nav>
     </div>
 

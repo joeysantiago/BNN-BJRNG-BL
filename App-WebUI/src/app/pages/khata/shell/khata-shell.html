@@ -10,13 +10,13 @@
         <nav>
           @for (n of nav(); track n.id) {
             @if (n.id !== 'profile') {
-              <a class="k-nav" [routerLink]="n.link" [attr.aria-current]="section() === n.id ? 'page' : null"><svg [kIco]="n.icon"></svg>{{ i18n.t(n.key) }}</a>
+              <a class="k-nav" [routerLink]="n.link" [queryParams]="n.query" [attr.aria-current]="section() === n.id ? 'page' : null"><svg [kIco]="n.icon"></svg>{{ i18n.t(n.key) }}</a>
             }
           }
         </nav>
         <span class="grow"></span>
         <div class="foot">
-          <a class="k-who" routerLink="/khata/app/profile" [attr.aria-current]="section() === 'profile' ? 'page' : null">
+          <a class="k-who" routerLink="/profile">
             <app-user-avatar [user]="auth.user()" [size]="40" />
             <span><b>{{ i18n.t('khata.p.title') }}</b><small>{{ auth.user()?.email }}</small></span>
           </a>
@@ -44,7 +44,7 @@
               <a class="k-fab" [routerLink]="['/khata/app/b', bookId(), 'new']" [queryParams]="newEntryQuery()" [attr.aria-label]="i18n.t('khata.nav.newEntry')"><svg kIco="plus" [size]="26" [stroke]="2.6"></svg></a>
             }
             @if (n.id !== 'books' && n.id !== 'settings') {
-              <a class="k-tab" [routerLink]="n.link" [attr.aria-current]="section() === n.id ? 'page' : null"><svg [kIco]="n.icon" [size]="22"></svg><span>{{ i18n.t(n.key) }}</span></a>
+              <a class="k-tab" [routerLink]="n.link" [queryParams]="n.query" [attr.aria-current]="section() === n.id ? 'page' : null"><svg [kIco]="n.icon" [size]="22"></svg><span>{{ i18n.t(n.key) }}</span></a>
             }
           }
         </nav>

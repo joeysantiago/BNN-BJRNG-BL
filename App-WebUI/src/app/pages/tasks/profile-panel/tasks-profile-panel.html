@@ -1,0 +1,10 @@
+<section class="card" aria-labelledby="tasks-del-h">
+  <h2 id="tasks-del-h">{{ i18n.t('tasks.prof.deleteTitle', { app: appName() }) }}</h2>
+  <p class="note">{{ i18n.t('tasks.prof.deleteLead', { app: appName() }) }}</p>
+  <div class="bar">
+    <button type="button" class="btn" [disabled]="busy()" (click)="remove()">{{ i18n.t(sure() ? 'tasks.prof.deleteSure' : 'tasks.prof.deleteButton', { app: appName() }) }}</button>
+    @if (notice(); as n) {
+      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+    }
+  </div>
+</section>

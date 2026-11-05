@@ -1,5 +1,0 @@
-// The profile screen of My Tasks uses the shared styles of the app frame (tasks-shell.scss); only its layout helpers are here.
-.mt .stack { display: grid; gap: 14px; }
-.mt .who-txt h2 { font-size: 1.15rem; }
-.mt .danger-zone { border-color: color-mix(in srgb, var(--k-give) 35%, transparent); }
-.mt .danger-zone h2 { color: var(--k-give); }

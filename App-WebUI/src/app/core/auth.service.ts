@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 import { PageCode, PermissionAction } from './models/role.model';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Injectable, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
-import { AuthResult, AuthTabMessage, AuthUser, ProfileDetails, QuickLogin } from './models/auth.model';
+import { AuthResult, AuthTabMessage, AuthUser, OtpChannel, OtpRequestResult, ProfileDetails, QuickLogin } from './models/auth.model';
 
 const TIMEOUT = environment.timings.authCallMs;
 const HELLO_WAIT_MS = environment.timings.tabHelloMs;
@@ -193,6 +193,17 @@ export class AuthService {
 
   async register(email: string, password: string, displayName: string): Promise<AuthUser> {
     return this.signIn(await this.api.send<AuthResult>('POST', '/auth/register', this.init({ email, password, displayName }), TIMEOUT));
+  }
+
+  /** Asks for a one-time login code, for an app that allows code login (SnapKhata, SnapTracker, My Tasks). Mojito sends no message: the demo backend shows the code. */
+  async otpRequest(channel: OtpChannel, destination: string, app: string): Promise<OtpRequestResult> {
+    const res = await this.api.sendFull<OtpRequestResult>('POST', '/auth/otp/request', this.init({ channel, destination, app }), TIMEOUT);
+    return { ...res.data, message: res.message ?? undefined };
+  }
+
+  /** Logs in with a one-time code; the session is the same common login, limited to the apps that allow code login. */
+  async otpVerify(channel: OtpChannel, destination: string, code: string, app: string): Promise<AuthUser> {
+    return this.signIn(await this.api.send<AuthResult>('POST', '/auth/otp/verify', this.init({ channel, destination, code, app }), TIMEOUT));
   }
 
   // #endregion

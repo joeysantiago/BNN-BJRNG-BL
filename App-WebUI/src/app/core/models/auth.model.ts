@@ -30,6 +30,16 @@ export interface AuthUser {
 /** How a session logged in: e-mail and password, or a one-time code (the API branches; the Mojito demo has passwords only). */
 export type LoginMethod = 'password' | 'otp';
 
+/** Where a one-time code goes: an e-mail address or a mobile number. */
+export type OtpChannel = 'email' | 'sms';
+
+/** The answer to a code request: when a new code may be asked for, and how long this one works. */
+export interface OtpRequestResult {
+  message?: string;
+  resendInSeconds: number;
+  expiresInSeconds: number;
+}
+
 /** Answer of login, sign-up and refresh. The access token is kept in memory only; the refresh token is an HttpOnly cookie. */
 export interface AuthResult {
   user: AuthUser;

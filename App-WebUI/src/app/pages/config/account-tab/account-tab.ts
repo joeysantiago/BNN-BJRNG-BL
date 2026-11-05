@@ -1,5 +1,5 @@
 import { Lang } from '../../../core/site';
-import { FEATURE_APPS } from '../../../core/features';
+import { FEATURE_APPS } from '../../../feature-routes';
 import { AuthService } from '../../../core/auth.service';
 import { I18nService } from '../../../core/i18n.service';
 import { ThemeService } from '../../../core/theme.service';

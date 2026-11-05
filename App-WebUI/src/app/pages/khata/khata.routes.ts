@@ -3,9 +3,11 @@ import { Router, Routes } from '@angular/router';
 import { appGuard } from '../../core/auth.guards';
 
 const toLogin = () => inject(Router).createUrlTree(['/login'], { queryParams: { next: '/khata/app' } });
+const toSettings = () => inject(Router).createUrlTree(['/master'], { queryParams: { tab: 'general', app: 'khata' } });
 
 /**
  * SnapKhata: /khata is the public page; the app itself (/khata/app) needs the common login and access to the khata app.
+ * SnapKhata has no settings or profile page of its own: Settings > General (its section) and /profile are shared by every app; the old addresses lead there.
  * Inside a book (b/:bookId): the dashboard, parties, all entries, a party's ledger and settings, an entry's details, and the add / edit entry form.
  */
 export const KHATA_ROUTES: Routes = [
@@ -14,6 +16,8 @@ export const KHATA_ROUTES: Routes = [
   { path: 'khata/login', redirectTo: toLogin },
   { path: 'khata/set-pin', redirectTo: '/khata/app' },
   { path: 'khata/unlock', redirectTo: '/khata/app' },
+  { path: 'khata/app/profile', redirectTo: '/profile' },
+  { path: 'khata/app/settings', redirectTo: toSettings },
   {
     path: 'khata/app',
     loadComponent: () => import('./shell/khata-shell').then((m) => m.KhataShell),
@@ -21,8 +25,6 @@ export const KHATA_ROUTES: Routes = [
     children: [
       { path: '', loadComponent: () => import('./home/khata-home').then((m) => m.KhataHome) },
       { path: 'books', loadComponent: () => import('./books/khata-books').then((m) => m.KhataBooks) },
-      { path: 'profile', loadComponent: () => import('./profile/khata-profile').then((m) => m.KhataProfile) },
-      { path: 'settings', loadComponent: () => import('./settings/khata-settings').then((m) => m.KhataSettings) },
       { path: 'b/:bookId', loadComponent: () => import('./dashboard/khata-dashboard').then((m) => m.KhataDashboard) },
       { path: 'b/:bookId/new', loadComponent: () => import('./entry-form/khata-entry-form').then((m) => m.KhataEntryForm) },
       { path: 'b/:bookId/parties', loadComponent: () => import('./parties/khata-parties').then((m) => m.KhataParties) },

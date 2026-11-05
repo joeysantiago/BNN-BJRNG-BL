@@ -1,4 +1,5 @@
 import { DemoDb, DemoRules } from './demo.model';
+import { WhatsAppAccount } from '../../pages/config/whatsapp-card/whatsapp-card.model';
 import { MailSetting } from '../models/mail.model';
 
 /** Same values as appsettings.json of the API (Auth, Jwt and Avatars sections). */
@@ -12,11 +13,16 @@ export const DEMO_RULES: DemoRules = {
   passwordMinLength: 8,
   passwordMaxLength: 128,
   avatarTypes: ['.jpg', '.jpeg', '.png', '.webp'],
+  // Auth:Otp of the API: a 6-digit code for 10 minutes, 5 wrong tries, a new one after 60 seconds, for the apps that allow a code login.
+  otp: { codeLength: 6, codeMinutes: 10, maxAttempts: 5, resendSeconds: 60, apps: ['khata', 'tracker', 'tasks'] },
   // Profile:Limits of the API (the SnapKhata profile's mobile number, address and company).
   profileLimits: { cityLength: 100, stateLength: 100, mobileLength: 20, addressLength: 200, countryLength: 100, postalCodeLength: 20, companyNameLength: 150, companyEmailLength: 256, companyPhoneLength: 20, companyTaxIdLength: 30, companyAddressLength: 500 },
 };
 
 /** A mail server profile never saved starts from these, as the API starts from appsettings Email:Smtp (no host = mail is off). */
+/** The WhatsApp account before it is saved, as the API starts from appsettings WhatsApp (no token = no message is sent). */
+export const DEMO_WHATSAPP: WhatsAppAccount = { enabled: false, apiVersion: 'v21.0', templateName: '', phoneNumberId: '', hasAccessToken: false, templateLanguage: 'en', businessAccountId: null };
+
 export const DEMO_MAIL: Omit<MailSetting, 'purpose'> = { host: '', port: 587, enabled: false, fromName: 'Thakurg', userName: '', fromAddress: 'no-reply@thakurg.com', hasPassword: false, security: 'starttls' };
 
 /**

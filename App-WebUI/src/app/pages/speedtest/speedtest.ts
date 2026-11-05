@@ -16,19 +16,18 @@ import { Component, OnDestroy, afterNextRender, computed, effect, inject, signal
 const ARC_START = 150;
 const ARC_SWEEP = 240;
 const SEGMENTS = 54;
-const GAUGE_STOPS = [0, 5, 10, 25, 50, 75, 100, 250, 500, 1000, 2500, 5000, 10000];
 const range = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
 const gaugeAngle = (frac: number) => ARC_START + ARC_SWEEP * frac;
 const tickLabel = (mbps: number) => (mbps >= 1000 ? `${mbps / 1000}G` : String(mbps));
 const polar = (r: number, deg: number) => [+(120 + r * Math.cos((deg * Math.PI) / 180)).toFixed(1), +(120 + r * Math.sin((deg * Math.PI) / 180)).toFixed(1)];
 
-/** Where a speed sits on the dial (0 to 1): straight lines between the marked speeds. */
-const gaugeFraction = (mbps: number): number => {
-  const last = GAUGE_STOPS.length - 1;
-  const v = Math.min(GAUGE_STOPS[last], Math.max(0, mbps));
-  const next = GAUGE_STOPS.findIndex((s) => s > v);
+/** Where a speed sits on the dial (0 to 1): straight lines between the marked speeds (Settings > Features > Speed test page). */
+const gaugeFraction = (mbps: number, stops: number[]): number => {
+  const last = stops.length - 1;
+  const v = Math.min(stops[last], Math.max(0, mbps));
+  const next = stops.findIndex((s) => s > v);
   const i = next < 0 ? last - 1 : next - 1;
-  return (i + (v - GAUGE_STOPS[i]) / (GAUGE_STOPS[i + 1] - GAUGE_STOPS[i])) / last;
+  return (i + (v - stops[i]) / (stops[i + 1] - stops[i])) / last;
 };
 
 @Component({
@@ -47,6 +46,7 @@ export class Speedtest implements OnDestroy {
 
   protected readonly cfg = inject(SettingsService);
   protected readonly settings = this.cfg.settings;
+  private readonly stops = computed(() => this.cfg.settings().speed.gaugeStops);
   protected readonly fmt = fmtMbps;
   protected readonly shareOpen = signal(false);
   protected readonly saved = signal(false);
@@ -108,13 +108,13 @@ export class Speedtest implements OnDestroy {
     return { k: (i / (SEGMENTS - 1)).toFixed(3), x1, y1, x2, y2 };
   });
 
-  protected readonly labels = GAUGE_STOPS.map((m, i) => {
-    const f = i / (GAUGE_STOPS.length - 1);
+  protected readonly labels = computed(() => this.stops().map((m, i, all) => {
+    const f = i / (all.length - 1);
     const [x, y] = polar(117, gaugeAngle(f));
     return { text: tickLabel(m), f, x, y };
-  });
+  }));
 
-  protected readonly fraction = computed(() => gaugeFraction(this.engine.gauge()));
+  protected readonly fraction = computed(() => gaugeFraction(this.engine.gauge(), this.stops()));
 
   /** How many bars are lit; the last lit one is the glowing head. */
   protected readonly lit = computed(() => (this.fraction() > 0.002 ? Math.round(this.fraction() * (SEGMENTS - 1)) + 1 : 0));
@@ -122,8 +122,8 @@ export class Speedtest implements OnDestroy {
   /** The highest speed of the current phase, marked just outside the ring. */
   private readonly peak = signal(0);
   private peakPhase = this.engine.phase();
-  protected readonly peakAngle = computed(() => gaugeAngle(gaugeFraction(this.peak())));
-  protected readonly peakVisible = computed(() => gaugeFraction(this.peak()) * 100 > 0.2);
+  protected readonly peakAngle = computed(() => gaugeAngle(gaugeFraction(this.peak(), this.stops())));
+  protected readonly peakVisible = computed(() => gaugeFraction(this.peak(), this.stops()) * 100 > 0.2);
 
   protected readonly status = computed(() => {
     switch (this.engine.phase()) {

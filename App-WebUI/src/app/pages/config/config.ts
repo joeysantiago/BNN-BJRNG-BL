@@ -1,25 +1,27 @@
-import { MailTab } from './mail-tab/mail-tab';
-import { TranslationKey } from '../../i18n/en';
+import { KeysTab } from './keys-tab/keys-tab';
 import { RolesTab } from './roles-tab/roles-tab';
 import { UsersTab } from './users-tab/users-tab';
 import { SeoService } from '../../core/seo.service';
+import { FEATURE_APPS } from '../../feature-routes';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
 import { AccountTab } from './account-tab/account-tab';
 import { GeneralTab } from './general-tab/general-tab';
 import { SettingsIcon } from '../../shared/settings-icon';
-import { SettingsService } from '../../core/settings.service';
+import { TranslationKey } from '../../core/models/i18n.model';
 import { PermissionsTab } from './permissions-tab/permissions-tab';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FeatureSwitches } from './feature-switches/feature-switches';
+import { SettingsService, validStops } from '../../core/settings.service';
+import { FEATURES, FEATURE_GROUPS, featureBuilt } from '../../core/features';
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { FEATURES, FEATURE_APPS, FEATURE_GROUPS, featureBuilt } from '../../core/features';
 import { ConfigGroup, SaveNotice, SaveTarget, SettingsTab, TabInfo } from './config.model';
-import { AppSettings, ConnectionField, FeatureGroup, FeatureId, SettingsOverrides, SettingsSection } from '../../core/models/app-settings.model';
+import { AppSettings, ConnectionField, FeatureGroup, SettingsOverrides, SettingsSection } from '../../core/models/app-settings.model';
 
-/** Every tab of the page, in order. A tab shows when the user's role may view its page and this build holds what it is about. */
+/** Every tab of the page, in order. A tab shows when the user's role may view its page and this branch holds what it is about. */
 const TABS: TabInfo[] = [
-  // The settings with a login, key or password (the site's mail server), kept encrypted in the database by the API branches; super admin only, like Mail.
-  { id: 'general', page: 'settings.mail' },
+  { id: 'general', page: null },
+  { id: 'keys', page: null },
   { id: 'account', page: 'settings.account' },
   { id: 'users', page: 'settings.users' },
   { id: 'roles', page: 'settings.roles' },
@@ -29,19 +31,19 @@ const TABS: TabInfo[] = [
   { id: 'services', page: 'settings.services' },
   { id: 'youtube', page: 'settings.youtube' },
   { id: 'json', page: 'settings.json' },
-  // No role can be given this page (it has no Pages row), so only a super admin, who has every right, sees it, as in the API branches.
-  { id: 'mail', page: 'settings.mail' },
 ];
 
 /**
- * /master, the Settings page, the same as in the API branches. One tab per area, shown by the rights of the user's role (Role rights tab; a super admin sees every tab):
- * For me (language, skin, password and the options of their own pages, for every user), Users, Roles, Role rights, and the site settings of this build's apps
- * (FEATURE_APPS). Site setting edits are drafts that preview at once; a Save button in every section (and Save all) saves them. Mojito has no API: the demo backend
- * in the browser checks every right again and keeps the data in this browser.
+ * /master, the Settings page. One tab per area, shown by the rights of the user's role (Role rights tab; a super admin sees every tab).
+ * General comes first, for every logged-in user: one section per app they may open, with its name (a super admin renames it), switches and the app's own settings.
+ * Keys, for a super admin who logged in with a password: the settings with a login, key or password, kept encrypted in the database.
+ * For me (language, skin, password and the options of their own pages, for every user), Users, Roles, Role rights, and the site settings of this branch's apps
+ * (FEATURE_APPS). Site setting edits are drafts that preview at once in this browser; a Save button in every section (and Save all) writes them to the database.
+ * The API checks every right again, so a hidden button is a convenience, not the protection.
  */
 @Component({
   selector: 'app-config',
-  imports: [RouterLink, GeneralTab, AccountTab, UsersTab, RolesTab, PermissionsTab, MailTab, SettingsIcon],
+  imports: [RouterLink, GeneralTab, KeysTab, AccountTab, UsersTab, RolesTab, PermissionsTab, SettingsIcon, FeatureSwitches],
   templateUrl: './config.html',
   styleUrl: './config.scss',
 })
@@ -49,6 +51,7 @@ const TABS: TabInfo[] = [
 export class Config {
   private readonly router = inject(Router);
   private readonly seo = inject(SeoService);
+  protected readonly gaugeBad = signal(false);
   private readonly route = inject(ActivatedRoute);
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
@@ -63,13 +66,16 @@ export class Config {
   protected readonly hasSpeed = featureBuilt('speed', FEATURE_APPS);
   protected readonly hasYoutube = featureBuilt('youtube', FEATURE_APPS);
   protected readonly json = computed(() => JSON.stringify(this.cfg.overrides(), null, 2));
-  protected readonly tabs = computed(() => TABS.filter((t) => this.auth.can(t.page) && this.built(t.id)));
+  /** The Keys tab: a super admin who logged in with a password, as the API's mail settings need (SuperAdminPassword). */
+  protected readonly canKeys = computed(() => this.auth.isSuperAdmin() && this.auth.user()?.loginMethod !== 'otp');
+  /** General is for every logged-in user, Keys for a super admin with a password login, the rest by the View right of their page. */
+  protected readonly tabs = computed(() => TABS.filter((t) => (t.page ? this.auth.can(t.page) : t.id === 'keys' ? this.canKeys() : !!this.auth.user()) && this.built(t.id)));
   protected readonly fields = computed(() => Object.keys(this.defaults.connection.fields) as ConnectionField[]);
   protected readonly requested = signal<SettingsTab | null>(this.route.snapshot.queryParamMap.get('tab') as SettingsTab | null);
   /** The open tab: the one asked for in ?tab= when the user may see it, otherwise the first. */
   protected readonly current = computed(() => this.tabs().find((t) => t.id === this.requested()) ?? this.tabs()[0] ?? null);
   /** The site settings sections the user may save; Save all saves only these. */
-  protected readonly editable = computed(() => this.sections().filter((s) => this.auth.can(s === 'connection' ? 'settings.connection' : s === 'services' ? 'settings.services' : 'settings.features', 'edit')));
+  protected readonly editable = computed(() => this.sections().filter((s) => this.auth.can(s === 'connection' ? 'settings.connection' : s === 'services' ? 'settings.services' : s === 'youtubeAccess' ? 'settings.youtube' : 'settings.features', 'edit')));
   protected readonly groups: ConfigGroup[] = FEATURE_GROUPS.filter((g) => featureBuilt(g.id, FEATURE_APPS)).map((g) => ({ ...g, items: FEATURES.filter((f) => f.group === g.id && featureBuilt(f.id, FEATURE_APPS)) })).filter((g) => g.items.length);
 
   constructor() {
@@ -96,8 +102,12 @@ export class Config {
     this.cfg.setRefreshSeconds(+(ev.target as HTMLInputElement).value);
   }
 
-  state(on: boolean): string {
-    return this.i18n.t(on ? 'cfg.on' : 'cfg.off');
+  /** Applies the typed gauge speeds (Mbps, separated by commas or spaces); a list the API would refuse is not applied. */
+  gauge(ev: Event): void {
+    const stops = (ev.target as HTMLInputElement).value.split(/[\s,]+/).filter(Boolean).map(Number);
+    this.gaugeBad.set(!validStops(stops));
+    if (!this.gaugeBad())
+      this.cfg.setGaugeStops(stops);
   }
 
   checked(ev: Event): boolean {
@@ -105,7 +115,7 @@ export class Config {
   }
 
   tabName(tab: TabInfo): string {
-    return this.i18n.t((tab.id === 'general' ? 'cfg.tab.general' : `perm.page.${tab.page}`) as TranslationKey);
+    return this.i18n.t((tab.page ? `perm.page.${tab.page}` : `cfg.tab.${tab.id}`) as TranslationKey);
   }
 
   /** Opens a tab and keeps it in the address (?tab=), so a reload or a shared link opens the same tab. */
@@ -132,10 +142,6 @@ export class Config {
     return this.i18n.t(this.saving() === target ? 'cfg.save.saving' : target === 'all' ? 'cfg.save.all' : 'cfg.save');
   }
 
-  feature(id: FeatureId, ev: Event): void {
-    this.cfg.setFeature(id, this.checked(ev));
-  }
-
   label(id: ConnectionField): TranslationKey {
     return `conn.${id}` as TranslationKey;
   }
@@ -145,7 +151,7 @@ export class Config {
     return this.cfg.pending([section]);
   }
 
-  /** Saves one section, or every unsaved edit the user may save for `all`. The backend checks the rights again; the page only shows what it answers. */
+  /** Saves one section, or every unsaved edit the user may save for `all`. The server checks the rights again; the page only shows what it answers. */
   async save(target: SaveTarget): Promise<void> {
     this.saving.set(target);
     this.saveNotice.set(null);
@@ -165,11 +171,6 @@ export class Config {
     return n?.section === target ? n : null;
   }
 
-  /** The YouTube key and the download helper are a draft until their Save button is pressed, like the other site settings. */
-  youtube(key: keyof AppSettings['youtube'], ev: Event): void {
-    this.cfg.setYoutube(key, (ev.target as HTMLInputElement).value.trim());
-  }
-
   /** Arrow keys, Home and End move between the tabs (the WAI-ARIA tabs pattern); the tab that gets focus opens. */
   onTabKey(ev: KeyboardEvent, index: number): void {
     const tabs = this.tabs();
@@ -183,24 +184,30 @@ export class Config {
     document.getElementById(`cfg-tab-${next.id}`)?.focus();
   }
 
+  /** The YouTube key and the download helper are a draft until their Save button is pressed, like the other site settings (Mojito has no API to keep them). */
+  youtube(key: keyof AppSettings['youtube'], ev: Event): void {
+    this.cfg.setYoutube(key, (ev.target as HTMLInputElement).value.trim());
+  }
+
   // #endregion
 
   // #region Private Methods
 
-  /** Every site settings section this build shows: the feature groups, then connection and services when the speed test is built. */
+  /** Every site settings section this branch shows: the feature groups, then connection and services when the speed test is built. */
   private sections(): SettingsSection[] {
     const groups: SettingsSection[] = this.groups.map((g) => g.id as FeatureGroup);
-    return this.hasSpeed ? [...groups, 'connection', 'services'] : groups;
+    const speed: SettingsSection[] = this.hasSpeed ? ['connection', 'services'] : [];
+    return [...groups, ...speed, ...(this.hasYoutube ? (['youtubeAccess'] as SettingsSection[]) : [])];
   }
 
-  /** Whether this build holds what the tab is about. */
+  /** Whether this branch holds what the tab is about (a Creta build has no speed test or YouTube settings). */
   private built(id: SettingsTab): boolean {
     return id === 'connection' || id === 'services' ? this.hasSpeed : id === 'youtube' ? this.hasYoutube : id === 'features' ? this.groups.length > 0 : true;
   }
 
-  /** The backend's own message when it answered; "server unreachable" when it did not. */
+  /** The server's own message when it answered; "server unreachable" when it did not. */
   private failureText(e: unknown): string {
-    return (e as { status?: number }).status !== undefined ? (e as Error).message : this.i18n.t('auth.serverDown');
+    return (e as { status?: number }).status !== undefined ? (e as Error).message : this.i18n.t('yt.serverdown');
   }
 
   // #endregion

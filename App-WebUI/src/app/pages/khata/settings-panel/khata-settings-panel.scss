@@ -1,0 +1,8 @@
+@use '../../config/config';
+
+:host {
+  display: grid;
+}
+.field-row input {
+  width: min(100%, 320px);
+}

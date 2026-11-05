@@ -127,10 +127,6 @@ export class TasksApiService {
     return this.call<TaskCategory>('POST', '/tasks/categories', { name, color });
   }
 
-  rename(names: Record<string, string>): Promise<ApiResponse<Record<string, string>>> {
-    return this.call<Record<string, string>>('PUT', '/tasks/settings/app-name', { names });
-  }
-
   setPin(pin: string, currentPin: string | null): Promise<ApiResponse<TaskPinStatus>> {
     return this.call<TaskPinStatus>('PUT', '/tasks/pin', { pin, currentPin });
   }

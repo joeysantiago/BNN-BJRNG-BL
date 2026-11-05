@@ -35,6 +35,7 @@ export interface SettingsOverrides {
   connection?: { enabled?: boolean; fields?: Partial<Record<ConnectionField, boolean>> };
   services?: { enabled?: boolean; refreshSeconds?: number; items?: Record<string, boolean> };
   youtube?: Partial<AppSettings['youtube']>;
+  speed?: { gaugeStops?: number[] };
   /** App names saved by the apps themselves (My Tasks: Settings > General, super admins only), like the PageNames rows of the API branches. */
   pageNames?: Partial<Record<PageId, Partial<PageName>>>;
 }
@@ -56,6 +57,10 @@ export interface ServiceConfig {
 
 export interface AppSettings {
   githubRepo: string;
+  speed: {
+    /** Speeds in Mbps printed on the speed test gauge, evenly spaced around the ring. The first is 0 and each is larger than the one before. */
+    gaugeStops: number[];
+  };
   youtube: {
     /** YouTube Data API v3 key. Leave empty to play pasted links only. */
     apiKey: string;

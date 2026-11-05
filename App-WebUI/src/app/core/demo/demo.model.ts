@@ -2,8 +2,9 @@ import { PageCode } from '../models/role.model';
 import { KhataDemoDb } from './khata-demo.model';
 import { TasksDemoDb } from './tasks-demo.model';
 import { MailSetting } from '../models/mail.model';
+import { WhatsAppAccount } from '../../pages/config/whatsapp-card/whatsapp-card.model';
 import { SettingsOverrides } from '../models/app-settings.model';
-import { ProfileDetails, ProfileLimits } from '../models/auth.model';
+import { LoginMethod, OtpChannel, ProfileDetails, ProfileLimits } from '../models/auth.model';
 
 /** One text of the API's Messages table, in the three languages. */
 export interface DemoText {
@@ -83,6 +84,26 @@ export interface DemoSession {
   userId: number;
   expiresAt: number;
   loggedInOn?: number;
+  method?: LoginMethod;
+}
+
+/** A one-time login code that was asked for (the OneTimeCodes rows of the API branches); the demo keeps the code itself, not a hash. */
+export interface DemoOtp {
+  code: string;
+  sentAt: number;
+  attempts: number;
+  expiresAt: number;
+  channel: OtpChannel;
+  destination: string;
+}
+
+/** Auth:Otp of the API: the code, how long it works, wrong tries, the wait before another one, and the apps that may use a code login. */
+export interface DemoOtpRules {
+  apps: string[];
+  codeLength: number;
+  codeMinutes: number;
+  maxAttempts: number;
+  resendSeconds: number;
 }
 
 /** The whole demo database, kept in this browser's storage. `settings` are the saved site settings (what differs from appSettings.ts); `mail` the saved mail servers. */
@@ -95,6 +116,8 @@ export interface DemoDb {
   mail?: MailSetting[];
   khata?: KhataDemoDb;
   tasks?: TasksDemoDb;
+  otp?: DemoOtp[];
+  whatsapp?: WhatsAppAccount;
   sessions: DemoSession[];
   settings: SettingsOverrides;
   permissions: DemoPermission[];
@@ -127,6 +150,7 @@ export interface DemoRules {
   accessMinutes: number;
   passwordMinLength: number;
   passwordMaxLength: number;
+  otp: DemoOtpRules;
   avatarTypes: string[];
   profileLimits: ProfileLimits;
 }

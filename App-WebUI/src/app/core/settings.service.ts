@@ -6,6 +6,11 @@ import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { AppSettings, ConnectionField, FeatureFlags, FeatureId, PageId, SettingsOverrides, SettingsSection } from './models/app-settings.model';
 
+/** Same rule as the API branches: 2 to 20 whole numbers, the first 0, each larger than the one before, at most 100000. */
+export const validStops = (v: unknown): v is number[] => Array.isArray(v) && v.length >= 2 && v.length <= 20 && v.every((n) => Number.isInteger(n)) && v[0] === 0 && v[v.length - 1] <= 100000 && v.every((n, i) => i === 0 || n > v[i - 1]);
+
+const sameStops = (a: number[], b: number[]): boolean => a.length === b.length && a.every((n, i) => n === b[i]);
+
 /**
  * The settings in use. appSettings.ts holds the defaults; the saved changes (Settings page, Save buttons) are layered on top, and are kept by the demo backend
  * in this browser (Mojito has no API). Edits made on the Settings page are drafts on top of that: the site previews them at once, they live in memory only
@@ -70,6 +75,18 @@ export class SettingsService {
     this.overrides.set(this.clean(next));
   }
 
+  /** Set the speeds (Mbps) printed on the speed test gauge. Invalid lists are ignored. */
+  setGaugeStops(stops: number[]): void {
+    if (!validStops(stops))
+      return;
+    this.change((o) => {
+      if (sameStops(stops, this.defaults.speed.gaugeStops))
+        delete o.speed;
+      else
+        o.speed = { gaugeStops: stops };
+    });
+  }
+
   setRefreshSeconds(value: number): void {
     this.change((o) => this.put((o.services ??= {}), 'refreshSeconds', Math.max(0, Math.round(value) || 0), this.defaults.services.refreshSeconds));
   }
@@ -92,7 +109,8 @@ export class SettingsService {
       Object.keys(o.services?.items ?? {}).length +
       (o.connection?.enabled === undefined ? 0 : 1) +
       (o.services?.enabled === undefined ? 0 : 1) +
-      (o.services?.refreshSeconds === undefined ? 0 : 1)
+      (o.services?.refreshSeconds === undefined ? 0 : 1) +
+      (o.speed?.gaugeStops === undefined ? 0 : 1)
     );
   }
 
@@ -144,6 +162,7 @@ export class SettingsService {
       ...d,
       features: { ...d.features, ...o.features },
       youtube: { ...d.youtube, ...o.youtube },
+      speed: { gaugeStops: o.speed?.gaugeStops ?? d.speed.gaugeStops },
       pageNames: Object.fromEntries(Object.entries(d.pageNames).map(([id, n]) => [id, { ...n, ...o.pageNames?.[id as PageId] }])) as AppSettings['pageNames'],
       connection: { enabled: o.connection?.enabled ?? d.connection.enabled, fields: { ...d.connection.fields, ...o.connection?.fields } },
       services: {
@@ -176,6 +195,8 @@ export class SettingsService {
       out.features = features;
     if (youtube)
       out.youtube = youtube;
+    if (validStops(o.speed?.gaugeStops) && !sameStops(o.speed.gaugeStops, d.speed.gaugeStops))
+      out.speed = { gaugeStops: o.speed.gaugeStops };
 
     const connection: NonNullable<SettingsOverrides['connection']> = {};
     if (typeof o.connection?.enabled === 'boolean' && o.connection.enabled !== d.connection.enabled)
@@ -214,6 +235,8 @@ export class SettingsService {
       out.services = o.services;
     if (o.youtube && wants('youtubeAccess'))
       out.youtube = o.youtube;
+    if (o.speed && wants('speed'))
+      out.speed = o.speed;
     return out;
   }
 

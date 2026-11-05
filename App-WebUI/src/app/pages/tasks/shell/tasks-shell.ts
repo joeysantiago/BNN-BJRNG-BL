@@ -14,7 +14,7 @@ import { TasksLockService } from '../../../core/tasks-lock.service';
 import { TasksOverlays } from '../ui/tasks-overlays/tasks-overlays';
 import { TasksStateService } from '../../../core/tasks-state.service';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
-import { Component, OnDestroy, ViewEncapsulation, afterNextRender, computed, effect, inject } from '@angular/core';
+import { Component, OnDestroy, ViewEncapsulation, afterNextRender, computed, effect, inject, signal, untracked } from '@angular/core';
 
 /**
  * The frame of the My Tasks app: a rail on wide screens, a top bar and bottom tabs with the Add button on phones, the lock screen, the task editor,
@@ -39,6 +39,8 @@ export class TasksShell implements OnDestroy {
   protected readonly lock = inject(TasksLockService);
   protected readonly state = inject(TasksStateService);
   protected readonly appName = computed(() => this.i18n.page('tasks'));
+  /** A PIN flow asked for in ?lock= (Settings > General), opened once the app is unlocked. */
+  private readonly flow = signal<'create' | 'change' | 'remove' | null>(null);
   protected readonly crumb = computed(() => this.i18n.t('tasks.nav.' + (this.screen() || 'tasks')));
   /** The screen that is open: the path after /tasks/app (empty for the task list). */
   protected readonly screen = computed(() => this.url().split(/[?#]/)[0].replace(/^\/tasks\/app\/?/, '').split('/')[0]);
@@ -46,6 +48,7 @@ export class TasksShell implements OnDestroy {
   protected readonly nav = [
     { path: '/tasks/app', icon: 'tasks', label: 'tasks.nav.tasks', exact: true },
     { path: '/tasks/app/calendar', icon: 'cal', label: 'tasks.nav.calendar', exact: false },
+    { path: '/master', icon: 'gear', label: 'tasks.nav.settings', exact: false, query: { tab: 'general', app: 'tasks' } },
   ];
 
   constructor() {
@@ -54,9 +57,19 @@ export class TasksShell implements OnDestroy {
       if (this.lock.open())
         void this.state.load();
     });
+    // The PIN screen opens over the app: a set PIN asks to unlock first, then the flow asked for opens.
+    effect(() => {
+      const flow = this.flow();
+      if (!flow || !this.lock.open())
+        return;
+      untracked(() => {
+        this.flow.set(null);
+        this.lock.begin(flow);
+      });
+    });
     afterNextRender(() => {
       this.pwa.enter('tasks');
-      void this.lock.start();
+      void this.startLock();
     });
   }
 
@@ -76,6 +89,20 @@ export class TasksShell implements OnDestroy {
   current(path: string): string | null {
     const screen = path.replace(/^\/tasks\/app\/?/, '');
     return screen === this.screen() ? 'page' : null;
+  }
+
+  // #endregion
+
+  // #region Private Methods
+
+  /** Starts the app lock; ?lock=create|change|remove (the App Lock buttons of Settings > General) then opens that PIN flow here, where the PIN screen lives. */
+  private async startLock(): Promise<void> {
+    await this.lock.start();
+    const flow = this.router.parseUrl(this.router.url).queryParams['lock'];
+    if (flow !== 'create' && flow !== 'change' && flow !== 'remove')
+      return;
+    void this.router.navigate([], { queryParams: { lock: null }, queryParamsHandling: 'merge', replaceUrl: true });
+    this.flow.set(flow);
   }
 
   // #endregion

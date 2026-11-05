@@ -11,6 +11,24 @@
   --font-mono: 'Consolas', 'SF Mono', ui-monospace, monospace;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --radius-pill: 999px;
+  /* Height of the fixed site footer: one line of links and copyright on phones (44px tap targets), a 40px bar on wider screens. */
+  --foot-h: 46px;
+}
+
+@media (min-width: 721px) {
+  :root {
+    --foot-h: 40px;
+  }
+}
+
+/* Phones and tablets: an app with its own bottom tab bar (Khata) owns the bottom edge, so the site footer steps aside and frees the space. */
+@media (max-width: 1023px) {
+  body:has(.khata .k-tabs) app-site-footer {
+    display: none;
+  }
+  body:has(.khata .k-tabs) main {
+    padding-block-end: 0;
+  }
 }
 
 /* ---------- Skin: Glassmorphism (default) ---------- */
@@ -591,30 +609,58 @@ p {
   }
 }
 
-/* The site footer is pinned to the bottom of every page; the page reserves its height so nothing hides behind it. */
-:root {
-  --foot-h: 52px;
+/* Dropdowns: the open list follows the skin instead of a white system box. Every browser gets the skin's colours on the options;
+   browsers with customizable selects (Chrome and Edge 135+) also get a rounded panel, the skin's hover colour instead of system blue,
+   and the chosen option in the accent colour. Options stay 44px tall for touch. */
+option {
+  background: var(--bg);
+  color: var(--text);
 }
-@media (max-width: 720px) {
-  :root {
-    --foot-h: 46px;
+@supports (appearance: base-select) {
+  /* The chosen value stays on one line beside the arrow; a long one is cut, never wrapped over the box edge. */
+  select {
+    appearance: base-select;
+    white-space: nowrap;
+    overflow: hidden;
   }
-}
-@media (min-width: 721px) {
-  :root {
-    --foot-h: 40px;
+  option {
+    white-space: normal;
   }
-}
-body:has(app-site-footer) main {
-  padding-block-end: calc(var(--foot-h) + 16px + env(safe-area-inset-bottom));
-}
-/* Phones and tablets: an app with its own bottom tab bar (Khata) owns the bottom edge, so the site footer steps aside and frees the space. */
-@media (max-width: 1023px) {
-  body:has(.khata .k-tabs) app-site-footer {
-    display: none;
+  select::picker-icon {
+    color: var(--muted);
+    transition: rotate 0.15s ease;
   }
-  body:has(.khata .k-tabs) main {
-    padding-block-end: 0;
+  select:open::picker-icon {
+    rotate: 180deg;
+  }
+  ::picker(select) {
+    appearance: base-select;
+    margin-block: 6px;
+    padding: 6px;
+    border: 1px solid var(--line, rgba(128, 128, 128, 0.3));
+    border-radius: 14px;
+    background: var(--bg);
+    color: var(--text);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  }
+  option {
+    min-height: 44px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+  }
+  option:hover,
+  option:focus-visible {
+    outline: none;
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+  option:checked {
+    color: var(--accent-ink);
+    font-weight: 700;
+  }
+  option::checkmark {
+    color: var(--accent);
   }
 }
 

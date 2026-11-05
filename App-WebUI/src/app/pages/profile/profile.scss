@@ -220,19 +220,37 @@ a.chip:hover {
   opacity: 0.75;
 }
 
-/* Delete my account: a red outline, and a button that is tinted red when it asks for the second press. */
-.danger-zone {
-  border-color: color-mix(in srgb, var(--danger) 55%, transparent);
+/* The details and delete cards, and the parts the apps bring (FEATURE_PROFILE), take the whole row below the cards above. */
+.layout > .wide,
+.layout > :not(.card):not(.col) {
+  grid-column: 1 / -1;
 }
-
+.group {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.group legend {
+  padding: 0 0 6px;
+  font-weight: 700;
+}
+.two {
+  display: grid;
+  gap: 12px;
+}
+@media (min-width: 600px) {
+  .two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 .btn.danger {
-  color: var(--danger);
-  border-color: color-mix(in srgb, var(--danger) 60%, transparent);
-  background: transparent;
+  border-color: var(--bad, #c0392b);
+  color: var(--bad, #c0392b);
 }
-
 .btn.danger.sure {
-  background: color-mix(in srgb, var(--danger) 18%, transparent);
-  border-color: var(--danger);
-  font-weight: 800;
+  background: var(--bad, #c0392b);
+  color: #fff;
 }

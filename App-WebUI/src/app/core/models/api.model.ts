@@ -3,3 +3,8 @@ export interface ApiResponse<T> {
   success: boolean;
   message: string | null;
 }
+
+export interface SpeedInfo {
+  ip: string;
+  serverName: string;
+}

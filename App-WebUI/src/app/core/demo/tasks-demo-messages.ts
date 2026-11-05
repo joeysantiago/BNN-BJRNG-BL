@@ -28,8 +28,6 @@ export const TASKS_DEMO_MESSAGES: DemoMessages = {
   TASKS_PHOTO_LIMIT: { en: 'A task can have up to {0} pictures.', hi: 'एक कार्य में अधिकतम {0} तस्वीरें हो सकती हैं।', ar: 'يمكن أن تحتوي المهمة على {0} صور كحد أقصى.' },
   TASKS_PHOTO_INVALID: { en: 'Only JPG, PNG, WebP or GIF pictures up to {0} MB can be attached.', hi: 'केवल {0} MB तक की JPG, PNG, WebP या GIF तस्वीरें जोड़ी जा सकती हैं।', ar: 'يمكن إرفاق صور JPG أو PNG أو WebP أو GIF فقط بحجم يصل إلى {0} ميغابايت.' },
   TASKS_SETTINGS_SAVED: { en: 'Settings saved.', hi: 'सेटिंग्स सहेजी गईं।', ar: 'تم حفظ الإعدادات.' },
-  TASKS_NAME_SAVED: { en: 'App name saved.', hi: 'ऐप का नाम सहेजा गया।', ar: 'تم حفظ اسم التطبيق.' },
-  TASKS_NAME_INVALID: { en: 'Enter an English name of up to {0} characters.', hi: 'अधिकतम {0} अक्षरों का अंग्रेज़ी नाम लिखें।', ar: 'أدخل اسمًا باللغة الإنجليزية لا يزيد عن {0} حرفًا.' },
   TASKS_PIN_INVALID: { en: 'The PIN must be {0} digits.', hi: 'पिन {0} अंकों का होना चाहिए।', ar: 'يجب أن يتكون الرقم السري من {0} أرقام.' },
   TASKS_PIN_WEAK: { en: 'This PIN is too easy to guess. Avoid repeated or sequential digits.', hi: 'यह पिन आसानी से अनुमान लगाया जा सकता है। एक जैसे या क्रमागत अंकों से बचें।', ar: 'هذا الرقم السري سهل التخمين. تجنب الأرقام المتكررة أو المتسلسلة.' },
   TASKS_PIN_SAVED: { en: 'App Lock PIN saved.', hi: 'ऐप लॉक पिन सहेजा गया।', ar: 'تم حفظ الرقم السري لقفل التطبيق.' },

@@ -1,5 +1,5 @@
 /** The pages (Settings tabs) role rights are given for. Same codes as the Pages table of the API (Thakurg.Contracts/Auth/PageCodes.cs). */
-export type PageCode = 'settings.account' | 'settings.users' | 'settings.roles' | 'settings.permissions' | 'settings.features' | 'settings.connection' | 'settings.services' | 'settings.youtube' | 'settings.json' | 'settings.mail';
+export type PageCode = 'settings.account' | 'settings.users' | 'settings.roles' | 'settings.permissions' | 'settings.features' | 'settings.connection' | 'settings.services' | 'settings.youtube' | 'settings.json';
 
 /** The four rights a role can have on a page. */
 export type PermissionAction = 'view' | 'add' | 'edit' | 'delete';

@@ -3,55 +3,97 @@
     <h1 id="auth-h1">{{ i18n.t(mode === 'signup' ? 'auth.signup.h1' : 'auth.login.h1') }}</h1>
     <p class="lead">{{ i18n.t(mode === 'signup' ? 'auth.signup.lead' : 'auth.login.lead') }}</p>
 
-    <form class="form" [attr.aria-busy]="busy()" (submit)="submit($event)">
-      @if (mode === 'signup') {
-        <label class="field">
-          <span>{{ i18n.t('auth.name') }}</span>
-          <input name="displayName" type="text" autocomplete="name" maxlength="100" required [disabled]="busy()" />
-        </label>
-      }
-      <label class="field">
-        <span>{{ i18n.t('auth.email') }}</span>
-        <input name="email" type="email" inputmode="email" autocomplete="username" spellcheck="false" maxlength="256" required [disabled]="busy()" />
-      </label>
-      <div class="field">
-        <label for="auth-pw">{{ i18n.t('auth.password') }}</label>
-        <div class="pw">
-          <input id="auth-pw" name="password" [type]="show() ? 'text' : 'password'" [attr.autocomplete]="mode === 'signup' ? 'new-password' : 'current-password'"
-            [attr.aria-describedby]="mode === 'signup' ? 'auth-pw-hint' : null" required [disabled]="busy()" />
-          <button type="button" class="btn icon eye" [attr.aria-pressed]="show()" [attr.aria-label]="i18n.t(show() ? 'auth.hide' : 'auth.show')" (click)="show.set(!show())">
-            @if (show()) {
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3 3l18 18"/>
-                <path d="M10.6 5.1A10 10 0 0 1 12 5c5 0 9 4.5 10 7a13 13 0 0 1-3 4.2"/>
-                <path d="M6.6 6.6C4.4 8 2.8 10 2 12c1 2.5 5 7 10 7a9.6 9.6 0 0 0 5.4-1.6"/>
-                <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>
-              </svg>
-            } @else {
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M2 12c1-2.5 5-7 10-7s9 4.5 10 7c-1 2.5-5 7-10 7S3 14.5 2 12z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-            }
-          </button>
-        </div>
-        @if (mode === 'signup') {
-          <small id="auth-pw-hint" class="hint">{{ i18n.t('auth.pwHint') }}</small>
-        }
+    @if (otpApp && mode === 'login') {
+      <div class="way" role="group" [attr.aria-label]="i18n.t('auth.otp.way')">
+        <button type="button" [attr.aria-pressed]="way() === 'password'" (click)="setWay('password')">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>{{ i18n.t('auth.otp.byPassword') }}
+        </button>
+        <button type="button" [attr.aria-pressed]="way() === 'otp'" (click)="setWay('otp')">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5" /><path d="M11 18h2" /></svg>{{ i18n.t('auth.otp.byCode') }}
+        </button>
       </div>
-      <button type="submit" class="btn pri lg" [disabled]="busy()">{{ i18n.t(busy() ? 'auth.busy' : mode === 'signup' ? 'auth.signup.btn' : 'auth.login.btn') }}</button>
-      @if (error()) {
-        <p class="err" role="alert">{{ error() }}</p>
-      }
-    </form>
+    }
 
-    @if (mode === 'login' && quickLogins().length) {
-      <div class="dev" role="group" aria-labelledby="auth-dev-h">
-        <p id="auth-dev-h" class="hint">{{ i18n.t('auth.dev.h') }}</p>
-        @for (l of quickLogins(); track l.id) {
-          <button type="button" class="btn sm" [disabled]="busy()" (click)="useLogin(l)">{{ l.email }}</button>
+    @if (way() === 'password') {
+      <form class="form" [attr.aria-busy]="busy()" (submit)="submit($event)">
+        @if (mode === 'signup') {
+          <label class="field">
+            <span>{{ i18n.t('auth.name') }}</span>
+            <input name="displayName" type="text" autocomplete="name" maxlength="100" required [disabled]="busy()" />
+          </label>
         }
-      </div>
+        <label class="field">
+          <span>{{ i18n.t('auth.email') }}</span>
+          <input name="email" type="email" inputmode="email" autocomplete="username" spellcheck="false" maxlength="256" required [disabled]="busy()" />
+        </label>
+        <div class="field">
+          <label for="auth-pw">{{ i18n.t('auth.password') }}</label>
+          <div class="pw">
+            <input id="auth-pw" name="password" [type]="show() ? 'text' : 'password'" [attr.autocomplete]="mode === 'signup' ? 'new-password' : 'current-password'"
+              [attr.aria-describedby]="mode === 'signup' ? 'auth-pw-hint' : null" required [disabled]="busy()" />
+            <button type="button" class="btn icon eye" [attr.aria-pressed]="show()" [attr.aria-label]="i18n.t(show() ? 'auth.hide' : 'auth.show')" (click)="show.set(!show())">
+              @if (show()) {
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 3l18 18"/>
+                  <path d="M10.6 5.1A10 10 0 0 1 12 5c5 0 9 4.5 10 7a13 13 0 0 1-3 4.2"/>
+                  <path d="M6.6 6.6C4.4 8 2.8 10 2 12c1 2.5 5 7 10 7a9.6 9.6 0 0 0 5.4-1.6"/>
+                  <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>
+                </svg>
+              } @else {
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M2 12c1-2.5 5-7 10-7s9 4.5 10 7c-1 2.5-5 7-10 7S3 14.5 2 12z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              }
+            </button>
+          </div>
+          @if (mode === 'signup') {
+            <small id="auth-pw-hint" class="hint">{{ i18n.t('auth.pwHint') }}</small>
+          }
+        </div>
+        <button type="submit" class="btn pri lg" [disabled]="busy()">{{ i18n.t(busy() ? 'auth.busy' : mode === 'signup' ? 'auth.signup.btn' : 'auth.login.btn') }}</button>
+        @if (error()) {
+          <p class="err" role="alert">{{ error() }}</p>
+        }
+      </form>
+      @if (mode === 'login' && quickLogins().length) {
+        <div class="dev" role="group" aria-labelledby="auth-dev-h">
+          <p id="auth-dev-h" class="hint">{{ i18n.t('auth.dev.h') }}</p>
+          @for (l of quickLogins(); track l.id) {
+            <button type="button" class="btn sm" [disabled]="busy()" (click)="useLogin(l)">{{ l.email }}</button>
+          }
+        </div>
+      }
+    } @else if (step() === 'ask') {
+      <form class="form" [attr.aria-busy]="busy()" (submit)="$event.preventDefault(); sendCode(to.value)">
+        <label class="field">
+          <span>{{ i18n.t('auth.otp.to') }}</span>
+          <input #to name="destination" type="text" autocomplete="username" spellcheck="false" autocapitalize="off" maxlength="256" required aria-describedby="auth-otp-hint" [disabled]="busy()" [value]="destination()" />
+          <small id="auth-otp-hint" class="hint">{{ i18n.t('auth.otp.toHint') }}</small>
+        </label>
+        <button type="submit" class="btn pri lg" [disabled]="busy()">{{ i18n.t(busy() ? 'auth.busy' : 'auth.otp.send') }}</button>
+        @if (error()) {
+          <p class="err" role="alert">{{ error() }}</p>
+        }
+      </form>
+    } @else {
+      <form class="form" [attr.aria-busy]="busy()" (submit)="$event.preventDefault(); verifyCode(code.value)">
+        @if (info()) {
+          <p class="hint" role="status">{{ info() }}</p>
+        }
+        <label class="field">
+          <span>{{ i18n.t('auth.otp.code') }}</span>
+          <input #code name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="8" required [disabled]="busy()" />
+        </label>
+        <button type="submit" class="btn pri lg" [disabled]="busy()">{{ i18n.t(busy() ? 'auth.busy' : 'auth.login.btn') }}</button>
+        <div class="way">
+          <button type="button" class="btn sm ghost" [disabled]="busy() || resendIn() > 0" (click)="sendCode(destination())">{{ resendIn() > 0 ? i18n.t('auth.otp.resendIn', { n: resendIn() }) : i18n.t('auth.otp.resend') }}</button>
+          <button type="button" class="btn sm ghost" [disabled]="busy()" (click)="changeDestination()">{{ i18n.t('auth.otp.changeTo') }}</button>
+        </div>
+        @if (error()) {
+          <p class="err" role="alert">{{ error() }}</p>
+        }
+      </form>
     }
 
     <p class="switch">

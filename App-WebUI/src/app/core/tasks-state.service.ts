@@ -231,7 +231,7 @@ export class TasksStateService {
   async saveSettings(settings: TaskSettings): Promise<boolean> {
     try {
       const res = await this.api.saveSettings(settings);
-      this.settings.set({ ...res.data, canRename: settings.canRename });
+      this.settings.set(res.data);
       this.toast(res.message ?? '');
       return true;
     } catch (e) {
@@ -394,7 +394,7 @@ export class TasksStateService {
       return;
     try {
       const res = await this.api.saveSettings({ ...settings, timeZone: zone });
-      this.settings.set({ ...res.data, canRename: settings.canRename });
+      this.settings.set(res.data);
     } catch {
       /* the server may not know the zone; the saved one stays */
     }

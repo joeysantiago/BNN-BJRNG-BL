@@ -2,7 +2,7 @@ import { UserNotice } from '../config.model';
 import { ApiService } from '../../../core/api.service';
 import { AuthService } from '../../../core/auth.service';
 import { I18nService } from '../../../core/i18n.service';
-import { TranslationKey } from '../../../i18n/en';
+import { TranslationKey } from '../../../core/models/i18n.model';
 import { Component, afterNextRender, computed, inject, signal } from '@angular/core';
 import { PageCode, PageInfo, RightFlags, RoleInfo, RolePermission, RolePermissionList } from '../../../core/models/role.model';
 
