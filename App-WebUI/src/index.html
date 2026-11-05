@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en" dir="ltr" data-skin="glass" data-mode="dark">
+<html lang="en" dir="ltr" data-skin="agni" data-mode="light">
   <head>
     <meta charset="utf-8" />
     <title>Internet Speed Test: Check Download, Upload and Ping (Free)</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#170a1c" />
+    <meta name="theme-color" content="#ffe4d1" />
     <meta name="color-scheme" content="dark light" />
     <meta name="application-name" content="Speed Test" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -54,7 +54,7 @@
         try {
           var el = document.documentElement;
           var s = localStorage.getItem('thakurg-skin');
-          if (!s || !/^(glass|clay|skeu|neu)$/.test(s)) s = 'glass';
+          if (!s || !/^(agni|glass|clay|skeu|neu)$/.test(s)) s = 'agni';
           el.setAttribute('data-skin', s);
           // Brightness: the visitor's choice (dark, light, or system = the device), otherwise the skin's own (Glass dark, the others light).
           var m = localStorage.getItem('thakurg-mode');
