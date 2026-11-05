@@ -1,0 +1,154 @@
+<section class="page" aria-labelledby="tasks-h1">
+  <div class="head">
+    <div>
+      <h1 id="tasks-h1">{{ greeting() }}</h1>
+      <p>{{ i18n.t('tasks.dayLine', { day: weekday(), date: formatYmd(state.clock().today), n: dueToday() }) }}</p>
+    </div>
+    <div class="row">
+      <button type="button" class="btn sm" [attr.aria-pressed]="state.selecting()" (click)="state.selecting() ? state.stopSelecting() : state.selecting.set(true)">
+        <app-task-icon name="tasks" [size]="16" />{{ i18n.t(state.selecting() ? 'tasks.select.done' : 'tasks.select.start') }}
+      </button>
+      <button type="button" class="btn pri sm" (click)="state.openEditor(null)"><app-task-icon name="plus" [size]="16" />{{ i18n.t('tasks.add') }}</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <button type="button" class="card stat total" (click)="quickFilter('all', 'all')"><small><app-task-icon name="tasks" [size]="15" />{{ i18n.t('tasks.sum.total') }}</small><b class="num">{{ state.summary().total }}</b></button>
+    <button type="button" class="card stat" (click)="quickFilter('active', 'all')"><small><app-task-icon name="clock" [size]="15" />{{ i18n.t('tasks.sum.active') }}</small><b class="num">{{ state.summary().active }}</b></button>
+    <button type="button" class="card stat done" (click)="quickFilter('completed', 'all')"><small><app-task-icon name="check" [size]="15" />{{ i18n.t('tasks.sum.done') }}</small><b class="num">{{ state.summary().done }}</b></button>
+    <button type="button" class="card stat overdue" (click)="quickFilter('active', 'overdue')"><small><app-task-icon name="alert" [size]="15" />{{ i18n.t('tasks.sum.overdue') }}</small><b class="num">{{ state.summary().overdue }}</b></button>
+  </div>
+
+  <div class="ptabs" role="tablist" [attr.aria-label]="i18n.t('tasks.tabs.label')">
+    @for (tab of tabs; track tab) {
+      <button type="button" role="tab" class="ptab" [id]="'tasks-tab-' + tab" aria-controls="tasks-list" [attr.aria-selected]="state.tab() === tab" (click)="setTab(tab)">
+        {{ i18n.t('tasks.tab.' + tab) }}<span class="c num">{{ state.count(tab, null, null) }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="toolbar">
+    <label class="search">
+      <span class="sr-only">{{ i18n.t('tasks.search.label') }}</span>
+      <app-task-icon name="search" [size]="18" />
+      <input class="in" id="tasks-q" type="search" autocomplete="off" [placeholder]="i18n.t('tasks.search.placeholder')" [value]="state.query()" (input)="state.query.set($any($event.target).value)" />
+    </label>
+    <div class="fmenu" (mouseenter)="hover('when')" (mouseleave)="leave()">
+      <button type="button" class="btn icon fbtn" aria-haspopup="true" aria-controls="tasks-when-menu" [class.on]="state.scope() !== 'all'" [attr.aria-expanded]="menu() === 'when'" [title]="i18n.t('tasks.filter.when')"
+        [attr.aria-label]="i18n.t('tasks.filter.when')" (click)="toggle('when')">
+        <app-task-icon name="clock" />
+      </button>
+      @if (menu() === 'when') {
+        <div id="tasks-when-menu" class="pop-menu fpop" role="group" [attr.aria-label]="i18n.t('tasks.filter.when')">
+          @for (scope of scopes; track scope) {
+            <button type="button" class="pop-opt" [class.od]="scope === 'overdue'" [attr.aria-pressed]="state.scope() === scope" (click)="pick(scope)">
+              {{ i18n.t('tasks.scope.' + scope) }}<span class="c num">{{ state.count(null, scope, null) }}</span>
+            </button>
+          }
+          <span class="pop-lbl">{{ i18n.t('tasks.filter.months') }}</span>
+          @for (m of state.periods().months; track m) {
+            <button type="button" class="pop-opt" [attr.aria-pressed]="state.scope() === 'm:' + m" (click)="pick('m:' + m)">{{ month(m) }}<span class="c num">{{ state.count(null, 'm:' + m, null) }}</span></button>
+          }
+          <span class="pop-lbl">{{ i18n.t('tasks.filter.years') }}</span>
+          @for (y of state.periods().years; track y) {
+            <button type="button" class="pop-opt" [attr.aria-pressed]="state.scope() === 'y:' + y" (click)="pick('y:' + y)">{{ i18n.t('tasks.scope.year', { year: y }) }}<span class="c num">{{ state.count(null, 'y:' + y, null) }}</span></button>
+          }
+        </div>
+      }
+    </div>
+    <div class="fmenu" (mouseenter)="hover('cat')" (mouseleave)="leave()">
+      <button type="button" class="btn icon fbtn" aria-haspopup="true" aria-controls="tasks-cat-menu" [class.on]="state.category() !== 'all'" [attr.aria-expanded]="menu() === 'cat'" [title]="i18n.t('tasks.filter.category')"
+        [attr.aria-label]="i18n.t('tasks.filter.category')" (click)="toggle('cat')">
+        <app-task-icon name="tag" />
+      </button>
+      @if (menu() === 'cat') {
+        <div id="tasks-cat-menu" class="pop-menu fpop" role="group" [attr.aria-label]="i18n.t('tasks.filter.category')">
+          <button type="button" class="pop-opt" [attr.aria-pressed]="state.category() === 'all'" (click)="pickCategory('all')">{{ i18n.t('tasks.cat.all') }}<span class="c num">{{ state.count(null, null, 'all') }}</span></button>
+          @for (c of state.categories(); track c.id) {
+            <button type="button" class="pop-opt" [attr.aria-pressed]="state.category() === c.id" (click)="pickCategory(c.id)">
+              @if (c.code === 'marketing') {
+                <app-task-icon name="mega" [size]="16" />
+              } @else {
+                <span class="dot" [style.background]="c.color"></span>
+              }
+              {{ state.categoryName(c) }}<span class="c num">{{ state.count(null, null, c.id) }}</span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+    <select class="in sort" [attr.aria-label]="i18n.t('tasks.sort.label')" (change)="state.sort.set($any($event.target).value)">
+      <option value="due" [selected]="state.sort() === 'due'">{{ i18n.t('tasks.sort.due') }}</option>
+      <option value="priority" [selected]="state.sort() === 'priority'">{{ i18n.t('tasks.sort.priority') }}</option>
+      <option value="created" [selected]="state.sort() === 'created'">{{ i18n.t('tasks.sort.created') }}</option>
+    </select>
+  </div>
+
+  @if (state.scope() !== 'all' || state.category() !== 'all') {
+    <div class="active-filter" role="group" [attr.aria-label]="i18n.t('tasks.filter.active')">
+      @if (state.scope() !== 'all') {
+        <button type="button" class="chip on" [attr.aria-label]="i18n.t('tasks.filter.remove', { name: scopeName() })" (click)="state.scope.set('all')">
+          <app-task-icon name="clock" [size]="15" />{{ scopeName() }}<app-task-icon name="x" [size]="14" />
+        </button>
+      }
+      @if (state.categoryOf(state.category() === 'all' ? null : $any(state.category())); as c) {
+        <button type="button" class="chip on" [attr.aria-label]="i18n.t('tasks.filter.remove', { name: state.categoryName(c) })" (click)="state.category.set('all')">
+          <app-task-icon name="tag" [size]="15" />{{ state.categoryName(c) }}<app-task-icon name="x" [size]="14" />
+        </button>
+      }
+    </div>
+  }
+
+  @if (state.tab() !== 'completed') {
+    <form class="card quick" (submit)="addQuick($event)">
+      <span class="cc" aria-hidden="true"></span>
+      <input class="in" name="title" autocomplete="off" maxlength="120" [attr.aria-label]="i18n.t('tasks.quick.label')"
+        [placeholder]="state.quickDue() ? i18n.t('tasks.quick.due', { date: formatYmd(state.quickDue()) }) : i18n.t('tasks.quick.placeholder')" [value]="quick()" (input)="quick.set($any($event.target).value)" />
+      <button class="btn pri icon" [attr.aria-label]="i18n.t('tasks.add')"><app-task-icon name="plus" /></button>
+    </form>
+  }
+
+  <div id="tasks-list" role="tabpanel" [attr.aria-labelledby]="'tasks-tab-' + state.tab()">
+    @if (!state.loaded()) {
+      <div class="card empty"><p class="muted">{{ i18n.t('tasks.loading') }}</p></div>
+    } @else if (state.groups().length) {
+      <div class="list">
+        @for (g of state.groups(); track g.key) {
+          <h2 class="ghead" [class.od]="g.overdue">@if (g.overdue) {<app-task-icon name="alert" [size]="15" />}{{ g.label }} <span class="c num">· {{ g.tasks.length }}</span></h2>
+          @for (t of g.tasks; track t.id) {
+            <app-task-card [task]="t" />
+          }
+        }
+      </div>
+    } @else {
+      <div class="card empty">
+        <span class="big"><app-task-icon name="tasks" [size]="30" /></span>
+        <h2>{{ empty() }}</h2>
+        <p class="muted">{{ i18n.t('tasks.empty.hint') }}</p>
+        <div class="row center">
+          <button type="button" class="btn" (click)="state.clearFilters()">{{ i18n.t('tasks.filter.clear') }}</button>
+          <button type="button" class="btn pri" (click)="state.openEditor(null)"><app-task-icon name="plus" [size]="18" />{{ i18n.t('tasks.add') }}</button>
+        </div>
+      </div>
+    }
+  </div>
+</section>
+
+@if (state.selecting()) {
+  <div class="bulk" role="toolbar" [attr.aria-label]="i18n.t('tasks.select.bar')">
+    <b>{{ i18n.t('tasks.select.count', { n: state.selected().size }) }}</b>
+    <button type="button" class="btn sm" (click)="state.selectAll()">{{ i18n.t('tasks.select.all') }}</button>
+    <button type="button" class="btn sm ok" [disabled]="!state.selected().size" (click)="state.bulk('complete')"><app-task-icon name="check" [size]="16" />{{ i18n.t('tasks.complete') }}</button>
+    <button type="button" class="btn sm" [disabled]="!state.selected().size" (click)="state.bulk('reopen')">{{ i18n.t('tasks.reopen') }}</button>
+    <button type="button" class="btn sm" [disabled]="!state.selected().size" (click)="state.bulk('duplicate')"><app-task-icon name="copy" [size]="16" />{{ i18n.t('tasks.duplicate') }}</button>
+    <select class="in" [attr.aria-label]="i18n.t('tasks.select.move')" [disabled]="!state.selected().size" (change)="moveTo($any($event.target).value); $any($event.target).value = ''">
+      <option value="">{{ i18n.t('tasks.select.move') }}</option>
+      <option value="none">{{ i18n.t('tasks.cat.none') }}</option>
+      @for (c of state.categories(); track c.id) {
+        <option [value]="c.id">{{ state.categoryName(c) }}</option>
+      }
+    </select>
+    <button type="button" class="btn sm danger" [disabled]="!state.selected().size" (click)="state.bulk('delete')"><app-task-icon name="trash" [size]="16" />{{ i18n.t('tasks.delete') }}</button>
+    <button type="button" class="btn sm ghost" (click)="state.stopSelecting()">{{ i18n.t('tasks.cancel') }}</button>
+  </div>
+}

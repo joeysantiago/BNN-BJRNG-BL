@@ -1,0 +1,221 @@
+<section class="page" aria-labelledby="tasks-set-h">
+  <div class="head"><div><h2 id="tasks-set-h" class="sec-title">{{ i18n.t('tasks.nav.settings') }}</h2><p>{{ i18n.t('tasks.set.lead', { app: appName() }) }}</p></div></div>
+  <div class="stabs" role="tablist" [attr.aria-label]="i18n.t('tasks.nav.settings')">
+    @for (t of visibleTabs(); track t.id) {
+      <button type="button" role="tab" class="stab" [attr.aria-selected]="tab() === t.id" (click)="open(t.id)"><app-task-icon [name]="t.icon" [size]="17" />{{ i18n.t(t.label) }}</button>
+    }
+  </div>
+
+  @if (state.settings(); as s) {
+    @switch (tab()) {
+      @case ('general') {
+        <div class="sgrid two">
+          <form class="card pad stack" (submit)="rename($event)">
+            <div><h2>{{ i18n.t('tasks.set.name.title') }}</h2><p class="sub">{{ i18n.t('tasks.set.name.lead') }}</p></div>
+            @if (!s.canRename) {
+              <div class="note"><app-task-icon name="lock" [size]="18" /><span>{{ i18n.t('tasks.set.name.only') }}</span></div>
+            }
+            @for (l of langs; track l.code) {
+              <label class="field">
+                <span>{{ i18n.t('tasks.set.name.in', { lang: l.native }) }}</span>
+                <input class="in" maxlength="40" [attr.dir]="l.dir" [attr.lang]="l.code" [required]="l.code === 'en'" [disabled]="!s.canRename" [value]="names()[l.code] ?? ''" (input)="setName(l.code, $any($event.target).value)" />
+              </label>
+            }
+            @if (s.canRename) {
+              <div class="row"><button class="btn pri" [disabled]="savingName()">{{ i18n.t('tasks.set.name.save') }}</button></div>
+            }
+          </form>
+          <div class="card pad stack-tight">
+            <h2>{{ i18n.t('tasks.set.look') }}</h2>
+            <div class="set-row"><div class="txt"><b>{{ i18n.t('tasks.set.theme') }}</b></div>
+              <div class="seg" role="group" [attr.aria-label]="i18n.t('tasks.set.theme')">
+                @for (m of modes; track m.id) {
+                  <button type="button" [attr.aria-pressed]="theme.activeMode() === m.id" (click)="theme.setMode(m.id)"><app-task-icon [name]="m.icon" [size]="15" />{{ i18n.t('theme.' + m.id) }}</button>
+                }
+              </div>
+            </div>
+            <label class="set-row"><span class="txt"><b>{{ i18n.t('lang.label') }}</b></span>
+              <select class="in auto" (change)="setLanguage($any($event.target).value)">
+                @for (l of langs; track l.code) {
+                  <option [value]="l.code" [selected]="i18n.lang() === l.code">{{ l.native }}</option>
+                }
+              </select>
+            </label>
+            <div class="set-row"><div class="txt"><b>{{ i18n.t('tasks.set.weekStart') }}</b><small>{{ i18n.t('tasks.set.weekStartHelp') }}</small></div>
+              <div class="seg" role="group" [attr.aria-label]="i18n.t('tasks.set.weekStart')">
+                <button type="button" [attr.aria-pressed]="s.weekStart === 'mon'" (click)="set('weekStart', 'mon')">{{ i18n.t('tasks.set.monday') }}</button>
+                <button type="button" [attr.aria-pressed]="s.weekStart === 'sun'" (click)="set('weekStart', 'sun')">{{ i18n.t('tasks.set.sunday') }}</button>
+              </div>
+            </div>
+            <label class="set-row"><span class="txt"><b>{{ i18n.t('tasks.set.defaultTab') }}</b></span>
+              <select class="in auto" (change)="set('defaultTab', $any($event.target).value)">
+                @for (t of ['all', 'active', 'completed']; track t) {
+                  <option [value]="t" [selected]="s.defaultTab === t">{{ i18n.t('tasks.tab.' + t) }}</option>
+                }
+              </select>
+            </label>
+            <label class="set-row"><span class="txt"><b>{{ i18n.t('tasks.set.defaultCategory') }}</b></span>
+              <select class="in auto" (change)="set('defaultCategoryId', $any($event.target).value ? +$any($event.target).value : null)">
+                <option value="" [selected]="s.defaultCategoryId === null">{{ i18n.t('tasks.cat.none') }}</option>
+                @for (c of state.categories(); track c.id) {
+                  <option [value]="c.id" [selected]="s.defaultCategoryId === c.id">{{ categoryName(c) }}</option>
+                }
+              </select>
+            </label>
+            <label class="set-row"><span class="txt"><b>{{ i18n.t('tasks.set.defaultPriority') }}</b></span>
+              <select class="in auto" (change)="set('defaultPriority', +$any($event.target).value)">
+                @for (p of [1, 2, 3]; track p) {
+                  <option [value]="p" [selected]="s.defaultPriority === p">{{ i18n.t('tasks.pri.' + p) }}</option>
+                }
+              </select>
+            </label>
+          </div>
+        </div>
+      }
+      @case ('lock') {
+        <div class="sgrid two">
+          <div class="card pad stack-tight">
+            <h2>{{ i18n.t('tasks.set.lock') }}</h2><p class="sub">{{ i18n.t('tasks.set.lockLead') }}</p>
+            <div class="set-row">
+              <div class="txt"><b>{{ i18n.t('tasks.set.lockOn', { app: appName() }) }}</b><small>{{ i18n.t(lock.enabled() ? 'tasks.on' : 'tasks.off') }}</small></div>
+              <label class="switch"><input type="checkbox" [checked]="lock.enabled()" [attr.aria-label]="i18n.t('tasks.set.lock')" (change)="toggleLock($any($event.target).checked); $any($event.target).checked = lock.enabled()" /><i></i></label>
+            </div>
+            <label class="set-row"><span class="txt"><b>{{ i18n.t('tasks.set.lockAfter') }}</b><small>{{ i18n.t('tasks.set.lockAfterHelp') }}</small></span>
+              <select class="in auto" [disabled]="!lock.enabled()" (change)="set('lockAfterMinutes', +$any($event.target).value)">
+                @for (m of lockTimes; track m) {
+                  <option [value]="m" [selected]="s.lockAfterMinutes === m">{{ m === 0 ? i18n.t('tasks.set.lockNowOption') : i18n.t('tasks.set.minutes', { n: m }) }}</option>
+                }
+              </select>
+            </label>
+            <div class="row top-gap">
+              <button type="button" class="btn" [disabled]="!lock.enabled()" (click)="lock.begin('change')"><app-task-icon name="key" [size]="18" />{{ i18n.t('tasks.set.changePin') }}</button>
+              <button type="button" class="btn" [disabled]="!lock.enabled()" (click)="lock.lockNow()"><app-task-icon name="lock" [size]="18" />{{ i18n.t('tasks.lock.now') }}</button>
+            </div>
+          </div>
+          <div class="card pad stack">
+            <h2>{{ i18n.t('tasks.set.independent') }}</h2>
+            <p class="sub">{{ i18n.t('tasks.set.independentLead') }}</p>
+            <div class="note"><app-task-icon name="shield" [size]="18" /><span>{{ i18n.t('tasks.set.serverLock') }}</span></div>
+          </div>
+        </div>
+      }
+      @case ('notifications') {
+        <div class="sgrid two">
+          <div class="card pad stack-tight">
+            <h2>{{ i18n.t('tasks.set.reminders') }}</h2><p class="sub">{{ i18n.t('tasks.set.remindersLead') }}</p>
+            <div class="set-row">
+              <div class="txt"><b>{{ i18n.t('tasks.set.notify') }}</b><small>{{ i18n.t('tasks.set.notifyHelp') }}</small></div>
+              <label class="switch"><input type="checkbox" [checked]="s.notificationsEnabled" [attr.aria-label]="i18n.t('tasks.set.notify')" (change)="set('notificationsEnabled', $any($event.target).checked)" /><i></i></label>
+            </div>
+            <label class="set-row"><span class="txt"><b>{{ i18n.t('tasks.set.before') }}</b><small>{{ i18n.t('tasks.set.beforeHelp') }}</small></span>
+              <select class="in auto" [disabled]="!s.notificationsEnabled" (change)="set('remindBefore', $any($event.target).value)">
+                @for (b of befores; track b) {
+                  <option [value]="b" [selected]="s.remindBefore === b">{{ i18n.t('tasks.before.' + b) }}</option>
+                }
+              </select>
+            </label>
+            <label class="set-row">
+              <span class="txt"><b>{{ i18n.t('tasks.set.daily') }}</b><small>{{ i18n.t('tasks.set.dailyHelp') }}</small></span>
+              <input class="in auto" type="time" [disabled]="!s.notificationsEnabled" [value]="s.reminderTime" (change)="$any($event.target).value && set('reminderTime', $any($event.target).value)" />
+            </label>
+            <div class="set-row">
+              <div class="txt"><b>{{ i18n.t('tasks.set.overdue') }}</b><small>{{ i18n.t('tasks.set.overdueHelp') }}</small></div>
+              <label class="switch">
+                <input type="checkbox" [checked]="s.overdueReminders" [disabled]="!s.notificationsEnabled" [attr.aria-label]="i18n.t('tasks.set.overdue')" (change)="set('overdueReminders', $any($event.target).checked)" /><i></i>
+              </label>
+            </div>
+            <div class="set-row">
+              <div class="txt"><b>{{ i18n.t('tasks.set.upcoming') }}</b><small>{{ i18n.t('tasks.set.upcomingHelp') }}</small></div>
+              <label class="switch">
+                <input type="checkbox" [checked]="s.upcomingReminders" [disabled]="!s.notificationsEnabled" [attr.aria-label]="i18n.t('tasks.set.upcoming')" (change)="set('upcomingReminders', $any($event.target).checked)" /><i></i>
+              </label>
+            </div>
+          </div>
+          <div class="card pad stack">
+            <h2>{{ i18n.t('tasks.set.device') }}</h2>
+            <div class="set-row">
+              <div class="txt"><b>{{ i18n.t('tasks.set.permission') }}</b><small>{{ i18n.t('tasks.set.permissionHelp') }}</small></div>
+              <span class="pill" [class.ok]="permission() === 'granted'" [class.bad]="permission() === 'denied'">{{ i18n.t('tasks.perm.' + permission()) }}</span>
+            </div>
+            <div class="row">
+              @if (permission() === 'default') {
+                <button type="button" class="btn" (click)="askPermission()"><app-task-icon name="bell" [size]="18" />{{ i18n.t('tasks.set.allow') }}</button>
+              }
+              <button type="button" class="btn" [disabled]="permission() !== 'granted' || !s.notificationsEnabled" (click)="test()">{{ i18n.t('tasks.set.test') }}</button>
+            </div>
+            <p class="muted small">{{ i18n.t('tasks.set.pushNote') }}</p>
+          </div>
+          <div class="card pad stack">
+            <h2>{{ i18n.t('tasks.set.whatsapp') }}</h2>
+            <p class="sub">{{ i18n.t('tasks.set.whatsappLead') }}</p>
+            <div class="set-row">
+              <div class="txt"><b>{{ i18n.t('tasks.set.whatsappOn') }}</b><small>{{ s.mobile ? i18n.t('tasks.set.whatsappTo', { mobile: s.mobile }) : i18n.t('tasks.set.whatsappNoMobile') }}</small></div>
+              <label class="switch">
+                <input type="checkbox" [checked]="s.whatsAppReminders" [disabled]="!s.notificationsEnabled || !s.mobile" [attr.aria-label]="i18n.t('tasks.set.whatsappOn')" (change)="set('whatsAppReminders', $any($event.target).checked)" /><i></i>
+              </label>
+            </div>
+            <div class="row">
+              @if (!s.mobile) {
+                <a class="btn" href="#tasks-mobile">{{ i18n.t('tasks.prof.addMobile') }}</a>
+              }
+              <button type="button" class="btn" [disabled]="!s.mobile || !s.whatsAppReminders" (click)="testWhatsApp()">{{ i18n.t('tasks.set.whatsappTest') }}</button>
+            </div>
+            <p class="muted small">{{ i18n.t('tasks.set.whatsappNote') }}</p>
+          </div>
+        </div>
+      }
+      @case ('categories') {
+        <div class="card pad stack">
+          <div><h2>{{ i18n.t('tasks.set.categories') }}</h2><p class="sub">{{ i18n.t('tasks.set.categoriesLead') }}</p></div>
+          <div class="cats">
+            @for (c of state.categories(); track c.id) {
+              <div class="cat-row">
+                <input class="swatch" type="color" [value]="c.color" [attr.aria-label]="i18n.t('tasks.set.color', { name: categoryName(c) })" (change)="saveCategory(c, c.name, $any($event.target).value)" />
+                <input class="in" maxlength="40" [value]="categoryName(c)" [readonly]="c.isSystem" [attr.aria-label]="i18n.t('tasks.set.categoryName')" (change)="saveCategory(c, $any($event.target).value, c.color)" />
+                <span class="pill">{{ i18n.t('tasks.set.taskCount', { n: c.taskCount }) }}</span>
+                @if (c.isSystem) {
+                  <span class="pill brand">{{ i18n.t('tasks.set.builtIn') }}</span>
+                } @else {
+                  <button type="button" class="btn ghost icon sm" [attr.aria-label]="i18n.t('tasks.set.deleteCategory', { name: categoryName(c) })" (click)="state.deleteCategory(c)"><app-task-icon name="trash" [size]="17" /></button>
+                }
+              </div>
+            }
+          </div>
+          <form class="row" (submit)="addCategory($event)">
+            <input class="swatch" type="color" [value]="newColor()" [attr.aria-label]="i18n.t('tasks.set.newColor')" (change)="newColor.set($any($event.target).value)" />
+            <input class="in grow" maxlength="40" required [placeholder]="i18n.t('tasks.set.newCategory')" [attr.aria-label]="i18n.t('tasks.set.newCategory')" [value]="newName()" (input)="newName.set($any($event.target).value)" />
+            <button class="btn pri"><app-task-icon name="plus" [size]="18" />{{ i18n.t('tasks.set.addCategory') }}</button>
+          </form>
+        </div>
+      }
+      @case ('users') {
+        <app-tasks-users />
+      }
+      @case ('deleted') {
+        <div class="card pad stack">
+          <div><h2>{{ i18n.t('tasks.set.deleted') }}</h2><p class="sub">{{ i18n.t('tasks.set.deletedLead') }}</p></div>
+          @if (deleted(); as list) {
+            <div class="cats">
+              @for (t of list; track t.id) {
+                <div class="cat-row">
+                  <span class="del-title">{{ t.title }}</span>
+                  <small class="muted">{{ i18n.t('tasks.set.deletedOn', { date: deletedOn(t) }) }}</small>
+                  <button type="button" class="btn sm" (click)="restore(t)"><app-task-icon name="undo" [size]="16" />{{ i18n.t('tasks.restore') }}</button>
+                </div>
+              } @empty {
+                <p class="muted">{{ i18n.t('tasks.set.nothingDeleted') }}</p>
+              }
+            </div>
+          } @else {
+            <p class="muted">{{ i18n.t('tasks.loading') }}</p>
+          }
+        </div>
+      }
+    }
+    @if (auth.can('settings.users')) {
+      <div class="note"><app-task-icon name="users" [size]="18" /><span>{{ i18n.t('tasks.set.access', { app: appName() }) }} <a routerLink="/master">{{ i18n.t('tasks.set.accessLink') }}</a></span></div>
+    }
+  } @else {
+    <div class="card empty"><p class="muted">{{ i18n.t('tasks.loading') }}</p></div>
+  }
+</section>

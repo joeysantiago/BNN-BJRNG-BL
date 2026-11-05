@@ -1,0 +1,34 @@
+<div class="menu">
+  <button type="button" class="btn ghost icon" aria-haspopup="true" aria-controls="tasks-lang-menu" [attr.aria-expanded]="menu() === 'lang'" [title]="i18n.t('lang.label')" [attr.aria-label]="i18n.t('lang.label')" (click)="toggle('lang')">
+    <app-task-icon name="globe" />
+  </button>
+  @if (menu() === 'lang') {
+    <div id="tasks-lang-menu" class="pop-menu" role="group" [attr.aria-label]="i18n.t('lang.label')">
+      @for (l of i18n.languages; track l.code) {
+        <button type="button" class="pop-opt" [attr.lang]="l.code" [attr.aria-pressed]="i18n.lang() === l.code" (click)="setLang(l.code)">{{ l.native }}@if (i18n.lang() === l.code) {<app-task-icon name="check" [size]="16" />}</button>
+      }
+    </div>
+  }
+</div>
+@if (!install.installed() && (install.canPrompt() || install.showIosHint())) {
+  <button type="button" class="btn ghost icon" [title]="i18n.t('tasks.set.installButton')" [attr.aria-label]="i18n.t('tasks.set.installButton')" (click)="installApp()"><app-task-icon name="download" /></button>
+}
+<div class="menu">
+  <button type="button" class="btn ghost icon" aria-haspopup="true" aria-controls="tasks-theme-menu" [attr.aria-expanded]="menu() === 'theme'" [title]="i18n.t('theme.label')" [attr.aria-label]="i18n.t('theme.label')" (click)="toggle('theme')">
+    <app-task-icon name="palette" />
+  </button>
+  @if (menu() === 'theme') {
+    <div id="tasks-theme-menu" class="pop-menu" role="group" [attr.aria-label]="i18n.t('theme.label')">
+      <div class="pop-modes" role="group" [attr.aria-label]="i18n.t('theme.mode')">
+        @for (m of modes; track m) {
+          <button type="button" class="pop-opt" [attr.aria-pressed]="theme.activeMode() === m" [title]="i18n.t('theme.' + m)" [attr.aria-label]="i18n.t('theme.' + m)" (click)="setMode(m)"><app-task-icon [name]="modeIcons[m]" [size]="18" /></button>
+        }
+      </div>
+      <div class="pop-skins" role="group" [attr.aria-label]="i18n.t('theme.skins')">
+        @for (s of theme.skins; track s.id) {
+          <button type="button" class="pop-opt" [attr.aria-pressed]="theme.skin() === s.id" (click)="setSkin(s.id)"><span [class]="'skin-swatch ' + s.id" aria-hidden="true"></span>{{ i18n.t(s.labelKey) }}</button>
+        }
+      </div>
+    </div>
+  }
+</div>

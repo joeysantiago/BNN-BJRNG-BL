@@ -1,0 +1,172 @@
+<div class="scrim" (click)="scrim($event)">
+  <form class="sheet" role="dialog" aria-modal="true" aria-labelledby="tasks-ed-h" novalidate (submit)="save($event)">
+    <div class="sheet-h">
+      <h2 id="tasks-ed-h">{{ i18n.t(task() ? 'tasks.ed.edit' : 'tasks.ed.new') }}</h2>
+      @if (status(); as s) {
+        <span class="pill" [class.ok]="s === 'completed'" [class.bad]="s === 'overdue'" [class.brand]="s === 'ongoing'">{{ i18n.t('tasks.status.' + s) }}</span>
+      }
+      <button type="button" class="btn ghost icon" [attr.aria-label]="i18n.t('tasks.close')" (click)="close()"><app-task-icon name="x" /></button>
+    </div>
+
+    <div class="sheet-b">
+      <label class="field">
+        <span class="sr-only">{{ i18n.t('tasks.ed.title') }}</span>
+        <input #titleInput class="in title-in" name="title" maxlength="120" required [placeholder]="i18n.t('tasks.ed.titlePlaceholder')" [value]="title()" (input)="title.set($any($event.target).value); error.set('')" [attr.aria-invalid]="!!error()"
+          aria-describedby="tasks-ed-err" />
+      </label>
+      <p class="lock-err" id="tasks-ed-err" role="alert">{{ error() }}</p>
+      <label class="field">
+        <span>{{ i18n.t('tasks.ed.description') }}</span>
+        <textarea class="in" name="description" maxlength="2000" [placeholder]="i18n.t('tasks.ed.descriptionPlaceholder')" [value]="description()" (input)="description.set($any($event.target).value)"></textarea>
+      </label>
+
+      <div class="grid2">
+        <div class="field"><span>{{ i18n.t('tasks.ed.due') }}</span><app-task-date-picker [label]="i18n.t('tasks.ed.due')" [(value)]="due" /></div>
+        <label class="field"><span>{{ i18n.t('tasks.ed.time') }}</span><input class="in" type="time" name="time" [disabled]="!due()" [value]="time()" (input)="time.set($any($event.target).value)" /></label>
+        <label class="field"><span>{{ i18n.t('tasks.ed.category') }}</span>
+          <select class="in" name="category" (change)="category.set($any($event.target).value ? +$any($event.target).value : null)">
+            <option value="" [selected]="category() === null">{{ i18n.t('tasks.cat.none') }}</option>
+            @for (c of state.categories(); track c.id) {
+              <option [value]="c.id" [selected]="category() === c.id">{{ state.categoryName(c) }}</option>
+            }
+          </select>
+        </label>
+        @if (!done()) {
+          <label class="field"><span>{{ i18n.t('tasks.ed.status') }}</span>
+            <select class="in" name="started" (change)="started.set($any($event.target).value === '1')">
+              <option value="0" [selected]="!started()">{{ i18n.t('tasks.status.pending') }}</option>
+              <option value="1" [selected]="started()">{{ i18n.t('tasks.status.ongoing') }}</option>
+            </select>
+          </label>
+        }
+      </div>
+
+      <div class="field"><span id="tasks-ed-pri">{{ i18n.t('tasks.ed.priority') }}</span>
+        <div class="seg pri-seg" role="group" aria-labelledby="tasks-ed-pri">
+          @for (p of [1, 2, 3]; track p) {
+            <button type="button" [attr.data-v]="p === 3 ? 'high' : p === 2 ? 'medium' : 'low'" [attr.aria-pressed]="priority() === p" (click)="priority.set(p)">
+              <i [style.background]="p === 3 ? '#e5484d' : p === 2 ? '#f5a524' : '#3fb37f'"></i>{{ i18n.t('tasks.pri.' + p) }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h">
+          <app-task-icon name="tasks" [size]="16" />{{ i18n.t('tasks.checklist.title') }}@if (items().length) {<span class="num">· {{ i18n.t('tasks.progress', { done: ticked(), total: items().length }) }}</span>}<span class="sp"></span>
+          @if (items().length) {<span class="bar" [class.full]="ticked() === items().length"><i [style.width.%]="(ticked() / items().length) * 100"></i></span>}
+        </div>
+        <div class="ed-cl">
+          @for (item of items(); track item.key; let i = $index, last = $last) {
+            <div class="cl-item" [class.done]="item.isDone">
+              <button type="button" class="cc sm" [class.on]="item.isDone" [attr.aria-pressed]="item.isDone" [attr.aria-label]="i18n.t('tasks.checklist.done', { text: item.text })" (click)="tick(item.key)">
+                <app-task-icon name="check" [size]="13" />
+              </button>
+              <input class="tx" maxlength="200" [attr.aria-label]="i18n.t('tasks.checklist.item')" [value]="item.text" (input)="edit(item.key, $any($event.target).value)" />
+              <button type="button" class="btn ghost icon sm" [attr.aria-label]="i18n.t('tasks.checklist.up')" [disabled]="i === 0" (click)="moveItem(item.key, -1)"><app-task-icon name="up" [size]="16" /></button>
+              <button type="button" class="btn ghost icon sm" [attr.aria-label]="i18n.t('tasks.checklist.down')" [disabled]="last" (click)="moveItem(item.key, 1)"><app-task-icon name="chev" [size]="16" /></button>
+              <button type="button" class="btn ghost icon sm" [attr.aria-label]="i18n.t('tasks.checklist.remove')" (click)="dropItem(item.key)"><app-task-icon name="x" [size]="16" /></button>
+            </div>
+          }
+        </div>
+        <div class="cl-add">
+          <span class="cc sm" aria-hidden="true"></span>
+          <input class="in" maxlength="200" [placeholder]="i18n.t('tasks.checklist.add')" [attr.aria-label]="i18n.t('tasks.checklist.new')" [value]="newItem()" (input)="newItem.set($any($event.target).value)"
+            (keydown.enter)="$event.preventDefault(); addItem()" />
+          <button type="button" class="btn icon sm" [attr.aria-label]="i18n.t('tasks.checklist.addButton')" (click)="addItem()"><app-task-icon name="plus" [size]="18" /></button>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h">
+          <app-task-icon name="clip" [size]="16" />{{ i18n.t('tasks.photo.title') }} <span class="num">· {{ photoCount() }}/{{ maxPhotos() }}</span><span class="sp"></span><small class="faint">{{ i18n.t('tasks.photo.types') }}</small>
+        </div>
+        <div class="photos">
+          @for (a of kept(); track a.id; let i = $index) {
+            <div class="ph">
+              <img [src]="state.photoUrl(a.id)" [alt]="a.fileName" loading="lazy" (click)="view(i)" />
+              <div class="acts">
+                <button type="button" [attr.aria-label]="i18n.t('tasks.photo.replace')" (click)="replace(a.id)"><app-task-icon name="edit" [size]="15" /></button>
+                <button type="button" [attr.aria-label]="i18n.t('tasks.photo.remove')" (click)="dropSaved(a.id)"><app-task-icon name="x" [size]="15" /></button>
+              </div>
+            </div>
+          }
+          @for (p of photos(); track p.key; let i = $index) {
+            <div class="ph">
+              <img [src]="p.url" [alt]="p.name" (click)="view(kept().length + i)" />
+              <div class="acts">
+                <button type="button" [attr.aria-label]="i18n.t('tasks.photo.replace')" (click)="replace('' + p.key)"><app-task-icon name="edit" [size]="15" /></button>
+                <button type="button" [attr.aria-label]="i18n.t('tasks.photo.remove')" (click)="dropPhoto(p.key)"><app-task-icon name="x" [size]="15" /></button>
+              </div>
+            </div>
+          }
+          @if (photoCount() < maxPhotos()) {
+            <button type="button" class="ph-add" (click)="pick('picker')"><app-task-icon name="image" [size]="22" />{{ i18n.t('tasks.photo.gallery') }}</button>
+            <button type="button" class="ph-add" (click)="pick('camera')"><app-task-icon name="camera" [size]="22" />{{ i18n.t('tasks.photo.camera') }}</button>
+          }
+        </div>
+        <input #picker class="sr-only" type="file" multiple tabindex="-1" aria-hidden="true" [accept]="accept" (change)="picked(picker)" />
+        <input #camera class="sr-only" type="file" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true" (change)="picked(camera)" />
+        <input #replacer class="sr-only" type="file" tabindex="-1" aria-hidden="true" [accept]="accept" (change)="picked(replacer)" />
+      </div>
+
+      <div class="grid2">
+        <label class="field"><span>{{ i18n.t('tasks.ed.repeat') }}</span>
+          <select class="in" name="repeat" (change)="repeat.set($any($event.target).value)">
+            @for (r of repeats; track r) {
+              <option [value]="r" [selected]="repeat() === r">{{ i18n.t('tasks.repeat.' + r) }}</option>
+            }
+          </select>
+        </label>
+        @if (repeat() === 'custom') {
+          <div class="field"><span>{{ i18n.t('tasks.ed.every') }}</span>
+            <div class="row nowrap"><input class="in every" type="number" min="1" max="99" [attr.aria-label]="i18n.t('tasks.ed.every')" [value]="every()" (input)="every.set(+$any($event.target).value || 1)" />
+              <select class="in" [attr.aria-label]="i18n.t('tasks.ed.unit')" (change)="unit.set($any($event.target).value)">
+                @for (u of units; track u) {
+                  <option [value]="u" [selected]="unit() === u">{{ i18n.t('tasks.unit.' + u + 's') }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        }
+        <div class="set-row bare">
+          <div class="txt"><b>{{ i18n.t('tasks.ed.reminder') }}</b><small>{{ i18n.t(state.settings()?.notificationsEnabled ? 'tasks.ed.reminderOn' : 'tasks.ed.reminderOff') }}</small></div>
+          <label class="switch"><input type="checkbox" [checked]="remind()" [attr.aria-label]="i18n.t('tasks.ed.reminder')" (change)="remind.set($any($event.target).checked)" /><i></i></label>
+        </div>
+      </div>
+
+      @if (task(); as t) {
+        <details class="more" (toggle)="loadHistory($event)">
+          <summary><app-task-icon name="clock" [size]="16" />{{ i18n.t('tasks.hist.title', { date: stamp(t.createdOn) }) }}@if (t.completedOn) { · {{ i18n.t('tasks.completedOn', { date: stamp(t.completedOn) }) }}}</summary>
+          @if (history(); as list) {
+            <ul class="hist">
+              @for (h of list; track $index) {
+                <li><span>{{ historyText(h) }}<small>{{ stamp(h.at) }}</small></span></li>
+              }
+            </ul>
+          } @else {
+            <p class="muted">{{ i18n.t('tasks.loading') }}</p>
+          }
+        </details>
+      }
+    </div>
+
+    <div class="sheet-f">
+      @if (task()) {
+        <button type="button" class="btn icon danger" [attr.aria-label]="i18n.t('tasks.delete')" (click)="remove()"><app-task-icon name="trash" [size]="18" /></button>
+        <button type="button" class="btn icon" [attr.aria-label]="i18n.t('tasks.duplicate')" (click)="duplicate()"><app-task-icon name="copy" [size]="18" /></button>
+      }
+      <span class="sp"></span>
+      @if (task()) {
+        @if (done()) {
+          <button type="button" class="btn" (click)="toggleDone()">{{ i18n.t('tasks.reopen') }}</button>
+        } @else {
+          <button type="button" class="btn ok" (click)="toggleDone()"><app-task-icon name="check" [size]="18" />{{ i18n.t('tasks.complete') }}</button>
+        }
+      } @else {
+        <button type="button" class="btn" [disabled]="saving()" (click)="save(null, true)">{{ i18n.t('tasks.ed.saveMore') }}</button>
+      }
+      <button class="btn pri" [disabled]="saving()">{{ i18n.t(task() ? 'tasks.save' : 'tasks.add') }}</button>
+    </div>
+  </form>
+</div>
