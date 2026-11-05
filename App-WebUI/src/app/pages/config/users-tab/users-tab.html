@@ -6,12 +6,7 @@
   }
 
   <div class="filters">
-    <fieldset class="bare seg">
-      <legend class="sr-only">{{ i18n.t('usr.filter') }}</legend>
-      @for (s of statuses; track s) {
-        <label class="pick"><input type="radio" name="userStatus" [value]="s" [checked]="status() === s" (change)="pick(s)" /><span>{{ i18n.t('usr.f.' + s) }}</span></label>
-      }
-    </fieldset>
+    <app-choice-group class="status-pick" name="userStatus" [label]="i18n.t('usr.filter')" [options]="statusOptions()" [value]="status()" (picked)="pick($any($event))" />
     <label class="search">
       <span class="sr-only">{{ i18n.t('usr.search') }}</span>
       <input type="search" autocomplete="off" enterkeyhint="search" [placeholder]="i18n.t('usr.search')" [value]="q()" (input)="q.set($any($event.target).value)" />

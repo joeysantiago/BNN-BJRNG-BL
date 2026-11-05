@@ -1,0 +1,46 @@
+/* Toasts sit above the bottom edge (and above the site footer), centred, at most 480px wide; they never cover more than the bottom of the screen. */
+.toasts {
+  position: fixed;
+  inset-inline: 16px;
+  inset-block-end: calc(var(--foot-h, 0px) + 16px);
+  z-index: 1000;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  width: min(100%, 480px);
+  padding: 10px 10px 10px 16px;
+  border: var(--card-border, 1px solid rgba(128, 128, 128, 0.25));
+  border-radius: 14px;
+  background: var(--card-bg, var(--bg));
+  color: var(--text);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+  pointer-events: auto;
+}
+.toast.bad {
+  border-color: var(--bad, #c0392b);
+}
+.text {
+  flex: 1 1 200px;
+  overflow-wrap: anywhere;
+}
+.close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.close:hover {
+  color: var(--text);
+}

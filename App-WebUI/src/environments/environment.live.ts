@@ -11,5 +11,7 @@ export const environment = {
     settingsSaveMs: 15000,
     musicLoadMs: 120000,
     musicResumeGapMs: 60000
-  }
+  },
+  // Disposable mail domains that cannot sign up (checked before a code is sent; the API checks its own list, Auth:BlockedEmailDomains).
+  blockedEmailDomains: ['yopmail.com', 'mailinator.com', 'guerrillamail.com', '10minutemail.com', 'tempmail.com', 'temp-mail.org', 'trashmail.com', 'sharklasers.com', 'getnada.com', 'dispostable.com']
 };

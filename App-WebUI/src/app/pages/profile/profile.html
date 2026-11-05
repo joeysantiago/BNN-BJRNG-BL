@@ -45,14 +45,10 @@
               <span>{{ i18n.t('auth.name') }}</span>
               <input name="displayName" type="text" autocomplete="name" maxlength="100" required [value]="u.displayName" [disabled]="saving() === 'details'" />
             </label>
-            <label class="field">
+            <div class="field">
               <span>{{ i18n.t('auth.p.language') }}</span>
-              <select name="language" [disabled]="saving() === 'details'">
-                @for (l of i18n.languages; track l.code) {
-                  <option [value]="l.code" [selected]="l.code === (u.language || i18n.lang())">{{ l.native }}</option>
-                }
-              </select>
-            </label>
+              <app-choice-group name="language" [label]="i18n.t('auth.p.language')" [options]="languages()" [value]="u.language || i18n.lang()" [disabled]="saving() === 'details'" />
+            </div>
             <div class="bar">
               <button type="submit" class="btn pri" [disabled]="saving() !== null">{{ i18n.t(saving() === 'details' ? 'auth.busy' : 'auth.p.save') }}</button>
               @if (infoNotice(); as n) {
@@ -92,7 +88,7 @@
         @if (details(); as d) {
           <form class="form" [attr.aria-busy]="saving() === 'address'" (submit)="saveAddress($event)">
             <fieldset class="group" [disabled]="saving() === 'address'">
-              <legend>{{ i18n.t('auth.p.personal') }}</legend>
+              <legend class="sr-only">{{ i18n.t('auth.p.address') }}</legend>
               <div class="two">
                 @for (f of personal; track f.name) {
                   <label class="field">
@@ -100,17 +96,37 @@
                     <input [name]="f.name" [type]="f.type" [attr.autocomplete]="f.autocomplete" [attr.maxlength]="d.limits?.[f.limit]" [value]="d[f.name] ?? ''" />
                   </label>
                 }
-              </div>
-            </fieldset>
-            <fieldset class="group" [disabled]="saving() === 'address'">
-              <legend>{{ i18n.t('auth.p.company') }}</legend>
-              <div class="two">
-                @for (f of company; track f.name) {
-                  <label class="field">
-                    <span>{{ i18n.t(f.label) }}</span>
-                    <input [name]="f.name" [type]="f.type" [attr.autocomplete]="f.autocomplete" [attr.maxlength]="d.limits?.[f.limit]" [value]="d[f.name] ?? ''" />
-                  </label>
-                }
+                <label class="field">
+                  <span>{{ i18n.t('auth.p.country') }}</span>
+                  <select autocomplete="country-name" (change)="pickCountry($any($event.target).value)">
+                    <option value="" [selected]="!countryId()">{{ i18n.t('auth.p.choose') }}</option>
+                    @for (c of countries(); track c.id) {
+                      <option [value]="c.id" [selected]="c.id === countryId()">{{ c.name }}</option>
+                    }
+                  </select>
+                </label>
+                <label class="field">
+                  <span>{{ i18n.t('auth.p.state') }}</span>
+                  <select autocomplete="address-level1" [disabled]="!states().length" (change)="pickState($any($event.target).value)">
+                    <option value="" [selected]="!stateId()">{{ i18n.t('auth.p.choose') }}</option>
+                    @for (s of states(); track s.id) {
+                      <option [value]="s.id" [selected]="s.id === stateId()">{{ s.name }}</option>
+                    }
+                  </select>
+                </label>
+                <label class="field">
+                  <span>{{ i18n.t('auth.p.city') }}</span>
+                  <select autocomplete="address-level2" [disabled]="!cities().length" (change)="cityId.set(+$any($event.target).value || null)">
+                    <option value="" [selected]="!cityId()">{{ i18n.t('auth.p.choose') }}</option>
+                    @for (c of cities(); track c.id) {
+                      <option [value]="c.id" [selected]="c.id === cityId()">{{ c.name }}</option>
+                    }
+                  </select>
+                </label>
+                <label class="field">
+                  <span>{{ i18n.t(postal.label) }}</span>
+                  <input [name]="postal.name" [type]="postal.type" [attr.autocomplete]="postal.autocomplete" [attr.maxlength]="d.limits?.[postal.limit]" [value]="d[postal.name] ?? ''" />
+                </label>
               </div>
             </fieldset>
             <div class="bar">

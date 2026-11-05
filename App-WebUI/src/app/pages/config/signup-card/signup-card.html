@@ -1,0 +1,8 @@
+<section class="sec" aria-labelledby="signup-h">
+  <h2 id="signup-h" class="sec-h">{{ i18n.t('cfg.signup.h') }}</h2>
+  <p class="help">{{ i18n.t('cfg.signup.lead') }}</p>
+  <app-choice-group name="signupVerification" [label]="i18n.t('cfg.signup.h')" [options]="channels()" [value]="cfg.settings().signupVerification" [disabled]="busy()" (picked)="pick($event)" />
+  @if (notice(); as n) {
+    <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+  }
+</section>
