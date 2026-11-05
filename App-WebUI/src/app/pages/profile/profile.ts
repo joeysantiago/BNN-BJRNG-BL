@@ -1,13 +1,15 @@
 import { Lang } from '../../core/site';
 import { SeoService } from '../../core/seo.service';
+import { NgComponentOutlet } from '@angular/common';
 import { APP_LINKS, appLink } from '../../core/apps';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
 import { UserAvatar } from '../../shared/user-avatar';
+import { FEATURE_PROFILE } from '../../feature-routes';
 import { ProfileForm, ProfileNotice } from './profile.model';
 import { formatDate, formatDateTimeWithZone } from '../../core/date-format';
-import { Component, WritableSignal, computed, effect, inject, signal } from '@angular/core';
+import { Component, Type, WritableSignal, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 
 /**
  * /profile: every logged-in user's account page, laid out side by side so it fits one screen on a desktop: the profile card (picture, name, role, member since,
@@ -15,7 +17,7 @@ import { Component, WritableSignal, computed, effect, inject, signal } from '@an
  */
 @Component({
   selector: 'app-profile',
-  imports: [RouterLink, UserAvatar],
+  imports: [RouterLink, UserAvatar, NgComponentOutlet],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -26,6 +28,7 @@ export class Profile {
   private readonly seo = inject(SeoService);
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
+  protected readonly panels = signal<Type<unknown>[]>([]);
   protected readonly saving = signal<ProfileForm | null>(null);
   protected readonly pwNotice = signal<ProfileNotice | null>(null);
   protected readonly infoNotice = signal<ProfileNotice | null>(null);
@@ -47,6 +50,8 @@ export class Profile {
         noindex: true,
       });
     });
+
+    afterNextRender(() => void this.loadPanels());
   }
 
   // #region Public Methods
@@ -103,6 +108,12 @@ export class Profile {
   /** The server's own message when it answered; "server unreachable" when it did not. */
   private failureText(e: unknown): string {
     return (e as { status?: number }).status !== undefined ? (e as Error).message : this.i18n.t('auth.serverDown');
+  }
+
+  /** Loads the profile parts of the apps this account may open (the guard has restored the login before this page opens). */
+  private async loadPanels(): Promise<void> {
+    const own = FEATURE_PROFILE.filter((p) => this.auth.hasApp(p.app)).sort((a, b) => a.order - b.order);
+    this.panels.set(await Promise.all(own.map((p) => p.load())));
   }
 
   private async run(target: ProfileForm, notice: WritableSignal<ProfileNotice | null>, work: () => Promise<string>): Promise<void> {

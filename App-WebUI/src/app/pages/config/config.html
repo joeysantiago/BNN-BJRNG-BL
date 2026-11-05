@@ -21,6 +21,9 @@
           @case ('general') {
             <app-general-tab />
           }
+          @case ('keys') {
+            <app-keys-tab />
+          }
           @case ('account') {
             <app-account-tab />
           }
@@ -76,38 +79,14 @@
 
             @if (tab.id === 'features') {
               @for (g of groups; track g.id) {
-                <section class="sec" [attr.aria-labelledby]="'cfg-' + g.id">
-                  <h2 class="sec-h" [id]="'cfg-' + g.id">{{ g.label }}</h2>
-                  <p class="help">{{ g.help }}</p>
-                  <fieldset class="bare" [disabled]="!auth.can('settings.features', 'edit')">
-                    <legend class="sr-only">{{ g.label }}</legend>
-                    <div class="opts">
-                      @for (f of g.items; track f.id) {
-                        <label class="opt" [class.diff]="settings().features[f.id] !== defaults.features[f.id]">
-                          <span class="txt">
-                            <b>{{ f.label }}</b>
-                            <small>{{ settings().features[f.id] !== defaults.features[f.id] ? i18n.t('cfg.default', { value: state(defaults.features[f.id]) }) : f.help }}</small>
-                          </span>
-                          <input type="checkbox" role="switch" class="switch" [checked]="settings().features[f.id]" (change)="feature(f.id, $event)" />
-                        </label>
-                      }
-                    </div>
-                    @if (g.id === 'speed') {
-                      <label class="field-row">
-                        <span class="txt"><b>{{ i18n.t('cfg.gauge') }}</b><small [class.bad]="gaugeBad()">{{ i18n.t(gaugeBad() ? 'cfg.gauge.bad' : 'cfg.gauge.help') }}</small></span>
-                        <input type="text" inputmode="numeric" autocomplete="off" [value]="settings().speed.gaugeStops.join(', ')" [attr.aria-invalid]="gaugeBad()" (change)="gauge($event)" />
-                      </label>
-                    }
-                  </fieldset>
-                  @if (auth.can('settings.features', 'edit')) {
-                    <div class="foot">
-                      <button type="button" class="btn pri" [disabled]="!pendingIn(g.id) || saving() !== null" [attr.title]="pendingIn(g.id) ? null : i18n.t('cfg.save.nothing')" (click)="save(g.id)">{{ saveLabel(g.id) }}</button>
-                      @if (noticeFor(g.id); as n) {
-                        <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
-                      }
-                    </div>
+                <app-feature-switches [heading]="g.label" [help]="g.help" [headingId]="'cfg-' + g.id" [items]="g.items">
+                  @if (g.id === 'speed') {
+                    <label class="field-row">
+                      <span class="txt"><b>{{ i18n.t('cfg.gauge') }}</b><small [class.bad]="gaugeBad()">{{ i18n.t(gaugeBad() ? 'cfg.gauge.bad' : 'cfg.gauge.help') }}</small></span>
+                      <input type="text" inputmode="numeric" autocomplete="off" [value]="settings().speed.gaugeStops.join(', ')" [attr.aria-invalid]="gaugeBad()" (change)="gauge($event)" />
+                    </label>
                   }
-                </section>
+                </app-feature-switches>
               }
             }
 

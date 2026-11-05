@@ -40,8 +40,8 @@ export class AuthService {
   readonly isAdmin = computed(() => this.user()?.isAdmin ?? false);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   readonly isSuperAdmin = computed(() => this.user()?.roleCode === 'super-admin');
-  /** Any right on a Settings tab: the Settings page has something to show. */
-  readonly canOpenSettings = computed(() => this.isSuperAdmin() || (this.user()?.permissions ?? []).some((p) => p.endsWith(':view')));
+  /** Every logged-in user: Settings > General holds the settings of their own apps, the other tabs follow the rights of their role. */
+  readonly canOpenSettings = computed(() => !!this.user());
 
   constructor() {
     this.api.useAuth({ token: () => this.token, refresh: () => this.recover() });
@@ -140,6 +140,7 @@ export class AuthService {
     this.leaveGuardedPage();
     return text;
   }
+
 
   /** The address of a user's profile picture, or null when they have none. The file name in ?v= changes with every upload, so the browser may keep the picture. */
   avatarUrl(user: AuthUser | null): string | null {
