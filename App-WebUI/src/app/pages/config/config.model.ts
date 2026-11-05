@@ -31,6 +31,9 @@ export interface UserNotice {
   error: boolean;
 }
 
+/** Which accounts the Users tab lists (GET /admin/users?status=). */
+export type UserStatus = 'all' | 'active' | 'archived' | 'deleted';
+
 /** A tab of the Settings page. */
 export type SettingsTab = 'general' | 'keys' | 'account' | 'users' | 'roles' | 'permissions' | 'features' | 'connection' | 'services' | 'youtube' | 'json';
 
