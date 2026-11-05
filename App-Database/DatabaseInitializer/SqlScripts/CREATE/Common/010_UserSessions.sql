@@ -6,6 +6,7 @@ BEGIN
         UserId           INT               NOT NULL                                                                 ,
         RefreshTokenHash CHAR(64)          NOT NULL                                                                 ,
         DeviceId         VARCHAR(64)       NOT NULL                                                                 ,
+        LoginMethod      VARCHAR(10)       NOT NULL                                                                 ,
         UserAgent        NVARCHAR(300)     NULL                                                                     ,
         LoggedInOn       DATETIME2         NOT NULL CONSTRAINT DF_UserSessions_LoggedInOn DEFAULT (SYSUTCDATETIME()),
         ExpiresOn        DATETIME2         NOT NULL                                                                 ,

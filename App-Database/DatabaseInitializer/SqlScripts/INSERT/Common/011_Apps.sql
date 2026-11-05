@@ -7,6 +7,7 @@ BEGIN
         ('creta', 0, 3),
         ('nexon', 0, 4),
         ('youtube', 0, 5),
-        ('hr', 0, 6);
+        ('hr', 0, 6),
+        ('tasks', 0, 7);
 END
 GO
