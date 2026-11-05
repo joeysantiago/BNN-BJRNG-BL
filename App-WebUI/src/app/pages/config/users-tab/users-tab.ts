@@ -6,6 +6,8 @@ import { I18nService } from '../../../core/i18n.service';
 import { UserAvatar } from '../../../shared/user-avatar';
 import { UserNotice, UserStatus } from '../config.model';
 import { RoleInfo } from '../../../core/models/role.model';
+import { ChoiceGroup } from '../../../shared/choice-group';
+import { ChoiceOption } from '../../../shared/models/choice.model';
 import { AuthUser, UserAccess } from '../../../core/models/auth.model';
 import { Component, afterNextRender, computed, inject, signal } from '@angular/core';
 
@@ -21,7 +23,7 @@ const NEW = 0;
  */
 @Component({
   selector: 'app-users-tab',
-  imports: [UserAvatar],
+  imports: [UserAvatar, ChoiceGroup],
   templateUrl: './users-tab.html',
   styleUrl: './users-tab.scss',
 })
@@ -58,6 +60,8 @@ export class UsersTab {
     const locale = this.i18n.info().locale.replace('_', '-');
     return (this.access()?.users ?? []).filter((u) => !q || u.displayName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)).sort((a, b) => this.rank(a) - this.rank(b) || a.displayName.localeCompare(b.displayName, locale));
   });
+
+  protected readonly statusOptions = computed<ChoiceOption[]>(() => this.statuses.map((s) => ({ value: s, label: this.i18n.t('usr.f.' + s) })));
 
   constructor() {
     afterNextRender(() => void this.load());

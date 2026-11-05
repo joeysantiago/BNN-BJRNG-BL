@@ -1,6 +1,7 @@
 import { appLink } from '../../../core/apps';
 import { NgComponentOutlet } from '@angular/common';
 import { appFeatures } from '../../../core/features';
+import { SignupCard } from '../signup-card/signup-card';
 import { AuthService } from '../../../core/auth.service';
 import { I18nService } from '../../../core/i18n.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -19,7 +20,7 @@ import { Component, afterNextRender, computed, inject, signal } from '@angular/c
  */
 @Component({
   selector: 'app-general-tab',
-  imports: [NgComponentOutlet, AppNameForm, FeatureSwitches],
+  imports: [NgComponentOutlet, AppNameForm, FeatureSwitches, SignupCard],
   templateUrl: './general-tab.html',
   styleUrl: './general-tab.scss',
 })

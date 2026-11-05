@@ -79,4 +79,16 @@ public static partial class MessageCodes
     public const string AuthQuickLoginRemoved = "AUTH_QUICK_LOGIN_REMOVED";
 
     public const string AuthQuickLoginUnavailable = "AUTH_QUICK_LOGIN_UNAVAILABLE";
+
+    public const string AuthEmailBlocked = "AUTH_EMAIL_BLOCKED";
+
+    public const string AuthSignupSmsText = "AUTH_SIGNUP_SMS_TEXT";
+
+    public const string AuthSignupCodeSent = "AUTH_SIGNUP_CODE_SENT";
+
+    public const string AuthSignupEmailLead = "AUTH_SIGNUP_EMAIL_LEAD";
+
+    public const string AuthSignupEmailSubject = "AUTH_SIGNUP_EMAIL_SUBJECT";
+
+    public const string AuthSignupMobileRequired = "AUTH_SIGNUP_MOBILE_REQUIRED";
 }

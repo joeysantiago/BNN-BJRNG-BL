@@ -17,4 +17,5 @@ export const EMPTY_SETTINGS: AppSettings = {
   connection: { enabled: false, fields: Object.fromEntries(CONNECTION_FIELDS.map((f) => [f, false])) as Record<ConnectionField, boolean> },
   services: { enabled: false, refreshSeconds: 0, items: [] },
   speed: { gaugeStops: DEFAULT_GAUGE_STOPS },
+  signupVerification: 'email',
 };

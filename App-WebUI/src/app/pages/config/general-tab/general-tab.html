@@ -1,5 +1,9 @@
 <p class="help lead-note">{{ i18n.t(auth.isSuperAdmin() ? 'cfg.app.leadAll' : 'cfg.app.lead') }}</p>
 
+@if (auth.isSuperAdmin()) {
+  <app-signup-card />
+}
+
 @for (s of sections(); track s.code) {
   <details class="app" [id]="'gen-app-' + s.code" [open]="opened() === s.code" (toggle)="toggle(s.code, $event)">
     <summary class="app-h">

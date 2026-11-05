@@ -18,14 +18,10 @@
           <span class="txt"><b>{{ i18n.t('gen.host') }}</b></span>
           <input name="host" type="text" inputmode="url" autocomplete="off" spellcheck="false" maxlength="255" placeholder="smtp.example.com" [value]="s.host" />
         </label>
-        <label class="field-row">
+        <div class="field-row pick-row">
           <span class="txt"><b>{{ i18n.t('gen.security') }}</b></span>
-          <select name="security" (change)="suggestPort(f, $any($event.target).value)">
-            @for (m of securities; track m) {
-              <option [value]="m" [selected]="s.security === m">{{ i18n.t('gen.sec.' + m) }}</option>
-            }
-          </select>
-        </label>
+          <app-choice-group name="security" [label]="i18n.t('gen.security')" [options]="securityOptions()" [value]="s.security" (picked)="suggestPort(f, $any($event))" />
+        </div>
         <label class="field-row">
           <span class="txt"><b>{{ i18n.t('gen.port') }}</b></span>
           <input name="port" type="number" inputmode="numeric" min="1" max="65535" required [value]="s.port" />
