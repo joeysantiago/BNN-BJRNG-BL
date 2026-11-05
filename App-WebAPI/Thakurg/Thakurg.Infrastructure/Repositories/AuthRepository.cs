@@ -70,9 +70,28 @@ public class AuthRepository : IAuthRepository
         return _dbContext.Roles.AsNoTracking().WhereActive().FirstOrDefaultAsync(r => r.Code == code, cancellationToken);
     }
 
+    public Task<int> CountUsersInRoleAsync(int roleId, CancellationToken cancellationToken)
+    {
+        return _dbContext.Users.WhereActive().CountAsync(u => u.RoleId == roleId, cancellationToken);
+    }
+
+    // The account whose profile (UserProfiles) holds this mobile number, in E.164 form.
+    public Task<User?> FindByMobileAsync(string mobile, CancellationToken cancellationToken)
+    {
+        var profiles = _dbContext.UserProfiles.WhereActive();
+
+        return _dbContext.Users.WhereActive().FirstOrDefaultAsync(u => profiles.Any(p => p.UserId == u.Id && p.Mobile == mobile), cancellationToken);
+    }
+
     public async Task AddSessionAsync(UserSession session, CancellationToken cancellationToken)
     {
         _dbContext.UserSessions.Add(session);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task AddProfileAsync(UserProfile profile, CancellationToken cancellationToken)
+    {
+        _dbContext.UserProfiles.Add(profile);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
@@ -86,6 +105,12 @@ public class AuthRepository : IAuthRepository
     {
         return _dbContext.UserSessions.WhereActive().FirstOrDefaultAsync(s => s.Id == sessionId, cancellationToken);
     }
+    // An archived (IsActive = false) or deleted (IsSoftDeleted) account with this e-mail, so a login can say why it cannot sign in.
+    public Task<User?> FindInactiveByEmailAsync(string email, CancellationToken cancellationToken)
+    {
+        return _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email && !u.IsDeleted && (!u.IsActive || u.IsSoftDeleted), cancellationToken);
+    }
+
 
     // Codes of the options the user switched off for themselves.
     public Task<List<string>> GetHiddenFeaturesAsync(int userId, CancellationToken cancellationToken)

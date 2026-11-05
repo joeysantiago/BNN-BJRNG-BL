@@ -23,13 +23,21 @@ public interface IAuthRepository
 
     Task AddSessionAsync(UserSession session, CancellationToken cancellationToken);
 
+    Task AddProfileAsync(UserProfile profile, CancellationToken cancellationToken);
+
     Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken);
 
     Task<Role?> GetRoleByCodeAsync(string code, CancellationToken cancellationToken);
 
+    Task<int> CountUsersInRoleAsync(int roleId, CancellationToken cancellationToken);
+
+    Task<User?> FindByMobileAsync(string mobile, CancellationToken cancellationToken);
+
     Task<List<string>> GetAppCodesAsync(int userId, CancellationToken cancellationToken);
 
     Task<UserSession?> GetSessionAsync(int sessionId, CancellationToken cancellationToken);
+
+    Task<User?> FindInactiveByEmailAsync(string email, CancellationToken cancellationToken);
 
     Task<List<string>> GetHiddenFeaturesAsync(int userId, CancellationToken cancellationToken);
 
