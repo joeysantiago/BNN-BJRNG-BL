@@ -1,0 +1,18 @@
+<fieldset class="choice" [disabled]="disabled()">
+  <legend class="sr-only">{{ label() }}</legend>
+  @for (o of options(); track o.value) {
+    <label>
+      <input type="radio" [name]="name()" [value]="o.value" [checked]="o.value === value()" (change)="picked.emit(o.value)" />
+      <span>
+        @if (o.icon) {
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            @for (d of o.icon; track $index) {
+              <path [attr.d]="d" />
+            }
+          </svg>
+        }
+        {{ o.label }}
+      </span>
+    </label>
+  }
+</fieldset>

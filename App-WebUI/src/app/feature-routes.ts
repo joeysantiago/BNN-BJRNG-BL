@@ -20,4 +20,4 @@ export const FEATURE_APPS: string[] = ['khata'];
 export const FEATURE_SETTINGS: FeaturePanel[] = [{ app: 'khata', order: 1, load: () => import('./pages/khata/settings-panel/khata-settings-panel').then((m) => m.KhataSettingsPanel) }];
 
 /** The parts each app brings to the Profile page (for example deleting the data a user keeps in that app), loaded lazily. Each feature branch lists its own; shared lists none. */
-export const FEATURE_PROFILE: FeaturePanel[] = [];
+export const FEATURE_PROFILE: FeaturePanel[] = [{ app: 'khata', order: 1, load: () => import('./pages/khata/profile-panel/khata-profile-panel').then((m) => m.KhataProfilePanel) }];

@@ -36,10 +36,7 @@
       <form #store novalidate [attr.aria-busy]="busy()" (submit)="$event.preventDefault(); saveStorage(store)">
         <fieldset class="bare" [disabled]="busy()">
           <legend class="sr-only">{{ i18n.t('khata.st.provider') }}</legend>
-          <div class="opts">
-            <label class="opt"><span class="txt"><b>{{ i18n.t('khata.st.local') }}</b></span><input type="radio" name="provider" value="local" [checked]="provider() === 'local'" (change)="provider.set('local')" /></label>
-            <label class="opt"><span class="txt"><b>{{ i18n.t('khata.st.azure') }}</b></span><input type="radio" name="provider" value="azure" [checked]="provider() === 'azure'" (change)="provider.set('azure')" /></label>
-          </div>
+          <app-choice-group name="provider" [label]="i18n.t('khata.st.provider')" [options]="providers()" [value]="provider()" (picked)="provider.set($any($event))" />
           @if (provider() === 'azure') {
             <label class="opt">
               <span class="txt"><b>{{ i18n.t('khata.st.enabled') }}</b><small>{{ i18n.t('khata.st.enabledHint') }}</small></span>
