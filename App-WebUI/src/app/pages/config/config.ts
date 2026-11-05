@@ -6,6 +6,8 @@ import { FEATURE_APPS } from '../../feature-routes';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
 import { AccountTab } from './account-tab/account-tab';
+import { GeneralTab } from './general-tab/general-tab';
+import { SettingsIcon } from '../../shared/settings-icon';
 import { TranslationKey } from '../../core/models/i18n.model';
 import { KeyStatus } from '../../core/models/key-status.model';
 import { PermissionsTab } from './permissions-tab/permissions-tab';
@@ -18,6 +20,7 @@ import { ConnectionField, FeatureGroup, FeatureId, SettingsOverrides, SettingsSe
 
 /** Every tab of the page, in order. A tab shows when the user's role may view its page and this branch holds what it is about. */
 const TABS: TabInfo[] = [
+  { id: 'general', page: null },
   { id: 'account', page: 'settings.account' },
   { id: 'users', page: 'settings.users' },
   { id: 'roles', page: 'settings.roles' },
@@ -30,14 +33,15 @@ const TABS: TabInfo[] = [
 ];
 
 /**
- * /master, the Settings page. One tab per area, shown by the rights of the user's role (Role rights tab; a super admin sees every tab):
- * My settings (language, skin, password and the options of their own pages, for every user), Users, Roles, Role rights, and the site settings of this branch's apps
+ * /master, the Settings page. One tab per area, shown by the rights of the user's role (Role rights tab; a super admin sees every tab).
+ * General comes first, for a super admin who logged in with a password: the settings with a login, key or password, kept encrypted in the database.
+ * For me (language, skin, password and the options of their own pages, for every user), Users, Roles, Role rights, and the site settings of this branch's apps
  * (FEATURE_APPS). Site setting edits are drafts that preview at once in this browser; a Save button in every section (and Save all) writes them to the database.
  * The API checks every right again, so a hidden button is a convenience, not the protection.
  */
 @Component({
   selector: 'app-config',
-  imports: [RouterLink, AccountTab, UsersTab, RolesTab, PermissionsTab],
+  imports: [RouterLink, GeneralTab, AccountTab, UsersTab, RolesTab, PermissionsTab, SettingsIcon],
   templateUrl: './config.html',
   styleUrl: './config.scss',
 })
@@ -64,7 +68,9 @@ export class Config {
   protected readonly hasSpeed = featureBuilt('speed', FEATURE_APPS);
   protected readonly hasYoutube = featureBuilt('youtube', FEATURE_APPS);
   protected readonly json = computed(() => JSON.stringify(this.cfg.overrides(), null, 2));
-  protected readonly tabs = computed(() => TABS.filter((t) => this.auth.can(t.page) && this.built(t.id)));
+  /** The General tab: a super admin who logged in with a password, as the API's mail settings need (SuperAdminPassword). */
+  protected readonly canGeneral = computed(() => this.auth.isSuperAdmin() && this.auth.user()?.loginMethod !== 'otp');
+  protected readonly tabs = computed(() => TABS.filter((t) => (t.page ? this.auth.can(t.page) : this.canGeneral()) && this.built(t.id)));
   protected readonly fields = computed(() => Object.keys(this.defaults.connection.fields) as ConnectionField[]);
   protected readonly requested = signal<SettingsTab | null>(this.route.snapshot.queryParamMap.get('tab') as SettingsTab | null);
   /** The open tab: the one asked for in ?tab= when the user may see it, otherwise the first. */
@@ -120,12 +126,14 @@ export class Config {
   }
 
   tabName(tab: TabInfo): string {
-    return this.i18n.t(`perm.page.${tab.page}` as TranslationKey);
+    return this.i18n.t((tab.page ? `perm.page.${tab.page}` : `cfg.tab.${tab.id}`) as TranslationKey);
   }
 
   /** Opens a tab and keeps it in the address (?tab=), so a reload or a shared link opens the same tab. */
   select(id: SettingsTab): void {
     this.requested.set(id);
+    // On phones the tab row scrolls sideways: bring the chosen tab fully into view.
+    document.getElementById(`cfg-tab-${id}`)?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
     void this.router.navigate([], { relativeTo: this.route, queryParams: { tab: id }, queryParamsHandling: 'merge', replaceUrl: true });
   }
 

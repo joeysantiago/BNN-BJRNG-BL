@@ -1,0 +1,52 @@
+<section class="sec" aria-labelledby="gen-wa">
+  <h2 id="gen-wa" class="sec-h">{{ i18n.t('gen.wa.h') }}</h2>
+  <p class="help">{{ i18n.t('gen.wa.lead') }}</p>
+  @if (error()) {
+    <p class="status bad" role="alert">{{ error() }}</p>
+  }
+  @if (account(); as a) {
+    <form #f [attr.aria-busy]="busy()" (submit)="$event.preventDefault(); save(f)">
+      <fieldset class="bare" [disabled]="busy()">
+        <legend class="sr-only">{{ i18n.t('gen.wa.h') }}</legend>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.enabled') }}</b><small>{{ i18n.t('gen.wa.enabledHint') }}</small></span>
+          <input name="enabled" type="checkbox" role="switch" class="switch" [checked]="a.enabled" />
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.wa.phoneId') }}</b></span>
+          <input name="phoneNumberId" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="40" [value]="a.phoneNumberId" />
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.wa.accountId') }}</b><small>{{ i18n.t('gen.wa.optional') }}</small></span>
+          <input name="businessAccountId" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="40" [value]="a.businessAccountId ?? ''" />
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.wa.token') }}</b><small>{{ i18n.t(a.hasAccessToken ? 'gen.wa.tokenKeep' : 'gen.wa.tokenNone') }}</small></span>
+          <input name="accessToken" type="password" autocomplete="new-password" spellcheck="false" maxlength="1000" />
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.wa.version') }}</b></span>
+          <input name="apiVersion" type="text" autocomplete="off" spellcheck="false" maxlength="10" placeholder="v21.0" [value]="a.apiVersion" />
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.wa.template') }}</b><small>{{ i18n.t('gen.wa.templateHint') }}</small></span>
+          <input name="templateName" type="text" autocomplete="off" spellcheck="false" maxlength="512" placeholder="reminder_text" [value]="a.templateName" />
+        </label>
+        <label class="field-row">
+          <span class="txt"><b>{{ i18n.t('gen.wa.language') }}</b></span>
+          <input name="templateLanguage" type="text" autocomplete="off" spellcheck="false" maxlength="10" placeholder="en" [value]="a.templateLanguage" />
+        </label>
+      </fieldset>
+      <div class="foot">
+        <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t(busy() ? 'gen.saving' : 'gen.save') }}</button>
+        <input #to class="test-to" type="tel" inputmode="tel" autocomplete="off" [attr.aria-label]="i18n.t('gen.wa.testTo')" [placeholder]="i18n.t('gen.wa.testTo')" />
+        <button type="button" class="btn" [disabled]="busy()" (click)="test(to.value)">{{ i18n.t('gen.wa.test') }}</button>
+        @if (notice(); as n) {
+          <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+        }
+      </div>
+    </form>
+  } @else if (!error()) {
+    <p class="note" role="status">{{ i18n.t('gen.loading') }}</p>
+  }
+</section>

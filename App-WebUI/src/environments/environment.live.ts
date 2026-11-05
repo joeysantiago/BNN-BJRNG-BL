@@ -1,7 +1,6 @@
 export const environment = {
   name: 'live',
   apiBaseUrl: 'https://thakurg.com/api',
-  devLogins: [] as { email: string; password: string }[],
   // Waiting times in milliseconds. A sleeping Azure SQL database (free offer) can take about a minute to wake up, so calls that reach it wait longer.
   timings: {
     authCallMs: 120000,
