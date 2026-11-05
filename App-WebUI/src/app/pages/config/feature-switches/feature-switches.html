@@ -1,0 +1,29 @@
+<section class="sec" [attr.aria-labelledby]="headingId()">
+  <h2 class="sec-h" [id]="headingId()">{{ heading() }}</h2>
+  @if (help()) {
+    <p class="help">{{ help() }}</p>
+  }
+  <fieldset class="bare" [disabled]="!canEdit()">
+    <legend class="sr-only">{{ heading() }}</legend>
+    <div class="opts">
+      @for (f of items(); track f.id) {
+        <label class="opt" [class.diff]="cfg.settings().features[f.id] !== cfg.defaults.features[f.id]">
+          <span class="txt">
+            <b>{{ f.label }}</b>
+            <small>{{ cfg.settings().features[f.id] !== cfg.defaults.features[f.id] ? i18n.t('cfg.default', { value: state(cfg.defaults.features[f.id]) }) : f.help }}</small>
+          </span>
+          <input type="checkbox" role="switch" class="switch" [checked]="cfg.settings().features[f.id]" (change)="toggle(f.id, $event)" />
+        </label>
+      }
+    </div>
+    <ng-content />
+  </fieldset>
+  @if (canEdit()) {
+    <div class="foot">
+      <button type="button" class="btn pri" [disabled]="!pending() || saving()" [attr.title]="pending() ? null : i18n.t('cfg.save.nothing')" (click)="save()">{{ i18n.t(saving() ? 'cfg.save.saving' : 'cfg.save') }}</button>
+      @if (notice(); as n) {
+        <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+      }
+    </div>
+  }
+</section>

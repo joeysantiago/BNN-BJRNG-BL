@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Thakurg.API.Extensions;
 using Thakurg.Application.Services;
 using Thakurg.Contracts.Auth;
 using Thakurg.Contracts.Settings;
@@ -42,6 +43,20 @@ public class SettingsController : ControllerBase
         var result = await _settingsService.SaveAsync(request, cancellationToken);
 
         return Ok(ApiResponse<AppSettingsDto>.SuccessResponse(result.Data, result.Message));
+    }
+
+    // The name of one app (or page) in every language, shown to everyone: a super admin only.
+    [HttpPut("app-names/{pageCode}")]
+    [Authorize(Policy = AuthPolicies.User)]
+    [EnableRateLimiting("sensitive")]
+    public async Task<ActionResult<ApiResponse<Dictionary<string, string>>>> Rename(string pageCode, [FromBody] AppNameUpdateDto request, CancellationToken cancellationToken)
+    {
+        if (!User.HasClaim(AuthClaimTypes.Role, RoleCodes.SuperAdmin))
+            return Forbid();
+
+        var result = await _settingsService.RenameAsync(HttpContext.AuthCaller().UserId, pageCode, request, cancellationToken);
+
+        return Ok(ApiResponse<Dictionary<string, string>>.SuccessResponse(result.Data, result.Message));
     }
 
     #endregion

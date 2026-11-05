@@ -1,0 +1,22 @@
+<p class="help lead-note">{{ i18n.t(auth.isSuperAdmin() ? 'cfg.app.leadAll' : 'cfg.app.lead') }}</p>
+
+@for (s of sections(); track s.code) {
+  <details class="app" [id]="'gen-app-' + s.code" [open]="opened() === s.code" (toggle)="toggle(s.code, $event)">
+    <summary class="app-h">
+      <h2 class="sec-h">{{ s.name }}</h2>
+    </summary>
+    <div class="app-body">
+      @if (s.canRename) {
+        <app-app-name-form [page]="s.page" />
+      }
+      @if (s.features.length) {
+        <app-feature-switches [heading]="i18n.t('cfg.app.switches')" [headingId]="'gen-sw-' + s.code" [items]="s.features" />
+      }
+      @for (panel of loaded()[s.code] ?? []; track $index) {
+        <ng-container *ngComponentOutlet="panel" />
+      }
+    </div>
+  </details>
+} @empty {
+  <p class="note">{{ i18n.t('cfg.app.none') }}</p>
+}

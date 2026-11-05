@@ -16,5 +16,7 @@ public interface ISettingsRepository
 
     Task<List<ConnectionField>> GetConnectionFieldsAsync(CancellationToken cancellationToken);
 
+    Task SavePageNamesAsync(string pageCode, Dictionary<string, string> names, int userId, CancellationToken cancellationToken);
+
     Task UpdateAsync(Dictionary<string, bool> features, Dictionary<string, bool> fields, Dictionary<string, bool> services, Dictionary<string, string> appSettings, CancellationToken cancellationToken);
 }

@@ -8,6 +8,8 @@ public class User : BaseEntity
 
     public int RoleId { get; set; }
 
+    public bool ShowOnLogin { get; set; }
+
     public string? AvatarFile { get; set; }
 
     public int FailedLoginCount { get; set; }

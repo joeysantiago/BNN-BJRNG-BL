@@ -32,7 +32,7 @@ public class AuthController : ControllerBase
     [Authorize(Policy = AuthPolicies.User)]
     public async Task<ActionResult<ApiResponse<UserDto>>> Me(CancellationToken cancellationToken)
     {
-        var user = await _authService.GetMeAsync(HttpContext.AuthCaller().UserId, cancellationToken);
+        var user = await _authService.GetMeAsync(HttpContext.AuthCaller(), cancellationToken);
 
         return Ok(ApiResponse<UserDto>.SuccessResponse(user));
     }
@@ -47,11 +47,39 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<object?>.SuccessResponse(null, message));
     }
 
+    // Deletes the caller's own account and logs them out (the login cookies are cleared, as on logout).
+    [HttpDelete("me")]
+    [Authorize(Policy = AuthPolicies.User)]
+    [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
+    public async Task<ActionResult<ApiResponse<object?>>> DeleteAccount(CancellationToken cancellationToken)
+    {
+        var message = await _authService.DeleteAccountAsync(HttpContext.AuthCaller(), cancellationToken);
+        Response.DeleteAuthCookies(_auth);
+
+        return Ok(ApiResponse<object?>.SuccessResponse(null, message));
+    }
+
     [HttpPost("refresh")]
     [EnableRateLimiting(SecurityExtensions.AuthRefreshPolicy)]
     public async Task<ActionResult<ApiResponse<AuthResultDto>>> Refresh(CancellationToken cancellationToken)
     {
         var signIn = await _authService.RefreshAsync(Request.Cookies[_auth.RefreshCookie.Name], HttpContext.AuthCaller(), cancellationToken);
+        Response.WriteAuthCookies(_auth, signIn);
+
+        return Ok(ApiResponse<AuthResultDto>.SuccessResponse(signIn.Auth));
+    }
+
+    [HttpGet("quick-logins")]
+    public async Task<ActionResult<ApiResponse<List<QuickLoginDto>>>> QuickLogins(CancellationToken cancellationToken)
+    {
+        return Ok(ApiResponse<List<QuickLoginDto>>.SuccessResponse(await _authService.GetQuickLoginsAsync(cancellationToken)));
+    }
+
+    [HttpPost("quick-logins/{userId:int}/login")]
+    [EnableRateLimiting(SecurityExtensions.AuthLoginPolicy)]
+    public async Task<ActionResult<ApiResponse<AuthResultDto>>> QuickLogin(int userId, CancellationToken cancellationToken)
+    {
+        var signIn = await _authService.QuickLoginAsync(userId, HttpContext.AuthCaller(), cancellationToken);
         Response.WriteAuthCookies(_auth, signIn);
 
         return Ok(ApiResponse<AuthResultDto>.SuccessResponse(signIn.Auth));
@@ -72,7 +100,7 @@ public class AuthController : ControllerBase
     [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
     public async Task<ActionResult<ApiResponse<UserDto>>> UpdateProfile([FromBody] ProfileUpdateDto request, CancellationToken cancellationToken)
     {
-        var result = await _authService.UpdateProfileAsync(HttpContext.AuthCaller().UserId, request, cancellationToken);
+        var result = await _authService.UpdateProfileAsync(HttpContext.AuthCaller(), request, cancellationToken);
 
         return Ok(ApiResponse<UserDto>.SuccessResponse(result.Data, result.Message));
     }
@@ -103,7 +131,7 @@ public class AuthController : ControllerBase
     [EnableRateLimiting(SecurityExtensions.SensitivePolicy)]
     public async Task<ActionResult<ApiResponse<UserDto>>> UpdateFeatures([FromBody] FeaturePreferencesDto request, CancellationToken cancellationToken)
     {
-        var result = await _authService.UpdateFeaturesAsync(HttpContext.AuthCaller().UserId, request, cancellationToken);
+        var result = await _authService.UpdateFeaturesAsync(HttpContext.AuthCaller(), request, cancellationToken);
 
         return Ok(ApiResponse<UserDto>.SuccessResponse(result.Data, result.Message));
     }

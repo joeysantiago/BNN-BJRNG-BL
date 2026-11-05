@@ -6,6 +6,7 @@ import { SiteFooter } from './shared/site-footer';
 import { SiteHeader } from './shared/site-header';
 import { ThemeService } from './core/theme.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { AppPwaService } from './core/app-pwa.service';
 import { SettingsService } from './core/settings.service';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Component, afterNextRender, computed, effect, inject } from '@angular/core';
@@ -24,8 +25,8 @@ export class App {
   protected readonly i18n = inject(I18nService);
   private readonly cfg = inject(SettingsService);
 
-  /** The Atrium HR app and the SnapKhata app (/khata/app) bring their own navigation, so the site header and footer are hidden there. */
-  protected readonly bare = computed(() => /^\/(HR|khata\/app)(\/|$|[?#])/.test(this.url()));
+  /** The Atrium HR app and SnapKhata (its public page /khata and the app /khata/app) bring their own navigation, so the site header and footer are hidden there. */
+  protected readonly bare = computed(() => /^\/(HR|khata)(\/|$|[?#])/.test(this.url()));
   private readonly url = toSignal(
     this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),
@@ -35,6 +36,8 @@ export class App {
   );
 
   constructor() {
+    // Started with the page, so an installed app's own window (/apps/<code>/) points at its manifest before the browser reads it.
+    inject(AppPwaService);
     // A page that is switched off in the settings master table or on the /config page shows "page not found".
     effect(() => {
       const feature = pageFeature(this.url());
