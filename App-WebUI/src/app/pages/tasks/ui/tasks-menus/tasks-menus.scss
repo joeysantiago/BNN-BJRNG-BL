@@ -13,7 +13,7 @@
 .mt .skin-swatch.glass { background: linear-gradient(135deg, #5a2d55, #2a1530); border: 1px solid rgba(255, 255, 255, 0.25); }
 .mt .skin-swatch.clay { background: #ead6ff; border-radius: 12px; box-shadow: 0 4px 10px rgba(168, 85, 247, 0.45), inset -2px -3px 5px rgba(150, 100, 200, 0.3), inset 2px 2px 4px #ffffff; }
 .mt .skin-swatch.skeu { background: linear-gradient(180deg, #ffffff, #d4d7dc); border: 1px solid rgba(0, 0, 0, 0.25); box-shadow: inset 0 1px 0 #ffffff, 0 2px 3px rgba(0, 0, 0, 0.3); }
-.mt .skin-swatch.agni { background: linear-gradient(135deg, #ff9a5c, #ff7722); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 2px 6px rgba(255, 119, 34, 0.45); }
+.mt .skin-swatch.agni { background: linear-gradient(135deg, #e07a35, #d16014); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 2px 6px rgba(209, 96, 20, 0.45); }
 .mt .skin-swatch.neu { background: #e0e5ec; box-shadow: 3px 3px 6px #a3b1c6, -3px -3px 6px #ffffff; }
 
 /* Dropdowns as in SnapKhata: native selects, 48px tall, and the open list follows the style (the site's ::picker(select) rules read these variables). */
@@ -24,13 +24,13 @@
 
 /* The four styles of the site and SnapKhata: Glass (the tokens in tasks-shell.scss), Clay, Skeu and Neu, each light and dark. data-ks on .mt is the style, data-kt the brightness. */
 
-/* ---------- Agni (the default): warm saffron page, cream cards, fiery #FF7722 buttons ---------- */
+/* ---------- Agni (the default): warm saffron page, cream cards, fiery #D16014 buttons ---------- */
 .mt[data-ks=agni]:not([data-kt=dark]) {
   --k-r: 18px;
   --k-r-lg: 24px;
   --k-glass: none;
   --k-bg: #ffe4d1;
-  --k-bg-image: radial-gradient(700px 480px at 0% 0%, rgba(255, 119, 34, 0.28), transparent 62%), radial-gradient(800px 560px at 100% 100%, rgba(255, 214, 150, 0.6), transparent 62%);
+  --k-bg-image: radial-gradient(700px 480px at 0% 0%, rgba(209, 96, 20, 0.28), transparent 62%), radial-gradient(800px 560px at 100% 100%, rgba(255, 214, 150, 0.6), transparent 62%);
   --k-surface: #fff4eb;
   --k-surface-solid: #fffaf2;
   --k-surface-2: #ffefd8;
@@ -41,15 +41,15 @@
   --k-muted: #6b4420;
   --k-faint: #8a6440;
   --k-brand: #b84a00;
-  --k-brand-2: #ff7722;
-  --k-brand-soft: rgba(255, 119, 34, 0.14);
+  --k-brand-2: #d16014;
+  --k-brand-soft: rgba(209, 96, 20, 0.14);
   --k-on-brand: #2a1606;
-  --k-brand-grad: linear-gradient(135deg, #ff9a5c 0%, #ff7722 100%);
+  --k-brand-grad: linear-gradient(135deg, #e07a35 0%, #d16014 100%);
   --k-hero: linear-gradient(140deg, #fffaf2 0%, #ffe9cc 100%);
   --k-shadow-sm: 0 2px 6px rgba(168, 79, 0, 0.12);
   --k-shadow: 0 8px 22px rgba(168, 79, 0, 0.16);
   --k-shadow-lg: 0 14px 34px rgba(168, 79, 0, 0.22);
-  --k-focus: 0 0 0 4px rgba(255, 119, 34, 0.3);
+  --k-focus: 0 0 0 4px rgba(209, 96, 20, 0.3);
 }
 
 .mt[data-ks=agni][data-kt=dark] {
@@ -57,7 +57,7 @@
   --k-r-lg: 24px;
   --k-glass: none;
   --k-bg: #2a1606;
-  --k-bg-image: radial-gradient(700px 480px at 0% 0%, rgba(255, 119, 34, 0.18), transparent 62%), radial-gradient(800px 560px at 100% 100%, rgba(255, 119, 34, 0.14), transparent 62%);
+  --k-bg-image: radial-gradient(700px 480px at 0% 0%, rgba(209, 96, 20, 0.18), transparent 62%), radial-gradient(800px 560px at 100% 100%, rgba(209, 96, 20, 0.14), transparent 62%);
   --k-surface: #3a2210;
   --k-surface-solid: #402612;
   --k-surface-2: #452a14;
@@ -67,16 +67,16 @@
   --k-text: #ffe9cc;
   --k-muted: #e0bf94;
   --k-faint: #b8946a;
-  --k-brand: #ffa36b;
-  --k-brand-2: #ff7722;
-  --k-brand-soft: rgba(255, 119, 34, 0.16);
+  --k-brand: #f0955c;
+  --k-brand-2: #d16014;
+  --k-brand-soft: rgba(209, 96, 20, 0.16);
   --k-on-brand: #2a1606;
-  --k-brand-grad: linear-gradient(135deg, #ffa36b 0%, #ff7722 100%);
+  --k-brand-grad: linear-gradient(135deg, #f0955c 0%, #d16014 100%);
   --k-hero: linear-gradient(140deg, #4a2c14 0%, #3a2210 100%);
   --k-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
   --k-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   --k-shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.55);
-  --k-focus: 0 0 0 4px rgba(255, 119, 34, 0.3);
+  --k-focus: 0 0 0 4px rgba(209, 96, 20, 0.3);
 }
 
 /* ---------- Claymorphism: soft pastel, puffy and rounded ---------- */
