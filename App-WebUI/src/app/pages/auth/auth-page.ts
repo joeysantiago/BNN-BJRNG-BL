@@ -1,12 +1,18 @@
 import { SeoService } from '../../core/seo.service';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
+import { ChoiceGroup } from '../../shared/choice-group';
+import { ChoiceOption } from '../../shared/models/choice.model';
 import { AuthMode, LoginWay, OtpStep } from './auth-page.model';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { OtpChannel, QuickLogin } from '../../core/models/auth.model';
-import { Component, OnDestroy, afterNextRender, effect, inject, signal } from '@angular/core';
+import { Component, OnDestroy, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 
 /** The apps that also offer a one-time code login, by the start of the address they open. */
+/** The line icons of the two ways to log in (fixed drawings). */
+const LOCK_ICON = ['M6 11h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z', 'M8 11V7a4 4 0 0 1 8 0v4'];
+const PHONE_ICON = ['M8.5 2h7A2.5 2.5 0 0 1 18 4.5v15a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 6 19.5v-15A2.5 2.5 0 0 1 8.5 2z', 'M11 18h2'];
+
 const OTP_APPS: Record<string, string> = { '/khata': 'khata', '/tracker': 'tracker' };
 
 /** Where a code goes, from what was typed: an e-mail address or a mobile number (digits, optional +, spaces or dashes); null = neither. */
@@ -23,7 +29,7 @@ const safeNext = (value: string | null): string | null => (value && value.starts
  */
 @Component({
   selector: 'app-auth-page',
-  imports: [RouterLink],
+  imports: [RouterLink, ChoiceGroup],
   templateUrl: './auth-page.html',
   styleUrl: './auth-page.scss',
 })
@@ -48,8 +54,10 @@ export class AuthPage implements OnDestroy {
   protected readonly quickLogins = signal<QuickLogin[]>([]);
   protected readonly next = safeNext(this.route.snapshot.queryParamMap.get('next'));
   protected readonly mode: AuthMode = this.route.snapshot.data['mode'] === 'signup' ? 'signup' : 'login';
-  /** The app that allows a code login here, from ?app= or from the address the login returns to; null = password only. */
-  protected readonly otpApp: string | null = Object.values(OTP_APPS).find((a) => a === this.route.snapshot.queryParamMap.get('app')) ?? Object.entries(OTP_APPS).find(([path]) => this.next?.startsWith(path))?.[1] ?? null;
+  /** Password or one-time code, offered on every login page. */
+  protected readonly ways = computed<ChoiceOption[]>(() => [{ value: 'password', label: this.i18n.t('auth.otp.byPassword'), icon: LOCK_ICON }, { value: 'otp', label: this.i18n.t('auth.otp.byCode'), icon: PHONE_ICON }]);
+  /** The app the code login is for: from ?app= or from the address the login returns to, otherwise the first app that allows it (the session opens only those apps). */
+  protected readonly otpApp: string = Object.values(OTP_APPS).find((a) => a === this.route.snapshot.queryParamMap.get('app')) ?? Object.entries(OTP_APPS).find(([path]) => this.next?.startsWith(path))?.[1] ?? Object.values(OTP_APPS)[0];
 
   constructor() {
     effect(() => {

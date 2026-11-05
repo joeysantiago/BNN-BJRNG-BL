@@ -55,6 +55,7 @@ public static partial class DependencyInjection
         services.AddScoped<IAuthRepository, AuthRepository>();
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<ILookupRepository, LookupRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<IUserAccessRepository, UserAccessRepository>();
@@ -69,6 +70,7 @@ public static partial class DependencyInjection
         services.AddScoped<IUserProfileService, UserProfileService>();
         services.AddScoped<IAvatarService, AvatarService>();
         services.AddScoped<IRoleService, RoleService>();
+        services.AddScoped<ILookupService, LookupService>();
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<ISettingsService, SettingsService>();
         services.AddScoped<IAppManifestService, AppManifestService>();
