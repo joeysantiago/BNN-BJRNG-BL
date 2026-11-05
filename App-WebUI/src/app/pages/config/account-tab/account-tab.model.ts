@@ -1,9 +1,9 @@
 import { FeatureInfo } from '../../../core/models/app-settings.model';
 
-/** The form of the My settings tab that is being saved. */
+/** The form of the For me tab that is being saved. */
 export type AccountForm = 'language' | 'password' | 'features';
 
-/** The server's answer shown under a form of the My settings tab. */
+/** The server's answer shown under a form of the For me tab. */
 export interface AccountNotice {
   text: string;
   error: boolean;
