@@ -144,7 +144,7 @@ public class OtpService : IOtpService
         var address = name switch
         {
             OtpChannels.Email => EmailAddress.Normalize(destination),
-            OtpChannels.Sms => KhataIdentifier.Mobile(destination),
+            OtpChannels.Sms => PhoneNumber.Normalize(destination),
             _ => null
         };
 

@@ -21,15 +21,15 @@ public partial interface ICommonDbContext
 
     DbSet<Message> Messages { get; }
 
+    DbSet<PageName> PageNames { get; }
+
+    DbSet<AppSetting> AppSettings { get; }
+
     DbSet<UserProfile> UserProfiles { get; }
 
     DbSet<MailSetting> MailSettings { get; }
 
     DbSet<OneTimeCode> OneTimeCodes { get; }
-
-    DbSet<PageName> PageNames { get; }
-
-    DbSet<AppSetting> AppSettings { get; }
 
     DbSet<ServiceItem> ServiceItems { get; }
 
@@ -42,6 +42,8 @@ public partial interface ICommonDbContext
     DbSet<PageTranslation> Translations { get; }
 
     DbSet<RolePermission> RolePermissions { get; }
+
+    DbSet<WhatsAppSetting> WhatsAppSettings { get; }
 
     DbSet<ConnectionField> ConnectionFields { get; }
 

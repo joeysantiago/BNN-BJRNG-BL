@@ -1,90 +1,73 @@
-import { ApiService } from '../../../core/api.service';
+import { appLink } from '../../../core/apps';
+import { NgComponentOutlet } from '@angular/common';
+import { appFeatures } from '../../../core/features';
+import { AuthService } from '../../../core/auth.service';
 import { I18nService } from '../../../core/i18n.service';
-import { QuickLoginsCard } from '../quick-logins-card/quick-logins-card';
-import { Component, afterNextRender, inject, signal } from '@angular/core';
-import { GeneralNotice, MailSecurity, MailServer } from './general-tab.model';
-
-const PURPOSE = 'default';
-/** The usual port of each kind of connection, offered when the security choice changes. */
-const PORTS: Record<MailSecurity, number> = { starttls: 587, ssl: 465, none: 25 };
+import { ActivatedRoute, Router } from '@angular/router';
+import { AppNameForm } from '../app-name-form/app-name-form';
+import { AppSection, LoadedPanels } from './general-tab.model';
+import { PageId } from '../../../core/models/app-settings.model';
+import { SettingsService } from '../../../core/settings.service';
+import { FeatureSwitches } from '../feature-switches/feature-switches';
+import { FEATURE_APPS, FEATURE_SETTINGS } from '../../../feature-routes';
+import { Component, afterNextRender, computed, inject, signal } from '@angular/core';
 
 /**
- * The General tab of the Settings page (super admin, password login; the API checks the same): the site's settings that hold a login, key or
- * password, which are never kept in the configuration files. Now the site's mail server (the "default" mail profile): it sends every e-mail whose
- * own profile in SnapKhata Settings > Mail is off. The password is sent only when typed; the API stores it encrypted and never returns it.
+ * The General tab of the Settings page, for every logged-in user: one section per app the user may open (and this branch holds), so every app is set up
+ * in one place. A super admin sees every app and can rename it; anyone else sees only their own apps. Each section shows the app's name, its site switches
+ * (with the Site options right) and the settings the app brings itself (FEATURE_SETTINGS of feature-routes.ts, loaded lazily). ?app=<code> opens one section.
  */
 @Component({
   selector: 'app-general-tab',
-  imports: [QuickLoginsCard],
+  imports: [NgComponentOutlet, AppNameForm, FeatureSwitches],
   templateUrl: './general-tab.html',
   styleUrl: './general-tab.scss',
 })
 
 export class GeneralTab {
-  protected readonly error = signal('');
-  protected readonly busy = signal(false);
-  private readonly api = inject(ApiService);
+  private readonly router = inject(Router);
+  protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
-  protected readonly server = signal<MailServer | null>(null);
-  protected readonly notice = signal<GeneralNotice | null>(null);
-  protected readonly securities: MailSecurity[] = ['starttls', 'ssl', 'none'];
+  private readonly cfg = inject(SettingsService);
+  private readonly route = inject(ActivatedRoute);
+  protected readonly loaded = signal<LoadedPanels>({});
+  protected readonly opened = signal(this.route.snapshot.queryParamMap.get('app'));
+  /** The apps of this branch the user may open (the speed test is open to everyone) that have something to set for them. */
+  protected readonly sections = computed(() => FEATURE_APPS.filter((c) => c === 'speedtest' || this.auth.hasApp(c)).map((c) => this.section(c)).filter((s) => s.canRename || s.features.length || s.panels.length));
 
   constructor() {
-    afterNextRender(() => void this.load());
+    afterNextRender(() => void this.loadPanels());
   }
 
   // #region Public Methods
 
-  async test(): Promise<void> {
-    await this.run(() => this.api.message('POST', `/admin/mail/${PURPOSE}/test`));
-  }
-
-  /** Moves the port to the usual one of the new security choice, unless a custom port was typed. */
-  suggestPort(form: HTMLFormElement, security: MailSecurity): void {
-    const port = form.elements.namedItem('port') as HTMLInputElement | null;
-    if (port && (!port.value || Object.values(PORTS).includes(Number(port.value))))
-      port.value = String(PORTS[security]);
-  }
-
-  async save(form: HTMLFormElement): Promise<void> {
-    const data = new FormData(form);
-    const text = (name: string): string => String(data.get(name) ?? '').trim();
-    const body = { enabled: data.get('enabled') === 'on', host: text('host'), port: Number(text('port')), security: text('security'), userName: text('userName'), password: String(data.get('password') ?? ''), fromName: text('fromName'), fromAddress: text('fromAddress') };
-    await this.run(async () => {
-      const res = await this.api.sendFull<MailServer>('PUT', `/admin/mail/${PURPOSE}`, this.api.json(body));
-      this.server.set(res.data);
-      // The typed password is not kept on the page; the form now says one is saved.
-      const password = form.elements.namedItem('password') as HTMLInputElement | null;
-      if (password)
-        password.value = '';
-      return res.message ?? '';
-    });
+  /** Keeps the open section in the address (?app=), so a link from inside an app opens its section. */
+  toggle(code: string, ev: Event): void {
+    const open = (ev.target as HTMLDetailsElement).open;
+    if (!open && this.opened() !== code)
+      return;
+    this.opened.set(open ? code : null);
+    void this.router.navigate([], { relativeTo: this.route, queryParams: { app: open ? code : null }, queryParamsHandling: 'merge', replaceUrl: true });
   }
 
   // #endregion
 
   // #region Private Methods
 
-  private async load(): Promise<void> {
-    try {
-      this.server.set((await this.api.get<MailServer[]>('/admin/mail')).find((s) => s.purpose === PURPOSE) ?? null);
-    } catch (e) {
-      this.error.set((e as Error).message);
-    }
+  /** Loads the settings components of the apps the user may open; an app the user cannot open is never loaded. */
+  private async loadPanels(): Promise<void> {
+    const entries = await Promise.all(this.sections().map(async (s) => [s.code, await Promise.all(s.panels.map((p) => p.load()))] as const));
+    this.loaded.set(Object.fromEntries(entries));
+    document.getElementById(`gen-app-${this.opened()}`)?.scrollIntoView({ block: 'start' });
   }
 
-  private async run(work: () => Promise<string>): Promise<void> {
-    if (this.busy())
-      return;
-    this.busy.set(true);
-    this.notice.set(null);
-    try {
-      this.notice.set({ text: await work(), error: false });
-    } catch (e) {
-      this.notice.set({ text: (e as Error).message, error: true });
-    } finally {
-      this.busy.set(false);
-    }
+  private section(code: string): AppSection {
+    const page = code === 'speedtest' ? 'speed' : code;
+    const named = page in this.cfg.defaults.pageNames;
+    const name = named ? this.i18n.page(page as PageId) : this.i18n.t(appLink(code).name);
+    const features = this.auth.can('settings.features') ? appFeatures(code) : [];
+    const panels = FEATURE_SETTINGS.filter((p) => p.app === code).sort((a, b) => a.order - b.order);
+    return { code, name, page, features, panels, canRename: named && this.auth.isSuperAdmin() };
   }
 
   // #endregion

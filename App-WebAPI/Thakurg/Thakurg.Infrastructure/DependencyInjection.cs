@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,10 +44,12 @@ public static partial class DependencyInjection
         services.AddOptions<EmailOptions>().Bind(configuration.GetSection(EmailOptions.SectionName)).Validate(o => o.Smtp.Port > 0 && o.Smtp.FromAddress.Length > 0 && o.Smtp.FromName.Length > 0, "Email:Smtp:Port, FromAddress and FromName must be set (an empty Host means mail is off).").ValidateOnStart();
 
         services.AddMemoryCache();
+        services.AddDataProtection().SetApplicationName("thakurg");
         services.AddHttpContextAccessor();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IAuthTokenService, AuthTokenService>();
         services.AddSingleton<IMailSecretProtector, MailSecretProtector>();
+        services.AddSingleton<IWhatsAppSecretProtector, WhatsAppSecretProtector>();
 
         services.AddScoped<IOtpRepository, OtpRepository>();
         services.AddScoped<IAuthRepository, AuthRepository>();
@@ -56,6 +59,7 @@ public static partial class DependencyInjection
         services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<IUserAccessRepository, UserAccessRepository>();
         services.AddScoped<IMailSettingRepository, MailSettingRepository>();
+        services.AddScoped<IWhatsAppSettingRepository, WhatsAppSettingRepository>();
         services.AddScoped<ITranslationRepository, TranslationRepository>();
 
         services.AddScoped<IOtpService, OtpService>();
@@ -73,6 +77,7 @@ public static partial class DependencyInjection
         services.AddScoped<IAuthSessionServices, AuthSessionServices>();
         services.AddScoped<IUserAccessService, UserAccessService>();
         services.AddScoped<IMailSettingService, MailSettingService>();
+        services.AddScoped<IWhatsAppSettingService, WhatsAppSettingService>();
         services.AddScoped<ITranslationService, TranslationService>();
         services.AddScoped<IRolePermissionService, RolePermissionService>();
 
@@ -103,12 +108,17 @@ public static partial class DependencyInjection
         services.AddScoped<ISmsSender, NotConfiguredSmsSender>();
     }
 
-    // WhatsApp:Provider picks the WhatsApp sender. Only "None" exists yet (every send fails with WhatsAppNotConfigured); a provider such as the Meta Cloud API
-    // is another IWhatsAppSender with its own options section, registered here under its name.
+    // WhatsApp:Provider picks the WhatsApp sender: "None" (every send fails with WhatsAppNotConfigured) or "Meta" (the Meta WhatsApp Cloud API at WhatsApp:BaseUrl,
+    // with the account, token and template of the WhatsAppSettings table, edited on Settings > General).
     private static void AddWhatsAppSender(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddOptions<WhatsAppOptions>().Bind(configuration.GetSection(WhatsAppOptions.SectionName)).Validate(o => o.Provider == WhatsAppOptions.None, "WhatsApp:Provider must be None: no WhatsApp provider is built in yet.").ValidateOnStart();
-        services.AddScoped<IWhatsAppSender, NotConfiguredWhatsAppSender>();
+        var options = configuration.GetSection(WhatsAppOptions.SectionName).Get<WhatsAppOptions>() ?? throw new InvalidOperationException("The WhatsApp section is missing from appsettings.json.");
+        services.AddOptions<WhatsAppOptions>().Bind(configuration.GetSection(WhatsAppOptions.SectionName)).Validate(o => o.Provider == WhatsAppOptions.None || (o.Provider == WhatsAppOptions.Meta && Uri.TryCreate(o.BaseUrl, UriKind.Absolute, out _) && o.TimeoutSeconds > 0), "WhatsApp:Provider must be None or Meta; Meta needs WhatsApp:BaseUrl and WhatsApp:TimeoutSeconds.").ValidateOnStart();
+
+        if (options.Provider == WhatsAppOptions.Meta)
+            services.AddHttpClient<IWhatsAppSender, MetaWhatsAppSender>(client => { client.BaseAddress = new Uri(options.BaseUrl); client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds); });
+        else
+            services.AddScoped<IWhatsAppSender, NotConfiguredWhatsAppSender>();
     }
 
     static partial void AddKhataFeature(IServiceCollection services, IConfiguration configuration);

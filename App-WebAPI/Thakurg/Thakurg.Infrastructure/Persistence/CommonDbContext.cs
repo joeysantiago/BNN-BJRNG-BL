@@ -43,6 +43,8 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
 
     public DbSet<ConnectionField> ConnectionFields => Set<ConnectionField>();
 
+    public DbSet<WhatsAppSetting> WhatsAppSettings => Set<WhatsAppSetting>();
+
     public CommonDbContext(DbContextOptions<CommonDbContext> options) : base(options)
     {
     }
@@ -95,6 +97,7 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
         modelBuilder.Entity<PageName>().ToTable("PageNames");
         modelBuilder.Entity<AppSetting>().ToTable("AppSettings");
         modelBuilder.Entity<MailSetting>().ToTable("MailSettings");
+        modelBuilder.Entity<WhatsAppSetting>().ToTable("WhatsAppSettings");
         modelBuilder.Entity<UserProfile>().ToTable("UserProfiles");
         modelBuilder.Entity<OneTimeCode>().ToTable("OneTimeCodes");
         modelBuilder.Entity<ServiceItem>().ToTable("ServiceItems");

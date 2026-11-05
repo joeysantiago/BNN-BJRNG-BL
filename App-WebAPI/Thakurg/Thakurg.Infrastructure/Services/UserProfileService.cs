@@ -40,7 +40,7 @@ public class UserProfileService : IUserProfileService
 
     public async Task<ServiceResultDto<ProfileDetailsDto>> SaveAsync(int userId, ProfileDetailsDto request, CancellationToken cancellationToken)
     {
-        var mobile = Phone(request.Mobile, _limits.MobileLength, KhataIdentifier.Mobile);
+        var mobile = Phone(request.Mobile, _limits.MobileLength, PhoneNumber.Normalize);
 
         if (mobile is not null && await _profileRepository.IsMobileTakenAsync(mobile, userId, cancellationToken))
             throw new BusinessException(MessageCodes.ProfileMobileTaken, 409);
