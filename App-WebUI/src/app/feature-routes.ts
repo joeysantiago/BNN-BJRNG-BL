@@ -10,6 +10,7 @@ import { TASKS_ROUTES } from './pages/tasks/tasks.routes';
 import { SitePages } from './core/models/site-pages.model';
 import YOUTUBE_PAGES from './pages/youtube/youtube.pages.json';
 import { YOUTUBE_ROUTES } from './pages/youtube/youtube.routes';
+import { FeaturePanel } from './core/models/feature-panel.model';
 import SPEEDTEST_PAGES from './pages/speedtest/speedtest.pages.json';
 import { SPEEDTEST_ROUTES } from './pages/speedtest/speedtest.routes';
 
@@ -24,3 +25,9 @@ export const FEATURE_PAGES: SitePages[] = [SPEEDTEST_PAGES, MUSIC_PAGES, YOUTUBE
 
 /** The apps this branch holds (app codes of core/apps.ts, plus 'speedtest'). The Settings page shows only their settings and access boxes. */
 export const FEATURE_APPS: string[] = ['speedtest', 'creta', 'nexon', 'youtube', 'khata', 'tasks', 'tracker', 'hr'];
+
+/** The settings each app brings to Settings > General (its own section there), loaded lazily. Each feature branch lists its own; shared lists none. */
+export const FEATURE_SETTINGS: FeaturePanel[] = [];
+
+/** The parts each app brings to the Profile page (for example SnapKhata's contact details), loaded lazily. Each feature branch lists its own; shared lists none. */
+export const FEATURE_PROFILE: FeaturePanel[] = [];

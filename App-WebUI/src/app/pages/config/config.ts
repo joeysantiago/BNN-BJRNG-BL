@@ -1,3 +1,4 @@
+import { KeysTab } from './keys-tab/keys-tab';
 import { RolesTab } from './roles-tab/roles-tab';
 import { UsersTab } from './users-tab/users-tab';
 import { ApiService } from '../../core/api.service';
@@ -12,15 +13,17 @@ import { TranslationKey } from '../../core/models/i18n.model';
 import { KeyStatus } from '../../core/models/key-status.model';
 import { PermissionsTab } from './permissions-tab/permissions-tab';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FeatureSwitches } from './feature-switches/feature-switches';
 import { SettingsService, validStops } from '../../core/settings.service';
 import { FEATURES, FEATURE_GROUPS, featureBuilt } from '../../core/features';
 import { Component, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 import { ConfigGroup, PanelNotice, SaveNotice, SaveTarget, SettingsTab, TabInfo } from './config.model';
-import { ConnectionField, FeatureGroup, FeatureId, SettingsOverrides, SettingsSection } from '../../core/models/app-settings.model';
+import { ConnectionField, FeatureGroup, SettingsOverrides, SettingsSection } from '../../core/models/app-settings.model';
 
 /** Every tab of the page, in order. A tab shows when the user's role may view its page and this branch holds what it is about. */
 const TABS: TabInfo[] = [
   { id: 'general', page: null },
+  { id: 'keys', page: null },
   { id: 'account', page: 'settings.account' },
   { id: 'users', page: 'settings.users' },
   { id: 'roles', page: 'settings.roles' },
@@ -34,14 +37,15 @@ const TABS: TabInfo[] = [
 
 /**
  * /master, the Settings page. One tab per area, shown by the rights of the user's role (Role rights tab; a super admin sees every tab).
- * General comes first, for a super admin who logged in with a password: the settings with a login, key or password, kept encrypted in the database.
+ * General comes first, for every logged-in user: one section per app they may open, with its name (a super admin renames it), switches and the app's own settings.
+ * Keys, for a super admin who logged in with a password: the settings with a login, key or password, kept encrypted in the database.
  * For me (language, skin, password and the options of their own pages, for every user), Users, Roles, Role rights, and the site settings of this branch's apps
  * (FEATURE_APPS). Site setting edits are drafts that preview at once in this browser; a Save button in every section (and Save all) writes them to the database.
  * The API checks every right again, so a hidden button is a convenience, not the protection.
  */
 @Component({
   selector: 'app-config',
-  imports: [RouterLink, GeneralTab, AccountTab, UsersTab, RolesTab, PermissionsTab, SettingsIcon],
+  imports: [RouterLink, GeneralTab, KeysTab, AccountTab, UsersTab, RolesTab, PermissionsTab, SettingsIcon, FeatureSwitches],
   templateUrl: './config.html',
   styleUrl: './config.scss',
 })
@@ -68,9 +72,10 @@ export class Config {
   protected readonly hasSpeed = featureBuilt('speed', FEATURE_APPS);
   protected readonly hasYoutube = featureBuilt('youtube', FEATURE_APPS);
   protected readonly json = computed(() => JSON.stringify(this.cfg.overrides(), null, 2));
-  /** The General tab: a super admin who logged in with a password, as the API's mail settings need (SuperAdminPassword). */
-  protected readonly canGeneral = computed(() => this.auth.isSuperAdmin() && this.auth.user()?.loginMethod !== 'otp');
-  protected readonly tabs = computed(() => TABS.filter((t) => (t.page ? this.auth.can(t.page) : this.canGeneral()) && this.built(t.id)));
+  /** The Keys tab: a super admin who logged in with a password, as the API's mail settings need (SuperAdminPassword). */
+  protected readonly canKeys = computed(() => this.auth.isSuperAdmin() && this.auth.user()?.loginMethod !== 'otp');
+  /** General is for every logged-in user, Keys for a super admin with a password login, the rest by the View right of their page. */
+  protected readonly tabs = computed(() => TABS.filter((t) => (t.page ? this.auth.can(t.page) : t.id === 'keys' ? this.canKeys() : !!this.auth.user()) && this.built(t.id)));
   protected readonly fields = computed(() => Object.keys(this.defaults.connection.fields) as ConnectionField[]);
   protected readonly requested = signal<SettingsTab | null>(this.route.snapshot.queryParamMap.get('tab') as SettingsTab | null);
   /** The open tab: the one asked for in ?tab= when the user may see it, otherwise the first. */
@@ -117,10 +122,6 @@ export class Config {
       this.cfg.setGaugeStops(stops);
   }
 
-  state(on: boolean): string {
-    return this.i18n.t(on ? 'cfg.on' : 'cfg.off');
-  }
-
   checked(ev: Event): boolean {
     return (ev.target as HTMLInputElement).checked;
   }
@@ -151,10 +152,6 @@ export class Config {
 
   saveLabel(target: SaveTarget): string {
     return this.i18n.t(this.saving() === target ? 'cfg.save.saving' : target === 'all' ? 'cfg.save.all' : 'cfg.save');
-  }
-
-  feature(id: FeatureId, ev: Event): void {
-    this.cfg.setFeature(id, this.checked(ev));
   }
 
   label(id: ConnectionField): TranslationKey {

@@ -9,11 +9,15 @@ namespace Thakurg.Infrastructure.Services;
 
 public class SettingsService : ISettingsService
 {
+    private const int NameLength = 40;
+
     private readonly IMessageService _messageService;
 
     private const string GaugeStopsCode = "Speed.GaugeStops";
 
     private readonly ISettingsRepository _settingsRepository;
+
+    private static readonly string[] Languages = ["en", "hi", "ar"];
 
     private static readonly int[] DefaultStops = [0, 5, 10, 25, 50, 75, 100, 250, 500, 1000, 2500, 5000, 10000];
 
@@ -82,6 +86,23 @@ public class SettingsService : ISettingsService
         await _settingsRepository.UpdateAsync(features, fields, items, appSettings, cancellationToken);
 
         return new ServiceResultDto<AppSettingsDto> { Data = await GetAsync(cancellationToken), Message = await _messageService.GetAsync(MessageCodes.SettingsSaved) };
+    }
+
+    // The controller lets only a super admin in. English is required; a Hindi or Arabic name left empty keeps the one it has. Only a page that already has names can be renamed.
+    public async Task<ServiceResultDto<Dictionary<string, string>>> RenameAsync(int userId, string pageCode, AppNameUpdateDto request, CancellationToken cancellationToken)
+    {
+        var names = request.Names.Where(n => !string.IsNullOrWhiteSpace(n.Value)).ToDictionary(n => n.Key, n => n.Value.Trim());
+
+        if (!names.ContainsKey("en") || names.Keys.Any(k => !Languages.Contains(k)) || names.Values.Any(v => v.Length > NameLength))
+            throw new BusinessException(MessageCodes.AppNameInvalid, 400, NameLength);
+
+        if ((await _settingsRepository.GetPageNamesAsync(cancellationToken)).All(p => p.PageCode != pageCode))
+            throw new BusinessException(MessageCodes.SettingsInvalid, 400);
+
+        await _settingsRepository.SavePageNamesAsync(pageCode, names, userId, cancellationToken);
+        var saved = (await _settingsRepository.GetPageNamesAsync(cancellationToken)).Where(p => p.PageCode == pageCode).ToDictionary(p => p.LanguageCode, p => p.Name);
+
+        return new ServiceResultDto<Dictionary<string, string>> { Data = saved, Message = await _messageService.GetAsync(MessageCodes.AppNameSaved) };
     }
 
     #endregion
