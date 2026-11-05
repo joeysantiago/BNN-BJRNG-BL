@@ -4,7 +4,7 @@ export type ServiceGroup = 'apps' | 'telecom';
 
 export type PageName = Record<Lang, string>;
 
-export type PageId = 'speed' | 'connection' | 'services' | 'about' | 'privacy' | 'terms' | 'creta' | 'nexon' | 'hr' | 'khata' | 'youtube';
+export type PageId = 'speed' | 'connection' | 'services' | 'about' | 'privacy' | 'terms' | 'creta' | 'nexon' | 'hr' | 'khata' | 'youtube' | 'tasks';
 
 export type ConnectionField = 'isp' | 'ip' | 'ipv4' | 'ipv6' | 'mac' | 'location' | 'testServer' | 'networkType';
 
@@ -12,7 +12,7 @@ export type FeatureGroup = 'site' | 'pages' | 'speed' | 'youtube' | 'audio';
 
 export type FeatureId =
   | 'site.install' | 'site.theme' | 'site.language' | 'site.nav' | 'site.footer'
-  | 'page.speed' | 'page.youtube' | 'page.creta' | 'page.nexon' | 'page.hr' | 'page.kunal' | 'page.preetik' | 'page.about' | 'page.privacy' | 'page.terms' | 'page.khata'
+  | 'page.speed' | 'page.youtube' | 'page.creta' | 'page.nexon' | 'page.hr' | 'page.kunal' | 'page.preetik' | 'page.about' | 'page.privacy' | 'page.terms' | 'page.khata' | 'page.tasks'
   | 'speed.clock' | 'speed.progress' | 'speed.loaded' | 'speed.share' | 'speed.save' | 'speed.image' | 'speed.history' | 'speed.info'
   | 'yt.search' | 'yt.play' | 'yt.video' | 'yt.seek' | 'yt.shuffle' | 'yt.repeat' | 'yt.volume' | 'yt.queue' | 'yt.playlists' | 'yt.download'
   | 'audio.doodle' | 'audio.seek' | 'audio.shuffle' | 'audio.repeat' | 'audio.volume' | 'audio.playlist' | 'audio.edit';
@@ -35,6 +35,8 @@ export interface SettingsOverrides {
   connection?: { enabled?: boolean; fields?: Partial<Record<ConnectionField, boolean>> };
   services?: { enabled?: boolean; refreshSeconds?: number; items?: Record<string, boolean> };
   youtube?: Partial<AppSettings['youtube']>;
+  /** App names saved by the apps themselves (My Tasks: Settings > General, super admins only), like the PageNames rows of the API branches. */
+  pageNames?: Partial<Record<PageId, Partial<PageName>>>;
 }
 
 export interface ServiceConfig {

@@ -34,6 +34,7 @@ export class SiteHeader {
   // The navigation holds only speed test links, so a branch without the speed test has none.
   protected readonly hasNav = featureBuilt('site.nav', FEATURE_APPS);
   protected readonly themeOpen = signal(false);
+  protected readonly langOpen = signal(false);
   protected readonly userOpen = signal(false);
   private readonly ios = viewChild.required<ElementRef<HTMLDialogElement>>('ios');
 
@@ -47,8 +48,11 @@ export class SiteHeader {
 
   protected readonly onSpeedRoute = computed(() => SPEED_PATHS.has(this.path(this.url())));
 
+  /** The login and sign-up page shows its own form, so the header has no "Log in" link there. */
+  protected readonly onAuthRoute = computed(() => /^\/(login|signup)(\/|$|[?#])/.test(this.url()));
+
   /** Where the login page sends the visitor back to: this page, unless it is the login or sign-up page itself. */
-  protected readonly loginParams = computed(() => (/^\/(login|signup)(\/|$|[?#])/.test(this.url()) ? {} : { next: this.url() }));
+  protected readonly loginParams = computed(() => (this.onAuthRoute() ? {} : { next: this.url() }));
 
   // #region Private Methods
 
@@ -59,6 +63,7 @@ export class SiteHeader {
   @HostListener('document:keydown.escape')
   protected onEscape(): void {
     this.themeOpen.set(false);
+    this.langOpen.set(false);
     this.userOpen.set(false);
   }
 
@@ -77,8 +82,8 @@ export class SiteHeader {
     return p === '' ? '/' : p;
   }
 
-  protected onLang(ev: Event): void {
-    const code = (ev.target as HTMLSelectElement).value as Lang;
+  protected pickLang(code: Lang): void {
+    this.langOpen.set(false);
     this.i18n.set(code);
     // On the speed test the language is part of the URL, so each language has its own page.
     if (this.onSpeedRoute())
@@ -89,6 +94,8 @@ export class SiteHeader {
   protected onDocClick(ev: Event): void {
     if (this.themeOpen() && !this.inside('.menu.skin', ev))
       this.themeOpen.set(false);
+    if (this.langOpen() && !this.inside('.menu.lang', ev))
+      this.langOpen.set(false);
     if (this.userOpen() && !this.inside('.menu.user', ev))
       this.userOpen.set(false);
   }
@@ -96,12 +103,21 @@ export class SiteHeader {
   protected toggleUser(ev: Event): void {
     ev.stopPropagation();
     this.themeOpen.set(false);
+    this.langOpen.set(false);
     this.userOpen.update((v) => !v);
+  }
+
+  protected toggleLang(ev: Event): void {
+    ev.stopPropagation();
+    this.themeOpen.set(false);
+    this.userOpen.set(false);
+    this.langOpen.update((v) => !v);
   }
 
   protected toggleTheme(ev: Event): void {
     ev.stopPropagation();
     this.userOpen.set(false);
+    this.langOpen.set(false);
     this.themeOpen.update((v) => !v);
   }
 

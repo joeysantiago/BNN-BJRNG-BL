@@ -47,6 +47,7 @@ export class KhataSettings {
   protected readonly modeIcons: Record<ThemeMode, KhataIconName> = { light: 'sun', dark: 'moon', system: 'monitor' };
   /** Only a super admin whose session logged in with a password may change where the site keeps files, or manage the users. */
   protected readonly canStorage = computed(() => this.auth.isSuperAdmin() && this.auth.user()?.loginMethod !== 'otp');
+  protected readonly tabIcons: Record<KhataSettingsTab, KhataIconName> = { general: 'settings', notifications: 'bell', storage: 'cloud', mail: 'mail', users: 'users' };
   protected readonly tabs = computed<KhataSettingsTab[]>(() => (this.canStorage() ? ['general', 'notifications', 'storage', 'mail', 'users'] : ['general', 'notifications']));
   protected readonly tab = computed<KhataSettingsTab>(() => {
     const wanted = this.query().get('tab') as KhataSettingsTab | null;

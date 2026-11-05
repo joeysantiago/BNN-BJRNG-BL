@@ -2,8 +2,7 @@ import { AuthMode } from './auth-page.model';
 import { SeoService } from '../../core/seo.service';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
-import { DevLogin } from '../../core/models/auth.model';
-import { environment } from '../../../environments/environment';
+import { TestLoginOption } from '../../core/models/auth.model';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Component, afterNextRender, effect, inject, signal } from '@angular/core';
 
@@ -30,8 +29,8 @@ export class AuthPage {
   private readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
   private readonly route = inject(ActivatedRoute);
-  /** The seeded logins, the first pre-filled, only while `showDevLogins` is true in the environment. Empty when it is false (deployments). */
-  protected readonly devLogins: DevLogin[] = environment.showDevLogins ? environment.devLogins : [];
+  /** The test logins a super admin switched on (Settings > General): e-mails only, a tap logs in with the password the backend keeps. */
+  protected readonly testLogins = signal<TestLoginOption[]>([]);
   protected readonly next = safeNext(this.route.snapshot.queryParamMap.get('next'));
   protected readonly mode: AuthMode = this.route.snapshot.data['mode'] === 'signup' ? 'signup' : 'login';
 
@@ -47,7 +46,11 @@ export class AuthPage {
     });
 
     // Already logged in (this tab, another tab or the refresh cookie): no need to log in again.
-    afterNextRender(() => void this.skipWhenLoggedIn());
+    afterNextRender(() => {
+      void this.skipWhenLoggedIn();
+      if (this.mode === 'login')
+        void this.loadTestLogins();
+    });
   }
 
   // #region Public Methods
@@ -73,10 +76,20 @@ export class AuthPage {
     }
   }
 
-  /** Fills the form with one of the seeded development logins. */
-  useLogin(login: DevLogin, email: HTMLInputElement, password: HTMLInputElement): void {
-    email.value = login.email;
-    password.value = login.password;
+  /** Logs in with one of the test logins; the password is kept by the backend. */
+  async useLogin(login: TestLoginOption): Promise<void> {
+    if (this.busy())
+      return;
+    this.busy.set(true);
+    this.error.set('');
+    try {
+      await this.auth.testLogin(login.id);
+      this.go();
+    } catch (e) {
+      this.error.set((e as { status?: number }).status !== undefined ? (e as Error).message : this.i18n.t('auth.serverDown'));
+    } finally {
+      this.busy.set(false);
+    }
   }
 
   // #endregion
@@ -85,6 +98,10 @@ export class AuthPage {
 
   private go(): void {
     void this.router.navigateByUrl(this.next ?? '/profile', { replaceUrl: true });
+  }
+
+  private async loadTestLogins(): Promise<void> {
+    this.testLogins.set(await this.auth.testLogins());
   }
 
   private async skipWhenLoggedIn(): Promise<void> {

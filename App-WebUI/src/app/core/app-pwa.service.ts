@@ -5,7 +5,7 @@ import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { AppWindow, InstallableApp } from './models/app-pwa.model';
 
 /**
- * Makes every app (Speed test, Creta, Nexon, YouTube, SnapKhata) installable as its own app on a phone or computer. Routes live in the hash, so
+ * Makes every app (Speed test, Creta, Nexon, YouTube, SnapKhata, My Tasks) installable as its own app on a phone or computer. Routes live in the hash, so
  * every screen shares the path "/"; an installed app therefore runs at its own path /apps/<code>/ (the scope and start address of its manifest, a
  * copy of the app shell written by scripts/postbuild.mjs). Different scopes and manifest ids keep each install apart, and one never replaces another.
  * - In an app's own window (/apps/<code>/) the page keeps that app's manifest whatever screen is open.
@@ -22,7 +22,7 @@ export class AppPwaService {
   private readonly api = inject(ApiService);
   private readonly i18n = inject(I18nService);
   /** The app whose own window this is (the path /apps/<code>/), or null on the plain site and on the server. */
-  private readonly own = (isPlatformBrowser(inject(PLATFORM_ID)) ? /^\/apps\/(khata|creta|nexon|youtube|speedtest)\/?$/.exec(location.pathname)?.[1] ?? null : null) as AppWindow | null;
+  private readonly own = (isPlatformBrowser(inject(PLATFORM_ID)) ? /^\/apps\/(khata|creta|nexon|youtube|tasks|speedtest)\/?$/.exec(location.pathname)?.[1] ?? null : null) as AppWindow | null;
 
   constructor() {
     if (this.own && this.own !== 'speedtest')

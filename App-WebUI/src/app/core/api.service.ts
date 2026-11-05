@@ -32,6 +32,11 @@ export class ApiService {
     return this.backend.avatar(userId);
   }
 
+  /** A picture of a task of My Tasks (a data: URL kept by the demo backend), or null. */
+  taskPhoto(attachmentId: number): string | null {
+    return this.backend.taskPhoto(attachmentId);
+  }
+
   /** The saved site settings (what differs from appSettings.ts), read at once so pages can use them while they start. */
   savedSettings(): SettingsOverrides {
     return this.backend.settings();

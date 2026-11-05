@@ -1,9 +1,10 @@
 import { FEATURES } from './features';
 import { ApiService } from './api.service';
+import { I18nService } from './i18n.service';
 import { APP_SETTINGS } from '../appSettings';
 import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
-import { AppSettings, ConnectionField, FeatureFlags, FeatureId, SettingsOverrides, SettingsSection } from './models/app-settings.model';
+import { AppSettings, ConnectionField, FeatureFlags, FeatureId, PageId, SettingsOverrides, SettingsSection } from './models/app-settings.model';
 
 /**
  * The settings in use. appSettings.ts holds the defaults; the saved changes (Settings page, Save buttons) are layered on top, and are kept by the demo backend
@@ -15,6 +16,7 @@ import { AppSettings, ConnectionField, FeatureFlags, FeatureId, SettingsOverride
 export class SettingsService {
   private restored = false;
   private readonly api = inject(ApiService);
+  private readonly i18n = inject(I18nService);
   /** Options the logged-in user switched off for themselves (set by AuthService). They only hide: a site-wide switch that is off stays off. */
   private readonly hidden = signal<string[]>([]);
   readonly overrides = signal<SettingsOverrides>({});
@@ -41,7 +43,16 @@ export class SettingsService {
     if (!this.browser || this.restored)
       return;
     this.restored = true;
-    this.saved.set(this.api.savedSettings());
+    void this.load();
+  }
+
+  /** Reads the saved changes again (after an app renamed itself, as the API branches reload the settings). Browser only. */
+  async load(): Promise<void> {
+    if (!this.browser)
+      return;
+    const saved = this.api.savedSettings();
+    this.saved.set(saved);
+    this.i18n.rename(saved.pageNames ?? {});
   }
 
   /** Whether a feature is on for this visitor: on for the site and not switched off by the logged-in user. Reads signals, so templates and effects update when it changes. */
@@ -104,6 +115,7 @@ export class SettingsService {
       return '';
     const res = await this.api.sendFull<SettingsOverrides>('PUT', '/settings', this.api.json(body));
     this.saved.set(res.data);
+    this.i18n.rename(res.data.pageNames ?? {});
     this.overrides.set(this.clean(this.overrides()));
     return res.message ?? '';
   }
@@ -132,6 +144,7 @@ export class SettingsService {
       ...d,
       features: { ...d.features, ...o.features },
       youtube: { ...d.youtube, ...o.youtube },
+      pageNames: Object.fromEntries(Object.entries(d.pageNames).map(([id, n]) => [id, { ...n, ...o.pageNames?.[id as PageId] }])) as AppSettings['pageNames'],
       connection: { enabled: o.connection?.enabled ?? d.connection.enabled, fields: { ...d.connection.fields, ...o.connection?.fields } },
       services: {
         enabled: o.services?.enabled ?? d.services.enabled,

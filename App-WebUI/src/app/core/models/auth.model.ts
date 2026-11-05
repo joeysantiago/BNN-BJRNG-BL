@@ -71,10 +71,10 @@ export interface AuthHooks {
   refresh: () => Promise<boolean>;
 }
 
-/** A login of the seeded development accounts, offered as a one-tap fill on the login page (development builds only). */
-export interface DevLogin {
+/** A test login button of the login page (GET /auth/test-logins): the e-mail only; the password stays with the backend, which logs in with it. */
+export interface TestLoginOption {
+  id: number;
   email: string;
-  password: string;
 }
 
 /** Which users the Settings > Users tab lists (GET /admin/users?status=). */

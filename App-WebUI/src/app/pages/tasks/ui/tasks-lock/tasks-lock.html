@@ -1,0 +1,32 @@
+<div class="lock" role="dialog" aria-modal="true" aria-labelledby="tasks-lock-h">
+  <span class="lock-mark"><app-task-icon [name]="step() === 'unlock' ? 'lock' : 'key'" [size]="30" /></span>
+  @if (lock.mode() === 'checking') {
+    <h1 id="tasks-lock-h">{{ appName() }}</h1>
+    <p role="status">{{ i18n.t('tasks.loading') }}</p>
+  } @else {
+    <h1 id="tasks-lock-h">{{ heading() }}</h1>
+    <p>{{ lead() }}</p>
+    <div class="lock-dots" [class.err]="!!error()" role="img" [attr.aria-label]="i18n.t('tasks.lock.entered', { n: entered().length, total: length() })">
+      @for (on of dots(); track $index) {
+        <i [class.on]="on"></i>
+      }
+    </div>
+    <p class="lock-err" role="alert">{{ error() }}</p>
+    <div class="lock-pad" role="group" [attr.aria-label]="i18n.t('tasks.lock.keypad')">
+      @for (k of keys; track k) {
+        <button type="button" class="lock-key" [disabled]="busy()" (click)="press(k)">{{ k }}</button>
+      }
+      <span></span>
+      <button type="button" class="lock-key" [disabled]="busy()" (click)="press('0')">0</button>
+      <button type="button" class="lock-key fn" [attr.aria-label]="i18n.t('tasks.lock.backspace')" (click)="back()"><app-task-icon name="del" [size]="24" /></button>
+    </div>
+    <div class="row center">
+      @if (lock.mode() === 'locked') {
+        <button type="button" class="btn ghost sm" (click)="lock.forgot()">{{ i18n.t('tasks.lock.forgot') }}</button>
+        <button type="button" class="btn ghost sm" (click)="logout()"><app-task-icon name="logout" [size]="16" />{{ i18n.t('tasks.logout') }}</button>
+      } @else {
+        <button type="button" class="btn ghost sm" (click)="lock.cancel()">{{ i18n.t('tasks.cancel') }}</button>
+      }
+    </div>
+  }
+</div>

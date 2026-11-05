@@ -6,11 +6,12 @@ import { AuthService } from '../../../core/auth.service';
 import { I18nService } from '../../../core/i18n.service';
 import { formatMoney } from '../../../core/khata-format';
 import { ThemeService } from '../../../core/theme.service';
-import { ThemeMode } from '../../../core/models/theme.model';
 import { AppPwaService } from '../../../core/app-pwa.service';
+import { InstallService } from '../../../core/install.service';
+import { Skin, ThemeMode } from '../../../core/models/theme.model';
 import { KhataStyleService } from '../../../core/khata-style.service';
-import { Component, OnDestroy, computed, effect, inject } from '@angular/core';
-import { KhataCurrency, KhataIconName, KhataLandingFeature } from '../../../core/models/khata.model';
+import { Component, HostListener, OnDestroy, computed, effect, inject, signal } from '@angular/core';
+import { KhataCurrency, KhataIconName, KhataLandingFeature, KhataMenu } from '../../../core/models/khata.model';
 
 const PATH = '/khata/';
 const FAQ = ['q1', 'q2', 'q3', 'q4'];
@@ -32,15 +33,18 @@ const SAMPLE_CURRENCY: KhataCurrency = { id: 0, code: 'INR', name: 'Indian rupee
 
 export class KhataLanding implements OnDestroy {
   protected readonly faq = FAQ;
+  protected readonly modes = MODES;
   private readonly seo = inject(SeoService);
+  protected readonly modeIcons = MODE_ICONS;
   private readonly pwa = inject(AppPwaService);
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
   protected readonly theme = inject(ThemeService);
   protected readonly year = new Date().getFullYear();
+  protected readonly install = inject(InstallService);
   protected readonly style = inject(KhataStyleService);
-  protected readonly modeIcon = computed(() => MODE_ICONS[this.theme.activeMode()]);
-  protected readonly modeLabel = computed(() => this.i18n.t('khata.theme.toggle', { name: this.i18n.t('khata.theme.' + this.theme.activeMode()) }));
+  /** The open top-bar menu (language or theme), if any; the same menus as the app's top bar. */
+  protected readonly menu = signal<KhataMenu | null>(null);
   protected readonly features: KhataLandingFeature[] = [{ icon: 'users', key: 'f1' }, { icon: 'zap', key: 'f2' }, { icon: 'book', key: 'f3' }, { icon: 'lock', key: 'f4' }, { icon: 'history', key: 'f5' }];
   protected readonly sample = computed(() => {
     const lang = this.i18n.lang();
@@ -84,8 +88,9 @@ export class KhataLanding implements OnDestroy {
 
   // #region Public Methods
 
-  cycleMode(): void {
-    this.theme.setMode(MODES[(MODES.indexOf(this.theme.activeMode()) + 1) % MODES.length]);
+  @HostListener('document:keydown.escape')
+  closeMenu(): void {
+    this.menu.set(null);
   }
 
   ngOnDestroy(): void {
@@ -94,6 +99,26 @@ export class KhataLanding implements OnDestroy {
 
   setLang(lang: Lang): void {
     this.i18n.set(lang);
+    this.menu.set(null);
+  }
+
+  setSkin(skin: Skin): void {
+    this.theme.set(skin);
+  }
+
+  setMode(mode: ThemeMode): void {
+    this.theme.setMode(mode);
+  }
+
+  /** A click outside the open top-bar menu closes it. */
+  @HostListener('document:click', ['$event'])
+  outside(ev: MouseEvent): void {
+    if (this.menu() && !(ev.target as Element | null)?.closest('.k-menu'))
+      this.menu.set(null);
+  }
+
+  toggleMenu(menu: KhataMenu): void {
+    this.menu.set(this.menu() === menu ? null : menu);
   }
 
   // #endregion

@@ -29,6 +29,9 @@
           <ng-container *ngTemplateOutlet="picker; context: { $implicit: 'top' }" />
           <span class="crumb">{{ state.title() }}</span>
           <div class="k-top-actions">
+            @if (!install.installed() && install.canPrompt()) {
+              <button type="button" class="k-btn ghost icon" [title]="i18n.t('install.btn')" [attr.aria-label]="i18n.t('install.btn')" (click)="install.prompt()"><svg kIco="install"></svg></button>
+            }
             <div class="k-menu">
               <button type="button" class="k-btn ghost icon" aria-haspopup="true" aria-controls="k-lang-menu" [attr.aria-expanded]="menu() === 'lang'" [title]="i18n.t('lang.label')" [attr.aria-label]="i18n.t('lang.label')"
                 (click)="toggleMenu('lang')">

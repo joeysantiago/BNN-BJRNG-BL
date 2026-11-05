@@ -1,8 +1,9 @@
 import { PageCode } from '../models/role.model';
-import { MailSetting } from '../models/mail.model';
 import { KhataDemoDb } from './khata-demo.model';
-import { ProfileDetails, ProfileLimits } from '../models/auth.model';
+import { TasksDemoDb } from './tasks-demo.model';
+import { MailSetting } from '../models/mail.model';
 import { SettingsOverrides } from '../models/app-settings.model';
+import { ProfileDetails, ProfileLimits } from '../models/auth.model';
 
 /** One text of the API's Messages table, in the three languages. */
 export interface DemoText {
@@ -68,6 +69,19 @@ export interface DemoPermission {
   canDelete: boolean;
 }
 
+/**
+ * A test login of the login page (TestLogins table). The API keeps the password encrypted; this browser keeps only its SHA-256, the same as a
+ * user's password hash, so a tap logs in by comparing the two and the password itself is never stored.
+ */
+export interface DemoTestLogin {
+  id: number;
+  email: string;
+  deleted: boolean;
+  sortOrder: number;
+  showOnLogin: boolean;
+  passwordHash: string | null;
+}
+
 /** An app a user can be given (Apps table). `autoGrant` apps are given to every sign-up. */
 export interface DemoApp {
   code: string;
@@ -91,8 +105,10 @@ export interface DemoDb {
   pages: DemoPage[];
   mail?: MailSetting[];
   khata?: KhataDemoDb;
+  tasks?: TasksDemoDb;
   sessions: DemoSession[];
   settings: SettingsOverrides;
+  testLogins?: DemoTestLogin[];
   permissions: DemoPermission[];
 }
 

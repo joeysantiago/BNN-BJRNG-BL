@@ -48,8 +48,8 @@ export class App {
     { initialValue: this.router.url },
   );
 
-  /** The Atrium HR app and the portfolios are full screen and bring their own navigation, so the site header and footer are hidden there. */
-  protected readonly bare = computed(() => /^\/(HR|kunal|preetik)(\/|$|[?#])/.test(this.url()));
+  /** The Atrium HR app, the portfolios and the My Tasks app (/tasks/app) are full screen and bring their own navigation, so the site header and footer are hidden there. */
+  protected readonly bare = computed(() => /^\/(HR|kunal|preetik|tasks\/app)(\/|$|[?#])/.test(this.url()));
 
   constructor() {
     // Started with the page, so an installed app's own window (/apps/<code>/) points at its manifest before the browser reads it.

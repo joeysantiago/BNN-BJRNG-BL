@@ -7,12 +7,13 @@ import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
 import { AccountTab } from './account-tab/account-tab';
 import { GeneralTab } from './general-tab/general-tab';
-import { PermissionsTab } from './permissions-tab/permissions-tab';
+import { SettingsIcon } from '../../shared/settings-icon';
 import { SettingsService } from '../../core/settings.service';
+import { PermissionsTab } from './permissions-tab/permissions-tab';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { ConfigGroup, SaveNotice, SaveTarget, SettingsTab, TabInfo } from './config.model';
 import { FEATURES, FEATURE_APPS, FEATURE_GROUPS, featureBuilt } from '../../core/features';
+import { ConfigGroup, SaveNotice, SaveTarget, SettingsTab, TabInfo } from './config.model';
 import { AppSettings, ConnectionField, FeatureGroup, FeatureId, SettingsOverrides, SettingsSection } from '../../core/models/app-settings.model';
 
 /** Every tab of the page, in order. A tab shows when the user's role may view its page and this build holds what it is about. */
@@ -40,7 +41,7 @@ const TABS: TabInfo[] = [
  */
 @Component({
   selector: 'app-config',
-  imports: [RouterLink, GeneralTab, AccountTab, UsersTab, RolesTab, PermissionsTab, MailTab],
+  imports: [RouterLink, GeneralTab, AccountTab, UsersTab, RolesTab, PermissionsTab, MailTab, SettingsIcon],
   templateUrl: './config.html',
   styleUrl: './config.scss',
 })

@@ -1,0 +1,29 @@
+@use '../config';
+
+:host {
+  display: grid;
+}
+.logins {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.login {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--line, rgba(128, 128, 128, 0.3));
+  border-radius: 14px;
+}
+.sub-h {
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+.add {
+  margin-top: 12px;
+}
+.field-row input:not([type='checkbox']) {
+  width: min(100%, 320px);
+}

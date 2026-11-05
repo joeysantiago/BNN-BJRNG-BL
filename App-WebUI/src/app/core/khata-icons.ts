@@ -47,12 +47,14 @@ export const KHATA_ICONS: Record<KhataIconName, KhataIconShape[]> = {
   truck: [{ tag: 'path', d: 'M1 3h15v13H1zM16 8h4l3 3v5h-7z' }, { tag: 'circle', cx: 5.5, cy: 18.5, r: 2.5 }, { tag: 'circle', cx: 18.5, cy: 18.5, r: 2.5 }],
   hash: [{ tag: 'path', d: 'M4 9h16M4 15h16M10 3 8 21M16 3l-2 18' }],
   logo: [{ tag: 'path', d: 'M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6z' }, { tag: 'path', d: 'M6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2' }, { tag: 'path', d: 'M9.5 9.5h6M9.5 13.5h4' }],
-  install: [{ tag: 'rect', x: 5, y: 2, width: 14, height: 20, rx: 2 }, { tag: 'path', d: 'M12 7v7M9 11l3 3 3-3M10 18h4' }],
+  install: [{ tag: 'path', d: 'M12 3v12' }, { tag: 'path', d: 'M7 11l5 5 5-5' }, { tag: 'path', d: 'M5 21h14' }],
   filePdf: [{ tag: 'path', d: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z' }, { tag: 'path', d: 'M14 2v4a2 2 0 0 0 2 2h4' }, { tag: 'path', d: 'M8 13h8M8 17h8M8 9h2' }],
   fileSheet: [{ tag: 'path', d: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z' }, { tag: 'path', d: 'M14 2v4a2 2 0 0 0 2 2h4' }, { tag: 'path', d: 'M8 12h8v6H8zM12 12v6M8 15h8' }],
   fileCsv: [{ tag: 'path', d: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z' }, { tag: 'path', d: 'M14 2v4a2 2 0 0 0 2 2h4' }, { tag: 'path', d: 'M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01M16 17h.01' }],
   palette: [{ tag: 'circle', cx: 13.5, cy: 6.5, r: 1 }, { tag: 'circle', cx: 17.5, cy: 10.5, r: 1 }, { tag: 'circle', cx: 8.5, cy: 7.5, r: 1 }, { tag: 'circle', cx: 6.5, cy: 12.5, r: 1 }, { tag: 'path', d: 'M12 22a10 10 0 1 1 10-10c0 2.5-2 3-3.5 3H16a2 2 0 0 0-1.5 3.3c.6.8.3 3.7-2.5 3.7z' }],
   chat: [{ tag: 'path', d: 'M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z' }],
+  bell: [{ tag: 'path', d: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9' }, { tag: 'path', d: 'M10.3 21a1.94 1.94 0 0 0 3.4 0' }],
+  cloud: [{ tag: 'path', d: 'M17.5 19H7a5 5 0 1 1 1.1-9.88A6 6 0 0 1 19.6 11 4 4 0 0 1 17.5 19z' }],
 };
 
 /** Icons that point along the reading direction; they turn round in Arabic. */

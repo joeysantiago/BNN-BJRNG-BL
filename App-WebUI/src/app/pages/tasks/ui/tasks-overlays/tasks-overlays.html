@@ -1,0 +1,47 @@
+@if (lock.open()) {
+  @if (state.bell()) {
+    <div class="pop" role="dialog" [attr.aria-label]="i18n.t('tasks.rem.title')">
+      <div class="row">
+        <h2 class="grow">{{ i18n.t('tasks.rem.title') }}</h2><button type="button" class="btn ghost icon sm" [attr.aria-label]="i18n.t('tasks.close')" (click)="state.bell.set(false)"><app-task-icon name="x" [size]="18" /></button>
+      </div>
+      @for (r of state.reminders(); track r.task.id) {
+        <button type="button" class="rem" (click)="openReminder(r.task.id)">
+          <span class="ic" [class]="'ic ' + r.kind"><app-task-icon [name]="r.kind === 'od' ? 'alert' : r.kind === 'td' ? 'bell' : 'clock'" [size]="17" /></span>
+          <span class="rem-txt"><b>{{ r.task.title }}</b><small>{{ r.kind === 'od' ? i18n.t('tasks.rem.overdue', { date: formatYmd(r.task.dueDate) }) : state.friendlyDue(r.task) }}</small></span>
+        </button>
+      } @empty {
+        <p class="muted">{{ state.settings()?.notificationsEnabled ? i18n.t('tasks.rem.none') : i18n.t('tasks.rem.off') }}</p>
+      }
+      <a class="btn sm ghost" routerLink="/tasks/app/profile" [queryParams]="{ tab: 'notifications' }" (click)="state.bell.set(false)">{{ i18n.t('tasks.rem.settings') }}</a>
+    </div>
+  }
+
+  @if (state.viewer(); as v) {
+    <div class="lightbox" role="dialog" aria-modal="true" [attr.aria-label]="i18n.t('tasks.photo.view')" (keydown.escape)="state.viewer.set(null)">
+      <div class="lb-h"><b>{{ v.index + 1 }} / {{ v.urls.length }}</b><button type="button" class="btn icon" [attr.aria-label]="i18n.t('tasks.close')" (click)="state.viewer.set(null)"><app-task-icon name="x" /></button></div>
+      <div class="lb-body"><img [src]="v.urls[v.index]" [alt]="i18n.t('tasks.photo.alt', { n: v.index + 1 })" /></div>
+      @if (v.urls.length > 1) {
+        <div class="lb-f">
+          <button type="button" class="btn icon" [attr.aria-label]="i18n.t('tasks.photo.prev')" (click)="move(-1)"><app-task-icon name="left" /></button>
+          <button type="button" class="btn icon" [attr.aria-label]="i18n.t('tasks.photo.next')" (click)="move(1)"><app-task-icon name="right" /></button>
+        </div>
+      }
+    </div>
+  }
+}
+@if (state.ask(); as a) {
+  <div class="scrim confirm-scrim" (click)="$event.target === $event.currentTarget && state.answer(false)" (keydown.escape)="state.answer(false)">
+    <div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="tasks-confirm-t">
+      <p id="tasks-confirm-t" class="confirm-t">{{ a.text }}</p>
+      <div class="row end">
+        <button type="button" class="btn" (click)="state.answer(false)">{{ i18n.t('tasks.cancel') }}</button>
+        <button type="button" class="btn danger" (click)="state.answer(true)">{{ a.action }}</button>
+      </div>
+    </div>
+  </div>
+}
+<div class="toasts" role="status" aria-live="polite">
+  @for (t of state.toasts(); track t.id) {
+    <div class="toast" [class.err]="t.error"><span>{{ t.text }}</span>@if (t.undo; as undo) {<button type="button" (click)="undo(); state.dismiss(t.id)">{{ i18n.t('tasks.undo') }}</button>}</div>
+  }
+</div>

@@ -7,7 +7,7 @@
     @for (t of tabs(); track t) {
       <button type="button" role="tab" [id]="'ks-tab-' + t" [attr.aria-selected]="tab() === t" [attr.aria-pressed]="tab() === t" [attr.aria-controls]="'ks-panel-' + t" [attr.tabindex]="tab() === t ? 0 : -1" (click)="open(t)"
         (keydown)="tabKey($event)">
-        {{ i18n.t('khata.st.tab.' + t) }}
+        <svg [kIco]="tabIcons[t]" [size]="18"></svg>{{ i18n.t('khata.st.tab.' + t) }}
       </button>
     }
   </div>

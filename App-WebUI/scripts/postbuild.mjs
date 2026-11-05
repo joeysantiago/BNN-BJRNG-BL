@@ -16,14 +16,14 @@ console.log('created 404.html');
 
 // Every app installs on its own at /apps/<code>/ (the scope and start address of its manifest, public/apps/<code>/manifest.webmanifest). The address
 // needs a real file, so GitHub Pages answers 200 with the app shell (index.html keeps the path and opens the app's screen).
-const installable = ['speedtest', 'creta', 'nexon', 'youtube', 'khata'];
+const installable = ['speedtest', 'creta', 'nexon', 'youtube', 'khata', 'tasks'];
 for (const code of installable) {
   mkdirSync(join(dist, 'apps', code), { recursive: true });
   copyFileSync(join(dist, 'index.csr.html'), join(dist, 'apps', code, 'index.html'));
 }
 console.log(`created the app shells: ${installable.map((c) => '/apps/' + c + '/').join(', ')}`);
 
-const pages = ['', 'hi', 'ar', 'HR', 'creta', 'nexon', 'youtube', 'khata', 'kunal', 'preetik', 'about', 'privacy', 'terms', 'master', 'offline', 'error', 'login', 'signup', 'profile'];
+const pages = ['', 'hi', 'ar', 'HR', 'creta', 'nexon', 'youtube', 'khata', 'tasks', 'kunal', 'preetik', 'about', 'privacy', 'terms', 'master', 'offline', 'error', 'login', 'signup', 'profile'];
 const missing = pages.filter((p) => !existsSync(join(dist, p, 'index.html')));
 if (missing.length) {
   console.error('Missing prerendered pages: ' + missing.map((m) => '/' + m).join(', '));
@@ -73,6 +73,7 @@ const entries = [
   { path: '/nexon/', priority: '0.6' },
   { path: '/youtube/', priority: '0.6' },
   { path: '/khata/', priority: '0.6' },
+  { path: '/tasks/', priority: '0.6' },
   { path: '/kunal/', priority: '0.7' },
   { path: '/preetik/', priority: '0.6' },
   { path: '/login/', priority: '0.3' },

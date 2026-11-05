@@ -3,8 +3,8 @@ import { HI } from '../i18n/hi';
 import { DOCUMENT } from '@angular/common';
 import { APP_SETTINGS } from '../appSettings';
 import { LANGS, Lang, langInfo } from './site';
-import { PageId } from './models/app-settings.model';
 import { EN, TranslationKey, Translations } from '../i18n/en';
+import { PageId, PageName } from './models/app-settings.model';
 import { Injectable, computed, inject, signal } from '@angular/core';
 
 const STORAGE_KEY = 'thakurg-lang';
@@ -20,6 +20,8 @@ export class I18nService {
   readonly dir = computed(() => this.info().dir);
   /** Texts of lazily loaded areas (SnapKhata), added by extend() when their pages load. A signal, so templates update when they arrive. */
   private readonly extra = signal<Record<Lang, Record<string, string>>>({ en: {}, hi: {}, ar: {} });
+  /** App names saved in the browser (My Tasks renames itself, as the PageNames rows of the API branches), set by SettingsService. They win over appSettings.ts. */
+  private readonly names = signal<Partial<Record<PageId, Partial<PageName>>>>({});
 
   // #region Public Methods
 
@@ -33,14 +35,20 @@ export class I18nService {
     }
   }
 
-  /** Name of a page in the current language, from appSettings.ts. */
+  /** Name of a page in the current language: a saved name (renamed app) first, then appSettings.ts. */
   page(id: PageId): string {
-    return APP_SETTINGS.pageNames[id][this.lang()] ?? APP_SETTINGS.pageNames[id].en;
+    const saved = this.names()[id];
+    return saved?.[this.lang()] || saved?.en || APP_SETTINGS.pageNames[id][this.lang()] || APP_SETTINGS.pageNames[id].en;
   }
 
   /** Adds the texts of an area that loads later (SnapKhata), so the main bundle does not carry them. */
   extend(texts: Record<Lang, Record<string, string>>): void {
     this.extra.update((all) => ({ en: { ...all.en, ...texts.en }, hi: { ...all.hi, ...texts.hi }, ar: { ...all.ar, ...texts.ar } }));
+  }
+
+  /** The saved app names (SettingsService passes them after it reads the saved settings). */
+  rename(names: Partial<Record<PageId, Partial<PageName>>>): void {
+    this.names.set(names);
   }
 
   /** Switch language. `persist` stores the choice so it is remembered on the next visit. */

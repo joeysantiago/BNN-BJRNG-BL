@@ -8,7 +8,7 @@ import { AuthUser, ProfileDetails, UserStatus } from '../models/auth.model';
 import { SettingsOverrides } from '../models/app-settings.model';
 import { MailPurpose, MailSecurity, MailSetting } from '../models/mail.model';
 import { RoleForm, RoleInfo, RolePermission } from '../models/role.model';
-import { DemoDb, DemoMessages, DemoPermission, DemoReply, DemoRequest, DemoRole, DemoUser } from './demo.model';
+import { DemoDb, DemoMessages, DemoPermission, DemoReply, DemoRequest, DemoRole, DemoTestLogin, DemoUser } from './demo.model';
 
 const DB_KEY = 'thakurg-demo-db';
 const SESSION_KEY = 'thakurg-demo-session';
@@ -28,7 +28,7 @@ const MAIL_SECURITIES: MailSecurity[] = ['starttls', 'ssl', 'none'];
  */
 export class DemoBackend {
   private memory: DemoDb | null = null;
-  /** The texts of the SnapKhata part, added when it first loads. */
+  /** The texts of the SnapKhata and My Tasks parts, added when they first load. */
   private extraMessages: DemoMessages = {};
 
   // #region Public Methods
@@ -36,6 +36,11 @@ export class DemoBackend {
   /** The profile picture of a user as a data: URL, or null. */
   avatar(userId: number): string | null {
     return this.load().users.find((u) => u.id === userId)?.avatarData ?? null;
+  }
+
+  /** A picture of a task of My Tasks as a data: URL, or null. The app shows it in an <img>, as it loads the API's picture address. */
+  taskPhoto(attachmentId: number): string | null {
+    return this.load().tasks?.files.find((f) => f.id === attachmentId)?.data ?? null;
   }
 
   /** The saved site settings, like GET /settings but at once. */
@@ -73,7 +78,7 @@ export class DemoBackend {
     try {
       const raw = localStorage.getItem(DB_KEY);
       if (raw)
-        return JSON.parse(raw) as DemoDb;
+        return this.upgrade(JSON.parse(raw) as DemoDb);
       const db = demoSeed(this.now());
       db.settings = JSON.parse(localStorage.getItem(OLD_SETTINGS_KEY) ?? '{}') as SettingsOverrides;
       localStorage.removeItem(OLD_SETTINGS_KEY);
@@ -83,6 +88,14 @@ export class DemoBackend {
       this.memory = demoSeed(this.now());
       return this.memory;
     }
+  }
+
+  /** Data saved by an older build gets what was added since (the My Tasks app, the test logins), as the INSERT scripts of a new database would have them. */
+  private upgrade(db: DemoDb): DemoDb {
+    if (!db.apps.some((a) => a.code === 'tasks'))
+      db.apps.push({ code: 'tasks', autoGrant: false });
+    db.testLogins ??= demoSeed(this.now()).testLogins;
+    return db;
   }
 
   private store(db: DemoDb): void {
@@ -348,6 +361,22 @@ export class DemoBackend {
         return this.updateRight(db, this.require(db, req.token, 'settings.permissions:edit'), id, body);
       case 'DELETE /admin/role-permissions/{id}':
         return this.deleteRight(db, this.require(db, req.token, 'settings.permissions:delete'), id);
+      case 'GET /auth/test-logins':
+        return { data: this.testLogins(db).filter((l) => l.showOnLogin && l.passwordHash).map((l) => ({ id: l.id, email: l.email })) };
+      case 'POST /auth/test-logins/{id}/login':
+        return { data: await this.testLogin(db, id) };
+      case 'GET /admin/test-logins':
+        this.superCaller(db, req.token);
+        return { data: this.testLogins(db).map((l) => this.testLoginDto(l)) };
+      case 'POST /admin/test-logins':
+        this.superCaller(db, req.token);
+        return this.saveTestLogin(db, null, body);
+      case 'PUT /admin/test-logins/{id}':
+        this.superCaller(db, req.token);
+        return this.saveTestLogin(db, id, body);
+      case 'DELETE /admin/test-logins/{id}':
+        this.superCaller(db, req.token);
+        return this.deleteTestLogin(db, id);
       case 'GET /auth/me/details':
         return { data: this.detailsOf(this.caller(db, req.token)) };
       case 'PUT /auth/me/details':
@@ -355,6 +384,8 @@ export class DemoBackend {
       default:
         if (path.startsWith('/khata/'))
           return this.khata(db, req, path, query ?? '');
+        if (path.startsWith('/tasks/'))
+          return this.tasks(db, req, path);
         throw new DemoFailure(404, 'UNEXPECTED_ERROR');
     }
   }
@@ -364,16 +395,20 @@ export class DemoBackend {
    * ("your account is archived"), but only with the right password, so the answer never shows which e-mails exist.
    */
   private async login(db: DemoDb, body: Record<string, unknown>): Promise<unknown> {
-    const email = this.email(body['email']);
+    return this.passwordLogin(db, this.email(body['email']), await this.hash(String(body['password'] ?? '')));
+  }
+
+  /** The login of an e-mail and the SHA-256 of a password: the sign-in form sends the password, a test login its stored hash. */
+  private passwordLogin(db: DemoDb, email: string | null, hash: string): unknown {
     const user = email ? db.users.find((u) => u.email === email && this.live(u)) : undefined;
     const inactive = email && !user ? db.users.find((u) => u.email === email) : undefined;
-    if (inactive && (await this.hash(String(body['password'] ?? ''))) === inactive.passwordHash)
+    if (inactive && hash === inactive.passwordHash)
       throw new DemoFailure(403, inactive.deleted ? 'AUTH_ACCOUNT_CLOSED' : 'AUTH_ACCOUNT_ARCHIVED');
     if (!user)
       throw new DemoFailure(401, 'AUTH_LOGIN_INVALID');
     if (user.lockedUntil && user.lockedUntil > Date.now())
       throw new DemoFailure(423, 'AUTH_LOCKED', [Math.ceil((user.lockedUntil - Date.now()) / 60000)]);
-    if ((await this.hash(String(body['password'] ?? ''))) !== user.passwordHash) {
+    if (hash !== user.passwordHash) {
       user.failedLogins++;
       user.lockedUntil = user.failedLogins >= DEMO_RULES.maxFailedLogins ? Date.now() + DEMO_RULES.lockoutMinutes * 60000 : null;
       if (user.lockedUntil)
@@ -416,6 +451,58 @@ export class DemoBackend {
     return { accessToken: session.token, expiresInSeconds: DEMO_RULES.accessMinutes * 60, user: this.dto(db, user) };
   }
 
+  /** The test logins that are not deleted, in their order (TestLoginRepository.ListAsync). */
+  private testLogins(db: DemoDb): DemoTestLogin[] {
+    return (db.testLogins ?? []).filter((l) => !l.deleted).sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+  }
+
+  /** A test login as Settings > General shows it: never the password, only whether one is saved. */
+  private testLoginDto(l: DemoTestLogin): unknown {
+    return { id: l.id, email: l.email, sortOrder: l.sortOrder, hasPassword: !!l.passwordHash, showOnLogin: l.showOnLogin };
+  }
+
+  /** A tap on the login page: only a login that is switched on and has a password, through the normal login with its lockout (TestLoginService.LoginAsync). */
+  private async testLogin(db: DemoDb, id: number): Promise<unknown> {
+    const login = this.testLogins(db).find((l) => l.id === id);
+    if (!login?.showOnLogin || !login.passwordHash)
+      throw new DemoFailure(404, 'TEST_LOGIN_NOT_FOUND');
+    return this.passwordLogin(db, login.email, login.passwordHash);
+  }
+
+  private deleteTestLogin(db: DemoDb, id: number): { code: string } {
+    const login = this.testLogins(db).find((l) => l.id === id);
+    if (!login)
+      throw new DemoFailure(404, 'TEST_LOGIN_NOT_FOUND');
+    login.deleted = true;
+    return { code: 'TEST_LOGIN_DELETED' };
+  }
+
+  /**
+   * The rules of TestLoginService.SaveAsync: a valid e-mail, a password of up to 128 characters (empty keeps the saved one), a login switched on only with a
+   * password, and an e-mail listed once. The demo keeps the password's SHA-256 only, never the password.
+   */
+  private async saveTestLogin(db: DemoDb, id: number | null, body: Record<string, unknown>): Promise<{ code: string; data: unknown }> {
+    const email = this.email(body['email']);
+    const login = id === null ? null : this.testLogins(db).find((l) => l.id === id);
+    if (login === undefined)
+      throw new DemoFailure(404, 'TEST_LOGIN_NOT_FOUND');
+    const password = typeof body['password'] === 'string' && body['password'] ? body['password'] : null;
+    const showOnLogin = !!body['showOnLogin'];
+    if (!email || (password?.length ?? 0) > DEMO_RULES.passwordMaxLength || (showOnLogin && !password && !login?.passwordHash))
+      throw new DemoFailure(400, 'TEST_LOGIN_INVALID', [DEMO_RULES.passwordMaxLength]);
+    if (this.testLogins(db).some((l) => l.email === email && l.id !== login?.id))
+      throw new DemoFailure(409, 'TEST_LOGIN_TAKEN');
+    const row: DemoTestLogin = login ?? { id: this.next(db), email, deleted: false, sortOrder: 0, showOnLogin: false, passwordHash: null };
+    row.email = email;
+    row.showOnLogin = showOnLogin;
+    row.sortOrder = Number(body['sortOrder']) || 0;
+    if (password)
+      row.passwordHash = await this.hash(password);
+    if (!login)
+      (db.testLogins ??= []).push(row);
+    return { code: 'TEST_LOGIN_SAVED', data: this.testLoginDto(row) };
+  }
+
   /**
    * SnapKhata's calls (/khata/...), answered by its own part of the demo backend (khata-demo.ts). It is loaded with the first such call, so the rest of the
    * site does not carry it. The SnapKhata app needs the khata app, as KhataProfileFilter and the khata policy of the API need it.
@@ -425,10 +512,25 @@ export class DemoBackend {
     if (!this.isAdmin(db, user) && !user.apps.includes('khata'))
       throw new DemoFailure(403, 'AUTH_FORBIDDEN');
     const { KhataDemo, KHATA_DEMO_MESSAGES } = await import('./khata-demo');
-    this.extraMessages = KHATA_DEMO_MESSAGES;
+    this.extraMessages = { ...this.extraMessages, ...KHATA_DEMO_MESSAGES };
     const session = db.sessions.find((s) => s.token === req.token)!;
     const demo = new KhataDemo(db, user, session, () => this.next(db), (code, args = []) => this.text(code, req.lang, args), () => this.store(db));
     return demo.route(req.method, path, query, req.body, this.isSuper(db, user));
+  }
+
+  /**
+   * My Tasks' calls (/tasks/...), answered by its own part of the demo backend (tasks-demo.ts). It is loaded with the first such call, so the rest of the
+   * site does not carry it. My Tasks needs the tasks app (administrators open every app), as the tasks policy of the API needs it.
+   */
+  private async tasks(db: DemoDb, req: DemoRequest, path: string): Promise<{ code?: string; args?: (string | number)[]; data?: unknown }> {
+    const user = this.caller(db, req.token);
+    if (!this.isAdmin(db, user) && !user.apps.includes('tasks'))
+      throw new DemoFailure(403, 'AUTH_FORBIDDEN');
+    const { TasksDemo, TASKS_DEMO_MESSAGES } = await import('./tasks-demo');
+    this.extraMessages = { ...this.extraMessages, ...TASKS_DEMO_MESSAGES };
+    const session = db.sessions.find((s) => s.token === req.token)!;
+    const demo = new TasksDemo(db, user, session, () => this.next(db), () => this.store(db));
+    return demo.route(req.method, path, req.body, this.isSuper(db, user));
   }
 
   /** The account's mobile number, address and company (UserProfiles), with the field limits of Profile:Limits. */
@@ -548,6 +650,9 @@ export class DemoBackend {
       services.items = items;
     if (Object.keys(services).length)
       out.services = services;
+    // The app names are saved by the apps themselves (PUT /tasks/settings/app-name), never by this form; they stay.
+    if (s.pageNames)
+      out.pageNames = s.pageNames;
     db.settings = JSON.parse(JSON.stringify(out)) as SettingsOverrides;
     return { code: 'SETTINGS_SAVED', data: db.settings };
   }

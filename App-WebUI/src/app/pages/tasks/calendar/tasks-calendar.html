@@ -1,0 +1,43 @@
+<section class="page" aria-labelledby="tasks-cal-h1">
+  <div class="head"><div><h1 id="tasks-cal-h1">{{ i18n.t('tasks.nav.calendar') }}</h1><p>{{ i18n.t('tasks.cal.lead') }}</p></div></div>
+  <div class="card pad cal-card">
+    <div class="cal-h">
+      <button type="button" class="btn icon sm" [attr.aria-label]="i18n.t('tasks.cal.prev')" (click)="move(-1)"><app-task-icon name="left" [size]="18" /></button>
+      <h2 aria-live="polite">{{ heading() }}</h2>
+      <button type="button" class="btn icon sm" [attr.aria-label]="i18n.t('tasks.cal.next')" (click)="move(1)"><app-task-icon name="right" [size]="18" /></button>
+      <button type="button" class="btn sm" (click)="today()">{{ i18n.t('tasks.due.today') }}</button>
+      <div class="seg" role="group" [attr.aria-label]="i18n.t('tasks.cal.view')">
+        <button type="button" [attr.aria-pressed]="!week()" (click)="week.set(false)">{{ i18n.t('tasks.cal.month') }}</button>
+        <button type="button" [attr.aria-pressed]="week()" (click)="week.set(true)">{{ i18n.t('tasks.cal.week') }}</button>
+      </div>
+    </div>
+    <div class="cal" [class.week]="week()">
+      @for (w of weekdays(); track $index) {
+        <div class="dow" aria-hidden="true">{{ w }}</div>
+      }
+      @for (d of days(); track d.key) {
+        <button type="button" class="day" [class.out]="d.out" [class.today]="d.today" [attr.aria-pressed]="d.key === day()" [attr.aria-label]="i18n.t('tasks.cal.dayLabel', { date: formatYmd(d.key), n: d.tasks.length })" (click)="select(d.key)">
+          <span class="dn num">{{ d.day }}</span>
+          <span class="dots">@for (t of d.tasks.slice(0, 4); track t.id) {<i [class.dn2]="isDone(t)" [class.od]="overdue(t)"></i>}</span>
+          @for (t of d.tasks.slice(0, limit()); track t.id) {
+            <span class="lbl" [class.done]="isDone(t)" [class.od]="overdue(t)">{{ t.title }}</span>
+          }
+          @if (d.tasks.length > limit()) {
+            <span class="lbl">{{ i18n.t('tasks.cal.more', { n: d.tasks.length - limit() }) }}</span>
+          }
+        </button>
+      }
+    </div>
+  </div>
+  <div class="head">
+    <h2 class="day-h">{{ day() === state.clock().today ? i18n.t('tasks.due.today') : formatYmd(day()) }} · {{ i18n.t('tasks.cal.count', { n: dayTasks().length }) }}</h2>
+    <button type="button" class="btn pri sm" (click)="state.openEditor(null, day())"><app-task-icon name="plus" [size]="16" />{{ i18n.t('tasks.cal.addOn', { date: formatYmd(day()) }) }}</button>
+  </div>
+  <div class="list">
+    @for (t of dayTasks(); track t.id) {
+      <app-task-card [task]="t" />
+    } @empty {
+      <div class="card empty"><p class="muted">{{ i18n.t('tasks.cal.none') }}</p></div>
+    }
+  </div>
+</section>

@@ -32,6 +32,9 @@ export const routes: Routes = [
   // SnapKhata: /khata is the public page, /khata/app the ledger (needs the login and the khata app). Loaded with its texts only when opened.
   { path: 'khata', loadChildren: () => import('./pages/khata/khata.mojito.routes').then((m) => m.KHATA_MOJITO_ROUTES) },
 
+  // My Tasks: /tasks is the public page, /tasks/app the app (needs the login and the tasks app). Loaded with its texts only when opened.
+  { path: 'tasks', loadChildren: () => import('./pages/tasks/tasks.mojito.routes').then((m) => m.TASKS_MOJITO_ROUTES) },
+
   // The common login of every app. One page with two modes. Mojito has no API: the demo backend in the browser answers (core/demo).
   { path: 'login', loadComponent: auth, data: { mode: 'login' } },
   { path: 'signup', loadComponent: auth, data: { mode: 'signup' } },

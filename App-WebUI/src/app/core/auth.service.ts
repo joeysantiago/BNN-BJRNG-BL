@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 import { PageCode, PermissionAction } from './models/role.model';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Injectable, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
-import { AuthResult, AuthTabMessage, AuthUser, ProfileDetails } from './models/auth.model';
+import { AuthResult, AuthTabMessage, AuthUser, ProfileDetails, TestLoginOption } from './models/auth.model';
 
 const TIMEOUT = environment.timings.authCallMs;
 const HELLO_WAIT_MS = environment.timings.tabHelloMs;
@@ -132,6 +132,16 @@ export class AuthService {
     this.post({ type: 'logout' });
     this.leaveGuardedPage();
     return text;
+  }
+
+  /** The test logins a super admin switched on (Settings > General). An empty list when there are none or the backend cannot be reached. */
+  testLogins(): Promise<TestLoginOption[]> {
+    return this.api.send<TestLoginOption[]>('GET', '/auth/test-logins', this.init(), TIMEOUT).catch(() => []);
+  }
+
+  /** Logs in with a test login: the backend uses the password it keeps, so the page never sees it. */
+  async testLogin(id: number): Promise<AuthUser> {
+    return this.signIn(await this.api.send<AuthResult>('POST', `/auth/test-logins/${id}/login`, this.init(), TIMEOUT));
   }
 
   /** The profile picture of a user, or null when they have none. Mojito keeps it in the demo backend as a data: URL. */

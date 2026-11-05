@@ -12,13 +12,13 @@
       }
       <label class="field">
         <span>{{ i18n.t('auth.email') }}</span>
-        <input #email name="email" type="email" inputmode="email" autocomplete="username" spellcheck="false" maxlength="256" required [disabled]="busy()" [value]="mode === 'login' ? (devLogins[0]?.email ?? '') : ''" />
+        <input name="email" type="email" inputmode="email" autocomplete="username" spellcheck="false" maxlength="256" required [disabled]="busy()" />
       </label>
       <div class="field">
         <label for="auth-pw">{{ i18n.t('auth.password') }}</label>
         <div class="pw">
-          <input #pw id="auth-pw" name="password" [type]="show() ? 'text' : 'password'" [attr.autocomplete]="mode === 'signup' ? 'new-password' : 'current-password'"
-            [attr.aria-describedby]="mode === 'signup' ? 'auth-pw-hint' : null" required [disabled]="busy()" [value]="mode === 'login' ? (devLogins[0]?.password ?? '') : ''" />
+          <input id="auth-pw" name="password" [type]="show() ? 'text' : 'password'" [attr.autocomplete]="mode === 'signup' ? 'new-password' : 'current-password'"
+            [attr.aria-describedby]="mode === 'signup' ? 'auth-pw-hint' : null" required [disabled]="busy()" />
           <button type="button" class="btn icon eye" [attr.aria-pressed]="show()" [attr.aria-label]="i18n.t(show() ? 'auth.hide' : 'auth.show')" (click)="show.set(!show())">
             @if (show()) {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -45,11 +45,11 @@
       }
     </form>
 
-    @if (mode === 'login' && devLogins.length) {
+    @if (mode === 'login' && testLogins().length) {
       <div class="dev" role="group" aria-labelledby="auth-dev-h">
         <p id="auth-dev-h" class="hint">{{ i18n.t('auth.dev.h') }}</p>
-        @for (l of devLogins; track l.email) {
-          <button type="button" class="btn sm" [disabled]="busy()" (click)="useLogin(l, email, pw)">{{ l.email }}</button>
+        @for (l of testLogins(); track l.id) {
+          <button type="button" class="btn sm" [disabled]="busy()" (click)="useLogin(l)">{{ l.email }}</button>
         }
       </div>
     }

@@ -21,7 +21,8 @@ export const DEMO_MAIL: Omit<MailSetting, 'purpose'> = { host: '', port: 587, en
 
 /**
  * A fresh demo database, the same rows as the INSERT scripts of the API branches: 008_Roles, 009_Users, 011_Apps, 012_UserAppAccess, 013_Pages and 014_RolePermissions.
- * Logins (SHA-256 of the password): superadmin@thakurg.com / Super@1234, admin@thakurg.com / Admin@1234, user@thakurg.com / User@1234.
+ * The passwords of the seeded accounts are kept as SHA-256 hashes only (the plain passwords are in the comment of INSERT/Common/009_Users.sql of the API branches).
+ * The test logins (020_TestLogins) list the three accounts with no password and switched off: a super admin types each password once on Settings > General.
  */
 export const demoSeed = (now: string): DemoDb => ({
   nextId: 100,
@@ -32,6 +33,7 @@ export const demoSeed = (now: string): DemoDb => ({
     { code: 'nexon', autoGrant: false },
     { code: 'youtube', autoGrant: false },
     { code: 'hr', autoGrant: false },
+    { code: 'tasks', autoGrant: false },
   ],
   roles: [
     { id: 1, code: 'super-admin', name: 'Super Admin', description: 'Full rights on every page and every app.', isSystem: true, isDefault: false, sortOrder: 1 },
@@ -61,4 +63,9 @@ export const demoSeed = (now: string): DemoDb => ({
   ],
   sessions: [],
   settings: {},
+  testLogins: [
+    { id: 1, email: 'superadmin@thakurg.com', deleted: false, sortOrder: 1, showOnLogin: false, passwordHash: null },
+    { id: 2, email: 'admin@thakurg.com', deleted: false, sortOrder: 2, showOnLogin: false, passwordHash: null },
+    { id: 3, email: 'user@thakurg.com', deleted: false, sortOrder: 3, showOnLogin: false, passwordHash: null },
+  ],
 });

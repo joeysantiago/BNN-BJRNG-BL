@@ -9,6 +9,7 @@ export const APP_LINKS: readonly AppLink[] = [
   { code: 'nexon', name: 'auth.app.nexon', path: '/nexon' },
   { code: 'youtube', name: 'auth.app.youtube', path: '/youtube' },
   { code: 'hr', name: 'auth.app.hr', path: '/HR' },
+  { code: 'tasks', name: 'auth.app.tasks', path: '/tasks/app' },
 ];
 
 /** The link of an app code, or a plain entry for a code this site does not know yet (its name is the code). */
