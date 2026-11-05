@@ -30,4 +30,4 @@ export const FEATURE_APPS: string[] = ['speedtest', 'creta', 'nexon', 'youtube',
 export const FEATURE_SETTINGS: FeaturePanel[] = [{ app: 'khata', order: 1, load: () => import('./pages/khata/settings-panel/khata-settings-panel').then((m) => m.KhataSettingsPanel) }, { app: 'tasks', order: 2, load: () => import('./pages/tasks/settings-panel/tasks-settings-panel').then((m) => m.TasksSettingsPanel) }];
 
 /** The parts each app brings to the Profile page (for example deleting the data a user keeps in that app), loaded lazily. Each feature branch lists its own; shared lists none. */
-export const FEATURE_PROFILE: FeaturePanel[] = [{ app: 'tasks', order: 1, load: () => import('./pages/tasks/profile-panel/tasks-profile-panel').then((m) => m.TasksProfilePanel) }];
+export const FEATURE_PROFILE: FeaturePanel[] = [{ app: 'khata', order: 1, load: () => import('./pages/khata/profile-panel/khata-profile-panel').then((m) => m.KhataProfilePanel) }, { app: 'tasks', order: 2, load: () => import('./pages/tasks/profile-panel/tasks-profile-panel').then((m) => m.TasksProfilePanel) }];
