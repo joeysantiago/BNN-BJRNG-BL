@@ -17,9 +17,12 @@ export interface AuthUser {
   roleName: string;
   createdOn: string;
   displayName: string;
+  isDeleted?: boolean;
+  isArchived?: boolean;
   avatar: string | null;
   permissions: string[];
   hiddenFeatures: string[];
+  loginMethod?: LoginMethod;
   lastLoginOn: string | null;
 }
 
@@ -64,8 +67,51 @@ export interface AuthHooks {
   refresh: () => Promise<boolean>;
 }
 
-/** A login of the seeded development accounts, offered as a one-tap fill on the login page (development builds only). */
-export interface DevLogin {
+/** A quick login button of the login page (GET /auth/quick-logins): a user a super admin shows there, by e-mail; a tap logs in as them on the server. */
+export interface QuickLogin {
+  id: number;
   email: string;
-  password: string;
+}
+
+/** How this session logged in: the password, or a one-time code (only for the apps that allow it, never with admin rights). */
+export type LoginMethod = 'password' | 'otp';
+
+/** Where a one-time login code is sent. */
+export type OtpChannel = 'email' | 'sms';
+
+export interface OtpRequestResult {
+  resendInSeconds: number;
+  expiresInSeconds: number;
+}
+
+/** The account's mobile number, address and company, shown on the SnapKhata profile (and on its PDFs). */
+export interface ProfileDetails {
+  city: string | null;
+  state: string | null;
+  mobile: string | null;
+  country: string | null;
+  limits?: ProfileLimits;
+  postalCode: string | null;
+  companyName: string | null;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  companyEmail: string | null;
+  companyPhone: string | null;
+  companyTaxId: string | null;
+  companyAddress: string | null;
+}
+
+/** The longest each profile field may be, from the API's configuration (Profile:Limits), so the form and the server agree. */
+export interface ProfileLimits {
+  cityLength: number;
+  stateLength: number;
+  mobileLength: number;
+  addressLength: number;
+  countryLength: number;
+  postalCodeLength: number;
+  companyNameLength: number;
+  companyEmailLength: number;
+  companyPhoneLength: number;
+  companyTaxIdLength: number;
+  companyAddressLength: number;
 }

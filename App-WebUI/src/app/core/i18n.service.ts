@@ -40,6 +40,12 @@ export class I18nService {
     return name?.[this.lang()] ?? name?.en ?? id;
   }
 
+  /** Fetch the texts of every language from the API (Translations master table). Never throws: a text that is missing shows its key. */
+  async load(): Promise<void> {
+    const loaded = await Promise.all(LANGS.map((l) => this.fetch(l.code)));
+    this.dicts.set({ en: loaded[0], hi: loaded[1], ar: loaded[2] });
+  }
+
   /** Switch language. `persist` stores the choice so it is remembered on the next visit. */
   set(lang: Lang, persist = true): void {
     this.lang.set(lang);
@@ -55,16 +61,11 @@ export class I18nService {
       }
   }
 
-  /** Fetch the texts of every language from the API (Translations master table). Never throws: a text that is missing shows its key. */
-  async load(): Promise<void> {
-    const loaded = await Promise.all(LANGS.map((l) => this.fetch(l.code)));
-    this.dicts.set({ en: loaded[0], hi: loaded[1], ar: loaded[2] });
-  }
-
   /** Translate a key. Reads the language signal, so templates update when the language changes. */
   t(key: TranslationKey, params?: Record<string, string | number>): string {
     const d = this.dicts();
-    let text = d[this.lang()][key] ?? d.en[key] ?? key;
+    // "{page:khata}" in a text is that page's name from the PageNames table, so renaming an app there renames it in every text.
+    let text = (d[this.lang()][key] ?? d.en[key] ?? key).replace(/\{page:(\w+)\}/g, (_, id: PageId) => this.page(id));
     if (params)
       for (const [k, v] of Object.entries(params)) text = text.replaceAll(`{${k}}`, String(v));
     return text;
