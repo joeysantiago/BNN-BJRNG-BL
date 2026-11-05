@@ -1,0 +1,31 @@
+@use '../config';
+
+:host {
+  display: grid;
+}
+.users {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.user {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 6px 6px 14px;
+  border: 1px solid var(--line, rgba(128, 128, 128, 0.3));
+  border-radius: 12px;
+}
+.email {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+.foot input {
+  width: min(100%, 320px);
+}

@@ -92,7 +92,7 @@ not permission to run it.
 
 These files differ on purpose. `matrix` lists no apps in them, each feature branch lists only its own app, and `banni-linux` lists all apps:
 
-- `App-WebUI/src/app/feature-routes.ts`: the feature routes and `FEATURE_APPS`
+- `App-WebUI/src/app/feature-routes.ts`: the feature routes, `FEATURE_APPS`, and `FEATURE_SETTINGS` / `FEATURE_PROFILE` (each app's panels of the central Settings > General and Profile pages)
 - `App-WebUI/angular.json`: the SnapKhata style bundle, only where Khata is
 - `App-WebAPI/Thakurg/Thakurg.API/appsettings.json`: `AppManifests:Apps`
 - `App-Prototype/assets/js/routes.js`
@@ -114,9 +114,21 @@ files are identical on every branch.
 | API tables | `Persistence/CommonDbContext.cs`, `Application/Common/ICommonDbContext.cs` | `CommonDbContext.<Feature>.cs`, `ICommonDbContext.<Feature>.cs` |
 | Database | `Seeding/SeederRegistration.cs` | `SeederRegistration.<App>.cs` + `SqlScripts/CREATE|INSERT/<App>/` |
 | WebUI prerender / sitemap | `app.routes.server.ts`, `scripts/postbuild.mjs` | `pages/<feature>/*.pages.json` (found automatically) |
+| WebUI settings / profile | `pages/config/general-tab` (Settings > General, one section per app), `pages/profile` | `FEATURE_SETTINGS` / `FEATURE_PROFILE` entries in `feature-routes.ts`, loading the app's own panel component lazily |
 
 The seed rows in `Common/001_Messages.sql`, `003_Features.sql` and `007_Translations.sql` hold every feature's rows on every branch. This is on
 purpose, because unused rows do no harm.
+
+## Settings and profile
+
+There is one Settings page (`/master`) and one Profile page (`/profile`) for every user. No app has its own settings or profile page.
+- **Settings > General** lists one section per app the user can open: a super admin sees every app, anyone else only their own apps. Each section has:
+  - the app's name, which only a super admin can rename (`PUT api/settings/app-names/{page}`, global in `PageNames`)
+  - the app's site switches
+  - the panel the app registers in `FEATURE_SETTINGS`
+- **Keys tab:** the site's mail server, WhatsApp and quick logins (super admin with a password login).
+- **Links from inside an app:** `/master?tab=general&app=<code>` opens that app's section, and `/profile` opens the profile.
+- **New app setting:** add a panel component in the app's folder and list it in `FEATURE_SETTINGS` on that app's branch. Never add a settings page to the app.
 
 ## Adding a new file or a new app
 

@@ -90,6 +90,11 @@ export function featureBuilt(id: FeatureGroup | FeatureId, apps: readonly string
   return !owners || owners.some((a) => apps.includes(a));
 }
 
+/** The switches that belong to one app (its page switch and the switches of its own groups), for that app's section of Settings > General. */
+export function appFeatures(app: string): FeatureInfo[] {
+  return FEATURES.filter((f) => FEATURE_OWNERS[f.id]?.includes(app) || FEATURE_OWNERS[f.group]?.includes(app));
+}
+
 /** The switch that controls the page at this address, or null for pages that cannot be switched off (config, errors). Every SnapKhata screen follows page.khata. */
 export function pageFeature(url: string): FeatureId | null {
   const path = url.split(/[?#]/)[0].replace(/\/+$/, '') || '/';

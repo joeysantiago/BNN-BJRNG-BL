@@ -32,11 +32,11 @@ public class AuthTokenService : IAuthTokenService
         return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(value)));
     }
 
-    // The token names only the user and the session; the role, its rights and app access are read from the database on every request.
+    // The token names only the user, the session and how it logged in (LoginMethods); the role, its rights and app access are read from the database on every request.
     public AuthResultDto CreateResult(UserDto user, int sessionId)
     {
         var lifetime = TimeSpan.FromMinutes(_options.Jwt.AccessMinutes);
-        var claims = new Dictionary<string, object> { [AuthClaimTypes.Subject] = user.Id.ToString(), [AuthClaimTypes.Session] = sessionId.ToString() };
+        var claims = new Dictionary<string, object> { [AuthClaimTypes.Subject] = user.Id.ToString(), [AuthClaimTypes.Session] = sessionId.ToString(), [AuthClaimTypes.Method] = user.LoginMethod };
         var signing = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Jwt.Secret)), SecurityAlgorithms.HmacSha256);
         var token = _handler.CreateToken(new SecurityTokenDescriptor { Issuer = _options.Jwt.Issuer, Audience = _options.Jwt.Issuer, Expires = DateTime.UtcNow.Add(lifetime), Claims = claims, SigningCredentials = signing });
 

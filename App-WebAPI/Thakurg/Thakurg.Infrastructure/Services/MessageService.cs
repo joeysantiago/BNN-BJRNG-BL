@@ -50,6 +50,19 @@ public class MessageService : IMessageService
         return arguments.Length == 0 ? text : string.Format(text, arguments);
     }
 
+    // A text in a given language, for messages sent outside a request (e-mail and SMS to a party in the book owner's language).
+    public async Task<string> GetInAsync(string language, string code, params object[] arguments)
+    {
+        var messages = await LoadAsync();
+
+        if (!messages.TryGetValue(code, out var texts))
+            return code;
+
+        var text = texts.GetValueOrDefault(language) ?? texts.GetValueOrDefault(FallbackLanguage) ?? code;
+
+        return arguments.Length == 0 ? text : string.Format(text, arguments);
+    }
+
     #endregion
 
     #region Private Methods
