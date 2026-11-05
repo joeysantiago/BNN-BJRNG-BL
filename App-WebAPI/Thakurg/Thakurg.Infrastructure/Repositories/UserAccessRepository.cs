@@ -55,10 +55,20 @@ public class UserAccessRepository : IUserAccessRepository
         return _dbContext.UserAppAccess.AsNoTracking().WhereActive().ToListAsync(cancellationToken);
     }
 
+    public Task<List<User>> GetQuickLoginUsersAsync(CancellationToken cancellationToken)
+    {
+        return _dbContext.Users.AsNoTracking().WhereActive().Where(u => u.ShowOnLogin).OrderBy(u => u.Id).ToListAsync(cancellationToken);
+    }
+
     // Deleted accounts count too: the e-mail stays unique in the Users table.
     public Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken)
     {
         return _dbContext.Users.AsNoTracking().AnyAsync(u => u.Email == email, cancellationToken);
+    }
+
+    public Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken)
+    {
+        return _dbContext.Users.WhereActive().FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
     }
 
     // A deleted (IsSoftDeleted) user, for Restore; GetUserAsync never finds them.

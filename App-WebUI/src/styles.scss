@@ -384,6 +384,17 @@
   --header-bg: rgba(42, 47, 57, 0.9);
 }
 
+/* The site's own colours for the top-bar tools (shared/site-tools). My Tasks and SnapKhata set --text, --muted, --bg and --accent-ink
+   to their own colours inside the app, so the Install, Theme and Language menus read these copies, taken here on the page root, and look
+   the same on every page. */
+:root {
+  --tool-bg: var(--bg);
+  --tool-text: var(--text);
+  --tool-muted: var(--muted);
+  --tool-accent-ink: var(--accent-ink);
+  --tool-line: var(--line, rgba(128, 128, 128, 0.25));
+}
+
 /* ---------- Base ---------- */
 *,
 *::before,

@@ -67,10 +67,10 @@ export interface AuthHooks {
   refresh: () => Promise<boolean>;
 }
 
-/** A login of the seeded development accounts, offered as a one-tap fill on the login page (development builds only). */
-export interface DevLogin {
+/** A quick login button of the login page (GET /auth/quick-logins): a user a super admin shows there, by e-mail; a tap logs in as them on the server. */
+export interface QuickLogin {
+  id: number;
   email: string;
-  password: string;
 }
 
 /** How this session logged in: the password, or a one-time code (only for the apps that allow it, never with admin rights). */

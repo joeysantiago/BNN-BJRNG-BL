@@ -63,6 +63,12 @@ public class AuthService : IAuthService
         return await BuildUserAsync(user, null, cancellationToken);
     }
 
+    // The users a super admin shows on the login page (Users.ShowOnLogin, Settings > General): e-mail only, never a password.
+    public async Task<List<QuickLoginDto>> GetQuickLoginsAsync(CancellationToken cancellationToken)
+    {
+        return (await _authRepository.GetQuickLoginUsersAsync(cancellationToken)).Select(u => new QuickLoginDto { Id = u.Id, Email = u.Email }).ToList();
+    }
+
     // The logged-in user as this session sees it: with its login method, and limited when it logged in with a one-time code.
     public async Task<UserDto> GetMeAsync(AuthCallerDto caller, CancellationToken cancellationToken)
     {
@@ -106,6 +112,31 @@ public class AuthService : IAuthService
         await _accountMail.SendAccountDeletedAsync(user.Email, user.DisplayName, user.Language, now, cancellationToken);
 
         return await _messageService.GetAsync(MessageCodes.AuthAccountDeleted);
+    }
+
+    // A one-time code is sent only to an address that belongs to an account (FindOtpAccountAsync).
+    public async Task RequireOtpAccountAsync(string channel, string destination, CancellationToken cancellationToken)
+    {
+        await FindOtpAccountAsync(channel, destination, cancellationToken);
+    }
+
+    // A tap on a quick login of the login page: only a user shown there, and not while the account is locked. The session is a password session,
+    // as the quick logins replace the test accounts' typed passwords.
+    public async Task<SignInDto> QuickLoginAsync(int userId, AuthCallerDto caller, CancellationToken cancellationToken)
+    {
+        var now = DateTime.UtcNow;
+        var user = await _authRepository.GetUserAsync(userId, cancellationToken);
+
+        if (user is not { ShowOnLogin: true })
+            throw new BusinessException(MessageCodes.AuthQuickLoginUnavailable, 404);
+
+        if (user.LockedUntil > now)
+            throw new BusinessException(MessageCodes.AuthLocked, 423, (int)Math.Ceiling((user.LockedUntil.Value - now).TotalMinutes));
+
+        user.FailedLoginCount = 0;
+        user.LastLoginOn = now;
+
+        return await StartSessionAsync(user, caller, LoginMethods.Password, now, cancellationToken);
     }
 
     // Every app open starts here: the refresh token is rotated and a new access token is issued.
@@ -202,27 +233,11 @@ public class AuthService : IAuthService
         return await _messageService.GetAsync(MessageCodes.AuthPasswordChanged);
     }
 
-    // A verified one-time code logs in to the account with that e-mail address or mobile number (UserProfiles). Without one, an account is made as a sign-up does,
-    // with no password: the e-mail's name part or the number becomes the display name, and a mobile-only account gets a placeholder e-mail on Auth:Otp:PhoneEmailDomain.
+    // A verified one-time code logs in to the account with that e-mail address or mobile number (UserProfiles). It never makes an account: one that is gone by now is refused.
     public async Task<SignInDto> OtpSignInAsync(string channel, string destination, AuthCallerDto caller, CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;
-        var isSms = channel == OtpChannels.Sms;
-        var email = isSms ? destination.TrimStart('+') + "@" + _options.Otp.PhoneEmailDomain : destination;
-        var user = (isSms ? await _authRepository.FindByMobileAsync(destination, cancellationToken) : null) ?? await _authRepository.FindByEmailAsync(email, cancellationToken);
-
-        // An archived or deleted account is never re-created here (its e-mail stays taken); the code proved the owner, so they are told why.
-        if (user is null)
-            await RefuseInactiveAsync(email, null, cancellationToken);
-
-        if (user is null)
-        {
-            user = await CreateAccountAsync(email, isSms ? destination : email[..email.IndexOf('@')], string.Empty, now, cancellationToken);
-
-            if (isSms)
-                await _authRepository.AddProfileAsync(new UserProfile { UserId = user.Id, Mobile = destination, CreatedBy = user.Id }, cancellationToken);
-        }
-
+        var user = await FindOtpAccountAsync(channel, destination, cancellationToken);
         user.LastLoginOn = now;
 
         return await StartSessionAsync(user, caller, LoginMethods.Otp, now, cancellationToken);
@@ -319,6 +334,21 @@ public class AuthService : IAuthService
         return LoginMethodAccess.Limit(dto, _options.Otp.Apps);
     }
 
+    // The account of a one-time code address: the one with that mobile number (UserProfiles) or e-mail address (a mobile-only account has a placeholder e-mail
+    // on Auth:Otp:PhoneEmailDomain). No account means 404 (AUTH_OTP_ACCOUNT_NOT_FOUND); an archived or deleted one is told why (403).
+    private async Task<User> FindOtpAccountAsync(string channel, string destination, CancellationToken cancellationToken)
+    {
+        var isSms = channel == OtpChannels.Sms;
+        var email = isSms ? destination.TrimStart('+') + "@" + _options.Otp.PhoneEmailDomain : destination;
+        var user = (isSms ? await _authRepository.FindByMobileAsync(destination, cancellationToken) : null) ?? await _authRepository.FindByEmailAsync(email, cancellationToken);
+
+        if (user is not null)
+            return user;
+
+        await RefuseInactiveAsync(email, null, cancellationToken);
+
+        throw new BusinessException(MessageCodes.AuthOtpAccountNotFound, 404);
+    }
 
     // Super admins come from Auth:AdminEmails and get every app; everyone else gets the sign-up role and the AutoGrant apps.
     private async Task<User> CreateAccountAsync(string email, string displayName, string passwordHash, DateTime now, CancellationToken cancellationToken)

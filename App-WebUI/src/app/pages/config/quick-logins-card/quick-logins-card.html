@@ -1,0 +1,28 @@
+<section class="sec" aria-labelledby="gen-ql">
+  <h2 id="gen-ql" class="sec-h">{{ i18n.t('gen.ql.h') }}</h2>
+  <p class="help">{{ i18n.t('gen.ql.lead') }}</p>
+  @if (error()) {
+    <p class="status bad" role="alert">{{ error() }}</p>
+  }
+  @if (users(); as list) {
+    <ul class="users">
+      @for (u of list; track u.id) {
+        <li class="user">
+          <span class="email">{{ u.email }}</span>
+          <button type="button" class="btn" [disabled]="busy()" [attr.aria-label]="i18n.t('gen.ql.removeOne', { email: u.email })" (click)="remove(u)">{{ i18n.t('gen.ql.remove') }}</button>
+        </li>
+      } @empty {
+        <li class="note">{{ i18n.t('gen.ql.none') }}</li>
+      }
+    </ul>
+    <form #f class="foot" [attr.aria-busy]="busy()" (submit)="$event.preventDefault(); add(f)">
+      <input name="email" type="email" inputmode="email" autocomplete="off" spellcheck="false" maxlength="256" required [disabled]="busy()" [attr.aria-label]="i18n.t('gen.ql.email')" [placeholder]="i18n.t('gen.ql.email')" />
+      <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t('gen.ql.add') }}</button>
+    </form>
+    @if (notice(); as n) {
+      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+    }
+  } @else if (!error()) {
+    <p class="note" role="status">{{ i18n.t('gen.loading') }}</p>
+  }
+</section>

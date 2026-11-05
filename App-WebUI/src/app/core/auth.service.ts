@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 import { PageCode, PermissionAction } from './models/role.model';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Injectable, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
-import { AuthResult, AuthTabMessage, AuthUser, OtpChannel, OtpRequestResult, ProfileDetails } from './models/auth.model';
+import { AuthResult, AuthTabMessage, AuthUser, OtpChannel, OtpRequestResult, ProfileDetails, QuickLogin } from './models/auth.model';
 
 const TIMEOUT = environment.timings.authCallMs;
 const HELLO_WAIT_MS = environment.timings.tabHelloMs;
@@ -118,6 +118,11 @@ export class AuthService {
     return this.api.send<ProfileDetails>('GET', '/auth/me/details', this.init(), TIMEOUT);
   }
 
+  /** The users a super admin shows on the login page (Settings > General). An empty list when there are none or the API cannot be reached. */
+  quickLogins(): Promise<QuickLogin[]> {
+    return this.api.send<QuickLogin[]>('GET', '/auth/quick-logins', this.init(), TIMEOUT).catch(() => []);
+  }
+
   async removeAvatar(): Promise<string> {
     const res = await this.api.sendFull<AuthUser>('DELETE', '/auth/avatar', this.init(), TIMEOUT);
     this.patchUser(res.data);
@@ -148,6 +153,11 @@ export class AuthService {
     const res = await this.api.sendFull<AuthUser>('PUT', '/auth/avatar', { ...this.init(), body }, TIMEOUT);
     this.patchUser(res.data);
     return res.message ?? '';
+  }
+
+  /** Logs in as one of the quick login users; the server starts the session, so no password is typed or sent. */
+  async quickLogin(id: number): Promise<AuthUser> {
+    return this.signIn(await this.api.send<AuthResult>('POST', `/auth/quick-logins/${id}/login`, this.init(), TIMEOUT));
   }
 
   /** Saves the options of their own pages the user switched off. Resolves with the server's message. */

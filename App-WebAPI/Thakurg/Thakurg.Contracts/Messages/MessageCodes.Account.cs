@@ -39,5 +39,7 @@ public static partial class MessageCodes
 
     public const string WhatsAppNotConfigured = "WHATSAPP_NOT_CONFIGURED";
 
+    public const string AuthOtpAccountNotFound = "AUTH_OTP_ACCOUNT_NOT_FOUND";
+
     public const string AuthOtpDestinationInvalid = "AUTH_OTP_DESTINATION_INVALID";
 }

@@ -12,7 +12,7 @@
       <div class="tabs" role="tablist" [attr.aria-label]="i18n.t('cfg.tabs')">
         @for (t of tabs(); track t.id; let i = $index) {
           <button type="button" role="tab" class="tab" [id]="'cfg-tab-' + t.id" [attr.aria-selected]="t.id === tab.id" [attr.aria-controls]="'cfg-panel-' + t.id" [attr.tabindex]="t.id === tab.id ? 0 : -1"
-            (click)="select(t.id)" (keydown)="onTabKey($event, i)">{{ tabName(t) }}</button>
+            (click)="select(t.id)" (keydown)="onTabKey($event, i)"><app-settings-icon [name]="t.id" />{{ tabName(t) }}</button>
         }
       </div>
 

@@ -61,6 +61,11 @@ public class UserAccessService : IUserAccessService
         };
     }
 
+    public async Task<List<QuickLoginDto>> GetQuickLoginsAsync(CancellationToken cancellationToken)
+    {
+        return (await _accessRepository.GetQuickLoginUsersAsync(cancellationToken)).Select(u => new QuickLoginDto { Id = u.Id, Email = u.Email }).ToList();
+    }
+
     public async Task<string> DeleteAsync(AuthCallerDto caller, int userId, CancellationToken cancellationToken)
     {
         var user = await _accessRepository.GetUserAsync(userId, cancellationToken) ?? throw new BusinessException(MessageCodes.AuthUserNotFound, 404);
@@ -96,6 +101,17 @@ public class UserAccessService : IUserAccessService
         _sessionCache.Forget(user.Id);
 
         return await _messageService.GetAsync(MessageCodes.AuthUserRestored);
+    }
+
+    // Settings > General > Quick logins: shows or hides an existing user on the login page. No password is stored for it.
+    public async Task<string> SetQuickLoginAsync(QuickLoginRequestDto request, CancellationToken cancellationToken)
+    {
+        var email = EmailAddress.Normalize(request.Email) ?? throw new BusinessException(MessageCodes.AuthEmailInvalid, 400);
+        var user = await _accessRepository.FindByEmailAsync(email, cancellationToken) ?? throw new BusinessException(MessageCodes.AuthUserNotFound, 404);
+        user.ShowOnLogin = request.ShowOnLogin;
+        await _accessRepository.SaveChangesAsync(cancellationToken);
+
+        return await _messageService.GetAsync(request.ShowOnLogin ? MessageCodes.AuthQuickLoginSaved : MessageCodes.AuthQuickLoginRemoved);
     }
 
     // Archives (active = false) or activates a user. An archived user cannot log in and is logged out everywhere at once; activating lets them log in again.
