@@ -1,0 +1,195 @@
+/* The Install, Theme and Language buttons of every top bar, drawn like the speed test header. The buttons sit straight in the bar's own flex row. */
+:host {
+  display: contents;
+}
+
+/* The site's small icon button (.btn.sm.icon), under its own name so the apps' .btn rules cannot change it. */
+.tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: none;
+  min-width: 44px;
+  min-height: 40px;
+  padding: 8px;
+  font: 700 14px/1.2 var(--font-body);
+  color: var(--btn-color);
+  background: var(--btn-bg);
+  border: var(--btn-border);
+  border-radius: var(--btn-radius);
+  box-shadow: var(--btn-shadow);
+  text-decoration: none;
+  text-shadow: var(--card-text-shadow);
+  cursor: pointer;
+  transition:
+    box-shadow 0.25s var(--ease),
+    transform 0.25s var(--ease),
+    filter 0.25s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.tool:hover {
+  box-shadow: var(--btn-hover-shadow);
+  transform: translateY(-1px);
+}
+.tool:active,
+.tool.is-on {
+  box-shadow: var(--btn-active-shadow);
+  transform: translateY(0);
+}
+.tool.pri {
+  background: var(--pri-bg);
+  color: var(--pri-color);
+  border: var(--pri-border);
+  box-shadow: var(--pri-shadow);
+  text-shadow: none;
+}
+.tool.pri:hover {
+  filter: brightness(1.06);
+}
+.tool.pri:active {
+  filter: brightness(0.95);
+  transform: translateY(1px);
+}
+.tool.text {
+  padding: 10px 20px;
+  font-size: 15px;
+}
+.tool svg {
+  flex: none;
+}
+.tool:focus-visible,
+.mode-opt:focus-visible,
+.tool-opt:focus-visible {
+  outline: 2px solid var(--focus, currentColor);
+  outline-offset: 2px;
+}
+
+.tool-menu {
+  position: relative;
+  flex: none;
+}
+
+/* The menu panel: the site's card look (.card) with the header's menu size. */
+.tool-pop {
+  position: absolute;
+  inset-block-start: calc(100% + 10px);
+  inset-inline-end: 0;
+  width: min(280px, calc(100vw - 32px));
+  padding: 10px;
+  display: grid;
+  gap: 6px;
+  z-index: 60;
+  border-radius: 22px;
+  background: var(--card-bg);
+  border: var(--card-border);
+  box-shadow: var(--card-shadow);
+  -webkit-backdrop-filter: var(--card-filter);
+  backdrop-filter: var(--card-filter);
+}
+/* Glass panels show the page through a blur, but a panel inside a blurred bar cannot blur the page (browsers blur only one layer),
+   so the page text would show through. Its menus get an almost solid pane of the page colour instead. */
+:host-context([data-skin='glass']) .tool-pop {
+  background: color-mix(in srgb, var(--tool-bg) 94%, transparent);
+}
+.lang-pop {
+  width: min(200px, calc(100vw - 32px));
+}
+.lang-pop .tool-opt {
+  /* Language names are written in their own scripts, so use system fonts and skip downloading web fonts for them. */
+  font-family: system-ui, 'Segoe UI', 'Nirmala UI', 'Noto Sans', sans-serif;
+}
+
+.tool-opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--tool-text);
+  font: 600 15px var(--font-body);
+  text-align: start;
+  cursor: pointer;
+}
+.tool-opt:hover {
+  box-shadow: var(--btn-shadow);
+}
+.tool-opt.on {
+  box-shadow: var(--btn-active-shadow);
+  font-weight: 800;
+}
+
+/* Dark / Light / System side by side on top, the skins listed below. */
+.modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding-block-end: 8px;
+  border-block-end: 1px solid var(--tool-line);
+}
+.mode-opt {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 8px 4px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--tool-muted);
+  font: 600 12.5px var(--font-body);
+  cursor: pointer;
+}
+.mode-opt:hover {
+  color: var(--tool-text);
+  box-shadow: var(--btn-shadow);
+}
+.mode-opt.on {
+  color: var(--tool-accent-ink);
+  box-shadow: var(--btn-active-shadow);
+  font-weight: 800;
+}
+
+/* Small previews, each drawn in its own skin so the choice is visible before picking */
+.swatch {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+}
+.swatch[data-skin='glass'] {
+  background: linear-gradient(135deg, #9d4a82, #3a1631);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+.swatch[data-skin='clay'] {
+  background: #f1d8ff;
+  border-radius: 14px;
+  box-shadow: 3px 3px 6px rgba(137, 104, 190, 0.5), -3px -3px 6px #fff, inset -2px -2px 4px rgba(137, 104, 190, 0.3);
+}
+.swatch[data-skin='skeu'] {
+  background: linear-gradient(180deg, #fff, #c4c8ce);
+  border: 1px solid #737982;
+  box-shadow: 0 1px 0 #fff inset, 0 2px 3px rgba(0, 0, 0, 0.4);
+}
+.swatch[data-skin='neu'] {
+  background: #e0e5ec;
+  box-shadow: 3px 3px 6px #a3b1c6, -3px -3px 6px #fff;
+}
+
+/* How to install on iPhone and iPad, where the browser has no install prompt. */
+.ios {
+  max-width: 420px;
+  margin: auto;
+  padding: clamp(18px, 4vw, 36px);
+  color: var(--tool-text);
+  background: var(--card-bg);
+  border: var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
+.ios::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
