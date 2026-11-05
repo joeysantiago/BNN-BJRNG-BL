@@ -17,6 +17,10 @@ Supported languages are English (`en`), Hindi (`hi`) and Arabic (`ar`, right-to-
 - **UI keys** are flat dotted keys (`st.start`, `creta.add.h1`, `seo.home.title`, `cfg.pw.rule`); the row of the page that uses them holds them. Common header/footer texts live in the `common` row.
 - **Adding an API message** = add the code constant **and** a row in `INSERT/Common/001_Messages.sql` with the text in **every** language (`en`, `hi`, `ar`).
 - **Adding a UI text** = add the key to the right page row in `INSERT/Common/007_Translations.sql` in **all three** columns (`Eng`, `Hin`, `Arab`), and use `i18n.t('key')` in the component. For an existing database, update the row there too (the seed script only fills an empty table).
+- **Layout of the two seed files: one text per line.** The JSON stays valid and the API reads it as before; only the layout is for people.
+  - `001_Messages.sql`: `('CODE', N'{` on the first line, then one line each for `"en"`, `"hi"` and `"ar"`, then `}'),`.
+  - `007_Translations.sql`: each page row opens with `(` and its page code, then the three columns, each under its comment (`-- English (Eng)`, `-- Hindi (Hin)`, `-- Arabic (Arab)`), with one `"key": "text",` per line.
+  - A new key goes on its own line, at the same place in all three columns. Never put a whole row or column back on one line: one key per line keeps merges between branches clean.
 - **Placeholders:** use `{0}`, `{1}` (API) or `{name}` (UI) in the text and pass values as arguments — never concatenate/interpolate text in code.
 
 ## API
