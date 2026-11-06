@@ -7,6 +7,7 @@ import { AuthService } from '../core/auth.service';
 import { I18nService } from '../core/i18n.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '../core/settings.service';
+import { KhataLockService } from '../core/khata-lock.service';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
 
@@ -24,12 +25,15 @@ export class SiteHeader {
   protected readonly cfg = inject(SettingsService);
   protected readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly khataLock = inject(KhataLockService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly settings = this.cfg.settings;
   // The navigation holds only speed test links, so a branch without the speed test has none.
   protected readonly hasNav = featureBuilt('site.nav', FEATURE_APPS);
   protected readonly userOpen = signal(false);
+  /** The SnapKhata app lock is asking for the PIN: Profile and Settings are hidden until it is entered. */
+  protected readonly locked = computed(() => this.khataLock.blocked());
 
   private readonly url = toSignal(
     this.router.events.pipe(
