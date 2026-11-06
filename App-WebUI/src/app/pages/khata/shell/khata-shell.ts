@@ -91,6 +91,11 @@ export class KhataShell implements OnDestroy {
       if (this.lock.open())
         untracked(() => void this.state.loadBooks().catch(() => null));
     });
+    // When the lock comes up nothing may stay above the PIN screen: the sheet, the photo viewer (native top-layer dialogs) and the book menu close.
+    effect(() => {
+      if (!this.lock.open())
+        untracked(() => this.closeAll());
+    });
     // The browser's address-bar colour follows the SnapKhata theme.
     effect(() => this.doc.querySelector('meta[name=theme-color]')?.setAttribute('content', CHROME[this.theme.brightness()]));
     // The sheet and the viewer are native modal dialogs: focus stays inside and Escape closes them.
@@ -150,6 +155,12 @@ export class KhataShell implements OnDestroy {
   // #endregion
 
   // #region Private Methods
+
+  private closeAll(): void {
+    this.menu.set(null);
+    this.ui.answer(false);
+    this.ui.closeViewer();
+  }
 
   /** Starts the app lock; ?pin=change (the "Change PIN" button of Settings > General) then opens the PIN change here, where the PIN screen lives. */
   private async startLock(): Promise<void> {

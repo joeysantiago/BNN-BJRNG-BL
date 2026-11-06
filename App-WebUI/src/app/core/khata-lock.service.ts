@@ -1,9 +1,11 @@
+import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { KhataApiService } from './khata-api.service';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { KhataLockMode, KhataPinStatus } from './models/khata.model';
 import { Injectable, PLATFORM_ID, computed, effect, inject, signal, untracked } from '@angular/core';
 
+const SHELL = '/khata/app';
 const FORGOT_KEY = 'khata-pin-forgot';
 const INSTALLED_QUERY = '(display-mode: standalone)';
 const INSTALLED_SOURCE = 'source=khata-pwa';
@@ -13,7 +15,8 @@ const INSTALLED_SOURCE = 'source=khata-pwa';
  * session there (POST pin/lock), and while that session is locked every ledger call is refused (423) until the PIN is entered. The server
  * also locks it after Khata:Pin:LockAfterMinutes without a call, so the open app keeps it alive while it is on screen. After the first
  * login the user creates the PIN; a password or code login in this run counts as unlocked. A browser tab that shares a locked session
- * (same phone) is locked too. While locked the shell shows the PIN screen instead of the pages.
+ * (same phone) is locked too. While locked the shell shows the PIN screen instead of the pages, and the shared pages outside the shell
+ * (/profile, /master) are closed: a lock that comes while one of them is open brings the user back to the PIN screen.
  */
 @Injectable({ providedIn: 'root' })
 
@@ -21,12 +24,17 @@ export class KhataLockService {
   private hiddenAt = 0;
   private listening = false;
   private readonly doc = inject(DOCUMENT);
+  private readonly router = inject(Router);
+  /** Set once the shell has started the lock in this login; until then nothing is held behind it. */
+  private readonly started = signal(false);
   private readonly auth = inject(AuthService);
   private readonly api = inject(KhataApiService);
   readonly mode = signal<KhataLockMode>('checking');
   readonly status = signal<KhataPinStatus | null>(null);
   readonly open = computed(() => this.mode() === 'open');
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
+  /** The lock is up (PIN screen, checking, create, change or reset): only the PIN screen may be used. */
+  readonly blocked = computed(() => this.started() && !this.open());
   /** "Change PIN" in Settings: only where this session is protected by the app lock. */
   readonly canChange = computed(() => !!this.status()?.hasPin && !!this.status()?.protected);
 
@@ -37,6 +45,16 @@ export class KhataLockService {
     effect(() => {
       if (this.api.pinRequired())
         untracked(() => void this.relock());
+    });
+    // The lock came up while a page outside the shell (/profile, /master) is open: go back to the shell, which shows the PIN screen.
+    effect(() => {
+      if (this.blocked())
+        untracked(() => this.toShell());
+    });
+    // A logout ends the lock of that login; the next login starts it again in the shell.
+    effect(() => {
+      if (!this.auth.user())
+        untracked(() => this.started.set(false));
     });
   }
 
@@ -71,6 +89,7 @@ export class KhataLockService {
     if (!this.browser)
       return;
     this.listen();
+    this.started.set(true);
     if (installed)
       this.mode.set('checking');
     try {
@@ -132,6 +151,11 @@ export class KhataLockService {
         this.mode.set('locked');
     });
     this.keepAlive();
+  }
+
+  private toShell(): void {
+    if (!this.router.url.startsWith(SHELL))
+      void this.router.navigateByUrl(SHELL, { replaceUrl: true });
   }
 
   private keepAlive(): void {

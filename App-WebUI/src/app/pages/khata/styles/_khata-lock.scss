@@ -1,10 +1,16 @@
 /* ---------- App lock (PIN screen of the installed app) ---------- */
+/* A solid layer over the whole screen, above every bar, menu and toast, so nothing behind the PIN screen can be seen or tapped. */
 .khata .k-lock {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
   display: grid;
   justify-items: center;
-  align-content: center;
+  align-content: safe center;
   gap: 14px;
-  min-height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--k-bg);
   padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
   text-align: center;
 }
