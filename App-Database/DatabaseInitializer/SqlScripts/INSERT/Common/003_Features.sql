@@ -41,6 +41,7 @@ BEGIN
         ('audio.playlist', 1, 37),
         ('audio.edit', 1, 38),
         ('page.khata', 1, 39),
-        ('page.tasks', 1, 40);
+        ('page.tasks', 1, 40),
+        ('page.tracker', 1, 41);
 END
 GO

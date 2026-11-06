@@ -1,0 +1,48 @@
+// Segmented choices, switches, setting rows, pills, notes, the empty state, toasts, the popover and the confirm box, copied from My Tasks.
+// Global under .st (ViewEncapsulation.None).
+.st .seg { display: inline-flex; padding: 4px; gap: 4px; border-radius: 14px; background: var(--k-surface-3); border: 1px solid var(--k-line); flex-wrap: wrap; }
+.st .seg button { min-height: 36px; padding: 6px 14px; border: 0; border-radius: 10px; background: transparent; color: var(--k-muted); font: 700 13.5px var(--k-font); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.st .seg button[aria-pressed=true] { background: var(--k-surface-solid); color: var(--k-text); box-shadow: var(--k-shadow-sm); }
+.st .switch { position: relative; flex: none; width: 48px; height: 28px; }
+.st .switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; z-index: 1; }
+.st .switch i { position: absolute; inset: 0; border-radius: 999px; background: var(--k-switch-off); box-shadow: inset 0 0 0 1px var(--k-line-strong); transition: background 0.2s; }
+.st .switch i::after { content: ''; position: absolute; top: 3px; inset-inline-start: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); transition: transform 0.2s var(--k-ease); }
+.st .switch input:checked + i { background: var(--k-brand); box-shadow: none; }
+.st .switch input:checked + i::after { transform: translateX(20px); }
+.st[dir=rtl] .switch input:checked + i::after { transform: translateX(-20px); }
+.st .switch input:disabled + i { opacity: 0.5; }
+.st .switch input:focus-visible + i { box-shadow: var(--k-focus); }
+.st .set-row { display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 10px 0; border-top: 1px solid var(--k-line); }
+.st .set-row:first-of-type { border-top: 0; }
+.st .set-row .txt { flex: 1; min-width: 0; display: grid; }
+.st .set-row .txt small { color: var(--k-muted); font-size: 13px; }
+.st .pill { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 750; background: var(--k-surface-3); color: var(--k-muted); white-space: nowrap; }
+.st .pill.ok { background: var(--k-get-soft); color: var(--k-get); }
+.st .pill.bad { background: var(--k-give-soft); color: var(--k-give); }
+.st .pill.warn { background: var(--k-warn-soft); color: var(--k-warn); }
+.st .pill.brand { background: var(--k-brand-soft); color: var(--k-brand); }
+.st .pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+.st .note { padding: 10px 14px; border-radius: 14px; background: var(--k-brand-soft); color: var(--k-text); font-size: 13.5px; display: flex; gap: 10px; align-items: flex-start; }
+.st .note .ico { color: var(--k-brand); margin-top: 1px; }
+.st .empty { display: grid; justify-items: center; gap: 10px; padding: 40px 20px; text-align: center; }
+.st .empty .big { width: 64px; height: 64px; border-radius: 22px; display: grid; place-items: center; background: var(--k-brand-soft); color: var(--k-brand); }
+/* ---------- Toast, popover ---------- */
+.st .toasts { position: fixed; z-index: 90; inset-inline: 0; bottom: calc(var(--k-tabs) + 28px + env(safe-area-inset-bottom)); display: grid; justify-items: center; gap: 8px; pointer-events: none; padding-inline: 16px; }
+@media (min-width: 1024px) { .st .toasts { bottom: 24px; } }
+.st .toast { pointer-events: auto; display: flex; align-items: center; gap: 12px; max-width: 520px; padding: 10px 10px 10px 16px; border-radius: 16px; background: var(--k-text); color: var(--k-bg); font-weight: 700; font-size: 14px; box-shadow: var(--k-shadow-lg); animation: st-up 0.3s var(--k-ease); }
+.st .toast.err { background: var(--k-give); color: #fff; }
+.st .toast button { border: 0; background: transparent; color: inherit; font: 800 14px var(--k-font); text-decoration: underline; cursor: pointer; min-height: 36px; padding: 0 8px; }
+.st .pop { position: fixed; z-index: 55; top: 62px; inset-inline-end: 12px; width: min(380px, calc(100% - 24px)); max-height: 70dvh; overflow: auto; padding: 14px; border-radius: 20px; background: var(--k-surface-solid); border: 1px solid var(--k-line-strong); box-shadow: var(--k-shadow-lg); display: grid; gap: 8px; animation: st-fade 0.15s; }
+.st .pop h2 { font-size: 15px; font-weight: 800; }
+.st .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+.st .row.center { justify-content: center; }
+.st .in.auto { width: auto; }
+.st .small { font-size: 13px; }
+.st .confirm-scrim { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 16px; background: var(--k-overlay); animation: st-confirm-in 0.2s; }
+@keyframes st-confirm-in { from { opacity: 0; } }
+.st .confirm { width: min(440px, 100%); display: grid; gap: 18px; padding: 22px; border-radius: var(--k-r-lg); background: var(--k-surface-solid); border: 1px solid var(--k-line-strong); box-shadow: var(--k-shadow-lg); animation: st-pop 0.18s var(--k-ease); }
+.st .confirm-t { font-weight: 700; font-size: 15.5px; }
+.st .row.end { justify-content: flex-end; }
+
+@keyframes st-fade { from { opacity: 0; } }
+@keyframes st-up { from { transform: translateY(40px); opacity: 0; } }

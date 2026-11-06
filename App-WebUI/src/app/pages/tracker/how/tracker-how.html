@@ -1,0 +1,29 @@
+<section class="page" aria-labelledby="tracker-h1">
+  <div class="head">
+    <div>
+      <p class="eyebrow">{{ i18n.t('tracker.how.eyebrow') }}</p>
+      <h1 id="tracker-h1">{{ i18n.t('tracker.how.h1', { app: i18n.page('tracker') }) }}</h1>
+    </div>
+  </div>
+  <p class="note">{{ i18n.t('tracker.how.web') }}</p>
+  <div class="how-parts">
+    @for (p of parts; track p) {
+      <section class="card" [attr.aria-labelledby]="'tr-how-' + p">
+        <h2 [id]="'tr-how-' + p">{{ i18n.t('tracker.how.part.' + p) }}</h2>
+        <p class="muted">{{ i18n.t('tracker.how.part.' + p + '.p') }}</p>
+      </section>
+    }
+  </div>
+  <section class="card" aria-labelledby="tr-how-steps">
+    <h2 id="tr-how-steps">{{ i18n.t('tracker.how.stepsH') }}</h2>
+    <ol class="flow">
+      @for (s of steps; track s) {
+        <li><b>{{ i18n.t('tracker.how.step.' + s) }}</b><span>{{ i18n.t('tracker.how.step.' + s + '.p') }}</span></li>
+      }
+    </ol>
+  </section>
+  <div class="row center">
+    <button type="button" class="btn pri" (click)="state.addOpen.set(true)">{{ i18n.t('tracker.how.try') }}</button>
+    <a class="btn" routerLink="/tracker/app/privacy">{{ i18n.t('tracker.nav.privacy') }}</a>
+  </div>
+</section>

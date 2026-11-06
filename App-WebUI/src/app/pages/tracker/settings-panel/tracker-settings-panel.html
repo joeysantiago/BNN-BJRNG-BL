@@ -1,0 +1,47 @@
+@if (notice(); as n) {
+  <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+}
+
+@if (settings(); as s) {
+  <section class="sec" aria-labelledby="trp-approval">
+    <h3 id="trp-approval" class="sec-h">{{ i18n.t('tracker.set.approvalH') }}</h3>
+    <p class="help">{{ i18n.t('tracker.set.approvalLead') }}</p>
+    <div class="field-row pick-row">
+      <span class="txt"><b>{{ i18n.t('tracker.set.approvalLabel') }}</b><small>{{ i18n.t('tracker.set.approval.' + s.approval + '.help') }}</small></span>
+      <app-choice-group name="trackerApproval" [label]="i18n.t('tracker.set.approvalLabel')" [options]="approvals()" [value]="s.approval" (picked)="set('approval', $any($event))" />
+    </div>
+    @if (s.approval === 'smart') {
+      <label class="field-row">
+        <span class="txt"><b>{{ i18n.t('tracker.set.threshold') }}</b><small>{{ i18n.t('tracker.set.thresholdHelp') }}</small></span>
+        <select (change)="set('threshold', +$any($event.target).value)">
+          @for (t of thresholds; track t) {
+            <option [value]="t" [selected]="s.threshold === t">{{ t }}%</option>
+          }
+        </select>
+      </label>
+    }
+  </section>
+
+  <section class="sec" aria-labelledby="trp-alerts">
+    <h3 id="trp-alerts" class="sec-h">{{ i18n.t('tracker.set.alertsH') }}</h3>
+    <label class="field-row">
+      <span class="txt"><b>{{ i18n.t('tracker.set.push') }}</b><small>{{ i18n.t('tracker.set.pushHelp') }}</small></span>
+      <input type="checkbox" role="switch" class="switch" [checked]="s.push" (change)="set('push', $any($event.target).checked)" />
+    </label>
+    @for (a of alertTypes; track a) {
+      <label class="field-row">
+        <span class="txt"><b>{{ i18n.t('tracker.alert.' + a) }}</b><small>{{ i18n.t('tracker.alert.' + a + '.help') }}</small></span>
+        <input type="checkbox" role="switch" class="switch" [checked]="s.alerts[a]" (change)="alert(a, $any($event.target).checked)" />
+      </label>
+    }
+  </section>
+
+  <section class="sec" aria-labelledby="trp-more">
+    <h3 id="trp-more" class="sec-h">{{ i18n.t('tracker.set.moreH') }}</h3>
+    <p class="help">{{ i18n.t('tracker.set.moreLead', { app: appName() }) }}</p>
+    <div class="acts">
+      <a class="btn sm" routerLink="/tracker/app/privacy">{{ i18n.t('tracker.nav.privacy') }}</a>
+      <a class="btn sm" routerLink="/tracker/app">{{ i18n.t('tracker.l.open', { app: appName() }) }}</a>
+    </div>
+  </section>
+}

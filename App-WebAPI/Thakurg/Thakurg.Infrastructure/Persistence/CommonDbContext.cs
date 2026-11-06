@@ -90,6 +90,7 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
     partial void OnMusicModelCreating(ModelBuilder modelBuilder);
 
     partial void OnTasksModelCreating(ModelBuilder modelBuilder);
+    partial void OnTrackerModelCreating(ModelBuilder modelBuilder);
 
     partial void OnKhataModelCreating(ModelBuilder modelBuilder);
 
@@ -121,6 +122,7 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
         OnMusicModelCreating(modelBuilder);
         OnKhataModelCreating(modelBuilder);
         OnTasksModelCreating(modelBuilder);
+        OnTrackerModelCreating(modelBuilder);
     }
 
     #endregion

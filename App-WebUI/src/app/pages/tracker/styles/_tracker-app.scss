@@ -1,0 +1,121 @@
+// SnapTracker's own parts on top of the shared design system: the tracking status, the transaction rows and chips, the details drawer, the Add sheet,
+// the reading steps, alerts and the How-it-works cards. Every colour is a token, so all five skins (light and dark) follow. Global under .st.
+.st .eyebrow { margin: 0; color: var(--k-muted); font-size: 13px; font-weight: 700; }
+.st .row.between { justify-content: space-between; align-items: center; }
+.st .row.tight { gap: 6px; }
+.st .card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.st .card-head h2 { margin: 0; }
+.st .card-head p { margin: 2px 0 0; font-size: 13px; }
+.st .grid2 > .card { min-width: 0; }
+.st .page > .card + .card, .st .page > .grid2, .st .page > .card { margin-bottom: 14px; }
+.st .note.bad { background: var(--k-give-soft); color: var(--k-give); }
+.st .note.warn-note { background: var(--k-warn-soft); color: var(--k-text); }
+.st .note.warn-note .ico { color: var(--k-warn); }
+.st .small { font-size: 13px; }
+.st .link { min-height: 0; padding: 0; border: 0; background: none; color: var(--k-brand); font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.st .e-ic { font-size: 40px; line-height: 1; }
+
+/* Tracking status: a pill in the top bar and a dot on Privacy. */
+.st .status { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 12px; border-radius: 999px; background: var(--k-surface-3); color: var(--k-text); font-size: 12.5px; font-weight: 750; text-decoration: none; white-space: nowrap; }
+.st .sdot { width: 9px; height: 9px; border-radius: 50%; background: var(--k-faint); flex: none; }
+.st .status.enabled .sdot { background: var(--k-get); box-shadow: 0 0 0 4px var(--k-get-soft); }
+.st .status.paused .sdot { background: var(--k-warn); }
+.st .status.permission .sdot { background: var(--k-give); }
+@media (max-width: 520px) { .st .top .status .slbl { display: none; } .st .top .status { padding: 4px 10px; } }
+
+/* The count of pending transactions on the Activity tab. */
+.st .tab-ico { position: relative; display: grid; place-items: center; }
+.st .tab-cnt { position: absolute; top: -6px; inset-inline-end: -10px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--k-give); color: #fff; font-size: 10.5px; line-height: 18px; text-align: center; }
+
+/* Chips: the category, and each status in its colour. */
+.st .chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; background: var(--k-surface-3); color: var(--k-muted); font-size: 12px; font-weight: 750; white-space: nowrap; }
+.st .chip.pending { background: var(--k-warn-soft); color: var(--k-warn); }
+.st .chip.confirmed { background: var(--k-get-soft); color: var(--k-get); }
+.st .chip.auto { background: var(--k-brand-soft); color: var(--k-brand); }
+.st .chip.duplicate { background: color-mix(in srgb, #8b5cf6 14%, transparent); color: #6d28d9; }
+.st[data-kt=dark] .chip.duplicate { color: #c4b5fd; }
+
+/* A transaction in a list. */
+.st .tl { display: grid; margin: 0; padding: 0; list-style: none; }
+.st .tl > li + li { border-top: 1px solid var(--k-line); }
+.st .tx { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 10px 4px; border: 0; background: none; color: var(--k-text); font: inherit; text-align: start; cursor: pointer; border-radius: 12px; }
+.st .tx:hover { background: var(--k-surface-3); }
+.st .tx.dim { opacity: 0.6; }
+.st .av { width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center; flex: none; font-size: 19px; }
+.st .av.lg { width: 52px; height: 52px; font-size: 24px; border-radius: 16px; }
+.st .tx-main { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.st .tx-title { font-weight: 750; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st .tx-desc { color: var(--k-muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st .tx-meta { display: flex; flex-wrap: wrap; gap: 4px; color: var(--k-faint); font-size: 12px; }
+.st .tx-amt { display: grid; justify-items: end; gap: 4px; flex: none; }
+.st b.debit, .st .debit { color: var(--k-give); }
+.st b.credit, .st .credit { color: var(--k-get); }
+
+/* The backdrop, the details drawer (a side panel on wide screens) and the Add sheet (a bottom sheet on phones). */
+.st .scrim { position: fixed; inset: 0; z-index: 60; background: var(--k-overlay); animation: st-fade 0.2s; }
+.st .drawer, .st .sheet { position: fixed; z-index: 61; display: flex; flex-direction: column; background: var(--k-surface-solid); color: var(--k-text); box-shadow: var(--k-shadow-lg); }
+.st .drawer { inset: 0; }
+.st .sheet { inset-inline: 0; bottom: 0; max-height: 92dvh; border-radius: 24px 24px 0 0; animation: st-up 0.25s var(--k-ease); }
+@media (min-width: 720px) {
+  .st .drawer { inset-block: 0; inset-inline-start: auto; inset-inline-end: 0; width: min(480px, 100%); border-inline-start: 1px solid var(--k-line); }
+  .st .sheet { inset: auto; top: 50%; left: 50%; width: min(560px, calc(100% - 32px)); max-height: 86dvh; border-radius: var(--k-r-lg); transform: translate(-50%, -50%); animation: st-fade 0.2s; }
+}
+.st .drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--k-line); }
+.st .drawer-head h2 { margin: 0; font-size: 17px; }
+.st .drawer-body { display: grid; gap: 14px; align-content: start; padding: 16px 16px max(20px, env(safe-area-inset-bottom)); overflow-y: auto; }
+.st .d-hero { display: flex; gap: 12px; align-items: center; }
+.st .d-hero-txt { min-width: 0; display: grid; gap: 6px; }
+.st .d-hero-txt b { font-size: 17px; overflow-wrap: anywhere; }
+.st .d-amt { margin: 0; font-size: 28px; font-weight: 800; }
+.st .d-amt .chip { vertical-align: middle; font-size: 11.5px; }
+.st .ai { padding: 12px 14px; border-radius: 14px; background: var(--k-brand-soft); }
+.st .ai p { margin: 0; }
+.st .ai .ai-h { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; color: var(--k-brand); font-size: 11.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.st .kv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
+.st .kv div { min-width: 0; }
+.st .kv .conf { grid-column: 1 / -1; }
+.st .kv dt { color: var(--k-faint); font-size: 12px; font-weight: 700; }
+.st .kv dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; display: flex; align-items: center; gap: 8px; }
+.st .meter { flex: 1; height: 8px; border-radius: 99px; background: var(--k-surface-3); overflow: hidden; }
+.st .meter i { display: block; height: 100%; border-radius: inherit; background: var(--k-give); }
+.st .meter.mid i { background: var(--k-warn); }
+.st .meter.hi i { background: var(--k-get); }
+.st .sms-box { padding: 12px 14px; border-radius: 14px; border: 1px dashed var(--k-line-strong); background: var(--k-surface-3); }
+.st .sms-box h3 { margin: 0 0 6px; color: var(--k-faint); font-size: 12px; font-weight: 800; letter-spacing: 0.04em; }
+.st .sms-box p { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+.st .sms-box mark { padding: 0 2px; border-radius: 4px; background: color-mix(in srgb, var(--k-brand) 24%, transparent); color: inherit; }
+.st .d-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 6px; border-top: 1px solid var(--k-line); }
+.st .cat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.st .cat-pick { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 6px 10px; border: 1px solid var(--k-line); border-radius: 14px; background: var(--k-surface); color: var(--k-text); font: 700 13.5px var(--k-font); text-align: start; cursor: pointer; }
+.st .cat-pick .av { width: 32px; height: 32px; font-size: 16px; border-radius: 10px; }
+.st .cat-pick[aria-pressed=true] { border-color: var(--k-brand); box-shadow: var(--k-focus); }
+.st .check-line { display: flex; gap: 10px; align-items: flex-start; min-height: 44px; font-size: 14px; }
+.st .check-line input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--k-brand); }
+.st .txn-form { display: grid; gap: 12px; }
+
+/* What happened to a pasted SMS. */
+.st .steps { padding: 12px 14px; border-radius: 14px; background: var(--k-surface-3); }
+.st .steps h3 { margin: 0 0 8px; font-size: 14px; }
+.st .steps ol { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.st .steps li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: start; font-size: 13.5px; }
+.st .steps li .ico { margin-top: 2px; color: var(--k-get); }
+.st .steps li.bad .ico { color: var(--k-give); }
+.st .steps li small { color: var(--k-faint); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+.st .outcome { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--k-line); font-weight: 700; }
+
+/* Alerts. */
+.st .alert-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 10px 6px; border: 0; border-bottom: 1px solid var(--k-line); background: none; color: var(--k-text); font: inherit; text-align: start; cursor: pointer; }
+.st .alert-row:last-child { border-bottom: 0; }
+.st .alert-row.unread .al-txt b::after { content: ''; display: inline-block; width: 8px; height: 8px; margin-inline-start: 6px; border-radius: 50%; background: var(--k-brand); vertical-align: middle; }
+.st .al-ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: var(--k-surface-3); font-size: 18px; flex: none; }
+.st .al-txt { flex: 1; min-width: 0; display: grid; }
+.st .al-txt span { color: var(--k-muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st .alert-row small { color: var(--k-faint); font-size: 12px; white-space: nowrap; }
+.st .empty-line { padding: 16px 6px; }
+
+/* How it works. */
+.st .how-parts { display: grid; gap: 14px; margin: 14px 0; }
+@media (min-width: 900px) { .st .how-parts { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.st .flow { display: grid; gap: 10px; margin: 10px 0 0; padding-inline-start: 22px; }
+.st .flow li { display: grid; gap: 2px; }
+.st .flow span { color: var(--k-muted); font-size: 14px; }

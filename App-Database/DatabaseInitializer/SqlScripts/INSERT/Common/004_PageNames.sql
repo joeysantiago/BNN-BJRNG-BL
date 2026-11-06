@@ -37,6 +37,9 @@ BEGIN
         ('youtube', 'ar', N'مشغل يوتيوب'),
         ('tasks', 'en', N'My Tasks'),
         ('tasks', 'hi', N'मेरे कार्य'),
-        ('tasks', 'ar', N'مهامي');
+        ('tasks', 'ar', N'مهامي'),
+        ('tracker', 'en', N'SnapTracker'),
+        ('tracker', 'hi', N'स्नैपट्रैकर'),
+        ('tracker', 'ar', N'سناب تراكر');
 END
 GO

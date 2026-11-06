@@ -92,6 +92,7 @@ public static partial class DependencyInjection
         AddYoutubeFeature(services, configuration);
         AddKhataFeature(services, configuration);
         AddTasksFeature(services, configuration);
+        AddTrackerFeature(services, configuration);
 
         return services;
     }
@@ -131,6 +132,8 @@ public static partial class DependencyInjection
     static partial void AddTasksFeature(IServiceCollection services, IConfiguration configuration);
 
     static partial void AddMusicFeature(IServiceCollection services, IConfiguration configuration);
+
+    static partial void AddTrackerFeature(IServiceCollection services, IConfiguration configuration);
 
     static partial void AddYoutubeFeature(IServiceCollection services, IConfiguration configuration);
 

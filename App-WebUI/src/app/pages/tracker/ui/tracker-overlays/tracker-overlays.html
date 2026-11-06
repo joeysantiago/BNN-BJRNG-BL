@@ -1,0 +1,5 @@
+<div class="toasts" role="status" aria-live="polite">
+  @for (t of state.toasts(); track t.id) {
+    <div class="toast" [class.err]="t.error"><span>{{ t.text }}</span><button type="button" [attr.aria-label]="i18n.t('tracker.close')" (click)="state.dismiss(t.id)"><svg stIco="x" [size]="16"></svg></button></div>
+  }
+</div>

@@ -1,0 +1,99 @@
+<section class="page" aria-labelledby="tracker-h1">
+  <div class="head">
+    <div>
+      <p class="eyebrow">{{ i18n.t('tracker.privacy.eyebrow') }}</p>
+      <h1 id="tracker-h1">{{ i18n.t('tracker.privacy.h1') }}</h1>
+    </div>
+  </div>
+
+  @if (state.data(); as d) {
+    <section class="card" aria-labelledby="tr-p-track">
+      <h2 id="tr-p-track">{{ i18n.t('tracker.privacy.trackH') }}</h2>
+      <p class="muted">{{ i18n.t('tracker.privacy.trackSub') }}</p>
+      <div class="set-row">
+        <div class="txt">
+          <b>{{ i18n.t('tracker.state.' + d.tracking.state) }}</b>
+          <small>{{ d.tracking.state === 'enabled' ? i18n.t('tracker.privacy.since', { date: state.date(d.tracking.since!) + ' ' + state.time(d.tracking.since!) }) : i18n.t('tracker.privacy.stateHelp.' + d.tracking.state) }}</small>
+        </div>
+        <span [class]="'status ' + d.tracking.state"><span class="sdot"></span></span>
+      </div>
+      <div class="row">
+        @switch (d.tracking.state) {
+          @case ('enabled') {
+            <button type="button" class="btn" [disabled]="state.busy()" (click)="tracking('pause')"><svg stIco="pause" [size]="18"></svg>{{ i18n.t('tracker.privacy.pause') }}</button>
+          }
+          @case ('paused') {
+            <button type="button" class="btn pri" [disabled]="state.busy()" (click)="tracking('resume')"><svg stIco="play" [size]="18"></svg>{{ i18n.t('tracker.privacy.resume') }}</button>
+          }
+          @default {
+            <button type="button" class="btn pri" [disabled]="state.busy()" (click)="tracking('enable')"><svg stIco="shield" [size]="18"></svg>{{ i18n.t('tracker.privacy.turnOn') }}</button>
+          }
+        }
+        @if (d.tracking.state !== 'permission') {
+          <button type="button" class="btn danger" [disabled]="state.busy()" (click)="tracking('revoke')">{{ i18n.t('tracker.privacy.revoke') }}</button>
+        }
+      </div>
+      <p class="note small"><svg stIco="info" [size]="18"></svg>{{ i18n.t('tracker.privacy.demoNote') }}</p>
+    </section>
+
+    <section class="card" aria-labelledby="tr-p-why">
+      <h2 id="tr-p-why">{{ i18n.t('tracker.privacy.whyH') }}</h2>
+      <p>{{ i18n.t('tracker.privacy.whyP') }}</p>
+    </section>
+
+    <div class="grid2">
+      <section class="card" aria-labelledby="tr-p-read">
+        <h2 id="tr-p-read">{{ i18n.t('tracker.privacy.readH') }}</h2>
+        <ul class="ticks">
+          @for (k of read; track k) {
+            <li class="ok"><svg stIco="check" [size]="18"></svg>{{ i18n.t('tracker.privacy.read.' + k) }}</li>
+          }
+        </ul>
+      </section>
+      <section class="card" aria-labelledby="tr-p-never">
+        <h2 id="tr-p-never">{{ i18n.t('tracker.privacy.neverH') }}</h2>
+        <ul class="ticks">
+          @for (k of never; track k) {
+            <li class="no"><svg stIco="x" [size]="18"></svg>{{ i18n.t('tracker.privacy.never.' + k) }}</li>
+          }
+        </ul>
+      </section>
+    </div>
+
+    <section class="card" aria-labelledby="tr-p-flow">
+      <h2 id="tr-p-flow">{{ i18n.t('tracker.privacy.flowH') }}</h2>
+      <ol class="flow">
+        @for (k of flow; track k) {
+          <li><b>{{ i18n.t('tracker.privacy.flow.' + k) }}</b><span>{{ i18n.t('tracker.privacy.flow.' + k + '.p') }}</span></li>
+        }
+      </ol>
+    </section>
+
+    <section class="card" aria-labelledby="tr-p-ign">
+      <h2 id="tr-p-ign">{{ i18n.t('tracker.privacy.ignoredH') }}</h2>
+      <div class="counts">
+        <div><b class="num">{{ d.filtered.otp }}</b>{{ i18n.t('tracker.privacy.ign.otp') }}</div>
+        <div><b class="num">{{ d.filtered.promo }}</b>{{ i18n.t('tracker.privacy.ign.promo') }}</div>
+        <div><b class="num">{{ d.filtered.failed }}</b>{{ i18n.t('tracker.privacy.ign.failed') }}</div>
+        <div><b class="num">{{ d.filtered.other }}</b>{{ i18n.t('tracker.privacy.ign.other') }}</div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="tr-p-banks">
+      <h2 id="tr-p-banks">{{ i18n.t('tracker.privacy.banksH') }}</h2>
+      <div class="bank-chips">
+        @for (b of banks(); track b) {
+          <span class="chip">{{ b }}</span>
+        }
+      </div>
+    </section>
+
+    <section class="card row between" aria-labelledby="tr-p-data">
+      <div><h2 id="tr-p-data">{{ i18n.t('tracker.privacy.dataH') }}</h2><p class="muted">{{ i18n.t('tracker.privacy.dataP') }}</p></div>
+      <a class="btn" routerLink="/profile">{{ i18n.t('tracker.nav.profile') }}<svg stIco="chev" [size]="18"></svg></a>
+    </section>
+    <p class="center-link"><a routerLink="/tracker/app/how">{{ i18n.t('tracker.privacy.howLink') }}</a></p>
+  } @else if (!state.failed()) {
+    <div class="card empty"><p class="muted">{{ i18n.t('tracker.loading') }}</p></div>
+  }
+</section>

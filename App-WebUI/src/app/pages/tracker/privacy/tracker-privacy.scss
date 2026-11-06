@@ -1,0 +1,11 @@
+// Permissions and privacy of SnapTracker: the read / never-read lists, the filter steps, the ignored counts and the banks. Global under .st (ViewEncapsulation.None).
+.st .ticks { display: grid; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
+.st .ticks li { display: flex; gap: 10px; align-items: flex-start; }
+.st .ticks li.ok .ico { color: var(--k-get); }
+.st .ticks li.no .ico { color: var(--k-give); }
+.st .counts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+@media (min-width: 640px) { .st .counts { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.st .counts div { display: grid; gap: 2px; padding: 12px; border-radius: 14px; background: var(--k-surface-3); font-size: 13px; color: var(--k-muted); }
+.st .counts b { font-size: 22px; color: var(--k-text); }
+.st .bank-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.st .center-link { text-align: center; }

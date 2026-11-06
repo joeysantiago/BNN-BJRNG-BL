@@ -1,0 +1,14 @@
+<button type="button" class="tx" [class.dim]="dim()" (click)="state.open.set(txn().id)">
+  <span class="av" [style.background]="cat().color + '22'" aria-hidden="true">{{ cat().emoji }}</span>
+  <span class="tx-main">
+    <span class="tx-title">{{ state.title(txn()) }}</span>
+    <span class="tx-desc">{{ state.describe(txn()) }}</span>
+    <span class="tx-meta">
+      <span>{{ state.time(txn().at) }}</span>·<span>{{ i18n.t('tracker.method.' + txn().method) }}</span>·<span>{{ i18n.t(txn().source === 'sms' ? 'tracker.src.sms' : 'tracker.src.manual') }}</span>
+    </span>
+  </span>
+  <span class="tx-amt">
+    <b class="num" [class]="txn().type">{{ txn().type === 'debit' ? '−' : '+' }}{{ state.money(txn().amount) }}</b>
+    <small [class]="'chip ' + txn().status">{{ i18n.t('tracker.status.' + txn().status) }}</small>
+  </span>
+</button>

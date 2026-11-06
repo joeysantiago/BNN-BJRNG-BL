@@ -14,6 +14,7 @@ public static partial class SeederRegistration
         AddMusicSeeder(services);
         AddSnapKhataSeeder(services);
         AddTasksSeeder(services);
+        AddTrackerSeeder(services);
 
         return services;
     }
@@ -25,6 +26,7 @@ public static partial class SeederRegistration
     static partial void AddMusicSeeder(IServiceCollection services);
 
     static partial void AddTasksSeeder(IServiceCollection services);
+    static partial void AddTrackerSeeder(IServiceCollection services);
 
     static partial void AddSnapKhataSeeder(IServiceCollection services);
 

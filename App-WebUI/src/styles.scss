@@ -805,3 +805,58 @@ option {
     color: var(--accent);
   }
 }
+
+/* Dropdowns: the open list follows the skin instead of a white system box. Every browser gets the skin's colours on the options;
+   browsers with customizable selects (Chrome and Edge 135+) also get a rounded panel, the skin's hover colour instead of system blue,
+   and the chosen option in the accent colour. Options stay 44px tall for touch. */
+option {
+  background: var(--bg);
+  color: var(--text);
+}
+@supports (appearance: base-select) {
+  /* The chosen value stays on one line beside the arrow; a long one is cut, never wrapped over the box edge. */
+  select {
+    appearance: base-select;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  option {
+    white-space: normal;
+  }
+  select::picker-icon {
+    color: var(--muted);
+    transition: rotate 0.15s ease;
+  }
+  select:open::picker-icon {
+    rotate: 180deg;
+  }
+  ::picker(select) {
+    appearance: base-select;
+    margin-block: 6px;
+    padding: 6px;
+    border: 1px solid var(--line, rgba(128, 128, 128, 0.3));
+    border-radius: 14px;
+    background: var(--bg);
+    color: var(--text);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  }
+  option {
+    min-height: 44px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+  }
+  option:hover,
+  option:focus-visible {
+    outline: none;
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+  option:checked {
+    color: var(--accent-ink);
+    font-weight: 700;
+  }
+  option::checkmark {
+    color: var(--accent);
+  }
+}
