@@ -9,6 +9,7 @@ import { ThemeService } from './core/theme.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AppPwaService } from './core/app-pwa.service';
 import { SettingsService } from './core/settings.service';
+import { AppUpdateService } from './core/app-update.service';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Component, afterNextRender, computed, effect, inject } from '@angular/core';
 
@@ -45,6 +46,7 @@ export class App {
   private readonly theme = inject(ThemeService);
   private readonly cfg = inject(SettingsService);
   private readonly router = inject(Router);
+  private readonly updates = inject(AppUpdateService);
 
   private readonly url = toSignal(
     this.router.events.pipe(
@@ -69,6 +71,8 @@ export class App {
     afterNextRender(() => {
       // Applied after hydration so the prerendered HTML and the first client render match.
       this.cfg.restore();
+      // Moves to a new deploy by itself (at the next screen change), so an installed app never keeps showing an old version.
+      this.updates.start();
       this.theme.restore();
       // Restore a login (saved in this browser by the demo backend, or from another open tab) once per page load. Guards wait for the same answer.
       void this.auth.ensureSession();

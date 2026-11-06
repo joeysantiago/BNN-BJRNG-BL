@@ -2,7 +2,7 @@ import { TrackerIconName, TrackerIconShape } from './models/tracker.model';
 
 /**
  * SnapTracker line icons (24 x 24, drawn with the current text colour), as shapes so they render the same when prerendered. The icons both apps have use
- * SnapKhata's drawings unchanged (khata-icons.ts), so SnapTracker looks the same; info, sms, copies, pause, play, layers, down, up, tag and spark are its own, in the same style.
+ * SnapKhata's drawings unchanged (khata-icons.ts), so SnapTracker looks the same; info, sms, copies, pause, play, layers, down, up, tag, spark and filter are its own, in the same style.
  */
 export const TRACKER_ICONS: Record<TrackerIconName, TrackerIconShape[]> = {
   home: [{ tag: 'path', d: 'm3 10 9-7 9 7v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z' }],
@@ -33,6 +33,7 @@ export const TRACKER_ICONS: Record<TrackerIconName, TrackerIconShape[]> = {
   up: [{ tag: 'path', d: 'M12 19V5M5 12l7-7 7 7' }],
   tag: [{ tag: 'path', d: 'M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z' }, { tag: 'circle', cx: 7.5, cy: 7.5, r: 1.5 }],
   spark: [{ tag: 'path', d: 'M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8' }],
+  filter: [{ tag: 'path', d: 'M22 3H2l8 9.46V19l4 2v-8.54z' }],
 };
 
 /** Icons drawn for left-to-right that turn around in Arabic (right to left). */

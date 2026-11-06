@@ -88,17 +88,19 @@ export class KhataLockService {
     const installed = this.installed();
     if (!this.browser)
       return;
+    // A lock that is already up in this login (the shell opened again, e.g. after a click on Profile or Settings) stays up until the PIN is entered.
+    const held = this.blocked() && this.mode() !== 'checking' ? this.mode() : null;
     this.listen();
     this.started.set(true);
     if (installed)
       this.mode.set('checking');
     try {
-      const status = installed ? await this.api.lockPin(this.auth.signedInHere()) : await this.api.pinStatus();
+      const status = installed ? await this.api.lockPin(this.auth.signedInHere() && !held) : await this.api.pinStatus();
       this.status.set(status);
-      this.mode.set(this.firstMode(status, installed));
+      this.mode.set(held ? this.heldMode(held, status) : this.firstMode(status, installed));
     } catch {
       this.status.set(null);
-      this.mode.set(installed ? 'locked' : 'open');
+      this.mode.set(installed || held ? 'locked' : 'open');
     }
   }
 
@@ -210,6 +212,13 @@ export class KhataLockService {
     if (!status.locked)
       return 'open';
     return status.hasPin ? 'locked' : 'create';
+  }
+
+  /** The lock that was up before the shell opened again: the same PIN step, never "open" ("create" only when there is no PIN). */
+  private heldMode(held: KhataLockMode, status: KhataPinStatus): KhataLockMode {
+    if (!status.hasPin)
+      return 'create';
+    return held === 'create' ? 'locked' : held;
   }
 
   // #endregion

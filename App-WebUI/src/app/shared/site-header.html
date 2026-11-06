@@ -40,8 +40,10 @@
                 <app-user-avatar [user]="u" [size]="40" />
                 <p class="who-mail"><b>{{ u.displayName }}</b><span>{{ u.email }}</span><small>{{ u.roleName }}</small></p>
               </div>
-              <a class="skin-opt" routerLink="/profile" (click)="userOpen.set(false)">{{ i18n.t('auth.profile') }}</a>
-              @if (auth.canOpenSettings()) {
+              @if (!locked()) {
+                <a class="skin-opt" routerLink="/profile" (click)="userOpen.set(false)">{{ i18n.t('auth.profile') }}</a>
+              }
+              @if (auth.canOpenSettings() && !locked()) {
                 <a class="skin-opt" routerLink="/master" (click)="userOpen.set(false)">{{ i18n.t('auth.master') }}</a>
               }
               <button type="button" class="skin-opt" (click)="logout()">{{ i18n.t('auth.logout') }}</button>

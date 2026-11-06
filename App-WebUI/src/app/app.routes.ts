@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Speedtest } from './pages/speedtest/speedtest';
 import { appGuard, authGuard } from './core/auth.guards';
 import { khataLockGuard } from './core/khata-lock.guard';
+import { tasksLockGuard } from './core/tasks-lock.guard';
 
 const auth = () => import('./pages/auth/auth-page').then((m) => m.AuthPage);
 const status = () => import('./pages/not-found/status-page').then((m) => m.StatusPage);
@@ -42,7 +43,7 @@ export const routes: Routes = [
   // The common login of every app. One page with two modes. Mojito has no API: the demo backend in the browser answers (core/demo).
   { path: 'login', loadComponent: auth, data: { mode: 'login' } },
   { path: 'signup', loadComponent: auth, data: { mode: 'signup' } },
-  { path: 'profile', loadComponent: () => import('./pages/profile/profile').then((m) => m.Profile), canActivate: [authGuard, khataLockGuard] },
+  { path: 'profile', loadComponent: () => import('./pages/profile/profile').then((m) => m.Profile), canActivate: [authGuard, khataLockGuard, tasksLockGuard] },
   { path: 'no-access', loadComponent: status, data: { kind: 'noaccess' } },
 
   { path: 'about', loadComponent: staticPage, data: { kind: 'about' } },
@@ -50,7 +51,7 @@ export const routes: Routes = [
   { path: 'terms', loadComponent: staticPage, data: { kind: 'terms' } },
 
   // Any logged-in user may open it; each tab shows by the rights of the user's role.
-  { path: 'master', loadComponent: () => import('./pages/config/config').then((m) => m.Config), canActivate: [authGuard, khataLockGuard] },
+  { path: 'master', loadComponent: () => import('./pages/config/config').then((m) => m.Config), canActivate: [authGuard, khataLockGuard, tasksLockGuard] },
   { path: 'config', redirectTo: 'master' },
   { path: 'disabled', loadComponent: status, data: { kind: '404' } },
 

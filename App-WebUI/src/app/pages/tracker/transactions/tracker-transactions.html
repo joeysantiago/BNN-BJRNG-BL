@@ -4,21 +4,37 @@
       <p class="eyebrow">{{ i18n.page('tracker') }}</p>
       <h1 id="tracker-h1">{{ i18n.t('tracker.tx.h1') }}</h1>
     </div>
-    <div class="row">
-      <label class="search">
-        <span class="sr-only">{{ i18n.t('tracker.tx.search') }}</span>
-        <svg stIco="search" [size]="18"></svg>
-        <input class="in" type="search" autocomplete="off" [placeholder]="i18n.t('tracker.tx.searchPh')" [value]="state.search()" (input)="state.search.set($any($event.target).value)" />
-      </label>
-      <button type="button" class="btn pri" (click)="state.addOpen.set(true)"><svg stIco="plus" [size]="18"></svg>{{ i18n.t('tracker.add') }}</button>
+    <button type="button" class="btn pri" (click)="state.addOpen.set(true)"><svg stIco="plus" [size]="18"></svg>{{ i18n.t('tracker.add') }}</button>
+  </div>
+
+  <div class="toolbar">
+    <label class="search">
+      <span class="sr-only">{{ i18n.t('tracker.tx.search') }}</span>
+      <svg stIco="search" [size]="18"></svg>
+      <input class="in" type="search" autocomplete="off" [placeholder]="i18n.t('tracker.tx.searchPh')" [value]="state.search()" (input)="state.search.set($any($event.target).value)" />
+    </label>
+    <div class="fmenu">
+      <button type="button" class="btn icon fbtn" aria-haspopup="true" aria-controls="tr-filter-menu" [class.on]="state.filter() !== 'all'" [attr.aria-expanded]="menu()" [title]="i18n.t('tracker.tx.filter')"
+        [attr.aria-label]="i18n.t('tracker.tx.filter')" (click)="menu.set(!menu())">
+        <svg stIco="filter"></svg>
+      </button>
+      @if (menu()) {
+        <div id="tr-filter-menu" class="pop-menu fpop" role="group" [attr.aria-label]="i18n.t('tracker.tx.filter')">
+          @for (f of filters; track f) {
+            <button type="button" class="pop-opt" [attr.aria-pressed]="state.filter() === f" (click)="pick(f)">{{ i18n.t('tracker.f.' + f) }}<span class="c num">{{ state.count(f) }}</span></button>
+          }
+        </div>
+      }
     </div>
   </div>
 
-  <div class="filters" role="group" [attr.aria-label]="i18n.t('tracker.tx.filter')">
-    @for (f of filters; track f) {
-      <button type="button" class="chip-btn" [attr.aria-pressed]="state.filter() === f" (click)="state.filter.set(f)">{{ i18n.t('tracker.f.' + f) }} <small class="num">{{ state.count(f) }}</small></button>
-    }
-  </div>
+  @if (state.filter() !== 'all') {
+    <div class="active-filter">
+      <button type="button" class="chip-btn on" [attr.aria-label]="i18n.t('tracker.tx.clearFilter', { name: i18n.t('tracker.f.' + state.filter()) })" (click)="state.filter.set('all')">
+        <svg stIco="filter" [size]="15"></svg>{{ i18n.t('tracker.f.' + state.filter()) }} <small class="num">{{ state.count(state.filter()) }}</small><svg stIco="x" [size]="14"></svg>
+      </button>
+    </div>
+  }
 
   @if (!state.data()) {
     @if (!state.failed()) {
