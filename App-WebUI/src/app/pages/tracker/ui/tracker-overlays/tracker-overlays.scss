@@ -1,0 +1,4 @@
+// The shared controls (switches, segments, notes, toasts, confirm box) and SnapTracker's own parts, global under .st. This component is always on
+// screen in the app, so every screen and dialog shares these styles.
+@use '../../styles/tracker-kit';
+@use '../../styles/tracker-app';

@@ -34,6 +34,9 @@ BEGIN
         ('khata', 'ar', N'سناب خاتا'),
         ('youtube', 'en', N'YouTube player'),
         ('youtube', 'hi', N'यूट्यूब प्लेयर'),
-        ('youtube', 'ar', N'مشغل يوتيوب');
+        ('youtube', 'ar', N'مشغل يوتيوب'),
+        ('tracker', 'en', N'SnapTracker'),
+        ('tracker', 'hi', N'स्नैपट्रैकर'),
+        ('tracker', 'ar', N'سناب تراكر');
 END
 GO

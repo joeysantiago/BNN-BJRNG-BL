@@ -17,6 +17,8 @@ public static class AuthPolicies
 
     public const string Khata = AppPrefix + AppCodes.Khata;
 
+    public const string Tracker = AppPrefix + AppCodes.Tracker;
+
     public const string Youtube = AppPrefix + AppCodes.Youtube;
 
     public const string SuperAdminPassword = "AuthSuperAdminPassword";

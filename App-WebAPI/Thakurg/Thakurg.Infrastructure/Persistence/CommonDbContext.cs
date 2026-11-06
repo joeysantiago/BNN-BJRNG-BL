@@ -89,6 +89,8 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
     // Each feature maps its own tables in its own file (CommonDbContext.<Feature>.cs). A branch without that file still builds: the call is dropped.
     partial void OnMusicModelCreating(ModelBuilder modelBuilder);
 
+    partial void OnTrackerModelCreating(ModelBuilder modelBuilder);
+
     partial void OnKhataModelCreating(ModelBuilder modelBuilder);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -118,6 +120,7 @@ public partial class CommonDbContext : DbContext, ICommonDbContext
 
         OnMusicModelCreating(modelBuilder);
         OnKhataModelCreating(modelBuilder);
+        OnTrackerModelCreating(modelBuilder);
     }
 
     #endregion

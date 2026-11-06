@@ -1,0 +1,13 @@
+<section class="card" aria-labelledby="tracker-prof-h">
+  <h2 id="tracker-prof-h">{{ i18n.t('tracker.prof.h', { app: appName() }) }}</h2>
+  <p class="note">{{ i18n.t('tracker.prof.withText', { n: withText() }) }}</p>
+  <div class="bar">
+    <button type="button" class="btn" [disabled]="busy()" (click)="download()">{{ i18n.t('tracker.prof.download') }}</button>
+    <button type="button" class="btn" [disabled]="busy() || !withText()" (click)="remove('texts')">{{ i18n.t(sure() === 'texts' ? 'tracker.prof.sure' : 'tracker.prof.deleteTexts') }}</button>
+    <button type="button" class="btn danger" [disabled]="busy()" (click)="remove('all')">{{ i18n.t(sure() === 'all' ? 'tracker.prof.sure' : 'tracker.prof.deleteAll', { app: appName() }) }}</button>
+  </div>
+  <p class="note">{{ i18n.t('tracker.prof.lead', { app: appName() }) }}</p>
+  @if (notice(); as n) {
+    <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+  }
+</section>

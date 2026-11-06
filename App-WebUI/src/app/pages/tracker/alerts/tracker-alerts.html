@@ -1,0 +1,23 @@
+<section class="page" aria-labelledby="tracker-h1">
+  <div class="head">
+    <div>
+      <p class="eyebrow">{{ i18n.page('tracker') }}</p>
+      <h1 id="tracker-h1">{{ i18n.t('tracker.alerts.h1') }}</h1>
+    </div>
+    <div class="row">
+      <button type="button" class="btn" [disabled]="!state.unread() || state.busy()" (click)="readAll()"><svg stIco="check" [size]="18"></svg>{{ i18n.t('tracker.alerts.readAll') }}</button>
+      <a class="btn ghost" routerLink="/master" [queryParams]="{ tab: 'general', app: 'tracker' }"><svg stIco="settings" [size]="18"></svg>{{ i18n.t('tracker.alerts.settings') }}</a>
+    </div>
+  </div>
+  <div class="card list-card">
+    @for (a of alerts(); track a.id) {
+      <button type="button" class="alert-row" [class.unread]="!a.read" (click)="open(a)">
+        <span class="al-ic" aria-hidden="true">{{ icons[a.type] }}</span>
+        <span class="al-txt"><b>{{ i18n.t('tracker.alert.' + a.type) }}</b><span>{{ line(a) }}</span></span>
+        <small>{{ ago(a.at) }}</small>
+      </button>
+    } @empty {
+      <p class="muted empty-line">{{ i18n.t('tracker.alerts.none') }}</p>
+    }
+  </div>
+</section>

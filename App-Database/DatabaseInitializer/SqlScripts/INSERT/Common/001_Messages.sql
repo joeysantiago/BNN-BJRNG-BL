@@ -996,6 +996,111 @@ BEGIN
             "en": "{0} is your sign-up code. It works for {1} minutes. Do not share it with anyone.",
             "hi": "{0} आपका साइन अप कोड है। यह {1} मिनट तक काम करेगा। इसे किसी से साझा न करें।",
             "ar": "{0} هو رمز التسجيل الخاص بك. يعمل لمدة {1} دقيقة. لا تشاركه مع أي شخص."
+        }'),
+        ('TRACKER_ADDED', N'{
+            "en": "Transaction added.",
+            "hi": "लेन-देन जोड़ा गया।",
+            "ar": "تمت إضافة المعاملة."
+        }'),
+        ('TRACKER_SAVED', N'{
+            "en": "Transaction saved.",
+            "hi": "लेन-देन सहेजा गया।",
+            "ar": "تم حفظ المعاملة."
+        }'),
+        ('TRACKER_CONFIRMED', N'{
+            "en": "Transaction confirmed.",
+            "hi": "लेन-देन की पुष्टि हो गई।",
+            "ar": "تم تأكيد المعاملة."
+        }'),
+        ('TRACKER_IGNORED', N'{
+            "en": "Transaction ignored. It is not counted in your totals.",
+            "hi": "लेन-देन अनदेखा किया गया। यह आपके कुल में नहीं गिना जाएगा।",
+            "ar": "تم تجاهل المعاملة. لن تُحتسب في إجمالياتك."
+        }'),
+        ('TRACKER_RESTORED', N'{
+            "en": "Transaction restored.",
+            "hi": "लेन-देन वापस लाया गया।",
+            "ar": "تمت استعادة المعاملة."
+        }'),
+        ('TRACKER_NOT_DUPLICATE', N'{
+            "en": "Marked as not a duplicate. It now waits for your check.",
+            "hi": "डुप्लिकेट नहीं के रूप में चिह्नित किया गया। अब यह आपकी जाँच की प्रतीक्षा में है।",
+            "ar": "تم وضع علامة \"ليست مكررة\". إنها الآن بانتظار مراجعتك."
+        }'),
+        ('TRACKER_CATEGORY_SAVED', N'{
+            "en": "Category changed.",
+            "hi": "श्रेणी बदल दी गई।",
+            "ar": "تم تغيير الفئة."
+        }'),
+        ('TRACKER_CATEGORY_RULE', N'{
+            "en": "Category changed. {0} will always go to this category.",
+            "hi": "श्रेणी बदल दी गई। {0} हमेशा इसी श्रेणी में जाएगा।",
+            "ar": "تم تغيير الفئة. سيُصنَّف {0} دائمًا ضمن هذه الفئة."
+        }'),
+        ('TRACKER_DELETED', N'{
+            "en": "Transaction deleted.",
+            "hi": "लेन-देन हटाया गया।",
+            "ar": "تم حذف المعاملة."
+        }'),
+        ('TRACKER_INVALID', N'{
+            "en": "Some details are not valid. Please check and try again.",
+            "hi": "कुछ विवरण मान्य नहीं हैं। कृपया जांचें और फिर से प्रयास करें।",
+            "ar": "بعض التفاصيل غير صالحة. يرجى التحقق والمحاولة مرة أخرى."
+        }'),
+        ('TRACKER_NOT_FOUND', N'{
+            "en": "This transaction was not found.",
+            "hi": "यह लेन-देन नहीं मिला।",
+            "ar": "لم يتم العثور على هذه المعاملة."
+        }'),
+        ('TRACKER_SMS_EMPTY', N'{
+            "en": "Paste the text of a bank or UPI SMS first.",
+            "hi": "पहले किसी बैंक या UPI SMS का टेक्स्ट पेस्ट करें।",
+            "ar": "الصق نص رسالة بنك أو UPI أولًا."
+        }'),
+        ('TRACKER_SMS_TOO_LONG', N'{
+            "en": "An SMS can be at most {0} characters long.",
+            "hi": "एक SMS अधिकतम {0} अक्षरों का हो सकता है।",
+            "ar": "يمكن أن تصل الرسالة إلى {0} حرفًا كحد أقصى."
+        }'),
+        ('TRACKER_TRACKING_ON', N'{
+            "en": "SMS tracking is on.",
+            "hi": "SMS ट्रैकिंग चालू है।",
+            "ar": "تم تشغيل تتبع الرسائل."
+        }'),
+        ('TRACKER_TRACKING_PAUSED', N'{
+            "en": "SMS tracking is paused.",
+            "hi": "SMS ट्रैकिंग रोकी गई।",
+            "ar": "تم إيقاف تتبع الرسائل مؤقتًا."
+        }'),
+        ('TRACKER_TRACKING_RESUMED', N'{
+            "en": "SMS tracking is on again.",
+            "hi": "SMS ट्रैकिंग फिर से चालू है।",
+            "ar": "تم استئناف تتبع الرسائل."
+        }'),
+        ('TRACKER_TRACKING_REVOKED', N'{
+            "en": "SMS access was revoked. Nothing more is read.",
+            "hi": "SMS एक्सेस हटा दिया गया। अब कुछ नहीं पढ़ा जाएगा।",
+            "ar": "تم إلغاء الوصول إلى الرسائل. لن تتم قراءة أي شيء بعد الآن."
+        }'),
+        ('TRACKER_SETTINGS_SAVED', N'{
+            "en": "SnapTracker settings saved.",
+            "hi": "SnapTracker सेटिंग्स सहेजी गईं।",
+            "ar": "تم حفظ إعدادات SnapTracker."
+        }'),
+        ('TRACKER_ALERTS_READ', N'{
+            "en": "All alerts marked as read.",
+            "hi": "सभी अलर्ट पढ़े गए के रूप में चिह्नित।",
+            "ar": "تم وضع علامة \"مقروء\" على كل التنبيهات."
+        }'),
+        ('TRACKER_SMS_TEXTS_DELETED', N'{
+            "en": "Original SMS texts deleted. Your transactions stay.",
+            "hi": "मूल SMS टेक्स्ट हटा दिए गए। आपके लेन-देन बने रहेंगे।",
+            "ar": "تم حذف نصوص الرسائل الأصلية. تبقى معاملاتك."
+        }'),
+        ('TRACKER_DATA_DELETED', N'{
+            "en": "All your SnapTracker data was deleted.",
+            "hi": "आपका सारा SnapTracker डेटा हटा दिया गया।",
+            "ar": "تم حذف كل بياناتك في SnapTracker."
         }')
 END
 GO

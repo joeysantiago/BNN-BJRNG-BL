@@ -1,0 +1,14 @@
+// The Activity list of SnapTracker: search and the filter button with its list, the chip of the filter in use, and the days. Global under .st (ViewEncapsulation.None).
+.st .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.st .search { position: relative; flex: 1; min-width: 0; }
+.st .search .ico { position: absolute; top: 50%; inset-inline-start: 14px; transform: translateY(-50%); color: var(--k-faint); pointer-events: none; }
+.st .search input { padding-inline-start: 42px; }
+.st .fmenu { position: relative; flex: none; }
+.st .fbtn.on { --b-bg: var(--k-brand-soft); --b-fg: var(--k-brand); --b-bd: color-mix(in srgb, var(--k-brand) 35%, transparent); }
+.st .fpop { inset-inline-end: 0; min-width: 240px; max-height: min(70dvh, 520px); overflow-y: auto; }
+.st .fpop .pop-opt .c { margin-inline-start: auto; font-size: 12px; color: var(--k-faint); }
+.st .active-filter { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.st .chip-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 14px; border-radius: 999px; border: 1px solid transparent; background: var(--k-brand-soft); color: var(--k-brand); font: 700 13.5px var(--k-font); cursor: pointer; }
+.st .chip-btn small { font-size: 11.5px; opacity: 0.8; }
+.st .list-card { padding: 6px 14px 10px; }
+.st .tl-day { display: flex; justify-content: space-between; gap: 10px; padding: 12px 4px 6px; font-size: 12.5px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--k-faint); }

@@ -1,0 +1,47 @@
+// The dashboard of SnapTracker: the month card, the total tiles, the bar chart, the donut and the review queue. Global under .st (ViewEncapsulation.None).
+.st .dash { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.st .dash .span-2 { grid-column: 1 / -1; }
+@media (min-width: 1100px) { .st .dash { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.st .hero { position: relative; overflow: hidden; background: var(--k-brand-grad); color: var(--k-on-brand); border-color: transparent; }
+.st .hero .eyebrow, .st .hero .hero-stats { color: inherit; opacity: 0.9; }
+.st .hero .chip { background: rgba(255, 255, 255, 0.22); color: inherit; }
+.st .hero .big { font-size: clamp(2rem, 7vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; margin: 4px 0 10px; }
+.st .hero-stats { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; font-weight: 600; }
+.st .hero-stats b { display: block; font-size: 16px; }
+.st .spark-line { display: block; width: 100%; height: 60px; margin-top: 12px; }
+.st .spark-line polyline { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; opacity: 0.85; vector-effect: non-scaling-stroke; }
+.st .kpi { display: grid; gap: 4px; align-content: start; color: var(--k-text); text-decoration: none; transition: transform 0.2s var(--k-ease); }
+.st .kpi:hover { transform: translateY(-2px); }
+.st .kpi b { font-size: 22px; font-weight: 800; }
+.st .kpi small { color: var(--k-muted); font-size: 12.5px; }
+.st .k-lbl { font-size: 13px; font-weight: 700; color: var(--k-muted); }
+.st .k-ic { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: var(--k-brand-soft); color: var(--k-brand); }
+.st .k-ic.r { background: var(--k-give-soft); color: var(--k-give); }
+.st .k-ic.g { background: var(--k-get-soft); color: var(--k-get); }
+.st .k-ic.y { background: var(--k-warn-soft); color: var(--k-warn); }
+.st .k-ic.p { background: color-mix(in srgb, #8b5cf6 14%, transparent); color: #7c3aed; }
+.st[data-kt=dark] .k-ic.p { color: #c4b5fd; }
+.st .legend { display: flex; gap: 12px; font-size: 12.5px; color: var(--k-muted); }
+.st .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-inline-end: 5px; }
+.st .legend i.spent, .st .bars rect.spent { background: var(--k-brand); fill: var(--k-brand); }
+.st .legend i.income, .st .bars rect.income { background: var(--k-get); fill: var(--k-get); }
+.st .bars { display: block; width: 100%; height: auto; }
+.st .bars text { fill: var(--k-muted); font: 600 13px var(--k-font); }
+.st .donut-wrap { display: grid; gap: 16px; align-items: center; grid-template-columns: minmax(120px, 160px) minmax(0, 1fr); }
+@media (max-width: 420px) { .st .donut-wrap { grid-template-columns: 1fr; justify-items: center; } }
+.st .donut { width: 100%; max-width: 160px; transform: rotate(-90deg); }
+.st[dir=rtl] .donut { transform: rotate(-90deg) scaleY(-1); }
+.st .donut circle { fill: none; stroke-width: 6; }
+.st .donut .donut-bg { stroke: var(--k-surface-3); }
+.st .legend-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; width: 100%; }
+.st .legend-list li { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.st .legend-list i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.st .legend-list span { flex: 1; min-width: 0; }
+.st .queue-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--k-line); }
+.st .queue-item:first-of-type { border-top: 0; }
+.st .q-main { flex: 1; min-width: 0; display: grid; gap: 2px; padding: 4px 0; border: 0; background: none; color: var(--k-text); font: inherit; text-align: start; cursor: pointer; }
+.st .q-main span { color: var(--k-muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st .status-card { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-bottom: 14px; }
+.st .status-card .s-body { flex: 1; min-width: 200px; }
+.st .s-ic { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--k-brand-soft); color: var(--k-brand); flex: none; }
+.st .s-ic.warn { background: var(--k-warn-soft); color: var(--k-warn); }

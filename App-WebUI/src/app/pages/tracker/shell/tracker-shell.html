@@ -1,0 +1,66 @@
+<div class="st" [attr.data-kt]="theme.brightness()" [attr.data-ks]="theme.skin()" [attr.dir]="i18n.dir()" [attr.lang]="i18n.info().code">
+  <a class="sr-only" href="#tracker-main">{{ i18n.t('tracker.skip') }}</a>
+  <div class="app">
+    <aside class="rail" [attr.aria-label]="appName()">
+      <a class="logo" routerLink="/tracker/app"><span class="mark"><svg stIco="spark" [size]="20"></svg></span><span class="name">{{ appName() }}</span></a>
+      <button type="button" class="btn pri wide" (click)="state.addOpen.set(true)"><svg stIco="plus" [size]="18"></svg>{{ i18n.t('tracker.add') }}</button>
+      <nav [attr.aria-label]="i18n.t('tracker.nav.label')">
+        @for (n of nav; track n.path) {
+          <a class="nav" [routerLink]="n.path" [queryParams]="n.query" [attr.aria-current]="current(n.path)">
+            <svg [stIco]="n.icon"></svg>{{ i18n.t(n.label) }}
+            @if (n.path === '/tracker/app/transactions' && state.pending().length) {
+              <span class="cnt num">{{ state.pending().length }}</span>
+            }
+          </a>
+        }
+      </nav>
+      <div class="grow"></div>
+      @if (auth.user(); as u) {
+        <a class="who" routerLink="/profile" [attr.aria-label]="i18n.t('tracker.nav.profile')">
+          <app-user-avatar [user]="u" [size]="40" /><span class="who-txt"><b>{{ u.displayName }}</b><small>{{ i18n.t('tracker.nav.profile') }}</small></span>
+        </a>
+      }
+    </aside>
+    <div class="main-col">
+      <header class="top">
+        <a class="logo" routerLink="/tracker/app"><span class="mark"><svg stIco="spark" [size]="20"></svg></span><span class="name">{{ appName() }}</span></a>
+        <span class="crumb">{{ crumb() }}</span>
+        <div class="top-actions">
+          @if (state.data(); as d) {
+            <a [class]="'status ' + d.tracking.state" routerLink="/tracker/app/privacy" [attr.aria-label]="i18n.t('tracker.state.' + d.tracking.state) + '. ' + i18n.t('tracker.state.open')">
+              <span class="sdot"></span><span class="slbl">{{ i18n.t('tracker.state.' + d.tracking.state) }}</span>
+            </a>
+          }
+          <a class="btn ghost icon badge-dot" routerLink="/tracker/app/alerts" [attr.aria-label]="i18n.t('tracker.alerts.bell', { n: state.unread() })">
+            <svg stIco="bell"></svg>@if (state.unread()) {<b>{{ state.unread() > 9 ? '9+' : state.unread() }}</b>}
+          </a>
+          <app-tracker-menus />
+        </div>
+      </header>
+      <main class="content" id="tracker-main">
+        @if (state.failed()) {
+          <div class="card note-bad" role="alert"><svg stIco="alert"></svg><span>{{ i18n.t('tracker.loadFailed') }}</span><button type="button" class="btn sm" (click)="state.load()">{{ i18n.t('tracker.retry') }}</button></div>
+        }
+        <router-outlet />
+      </main>
+    </div>
+    <nav class="tabs" [attr.aria-label]="i18n.t('tracker.nav.label')">
+      <a class="tab" routerLink="/tracker/app" [attr.aria-current]="current('/tracker/app')"><svg stIco="home" [size]="22"></svg>{{ i18n.t('tracker.nav.home') }}</a>
+      <a class="tab" routerLink="/tracker/app/transactions" [attr.aria-current]="current('/tracker/app/transactions')">
+        <span class="tab-ico"><svg stIco="list" [size]="22"></svg>@if (state.pending().length) {<b class="tab-cnt">{{ state.pending().length }}</b>}</span>{{ i18n.t('tracker.nav.activity') }}
+      </a>
+      <button type="button" class="fab" [attr.aria-label]="i18n.t('tracker.add')" (click)="state.addOpen.set(true)"><svg stIco="plus" [size]="26"></svg></button>
+      <a class="tab" routerLink="/tracker/app/privacy" [attr.aria-current]="current('/tracker/app/privacy')"><svg stIco="shield" [size]="22"></svg>{{ i18n.t('tracker.nav.privacy') }}</a>
+      <a class="tab" routerLink="/profile"><svg stIco="user" [size]="22"></svg>{{ i18n.t('tracker.nav.profile') }}</a>
+    </nav>
+  </div>
+
+  @if (state.opened(); as t) {
+    <app-tracker-drawer [txn]="t" />
+  }
+  @if (state.addOpen()) {
+    <app-tracker-add />
+  }
+
+  <app-tracker-overlays />
+</div>
