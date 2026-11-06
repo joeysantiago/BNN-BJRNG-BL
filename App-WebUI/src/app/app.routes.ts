@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth.guards';
 import { FEATURE_ROUTES } from './feature-routes';
+import { khataLockGuard } from './core/khata-lock.guard';
 
 const auth = () => import('./pages/auth/auth-page').then((m) => m.AuthPage);
 const status = () => import('./pages/not-found/status-page').then((m) => m.StatusPage);
@@ -13,7 +14,7 @@ export const routes: Routes = [
   // The common login of every app. One page with two modes.
   { path: 'login', loadComponent: auth, data: { mode: 'login' } },
   { path: 'signup', loadComponent: auth, data: { mode: 'signup' } },
-  { path: 'profile', loadComponent: () => import('./pages/profile/profile').then((m) => m.Profile), canActivate: [authGuard] },
+  { path: 'profile', loadComponent: () => import('./pages/profile/profile').then((m) => m.Profile), canActivate: [authGuard, khataLockGuard] },
   { path: 'no-access', loadComponent: status, data: { kind: 'noaccess' } },
 
   { path: 'about', loadComponent: staticPage, data: { kind: 'about' } },
@@ -21,7 +22,7 @@ export const routes: Routes = [
   { path: 'terms', loadComponent: staticPage, data: { kind: 'terms' } },
 
   // Any logged-in user may open it; saving settings and the Users and access panel are for administrators only.
-  { path: 'master', loadComponent: () => import('./pages/config/config').then((m) => m.Config), canActivate: [authGuard] },
+  { path: 'master', loadComponent: () => import('./pages/config/config').then((m) => m.Config), canActivate: [authGuard, khataLockGuard] },
   { path: 'config', redirectTo: 'master' },
   { path: 'disabled', loadComponent: status, data: { kind: '404' } },
 
