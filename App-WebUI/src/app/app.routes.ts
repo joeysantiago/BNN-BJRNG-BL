@@ -36,6 +36,9 @@ export const routes: Routes = [
   // My Tasks: /tasks is the public page, /tasks/app the app (needs the login and the tasks app). Loaded with its texts only when opened.
   { path: 'tasks', loadChildren: () => import('./pages/tasks/tasks.mojito.routes').then((m) => m.TASKS_MOJITO_ROUTES) },
 
+  // SnapTracker: /tracker is the public page, /tracker/app the app (needs the login and the tracker app). Loaded with its texts only when opened.
+  { path: 'tracker', loadChildren: () => import('./pages/tracker/tracker.mojito.routes').then((m) => m.TRACKER_MOJITO_ROUTES) },
+
   // The common login of every app. One page with two modes. Mojito has no API: the demo backend in the browser answers (core/demo).
   { path: 'login', loadComponent: auth, data: { mode: 'login' } },
   { path: 'signup', loadComponent: auth, data: { mode: 'signup' } },

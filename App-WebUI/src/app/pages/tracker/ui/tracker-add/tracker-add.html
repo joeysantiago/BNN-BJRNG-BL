@@ -1,0 +1,52 @@
+<div class="scrim" (click)="close()"></div>
+<section class="sheet" role="dialog" aria-modal="true" aria-labelledby="tr-add-h">
+  <div class="drawer-head">
+    <h2 id="tr-add-h">{{ i18n.t('tracker.add.h') }}</h2>
+    <button type="button" class="btn ghost icon" [attr.aria-label]="i18n.t('tracker.close')" (click)="close()"><svg stIco="x"></svg></button>
+  </div>
+  <div class="drawer-body">
+    <div class="seg" role="tablist" [attr.aria-label]="i18n.t('tracker.add.h')">
+      <button type="button" role="tab" [attr.aria-pressed]="tab() === 'paste'" [attr.aria-selected]="tab() === 'paste'" (click)="tab.set('paste')">{{ i18n.t('tracker.add.paste') }}</button>
+      <button type="button" role="tab" [attr.aria-pressed]="tab() === 'manual'" [attr.aria-selected]="tab() === 'manual'" (click)="tab.set('manual')">{{ i18n.t('tracker.add.manual') }}</button>
+    </div>
+
+    @if (tab() === 'manual') {
+      <app-tracker-form [busy]="state.busy()" (saved)="add($event)" (cancelled)="close()" />
+    } @else {
+      <p class="muted small">{{ i18n.t('tracker.add.pasteLead') }}</p>
+      <label class="field"><span>{{ i18n.t('tracker.add.message') }}</span>
+        <textarea class="in" rows="4" maxlength="1000" [placeholder]="i18n.t('tracker.add.messagePh')" [value]="body()" (input)="body.set($any($event.target).value)"></textarea></label>
+      <label class="field"><span>{{ i18n.t('tracker.add.sender') }}</span>
+        <input class="in" maxlength="20" autocomplete="off" placeholder="AD-HDFCBK" [value]="sender()" (input)="sender.set($any($event.target).value)" /></label>
+      <div class="row end">
+        @if (result()) {
+          <button type="button" class="btn" (click)="again()">{{ i18n.t('tracker.add.again') }}</button>
+        }
+        <button type="button" class="btn pri" [disabled]="state.busy() || !body().trim()" (click)="read()"><svg stIco="sms" [size]="18"></svg>{{ i18n.t('tracker.add.read') }}</button>
+      </div>
+
+      @if (result(); as r) {
+        <section class="steps" aria-labelledby="tr-steps-h" aria-live="polite">
+          <h3 id="tr-steps-h">{{ i18n.t('tracker.add.what') }}</h3>
+          <ol>
+            @for (s of r.steps; track $index) {
+              <li [class.bad]="!s.ok">
+                <svg [stIco]="s.ok ? 'check' : 'x'" [size]="16"></svg>
+                <span><b>{{ i18n.t('tracker.step.' + s.key) }}</b> {{ stepText(s) }}</span>
+                <small>{{ i18n.t('tracker.where.' + s.where) }}</small>
+              </li>
+            }
+          </ol>
+          <p class="outcome" [class]="'outcome ' + r.outcome">
+            @if (r.txn; as t) {
+              {{ i18n.t(r.outcome === 'duplicate' ? 'tracker.out.duplicate' : 'tracker.out.created', { name: state.title(t), amount: state.money(t.amount), status: i18n.t('tracker.status.' + t.status) }) }}
+              <button type="button" class="btn sm" (click)="openTxn(t.id)">{{ i18n.t('tracker.open') }}</button>
+            } @else {
+              {{ i18n.t('tracker.out.' + r.reason) }}
+            }
+          </p>
+        </section>
+      }
+    }
+  </div>
+</section>

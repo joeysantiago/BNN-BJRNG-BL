@@ -27,8 +27,8 @@ export type TrackerDupReason = 'sameText' | 'sameRef' | 'sameAmount';
 
 /** One step of reading an SMS: where it ran, its name (tracker.step.<key>), whether it passed, and the values of its detail line. */
 export interface TrackerStep {
-  ok: boolean;
   key: string;
+  ok: boolean;
   where: 'phone' | 'server';
   args: Record<string, string | number>;
 }
@@ -44,10 +44,10 @@ export interface TrackerSmsResult {
 /** The original SMS of a transaction; marks are the parts the reader used (amount, merchant, account, reference). */
 export interface TrackerSms {
   body: string;
-  marks: string[];
   sender: string;
-  senderName: string;
+  marks: string[];
   receivedAt: string;
+  senderName: string;
 }
 
 /** One transaction. Amounts are in rupees; the description is built from these fields in the user's language (tracker.desc.*). */
@@ -57,19 +57,19 @@ export interface TrackerTxn {
   note: string;
   amount: number;
   edited: boolean;
-  type: TrackerType;
   category: string;
   createdAt: string;
-  ref: string | null;
+  type: TrackerType;
   confidence: number;
+  ref: string | null;
   kind: string | null;
+  dupOf: number | null;
   typeGuessed: boolean;
+  method: TrackerMethod;
   source: TrackerSource;
   status: TrackerStatus;
-  method: TrackerMethod;
-  sms: TrackerSms | null;
   account: string | null;
-  dupOf: number | null;
+  sms: TrackerSms | null;
   merchant: string | null;
   dupWhy: TrackerDupReason | null;
 }
@@ -79,8 +79,8 @@ export interface TrackerAlert {
   id: number;
   at: string;
   read: boolean;
-  type: TrackerAlertType;
   txnId: number | null;
+  type: TrackerAlertType;
   args: Record<string, string | number>;
 }
 
@@ -111,9 +111,9 @@ export interface TrackerData {
   txns: TrackerTxn[];
   sampleLoaded: boolean;
   alerts: TrackerAlert[];
-  tracking: TrackerTracking;
   filtered: TrackerFiltered;
   settings: TrackerSettings;
+  tracking: TrackerTracking;
 }
 
 /** A category: its code (name tracker.cat.<code>), colour and emoji. */
@@ -128,8 +128,8 @@ export interface TrackerTxnRequest {
   at: string;
   note: string;
   amount: number;
-  type: TrackerType;
   category: string;
+  type: TrackerType;
   method: TrackerMethod;
   merchant: string | null;
 }

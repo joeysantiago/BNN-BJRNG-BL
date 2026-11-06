@@ -1,0 +1,47 @@
+<section class="page" aria-labelledby="tracker-h1">
+  <div class="head">
+    <div>
+      <p class="eyebrow">{{ i18n.page('tracker') }}</p>
+      <h1 id="tracker-h1">{{ i18n.t('tracker.tx.h1') }}</h1>
+    </div>
+    <div class="row">
+      <label class="search">
+        <span class="sr-only">{{ i18n.t('tracker.tx.search') }}</span>
+        <svg stIco="search" [size]="18"></svg>
+        <input class="in" type="search" autocomplete="off" [placeholder]="i18n.t('tracker.tx.searchPh')" [value]="state.search()" (input)="state.search.set($any($event.target).value)" />
+      </label>
+      <button type="button" class="btn pri" (click)="state.addOpen.set(true)"><svg stIco="plus" [size]="18"></svg>{{ i18n.t('tracker.add') }}</button>
+    </div>
+  </div>
+
+  <div class="filters" role="group" [attr.aria-label]="i18n.t('tracker.tx.filter')">
+    @for (f of filters; track f) {
+      <button type="button" class="chip-btn" [attr.aria-pressed]="state.filter() === f" (click)="state.filter.set(f)">{{ i18n.t('tracker.f.' + f) }} <small class="num">{{ state.count(f) }}</small></button>
+    }
+  </div>
+
+  @if (!state.data()) {
+    @if (!state.failed()) {
+      <div class="card empty"><p class="muted">{{ i18n.t('tracker.loading') }}</p></div>
+    }
+  } @else if (state.days().length) {
+    <div class="card list-card">
+      @for (g of state.days(); track g.label) {
+        <div class="tl-day"><span>{{ g.label }}</span><span class="num">{{ g.net >= 0 ? '+' : '−' }}{{ state.money(abs(g.net)) }}</span></div>
+        <ul class="tl">
+          @for (t of g.items; track t.id) {
+            <li><app-tracker-row [txn]="t" /></li>
+          }
+        </ul>
+      }
+    </div>
+  } @else {
+    <div class="card empty">
+      <span class="e-ic" aria-hidden="true">🔍</span>
+      <p class="muted">{{ i18n.t(state.txns().length ? 'tracker.tx.noMatch' : 'tracker.tx.none') }}</p>
+      @if (state.filter() !== 'all' && state.txns().length) {
+        <button type="button" class="btn" (click)="state.filter.set('all')">{{ i18n.t('tracker.tx.showAll') }}</button>
+      }
+    </div>
+  }
+</section>

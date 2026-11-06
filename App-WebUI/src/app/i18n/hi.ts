@@ -74,7 +74,7 @@ export const HI: Translations = {
   'auth.na.p': 'आपका खाता अभी यह ऐप नहीं खोल सकता। पहुंच देने के लिए किसी एडमिन से कहें।',
   'auth.na.cta': 'अपनी प्रोफ़ाइल पर जाएं',
   'auth.app.khata': '{page:khata}',
-  'auth.app.tracker': 'ट्रैकर',
+  'auth.app.tracker': '{page:tracker}',
   'auth.app.creta': '{page:creta}',
   'auth.app.nexon': '{page:nexon}',
   'auth.app.youtube': '{page:youtube}',

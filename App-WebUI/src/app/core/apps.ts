@@ -4,7 +4,7 @@ import { AppLink } from './models/auth.model';
 /** Every app a user can be given (same codes as the Apps table of the API), with its name and the page that opens it. */
 export const APP_LINKS: readonly AppLink[] = [
   { code: 'khata', name: 'auth.app.khata', path: '/khata/app' },
-  { code: 'tracker', name: 'auth.app.tracker', path: null },
+  { code: 'tracker', name: 'auth.app.tracker', path: '/tracker/app' },
   { code: 'creta', name: 'auth.app.creta', path: '/creta' },
   { code: 'nexon', name: 'auth.app.nexon', path: '/nexon' },
   { code: 'youtube', name: 'auth.app.youtube', path: '/youtube' },

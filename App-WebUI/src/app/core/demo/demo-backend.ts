@@ -410,6 +410,8 @@ export class DemoBackend {
           return this.khata(db, req, path, query ?? '');
         if (path.startsWith('/tasks/'))
           return this.tasks(db, req, path);
+        if (path.startsWith('/tracker/'))
+          return this.tracker(db, req, path);
         throw new DemoFailure(404, 'UNEXPECTED_ERROR');
     }
   }
@@ -686,6 +688,19 @@ export class DemoBackend {
     const session = db.sessions.find((s) => s.token === req.token)!;
     const demo = new TasksDemo(db, user, session, () => this.next(db), () => this.store(db));
     return demo.route(req.method, path, req.body, this.isSuper(db, user));
+  }
+
+  /**
+   * SnapTracker's calls (/tracker/...), answered by its own part of the demo backend (tracker-demo.ts), loaded with the first such call. SnapTracker needs
+   * the tracker app (administrators open every app), as the tracker policy of the API will.
+   */
+  private async tracker(db: DemoDb, req: DemoRequest, path: string): Promise<{ code?: string; args?: (string | number)[]; data?: unknown }> {
+    const user = this.caller(db, req.token);
+    if (!this.isAdmin(db, user) && !user.apps.includes('tracker'))
+      throw new DemoFailure(403, 'AUTH_FORBIDDEN');
+    const { TrackerDemo, TRACKER_DEMO_MESSAGES } = await import('./tracker-demo');
+    this.extraMessages = { ...this.extraMessages, ...TRACKER_DEMO_MESSAGES };
+    return new TrackerDemo(db, user, () => this.store(db)).route(req.method, path, req.body);
   }
 
   /** The account's mobile number, address and company (UserProfiles), with the field limits of Profile:Limits. */

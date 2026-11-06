@@ -1,0 +1,86 @@
+.page {
+  padding-block: 24px 0;
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 600;
+}
+.lead {
+  font-size: 1.1rem;
+}
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 10px 22px;
+  border-radius: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  background: var(--accent, #2f5bea);
+  color: var(--on-accent, #fff);
+}
+.cta.ghost {
+  background: transparent;
+  color: var(--accent-ink);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+/* An SMS and the transaction SnapTracker makes of it. */
+.demo-art {
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  margin-block: 18px;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 720px) {
+  .demo-art {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+}
+.art-sms,
+.art-txn {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--inset-bg);
+  color: var(--inset-text);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.art-sms b {
+  display: block;
+  font-size: 12px;
+  color: var(--inset-muted);
+}
+.art-arrow {
+  justify-self: center;
+  font-size: 24px;
+  color: var(--accent-ink);
+}
+.art-txn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.art-txn > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+}
+.art-txn small {
+  color: var(--inset-muted);
+}
+.minus {
+  color: var(--danger);
+}
+.promises,
+.features {
+  display: grid;
+  gap: 10px;
+  padding-inline-start: 20px;
+}

@@ -1,0 +1,106 @@
+<div class="scrim" (click)="close()"></div>
+<aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="tr-d-title">
+  <div class="drawer-head">
+    <h2 id="tr-d-title">{{ i18n.t(mode() === 'edit' ? 'tracker.d.edit' : mode() === 'category' ? 'tracker.d.pickCat' : 'tracker.d.title') }}</h2>
+    <button type="button" class="btn ghost icon" [attr.aria-label]="i18n.t('tracker.close')" (click)="close()"><svg stIco="x"></svg></button>
+  </div>
+  <div class="drawer-body">
+    @if (mode() === 'edit') {
+      <app-tracker-form [initial]="initial()" [busy]="state.busy()" (saved)="save($event)" (cancelled)="mode.set('view')" />
+    } @else if (mode() === 'category') {
+      <label class="check-line"><input type="checkbox" [checked]="remember()" [disabled]="!txn().merchant" (change)="remember.set($any($event.target).checked)" />
+        <span>{{ txn().merchant ? i18n.t('tracker.d.remember', { name: txn().merchant! }) : i18n.t('tracker.d.rememberNone') }}</span></label>
+      <div class="cat-grid">
+        @for (c of categories; track c.code) {
+          <button type="button" class="cat-pick" [attr.aria-pressed]="txn().category === c.code" [disabled]="state.busy()" (click)="pick(c.code)">
+            <span class="av" [style.background]="c.color + '22'" aria-hidden="true">{{ c.emoji }}</span>{{ i18n.t('tracker.cat.' + c.code) }}
+          </button>
+        }
+      </div>
+      <button type="button" class="btn" (click)="mode.set('view')">{{ i18n.t('tracker.cancel') }}</button>
+    } @else {
+      <div class="d-hero">
+        <span class="av lg" [style.background]="cat().color + '22'" aria-hidden="true">{{ cat().emoji }}</span>
+        <div class="d-hero-txt">
+          <b>{{ state.title(txn()) }}</b>
+          <div class="row tight">
+            <span class="chip">{{ i18n.t('tracker.cat.' + txn().category) }}</span>
+            <span [class]="'chip ' + txn().status">{{ i18n.t('tracker.status.' + txn().status) }}</span>
+            @if (txn().edited) {
+              <span class="chip">{{ i18n.t('tracker.d.edited') }}</span>
+            }
+          </div>
+        </div>
+      </div>
+      <p [class]="'d-amt num ' + txn().type">{{ txn().type === 'debit' ? '−' : '+' }}{{ state.money(txn().amount) }}
+        <span class="chip">{{ i18n.t(txn().type === 'debit' ? 'tracker.d.debit' : 'tracker.d.credit') }}</span></p>
+
+      @switch (txn().status) {
+        @case ('pending') {
+          <p class="note warn-note"><svg stIco="alert" [size]="18"></svg>{{ txn().typeGuessed ? i18n.t('tracker.d.guessed') : i18n.t('tracker.d.unsure', { n: txn().confidence }) }}</p>
+        }
+        @case ('duplicate') {
+          <div class="note"><svg stIco="copies" [size]="18"></svg>
+            <span>{{ i18n.t('tracker.dup.' + txn().dupWhy, { ref: txn().ref ?? '' }) }}
+              @if (dupOf(); as o) {
+                <button type="button" class="link" (click)="state.open.set(o.id)">{{ i18n.t('tracker.d.matches', { name: state.title(o), date: state.date(o.at) }) }}</button>
+              }
+              {{ i18n.t('tracker.d.notCounted') }}</span>
+          </div>
+        }
+        @case ('ignored') {
+          <p class="note"><svg stIco="info" [size]="18"></svg>{{ i18n.t('tracker.d.ignoredNote') }}</p>
+        }
+      }
+
+      <div class="ai">
+        <p class="ai-h"><svg stIco="spark" [size]="16"></svg>{{ i18n.t(txn().edited ? 'tracker.d.descEdited' : 'tracker.d.descGen') }}</p>
+        <p>{{ state.describe(txn()) }}</p>
+        @if (txn().note) {
+          <p class="muted small">{{ i18n.t('tracker.d.note', { note: txn().note }) }}</p>
+        }
+      </div>
+
+      <dl class="kv">
+        <div><dt>{{ i18n.t('tracker.d.when') }}</dt><dd class="num">{{ state.date(txn().at) }} {{ state.time(txn().at) }}</dd></div>
+        <div><dt>{{ i18n.t('tracker.form.method') }}</dt><dd>{{ i18n.t('tracker.method.' + txn().method) }}</dd></div>
+        @if (txn().account) {
+          <div><dt>{{ i18n.t('tracker.d.account') }}</dt><dd class="num">{{ txn().account }}</dd></div>
+        }
+        @if (txn().ref) {
+          <div><dt>{{ i18n.t('tracker.d.ref') }}</dt><dd class="num">{{ txn().ref }}</dd></div>
+        }
+        <div><dt>{{ i18n.t('tracker.d.source') }}</dt><dd>{{ i18n.t(txn().source === 'sms' ? 'tracker.src.sms' : 'tracker.src.manual') }}</dd></div>
+        @if (txn().source === 'sms') {
+          <div class="conf"><dt>{{ i18n.t('tracker.d.confidence') }}</dt><dd><span class="meter" [class]="'meter ' + (txn().confidence >= 85 ? 'hi' : txn().confidence >= 65 ? 'mid' : 'lo')"><i [style.width.%]="txn().confidence"></i></span><b class="num">{{ txn().confidence }}%</b></dd></div>
+        }
+      </dl>
+
+      @if (txn().sms; as sms) {
+        <section class="sms-box" aria-labelledby="tr-sms-h">
+          <h3 id="tr-sms-h">{{ i18n.t('tracker.d.sms', { sender: sms.sender }) }}</h3>
+          <p>@for (p of smsParts(); track $index) {@if (p.mark) {<mark>{{ p.text }}</mark>} @else {<span>{{ p.text }}</span>}}</p>
+        </section>
+      } @else if (txn().source === 'sms') {
+        <p class="muted small">{{ i18n.t('tracker.d.smsDeleted') }}</p>
+      }
+
+      <div class="d-actions">
+        @if (txn().status === 'pending') {
+          <button type="button" class="btn pri" [disabled]="state.busy()" (click)="act('confirm')"><svg stIco="check" [size]="18"></svg>{{ i18n.t('tracker.confirm') }}</button>
+        }
+        @if (txn().status === 'duplicate') {
+          <button type="button" class="btn" [disabled]="state.busy()" (click)="act('not-duplicate')">{{ i18n.t('tracker.d.notDup') }}</button>
+        }
+        <button type="button" class="btn" (click)="mode.set('edit')"><svg stIco="edit" [size]="18"></svg>{{ i18n.t('tracker.edit') }}</button>
+        <button type="button" class="btn" (click)="mode.set('category')"><svg stIco="tag" [size]="18"></svg>{{ i18n.t('tracker.form.category') }}</button>
+        @if (txn().status === 'ignored') {
+          <button type="button" class="btn" [disabled]="state.busy()" (click)="act('restore')">{{ i18n.t('tracker.restore') }}</button>
+        } @else if (txn().status !== 'duplicate') {
+          <button type="button" class="btn" [disabled]="state.busy()" (click)="act('ignore')"><svg stIco="x" [size]="18"></svg>{{ i18n.t('tracker.ignore') }}</button>
+        }
+        <button type="button" class="btn danger" [disabled]="state.busy()" (click)="remove()"><svg stIco="trash" [size]="18"></svg>{{ i18n.t(sure() ? 'tracker.d.deleteSure' : 'tracker.delete') }}</button>
+      </div>
+    }
+  </div>
+</aside>

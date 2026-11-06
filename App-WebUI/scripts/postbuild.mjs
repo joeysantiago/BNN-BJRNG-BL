@@ -23,7 +23,7 @@ for (const code of installable) {
 }
 console.log(`created the app shells: ${installable.map((c) => '/apps/' + c + '/').join(', ')}`);
 
-const pages = ['', 'hi', 'ar', 'HR', 'creta', 'nexon', 'youtube', 'khata', 'tasks', 'kunal', 'preetik', 'about', 'privacy', 'terms', 'master', 'offline', 'error', 'login', 'signup', 'profile'];
+const pages = ['', 'hi', 'ar', 'HR', 'creta', 'nexon', 'youtube', 'khata', 'tasks', 'tracker', 'kunal', 'preetik', 'about', 'privacy', 'terms', 'master', 'offline', 'error', 'login', 'signup', 'profile'];
 const missing = pages.filter((p) => !existsSync(join(dist, p, 'index.html')));
 if (missing.length) {
   console.error('Missing prerendered pages: ' + missing.map((m) => '/' + m).join(', '));
@@ -74,6 +74,7 @@ const entries = [
   { path: '/youtube/', priority: '0.6' },
   { path: '/khata/', priority: '0.6' },
   { path: '/tasks/', priority: '0.6' },
+  { path: '/tracker/', priority: '0.6' },
   { path: '/kunal/', priority: '0.7' },
   { path: '/preetik/', priority: '0.6' },
   { path: '/login/', priority: '0.3' },

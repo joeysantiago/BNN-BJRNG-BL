@@ -1,6 +1,7 @@
 import { PageCode } from '../models/role.model';
 import { KhataDemoDb } from './khata-demo.model';
 import { TasksDemoDb } from './tasks-demo.model';
+import { TrackerDemoDb } from './tracker-demo.model';
 import { MailSetting } from '../models/mail.model';
 import { WhatsAppAccount } from '../../pages/config/whatsapp-card/whatsapp-card.model';
 import { SettingsOverrides } from '../models/app-settings.model';
@@ -124,6 +125,7 @@ export interface DemoDb {
   mail?: MailSetting[];
   khata?: KhataDemoDb;
   tasks?: TasksDemoDb;
+  tracker?: TrackerDemoDb;
   otp?: DemoOtp[];
   /** The codes that check a new sign-up (the OneTimeCodes rows with AppCode "signup" of the API branches). */
   signupCodes?: DemoOtp[];

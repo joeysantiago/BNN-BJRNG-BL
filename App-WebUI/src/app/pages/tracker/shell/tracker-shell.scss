@@ -1,0 +1,3 @@
+// The tokens, base and app frame of SnapTracker (_tracker-base, copied from My Tasks). The skins come with the top-bar menus (tracker-menus), the shared
+// controls and SnapTracker's own parts with the overlays (tracker-overlays), so each component stays within its style budget. Global under .st.
+@use '../styles/tracker-base';

@@ -74,7 +74,7 @@ export const AR: Translations = {
   'auth.na.p': 'لا يستطيع حسابك فتح هذا التطبيق بعد. اطلب من أحد المشرفين منحك الصلاحية.',
   'auth.na.cta': 'انتقل إلى ملفك الشخصي',
   'auth.app.khata': '{page:khata}',
-  'auth.app.tracker': 'المتتبّع',
+  'auth.app.tracker': '{page:tracker}',
   'auth.app.creta': '{page:creta}',
   'auth.app.nexon': '{page:nexon}',
   'auth.app.youtube': '{page:youtube}',

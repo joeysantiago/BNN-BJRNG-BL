@@ -34,6 +34,7 @@ export const APP_SETTINGS: AppSettings = {
     'page.terms': true,
     'page.khata': true,
     'page.tasks': true,
+    'page.tracker': true,
     'speed.clock': true,
     'speed.progress': true,
     'speed.loaded': true,
@@ -75,6 +76,7 @@ export const APP_SETTINGS: AppSettings = {
     khata: { en: 'SnapKhata', hi: 'स्नैपखाता', ar: 'سناب خاتا' },
     youtube: { en: 'YouTube player', hi: 'यूट्यूब प्लेयर', ar: 'مشغل يوتيوب' },
     tasks: { en: 'My Tasks', hi: 'मेरे कार्य', ar: 'مهامي' },
+    tracker: { en: 'SnapTracker', hi: 'स्नैपट्रैकर', ar: 'سناب تراكر' },
   },
 
   // "Your connection details". Set a row to false to hide it, or enabled to false to hide the whole section.

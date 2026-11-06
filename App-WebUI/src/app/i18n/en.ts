@@ -72,7 +72,7 @@ export const EN = {
   'auth.na.p': 'Your account cannot open this app yet. Ask an administrator to give you access.',
   'auth.na.cta': 'Go to your profile',
   'auth.app.khata': '{page:khata}',
-  'auth.app.tracker': 'Tracker',
+  'auth.app.tracker': '{page:tracker}',
   'auth.app.creta': '{page:creta}',
   'auth.app.nexon': '{page:nexon}',
   'auth.app.youtube': '{page:youtube}',

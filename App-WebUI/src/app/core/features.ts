@@ -27,6 +27,7 @@ export const FEATURES: FeatureInfo[] = [
   { id: 'page.terms', group: 'pages', label: 'Terms', help: '/terms' },
   { id: 'page.khata', group: 'pages', label: 'SnapKhata', help: '/khata and the whole SnapKhata app' },
   { id: 'page.tasks', group: 'pages', label: 'My Tasks', help: '/tasks and the whole My Tasks app' },
+  { id: 'page.tracker', group: 'pages', label: 'SnapTracker', help: '/tracker and the whole SnapTracker app' },
 
   { id: 'speed.clock', group: 'speed', label: 'Clock and elapsed time', help: 'The two chips under the gauge.' },
   { id: 'speed.progress', group: 'speed', label: 'Progress bar', help: 'Whole-test progress.' },
@@ -72,6 +73,7 @@ const PAGE_FEATURES: Record<string, FeatureId> = {
   '/terms': 'page.terms',
   '/khata': 'page.khata',
   '/tasks': 'page.tasks',
+  '/tracker': 'page.tracker',
 };
 
 /** The apps that own each app-only settings group and switch (FEATURE_APPS codes). Anything not listed is site-wide and always shown. */
@@ -87,6 +89,7 @@ const FEATURE_OWNERS: Partial<Record<FeatureGroup | FeatureId, string[]>> = {
   'page.hr': ['hr'],
   'page.khata': ['khata'],
   'page.tasks': ['tasks'],
+  'page.tracker': ['tracker'],
 };
 
 /** True when the setting is site-wide or belongs to one of the apps this build holds (FEATURE_APPS of feature-routes.ts). */
@@ -103,5 +106,5 @@ export function appFeatures(app: string): FeatureInfo[] {
 /** The switch that controls the page at this address, or null for pages that cannot be switched off (config, errors). Every SnapKhata screen follows page.khata, every My Tasks screen page.tasks. */
 export function pageFeature(url: string): FeatureId | null {
   const path = url.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
-  return PAGE_FEATURES[path] ?? (path.startsWith('/khata/') ? 'page.khata' : path.startsWith('/tasks/') ? 'page.tasks' : null);
+  return PAGE_FEATURES[path] ?? (path.startsWith('/khata/') ? 'page.khata' : path.startsWith('/tasks/') ? 'page.tasks' : path.startsWith('/tracker/') ? 'page.tracker' : null);
 }

@@ -1,0 +1,36 @@
+<form class="txn-form" #form (submit)="submit($event, form)" novalidate>
+  <div class="seg" role="group" [attr.aria-label]="i18n.t('tracker.form.type')">
+    <button type="button" [attr.aria-pressed]="shownType() === 'debit'" (click)="type.set('debit')">{{ i18n.t('tracker.form.debit') }}</button>
+    <button type="button" [attr.aria-pressed]="shownType() === 'credit'" (click)="type.set('credit')">{{ i18n.t('tracker.form.credit') }}</button>
+  </div>
+  <div class="grid2">
+    <label class="field"><span>{{ i18n.t('tracker.form.amount') }}</span><input class="in num" name="amount" inputmode="decimal" autocomplete="off" required [value]="initial()?.amount ?? ''" /></label>
+    <label class="field"><span>{{ i18n.t('tracker.form.merchant') }}</span><input class="in" name="merchant" maxlength="60" autocomplete="off" [value]="initial()?.merchant ?? ''" /></label>
+    <label class="field">
+      <span>{{ i18n.t('tracker.form.category') }}</span>
+      <select class="in" name="category">
+        @for (c of categories; track c.code) {
+          <option [value]="c.code" [selected]="(initial()?.category ?? 'other') === c.code">{{ c.emoji }} {{ i18n.t('tracker.cat.' + c.code) }}</option>
+        }
+      </select>
+    </label>
+    <label class="field">
+      <span>{{ i18n.t('tracker.form.method') }}</span>
+      <select class="in" name="method">
+        @for (m of methods; track m) {
+          <option [value]="m" [selected]="(initial()?.method ?? 'upi') === m">{{ i18n.t('tracker.method.' + m) }}</option>
+        }
+      </select>
+    </label>
+    <label class="field"><span>{{ i18n.t('tracker.form.date') }}</span><input class="in num" name="date" inputmode="numeric" placeholder="DD-MM-YYYY" autocomplete="off" [value]="start().date" /></label>
+    <label class="field"><span>{{ i18n.t('tracker.form.time') }}</span><input class="in num" name="time" type="time" [value]="start().time" /></label>
+  </div>
+  <label class="field"><span>{{ i18n.t('tracker.form.note') }}</span><input class="in" name="note" maxlength="300" autocomplete="off" [value]="initial()?.note ?? ''" /></label>
+  @if (bad()) {
+    <p class="note bad" role="alert"><svg stIco="alert" [size]="18"></svg>{{ i18n.t('tracker.form.bad') }}</p>
+  }
+  <div class="row end">
+    <button type="button" class="btn" (click)="cancelled.emit()">{{ i18n.t('tracker.cancel') }}</button>
+    <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t('tracker.save') }}</button>
+  </div>
+</form>

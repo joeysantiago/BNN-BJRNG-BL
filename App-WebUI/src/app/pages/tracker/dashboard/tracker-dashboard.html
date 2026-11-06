@@ -1,0 +1,146 @@
+<section class="page" aria-labelledby="tracker-h1">
+  <div class="head">
+    <div>
+      <p class="eyebrow">{{ greeting() }}</p>
+      <h1 id="tracker-h1">{{ i18n.t('tracker.dash.h1') }}</h1>
+    </div>
+    <button type="button" class="btn pri" (click)="state.addOpen.set(true)"><svg stIco="plus" [size]="18"></svg>{{ i18n.t('tracker.add') }}</button>
+  </div>
+
+  @if (state.data(); as d) {
+    @if (d.tracking.state === 'paused') {
+      <section class="card status-card" aria-labelledby="tr-sc-h">
+        <span class="s-ic warn"><svg stIco="pause"></svg></span>
+        <div class="s-body"><h2 id="tr-sc-h">{{ i18n.t('tracker.sc.pausedH') }}</h2><p class="muted">{{ i18n.t('tracker.sc.pausedP') }}</p></div>
+        <button type="button" class="btn pri" [disabled]="state.busy()" (click)="resume()"><svg stIco="play" [size]="18"></svg>{{ i18n.t('tracker.privacy.resume') }}</button>
+      </section>
+    } @else if (d.tracking.state === 'permission') {
+      <section class="card status-card" aria-labelledby="tr-sc-h">
+        <span class="s-ic"><svg stIco="sms"></svg></span>
+        <div class="s-body"><h2 id="tr-sc-h">{{ i18n.t('tracker.sc.offH') }}</h2><p class="muted">{{ i18n.t('tracker.sc.offP') }}</p></div>
+        <button type="button" class="btn pri" [disabled]="state.busy()" (click)="enable()"><svg stIco="shield" [size]="18"></svg>{{ i18n.t('tracker.privacy.turnOn') }}</button>
+      </section>
+    }
+
+    @if (!d.txns.length) {
+      <section class="card empty" aria-labelledby="tr-empty-h">
+        <span class="e-ic" aria-hidden="true">📭</span>
+        <h2 id="tr-empty-h">{{ i18n.t('tracker.empty.h') }}</h2>
+        <p class="muted">{{ i18n.t('tracker.empty.p') }}</p>
+        <div class="row center">
+          <button type="button" class="btn pri" (click)="state.addOpen.set(true)"><svg stIco="sms" [size]="18"></svg>{{ i18n.t('tracker.add.paste') }}</button>
+          <button type="button" class="btn" [disabled]="state.busy()" (click)="sample()"><svg stIco="layers" [size]="18"></svg>{{ i18n.t('tracker.demo.sample') }}</button>
+        </div>
+      </section>
+    } @else {
+      <div class="dash">
+        <section class="card hero span-2" aria-labelledby="tr-month-h">
+          <div class="row between">
+            <p class="eyebrow" id="tr-month-h">{{ i18n.t('tracker.dash.month', { month: monthName() }) }}</p>
+            @if (state.totals().delta !== null) {
+              <span class="chip"><svg [stIco]="state.totals().delta! > 0 ? 'up' : 'down'" [size]="14"></svg>{{ i18n.t('tracker.dash.delta', { n: abs(state.totals().delta!) }) }}</span>
+            }
+          </div>
+          <p class="big num">{{ state.money(round(state.totals().spent)) }}</p>
+          <div class="hero-stats">
+            <div>{{ i18n.t('tracker.dash.today') }}<b class="num">{{ state.money(round(state.totals().todaySpent)) }}</b></div>
+            <div>{{ i18n.t('tracker.dash.income') }}<b class="num">{{ state.money(round(state.totals().income)) }}</b></div>
+            <div>{{ i18n.t('tracker.dash.detected') }}<b class="num">{{ state.totals().detected }}</b></div>
+          </div>
+          <svg class="spark-line" viewBox="0 0 300 60" preserveAspectRatio="none" role="img" [attr.aria-label]="i18n.t('tracker.dash.lineLabel')"><polyline [attr.points]="line()" /></svg>
+        </section>
+
+        <a class="card kpi" routerLink="/tracker/app/transactions" [queryParams]="{ f: 'debit' }">
+          <span class="k-ic r"><svg stIco="down"></svg></span><span class="k-lbl">{{ i18n.t('tracker.kpi.expenses') }}</span>
+          <b class="num">{{ state.money(round(state.totals().autoDebits)) }}</b><small>{{ i18n.t('tracker.kpi.expensesSub', { n: state.totals().autoDebitCount }) }}</small>
+        </a>
+        <a class="card kpi" routerLink="/tracker/app/transactions" [queryParams]="{ f: 'credit' }">
+          <span class="k-ic g"><svg stIco="up"></svg></span><span class="k-lbl">{{ i18n.t('tracker.kpi.income') }}</span>
+          <b class="num">{{ state.money(round(state.totals().incomeAll)) }}</b><small>{{ i18n.t('tracker.kpi.incomeSub', { n: state.totals().incomeCount }) }}</small>
+        </a>
+        <a class="card kpi" routerLink="/tracker/app/transactions" [queryParams]="{ f: 'pending' }">
+          <span class="k-ic y"><svg stIco="alert"></svg></span><span class="k-lbl">{{ i18n.t('tracker.kpi.verify') }}</span>
+          <b class="num">{{ state.pending().length }}</b><small>{{ i18n.t(state.pending().length ? 'tracker.kpi.verifySub' : 'tracker.kpi.verifyNone') }}</small>
+        </a>
+        <a class="card kpi" routerLink="/tracker/app/transactions" [queryParams]="{ f: 'dup' }">
+          <span class="k-ic p"><svg stIco="copies"></svg></span><span class="k-lbl">{{ i18n.t('tracker.kpi.dups') }}</span>
+          <b class="num">{{ state.totals().dups }}</b><small>{{ i18n.t('tracker.kpi.dupsSub', { n: state.totals().ignoredOnPhone }) }}</small>
+        </a>
+
+        <section class="card span-2" aria-labelledby="tr-bars-h">
+          <div class="card-head">
+            <div><h2 id="tr-bars-h">{{ i18n.t('tracker.dash.monthly') }}</h2><p class="muted">{{ i18n.t('tracker.dash.monthlySub') }}</p></div>
+            <div class="legend"><span><i class="spent"></i>{{ i18n.t('tracker.dash.spent') }}</span><span><i class="income"></i>{{ i18n.t('tracker.dash.incomeShort') }}</span></div>
+          </div>
+          <svg class="bars" viewBox="0 0 600 200" role="img" [attr.aria-label]="i18n.t('tracker.dash.monthly')">
+            @for (b of bars(); track b.label) {
+              <g>
+                <title>{{ b.label }}: {{ b.title }}</title>
+                <rect class="spent" [attr.x]="b.x" [attr.y]="170 - b.spent" width="30" [attr.height]="b.spent" rx="6" />
+                <rect class="income" [attr.x]="b.x + 34" [attr.y]="170 - b.income" width="30" [attr.height]="b.income" rx="6" />
+                <text [attr.x]="b.x + 32" y="192" text-anchor="middle">{{ b.label }}</text>
+              </g>
+            }
+          </svg>
+        </section>
+
+        <section class="card span-2" aria-labelledby="tr-cat-h">
+          <div class="card-head"><div><h2 id="tr-cat-h">{{ i18n.t('tracker.dash.where') }}</h2><p class="muted">{{ i18n.t('tracker.dash.whereSub') }}</p></div></div>
+          @if (arcs().length) {
+            <div class="donut-wrap">
+              <svg class="donut" viewBox="0 0 42 42" role="img" [attr.aria-label]="i18n.t('tracker.dash.where')">
+                <circle class="donut-bg" cx="21" cy="21" r="15.915" />
+                @for (a of arcs(); track a.code) {
+                  <circle cx="21" cy="21" r="15.915" [attr.stroke]="a.color" [attr.stroke-dasharray]="a.dash" [attr.stroke-dashoffset]="a.offset" />
+                }
+              </svg>
+              <ul class="legend-list">
+                @for (a of arcs(); track a.code) {
+                  <li><i [style.background]="a.color"></i><span>{{ a.emoji }} {{ i18n.t('tracker.cat.' + a.code) }}</span><b class="num">{{ a.pct }}%</b></li>
+                }
+              </ul>
+            </div>
+          } @else {
+            <p class="muted">{{ i18n.t('tracker.dash.whereNone') }}</p>
+          }
+        </section>
+
+        <section class="card span-2" aria-labelledby="tr-q-h">
+          <div class="card-head">
+            <div><h2 id="tr-q-h">{{ i18n.t('tracker.dash.queue') }}</h2><p class="muted">{{ i18n.t('tracker.dash.queueSub') }}</p></div>
+            @if (state.pending().length) {
+              <a class="btn sm" routerLink="/tracker/app/transactions" [queryParams]="{ f: 'pending' }">{{ i18n.t('tracker.dash.seeAll', { n: state.pending().length }) }}</a>
+            }
+          </div>
+          @for (t of state.pending().slice(0, 4); track t.id) {
+            <div class="queue-item">
+              <span class="av" [style.background]="cat(t.category).color + '22'" aria-hidden="true">{{ cat(t.category).emoji }}</span>
+              <button type="button" class="q-main" (click)="state.open.set(t.id)"><b>{{ state.title(t) }}</b><span>{{ state.describe(t) }}</span></button>
+              <b class="num" [class]="t.type">{{ t.type === 'debit' ? '−' : '+' }}{{ state.money(t.amount) }}</b>
+              <button type="button" class="btn sm icon ok" [disabled]="state.busy()" [attr.aria-label]="i18n.t('tracker.confirmOne', { name: state.title(t) })" (click)="confirm(t.id)"><svg stIco="check"></svg></button>
+              <button type="button" class="btn sm icon" [disabled]="state.busy()" [attr.aria-label]="i18n.t('tracker.ignoreOne', { name: state.title(t) })" (click)="ignore(t.id)"><svg stIco="x"></svg></button>
+            </div>
+          } @empty {
+            <p class="muted">{{ i18n.t('tracker.dash.queueNone') }}</p>
+          }
+        </section>
+
+        <section class="card span-2" aria-labelledby="tr-rec-h">
+          <div class="card-head">
+            <div><h2 id="tr-rec-h">{{ i18n.t('tracker.dash.recent') }}</h2><p class="muted">{{ i18n.t('tracker.dash.recentSub') }}</p></div>
+            <a class="btn sm" routerLink="/tracker/app/transactions" [queryParams]="{ f: 'sms' }">{{ i18n.t('tracker.dash.viewAll') }}</a>
+          </div>
+          <ul class="tl">
+            @for (t of state.recent(); track t.id) {
+              <li><app-tracker-row [txn]="t" /></li>
+            } @empty {
+              <li class="muted">{{ i18n.t('tracker.dash.recentNone') }}</li>
+            }
+          </ul>
+        </section>
+      </div>
+    }
+  } @else if (!state.failed()) {
+    <div class="card empty"><p class="muted">{{ i18n.t('tracker.loading') }}</p></div>
+  }
+</section>

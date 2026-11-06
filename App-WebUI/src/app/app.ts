@@ -55,7 +55,7 @@ export class App {
   );
 
   /** The Atrium HR app, the portfolios and the My Tasks app (/tasks/app) are full screen and bring their own navigation, so the site header and footer are hidden there. */
-  protected readonly bare = computed(() => /^\/(HR|kunal|preetik|tasks\/app)(\/|$|[?#])/.test(this.url()));
+  protected readonly bare = computed(() => /^\/(HR|kunal|preetik|tasks\/app|tracker\/app)(\/|$|[?#])/.test(this.url()));
 
   constructor() {
     // Started with the page, so an installed app's own window (/apps/<code>/) points at its manifest before the browser reads it.
