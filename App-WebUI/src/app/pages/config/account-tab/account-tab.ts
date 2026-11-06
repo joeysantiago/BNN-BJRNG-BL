@@ -15,17 +15,17 @@ import { FeatureId, FeatureGroup } from '../../../core/models/app-settings.model
 /** The groups a user may switch off for themselves, and the apps that make them their own (none = every user). Same rule as the API (AuthService.OwnFeatureApps). */
 const OWN_GROUP_APPS: Partial<Record<FeatureGroup, string[]>> = { site: [], speed: [], youtube: ['youtube'], audio: ['creta', 'nexon'] };
 
-/**
- * The For me tab of the Settings page, for every user whose role may view it (the Standard User sees only this tab): the language, the skin, the password,
- * and which options of their own pages (the header, the speed test and the apps they can open) are shown to them. A switched-off option is hidden only for this user.
- */
-
 /** The icons of Light or dark: a moon, a sun and a screen (the paths of 24 x 24 line icons). */
 const MODE_ICONS: Record<string, string[]> = {
   dark: ['M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z'],
   light: ['M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z', 'M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41'],
   system: ['M4 4h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z', 'M8 20h8M12 16v4'],
 };
+
+/**
+ * The For me tab of the Settings page, for every user whose role may view it (the Standard User sees only this tab): the language, the skin, the password,
+ * and which options of their own pages (the header, the speed test and the apps they can open) are shown to them. A switched-off option is hidden only for this user.
+ */
 @Component({
   selector: 'app-account-tab',
   imports: [ChoiceGroup],
