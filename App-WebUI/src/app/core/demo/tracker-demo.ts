@@ -3,7 +3,7 @@ import { DemoDb, DemoUser } from './demo.model';
 import { TRACKER_DEMO_MESSAGES } from './tracker-demo-messages';
 import { TRACKER_ALERT_TYPES, TRACKER_CATEGORIES, TRACKER_METHODS, TRACKER_SENDERS } from '../tracker-meta';
 import { TrackerDemoDb, TrackerDemoResult, TrackerDemoUser, TrackerMerchantFound, TrackerParsed } from './tracker-demo.model';
-import { TrackerAlertType, TrackerApproval, TrackerData, TrackerMethod, TrackerSmsResult, TrackerStep, TrackerTxn, TrackerTxnRequest } from '../models/tracker.model';
+import { TrackerAlertType, TrackerApproval, TrackerData, TrackerImportResult, TrackerMethod, TrackerSmsResult, TrackerStep, TrackerTxn, TrackerTxnRequest } from '../models/tracker.model';
 
 export { TRACKER_DEMO_MESSAGES };
 
@@ -12,7 +12,7 @@ const MIN = 6e4;
 const HOUR = 36e5;
 const MON = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 /** The same values as Tracker in appsettings.json of the plan: the approval a new user starts with, the duplicate window and the limits. */
-const RULES = { approval: 'smart' as TrackerApproval, threshold: 85, duplicateMinutes: 10, maxSms: 1000, merchantLength: 60, noteLength: 300, maxAmount: 100000000 };
+const RULES = { approval: 'smart' as TrackerApproval, threshold: 85, duplicateMinutes: 10, maxSms: 1000, maxImportBatch: 200, merchantLength: 60, noteLength: 300, maxAmount: 100000000 };
 const SENDER_KIND: Record<string, string> = { T: 'transactional', S: 'service', P: 'promotional', G: 'government' };
 
 /** Merchant dictionary: pattern, display name, category, sub-kind used by the description (the TrackerMerchants seed rows of the plan). */
@@ -104,6 +104,8 @@ export class TrackerDemo {
         return { data: this.me.data };
       case 'POST /tracker/sms':
         return this.readSms(b);
+      case 'POST /tracker/sms/import':
+        return this.importSms(b);
       case 'POST /tracker/transactions':
         return this.addManual(b);
       case 'PUT /tracker/transactions/{id}':
@@ -410,6 +412,30 @@ export class TrackerDemo {
     return { amount, type, category, method, at: iso(at.getTime()), merchant, note };
   }
 
+  /**
+   * POST /tracker/sms/import: one batch of an SMS backup, oldest first. Each message keeps the date it was received; one imported before (the same text
+   * received at the same time) is only counted, so importing a backup again adds nothing. An import makes no alerts.
+   */
+  private importSms(b: Record<string, unknown>): TrackerDemoResult {
+    const list = Array.isArray(b['messages']) ? (b['messages'] as Record<string, unknown>[]) : [];
+    if (!list.length || list.length > RULES.maxImportBatch)
+      throw new DemoFailure(400, 'TRACKER_INVALID');
+    const result: TrackerImportResult = { already: 0, created: 0, skipped: 0, duplicates: 0 };
+    const sorted = list.map((m) => ({ sender: String(m['sender'] ?? '').trim(), body: String(m['body'] ?? '').replace(/\s+/g, ' ').trim(), at: ms(String(m['receivedAt'] ?? '')) })).sort((x, y) => x.at - y.at);
+    for (const m of sorted) {
+      if (!m.body || m.body.length > RULES.maxSms || !(m.at > 0) || m.at > Date.now() + DAY)
+        result.skipped++;
+      else if (this.me.data.txns.some((t) => t.sms?.body === m.body && ms(t.sms.receivedAt) === m.at))
+        result.already++;
+      else {
+        const outcome = this.process(m.sender, m.body, m.at, false).outcome;
+        result[outcome === 'created' ? 'created' : outcome === 'duplicate' ? 'duplicates' : 'skipped']++;
+      }
+    }
+    this.save();
+    return { data: { result, state: this.me.data } };
+  }
+
   private addManual(b: Record<string, unknown>): TrackerDemoResult {
     const r = this.checked(b);
     this.me.data.txns.push({ ...r, id: this.me.seq++, source: 'manual', typeGuessed: false, kind: null, account: null, ref: null, confidence: 100, status: 'confirmed', edited: false, dupOf: null, dupWhy: null, sms: null, createdAt: iso(Date.now()) });
@@ -493,7 +519,12 @@ export class TrackerDemo {
     return { at: Math.min(d.getTime(), receivedAt), found: true };
   }
 
-  private process(sender: string, body: string, receivedAt: number): TrackerSmsResult {
+  private setStatus(id: number, status: 'confirmed' | 'ignored', code: string): TrackerDemoResult {
+    this.txn(id).status = status;
+    return this.done(code);
+  }
+
+  private process(sender: string, body: string, receivedAt: number, alerts = true): TrackerSmsResult {
     const D = this.me.data;
     const steps: TrackerStep[] = [];
     const st = (where: 'phone' | 'server', key: string, ok: boolean, args: Record<string, string | number> = {}) => steps.push({ where, key, ok, args });
@@ -502,7 +533,7 @@ export class TrackerDemo {
         D.filtered[counter]++;
       return { outcome: 'skipped', reason, steps, txn: null };
     };
-    const m = /^[A-Z]{2}-([A-Z0-9]{6})(?:-([TSPG]))?$/i.exec(sender);
+    const m = /^(?:[A-Z]{2}-)?([A-Z0-9]{6})(?:-([TSPG]))?$/i.exec(sender);
     const code = m?.[1].toUpperCase() ?? '';
     const kind = (m?.[2] ?? 'T').toUpperCase();
     if (!m || !TRACKER_SENDERS[code]) {
@@ -552,17 +583,14 @@ export class TrackerDemo {
     }
     D.txns.push(t);
     st('server', 'save', true, { status: t.status, confidence: t.confidence });
+    if (!alerts)
+      return { outcome: t.status === 'duplicate' ? 'duplicate' : 'created', reason: null, txn: t, steps };
     this.notify(t.status === 'duplicate' ? 'duplicate' : 'newTx', t);
     if (t.status === 'auto')
       this.notify('categorized', t);
     if (t.status === 'pending')
       this.notify('verify', t);
     return { outcome: t.status === 'duplicate' ? 'duplicate' : 'created', reason: null, txn: t, steps };
-  }
-
-  private setStatus(id: number, status: 'confirmed' | 'ignored', code: string): TrackerDemoResult {
-    this.txn(id).status = status;
-    return this.done(code);
   }
 
   private extractMerchant(b: string, type: 'debit' | 'credit', method: TrackerMethod): TrackerMerchantFound {

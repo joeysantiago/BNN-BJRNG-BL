@@ -1,7 +1,7 @@
 <fieldset class="choice" [disabled]="disabled()">
   <legend class="sr-only">{{ label() }}</legend>
   @for (o of options(); track o.value) {
-    <label>
+    <label [attr.title]="iconOnly() && o.icon ? o.label : null">
       <input type="radio" [name]="name()" [value]="o.value" [checked]="o.value === value()" (change)="picked.emit(o.value)" />
       <span>
         @if (o.icon) {
@@ -11,7 +11,11 @@
             }
           </svg>
         }
-        {{ o.label }}
+        @if (iconOnly() && o.icon) {
+          <span class="sr-only">{{ o.label }}</span>
+        } @else {
+          {{ o.label }}
+        }
       </span>
     </label>
   }

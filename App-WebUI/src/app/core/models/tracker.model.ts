@@ -41,6 +41,27 @@ export interface TrackerSmsResult {
   outcome: 'created' | 'duplicate' | 'skipped';
 }
 
+/** What the SMS backup file held: how many messages, and the received bank and UPI ones to import (oldest first). */
+export interface TrackerBackup {
+  total: number;
+  messages: TrackerImportSms[];
+}
+
+/** One received message of an SMS backup, as sent to POST /tracker/sms/import. */
+export interface TrackerImportSms {
+  body: string;
+  sender: string;
+  receivedAt: string;
+}
+
+/** What one import batch gave (the Add sheet adds the batches up): new transactions, duplicates, ignored messages and ones imported before. */
+export interface TrackerImportResult {
+  already: number;
+  created: number;
+  skipped: number;
+  duplicates: number;
+}
+
 /** The original SMS of a transaction; marks are the parts the reader used (amount, merchant, account, reference). */
 export interface TrackerSms {
   body: string;

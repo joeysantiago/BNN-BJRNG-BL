@@ -1,7 +1,7 @@
 import { ApiService } from './api.service';
 import { I18nService } from './i18n.service';
 import { Injectable, inject } from '@angular/core';
-import { TrackerData, TrackerSettings, TrackerSmsResult, TrackerTxnRequest } from './models/tracker.model';
+import { TrackerData, TrackerImportResult, TrackerImportSms, TrackerSettings, TrackerSmsResult, TrackerTxnRequest } from './models/tracker.model';
 
 const TIMEOUT = 30000;
 
@@ -61,6 +61,11 @@ export class TrackerApiService {
   /** Reads one bank or UPI SMS; the answer says what happened at each step. */
   readSms(sender: string, body: string): Promise<{ result: TrackerSmsResult; state: TrackerData }> {
     return this.api.send<{ result: TrackerSmsResult; state: TrackerData }>('POST', '/tracker/sms', this.init({ sender, body }), TIMEOUT);
+  }
+
+  /** Imports one batch of received bank and UPI messages of an SMS backup; each keeps the date it was received. */
+  importSms(messages: TrackerImportSms[]): Promise<{ result: TrackerImportResult; state: TrackerData }> {
+    return this.api.send<{ result: TrackerImportResult; state: TrackerData }>('POST', '/tracker/sms/import', this.init({ messages }), TIMEOUT);
   }
 
   category(id: number, category: string, remember: boolean): Promise<{ text: string; data: TrackerData }> {
