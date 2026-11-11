@@ -1,0 +1,22 @@
+name: API
+on:
+  push:
+    branches: [banni-linux]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Publish
+        run: dotnet publish App-WebAPI/Thakurg/Thakurg.API/Thakurg.API.csproj -c Release -o publish
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: qa-thakurg
+          publish-profile: ${{ secrets.AZURE_API_QA_PUBLISH_PROFILE }}
+          package: publish
