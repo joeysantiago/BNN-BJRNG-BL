@@ -75,16 +75,9 @@ public abstract class SqlServerProvisionerBase : IDatabaseProvisioner
         await using var createCommand = connection.CreateCommand();
         createCommand.CommandText = $"CREATE DATABASE [{QuoteName(databaseName)}]";
         await createCommand.ExecuteNonQueryAsync(cancellationToken);
-
-        await WaitUntilOnlineAsync(connection, databaseName, cancellationToken);
     }
 
     protected abstract Task DropDatabaseAsync(SqlConnection connection, string quotedName, CancellationToken cancellationToken);
-
-    protected virtual Task WaitUntilOnlineAsync(SqlConnection connection, string databaseName, CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
 
     #endregion
 }

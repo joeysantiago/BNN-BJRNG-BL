@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-var providerOptions = builder.Configuration.GetSection(DatabaseProviderOptions.SectionName).Get<DatabaseProviderOptions>() ?? new DatabaseProviderOptions();
+var providerOptions = builder.Configuration.GetSection(DatabaseProviderOptions.SectionName).Get<DatabaseProviderOptions>() ?? throw new InvalidOperationException($"The {DatabaseProviderOptions.SectionName} section is missing from appsettings.json.");
 
 if (providerOptions.UseLocalServer == providerOptions.UseAzureSqlServer)
     throw new InvalidOperationException($"Exactly one of {DatabaseProviderOptions.SectionName}:UseLocalServer or {DatabaseProviderOptions.SectionName}:UseAzureSqlServer must be true.");
