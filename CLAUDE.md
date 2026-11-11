@@ -10,7 +10,7 @@ Follow these rules whenever writing or modifying code in this repo. They are con
 
 **Repo layout:** `App-Database` (DatabaseInitializer), `App-WebAPI` (`Thakurg` solution), `App-WebUI` (Angular app — run `npm` / `ng` commands and find `scripts/`, `public/`, `src/` there), `App-Data` (runtime files, git-ignored except the music folders `creta/` and `nexon/`, whose songs are committed; audio lives here per player folder, served by the API in packets; `khata/` holds private bills and must stay ignored), `App-Prototype`, `App-Document` (the rule documents). Paths in the rules below that start with `src/`, `scripts/` or `public/` are relative to `App-WebUI`.
 
-**Branches and folders:** read `App-Document/branch-guide.md` first. It covers base `matrix` → `Features/App/*` → final `banni-linux`, the folder for each branch, where to make a change, and the merge order. Full rules: `App-Document/branch-architecture.md`.
+**Branches and folders:** read `App-Document/branch-guide.md` first. It covers base `Matrix` → `Features/App/*` → final `banni-linux`, the folder for each branch, where to make a change, and the merge order. Full rules: `App-Document/branch-architecture.md`.
 
 **Global exclusions:** skip `*.spec.ts` for UI ordering/import rules; skip auto-generated code (`bin`, `obj`, `Migrations`).
 **Global principle:** formatting/refactor rules are *pure* changes — never alter names, types, logic, values or behaviour. Build / type-check afterwards (`ng build` for UI, build the API projects for backend).
