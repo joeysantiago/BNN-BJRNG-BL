@@ -20,7 +20,7 @@ public sealed class ConsoleSeederConfirmation : ISeederConfirmation
 
     #region Public Methods
 
-    public bool Confirm(IDatabaseSeeder seeder)
+    public bool Confirm(IDatabaseSeeder seeder, string databaseName)
     {
         if (!string.IsNullOrWhiteSpace(_apps))
             return IsListed(_apps, seeder.Database);
@@ -31,7 +31,7 @@ public sealed class ConsoleSeederConfirmation : ISeederConfirmation
             return false;
         }
 
-        Console.Write($"Create the {seeder.Database} app database objects in '{seeder.DatabaseName}'? [y/N]: ");
+        Console.Write($"Create the {seeder.Database} app database objects in '{databaseName}'? [y/N]: ");
         var answer = Console.ReadLine()?.Trim();
         return string.Equals(answer, "y", StringComparison.OrdinalIgnoreCase) || string.Equals(answer, "yes", StringComparison.OrdinalIgnoreCase);
     }

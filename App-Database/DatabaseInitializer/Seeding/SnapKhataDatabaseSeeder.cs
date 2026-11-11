@@ -6,8 +6,6 @@ public sealed class SnapKhataDatabaseSeeder : IDatabaseSeeder
 {
     public string Database => "SnapKhata";
 
-    public string DatabaseName => "thakurg-meta";
-
     private readonly ISqlScriptRunner _scriptRunner;
 
     public SnapKhataDatabaseSeeder(ISqlScriptRunner scriptRunner)

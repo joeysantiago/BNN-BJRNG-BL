@@ -6,8 +6,6 @@ public sealed class MusicDatabaseSeeder : IDatabaseSeeder
 {
     public string Database => "Music";
 
-    public string DatabaseName => "thakurg-meta";
-
     private readonly ISqlScriptRunner _scriptRunner;
 
     public MusicDatabaseSeeder(ISqlScriptRunner scriptRunner)

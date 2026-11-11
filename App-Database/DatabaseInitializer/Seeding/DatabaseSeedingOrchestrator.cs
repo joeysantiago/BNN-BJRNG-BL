@@ -1,4 +1,5 @@
 using DatabaseInitializer.Providers;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -32,7 +33,10 @@ public sealed class DatabaseSeedingOrchestrator : IDatabaseSeedingOrchestrator
     {
         _logger.LogInformation("Initializing databases on {Provider}", _provisioner.Name);
 
-        var selected = SelectSeeders();
+        var connectionString = _provisioner.GetConnectionString(_configuration);
+        var databaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
+
+        var selected = SelectSeeders(databaseName);
         if (selected.Count == 0)
         {
             _logger.LogInformation("No app was confirmed, nothing to do.");
@@ -40,12 +44,11 @@ public sealed class DatabaseSeedingOrchestrator : IDatabaseSeedingOrchestrator
         }
 
         var scriptsRootPath = Path.Combine(AppContext.BaseDirectory, "SqlScripts");
-        var connectionString = _provisioner.GetConnectionString(_configuration);
         await _provisioner.EnsureDatabaseReadyAsync(connectionString, cancellationToken);
 
         foreach (var seeder in selected)
         {
-            _logger.LogInformation("Running {App} SQL scripts on {DatabaseName}...", seeder.Database, seeder.DatabaseName);
+            _logger.LogInformation("Running {App} SQL scripts on {DatabaseName}...", seeder.Database, databaseName);
             await seeder.RunAsync(connectionString, scriptsRootPath, cancellationToken);
         }
 
@@ -56,13 +59,13 @@ public sealed class DatabaseSeedingOrchestrator : IDatabaseSeedingOrchestrator
 
     #region Private Methods
 
-    private List<IDatabaseSeeder> SelectSeeders()
+    private List<IDatabaseSeeder> SelectSeeders(string databaseName)
     {
         var selected = new List<IDatabaseSeeder>();
 
         foreach (var seeder in _seeders)
         {
-            if (_confirmation.Confirm(seeder))
+            if (_confirmation.Confirm(seeder, databaseName))
             {
                 selected.Add(seeder);
             }

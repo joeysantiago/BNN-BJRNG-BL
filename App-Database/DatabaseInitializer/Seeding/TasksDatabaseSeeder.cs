@@ -7,8 +7,6 @@ public sealed class TasksDatabaseSeeder : IDatabaseSeeder
 {
     public string Database => "Tasks";
 
-    public string DatabaseName => "thakurg-meta";
-
     private readonly ISqlScriptRunner _scriptRunner;
 
     public TasksDatabaseSeeder(ISqlScriptRunner scriptRunner)

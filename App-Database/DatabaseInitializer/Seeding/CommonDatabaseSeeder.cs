@@ -6,8 +6,6 @@ public sealed class CommonDatabaseSeeder : IDatabaseSeeder
 {
     public string Database => "Common";
 
-    public string DatabaseName => "thakurg-meta";
-
     private readonly ISqlScriptRunner _scriptRunner;
 
     public CommonDatabaseSeeder(ISqlScriptRunner scriptRunner)

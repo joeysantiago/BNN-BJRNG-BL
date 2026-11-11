@@ -2,5 +2,5 @@ namespace DatabaseInitializer.Seeding;
 
 public interface ISeederConfirmation
 {
-    bool Confirm(IDatabaseSeeder seeder);
+    bool Confirm(IDatabaseSeeder seeder, string databaseName);
 }
