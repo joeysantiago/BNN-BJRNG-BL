@@ -9,7 +9,7 @@ using Thakurg.Infrastructure.Security;
 
 namespace Thakurg.API.Controllers;
 
-// Settings > Keys > File storage: where every app keeps its files (the App-Data folder or the Azure Blob container), and the copy of every file from
+// Settings > General > File storage: where every app keeps its files (the App-Data folder or the Azure Blob container), and the copy of every file from
 // one store to the other ({target} = local or azure). Only a super admin who logged in with the password may see or change it.
 [ApiController]
 [Route("api/admin/storage")]

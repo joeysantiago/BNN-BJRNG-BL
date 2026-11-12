@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Messages;
 
-// File storage (Settings > Keys). Each code is a row of Common/001_Messages.sql.
+// File storage (Settings > General). Each code is a row of Common/001_Messages.sql.
 public static partial class MessageCodes
 {
     public const string StorageSaved = "STORAGE_SAVED";
