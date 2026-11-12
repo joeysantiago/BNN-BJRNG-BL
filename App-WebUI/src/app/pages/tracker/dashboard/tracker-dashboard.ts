@@ -3,6 +3,7 @@ import { I18nService } from '../../../core/i18n.service';
 import { TrackerRow } from '../ui/tracker-row/tracker-row';
 import { trackerCategory } from '../../../core/tracker-meta';
 import { TrackerIcon } from '../ui/tracker-icon/tracker-icon';
+import { TrackerPhoneService } from '../../../core/tracker-phone.service';
 import { TrackerStateService } from '../../../core/tracker-state.service';
 import { Component, ViewEncapsulation, computed, inject } from '@angular/core';
 
@@ -21,6 +22,7 @@ import { Component, ViewEncapsulation, computed, inject } from '@angular/core';
 export class TrackerDashboard {
   protected readonly cat = trackerCategory;
   protected readonly i18n = inject(I18nService);
+  private readonly phone = inject(TrackerPhoneService);
   protected readonly state = inject(TrackerStateService);
   /** "November 2026", in the user's language. */
   protected readonly monthName = computed(() => new Intl.DateTimeFormat(this.locale(), { month: 'long', year: 'numeric' }).format(new Date()));
@@ -54,12 +56,13 @@ export class TrackerDashboard {
 
   // #region Public Methods
 
+  /** In the Android app this first shows the notice and Android's SMS permission popup. */
   enable(): void {
-    void this.state.run(() => this.state.api.tracking('enable'));
+    void this.phone.tracking('enable');
   }
 
   resume(): void {
-    void this.state.run(() => this.state.api.tracking('resume'));
+    void this.phone.tracking('resume');
   }
 
   abs(n: number): number {

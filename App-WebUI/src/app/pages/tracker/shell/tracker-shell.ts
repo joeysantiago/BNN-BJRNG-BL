@@ -10,6 +10,7 @@ import { TrackerIcon } from '../ui/tracker-icon/tracker-icon';
 import { TrackerMenus } from '../ui/tracker-menus/tracker-menus';
 import { TrackerNavItem } from '../../../core/models/tracker.model';
 import { TrackerDrawer } from '../ui/tracker-drawer/tracker-drawer';
+import { TrackerPhoneService } from '../../../core/tracker-phone.service';
 import { TrackerStateService } from '../../../core/tracker-state.service';
 import { TrackerOverlays } from '../ui/tracker-overlays/tracker-overlays';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
@@ -34,6 +35,7 @@ export class TrackerShell {
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
   protected readonly theme = inject(ThemeService);
+  private readonly phone = inject(TrackerPhoneService);
   protected readonly state = inject(TrackerStateService);
   protected readonly appName = computed(() => this.i18n.page('tracker'));
   protected readonly crumb = computed(() => this.i18n.t('tracker.nav.' + (this.screen() || 'home')));
@@ -51,7 +53,8 @@ export class TrackerShell {
 
   constructor() {
     effect(() => this.title.setTitle(`${this.crumb()} · ${this.appName()}`));
-    afterNextRender(() => void this.state.load());
+    // In the Android app the phone's bank SMS are sent once the data is in (TrackerPhoneService).
+    afterNextRender(() => void this.state.load().then(() => this.phone.start()));
   }
 
   // #region Public Methods

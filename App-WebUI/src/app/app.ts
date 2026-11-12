@@ -9,6 +9,7 @@ import { ThemeService } from './core/theme.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AppPwaService } from './core/app-pwa.service';
 import { SettingsService } from './core/settings.service';
+import { NativeBackService } from './core/native-back.service';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Component, afterNextRender, computed, effect, inject } from '@angular/core';
 
@@ -25,6 +26,7 @@ export class App {
   private readonly theme = inject(ThemeService);
   protected readonly i18n = inject(I18nService);
   private readonly cfg = inject(SettingsService);
+  private readonly back = inject(NativeBackService);
 
   /** The Atrium HR app, SnapKhata (its public page /khata and the app /khata/app), the My Tasks app (/tasks/app) and the SnapTracker app (/tracker/app) bring their own navigation, so the site header and footer are hidden there. */
   protected readonly bare = computed(() => /^\/(HR|khata|tasks\/app|tracker\/app)(\/|$|[?#])/.test(this.url()));
@@ -49,6 +51,8 @@ export class App {
     afterNextRender(() => {
       // Applied after hydration so the prerendered HTML and the first client render match.
       this.theme.restore();
+      // In the Android app the back button closes what is open on top before it goes to the previous page.
+      this.back.start();
       // Restore a login from the refresh cookie (or another open tab) once per page load. Guards wait for the same answer.
       void this.auth.ensureSession();
       const stored = this.i18n.stored();

@@ -13,6 +13,9 @@ export type TrackerApproval = 'review' | 'smart' | 'auto';
 /** SMS reading on the phone: not allowed yet, on, or paused (allowed, but not reading). */
 export type TrackingState = 'permission' | 'enabled' | 'paused';
 
+/** Turn SMS reading on, pause it, resume it or turn it off (POST /tracker/tracking/{action}, and in the Android app the phone too). */
+export type TrackerTrackingAction = 'enable' | 'pause' | 'resume' | 'revoke';
+
 /** The lists of the Activity screen. */
 export type TrackerFilter = 'all' | 'sms' | 'manual' | 'pending' | 'credit' | 'debit' | 'dup' | 'ignored';
 

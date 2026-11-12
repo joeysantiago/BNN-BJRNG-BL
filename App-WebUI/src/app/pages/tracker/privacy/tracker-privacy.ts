@@ -2,7 +2,9 @@ import { RouterLink } from '@angular/router';
 import { I18nService } from '../../../core/i18n.service';
 import { TRACKER_SENDERS } from '../../../core/tracker-meta';
 import { TrackerIcon } from '../ui/tracker-icon/tracker-icon';
+import { TrackerPhoneService } from '../../../core/tracker-phone.service';
 import { TrackerStateService } from '../../../core/tracker-state.service';
+import { TrackerTrackingAction } from '../../../core/models/tracker.model';
 import { Component, ViewEncapsulation, computed, inject } from '@angular/core';
 
 /**
@@ -19,6 +21,7 @@ import { Component, ViewEncapsulation, computed, inject } from '@angular/core';
 
 export class TrackerPrivacy {
   protected readonly i18n = inject(I18nService);
+  private readonly phone = inject(TrackerPhoneService);
   protected readonly read = ['sender', 'details', 'txn'];
   protected readonly state = inject(TrackerStateService);
   protected readonly never = ['otp', 'personal', 'promo', 'other', 'inbox'];
@@ -27,8 +30,9 @@ export class TrackerPrivacy {
 
   // #region Public Methods
 
-  tracking(action: 'enable' | 'pause' | 'resume' | 'revoke'): void {
-    void this.state.run(() => this.state.api.tracking(action));
+  /** In the Android app the phone changes first (turning on shows the notice and Android's SMS permission popup). */
+  tracking(action: TrackerTrackingAction): void {
+    void this.phone.tracking(action);
   }
 
   // #endregion
