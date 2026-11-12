@@ -126,7 +126,8 @@ There is one Settings page (`/master`) and one Profile page (`/profile`) for eve
   - the app's name, which only a super admin can rename (`PUT api/settings/app-names/{page}`, global in `PageNames`)
   - the app's site switches
   - the panel the app registers in `FEATURE_SETTINGS`
-- **Keys tab:** the site's mail server, WhatsApp and quick logins (super admin with a password login).
+- **General tab** also holds File storage (super admin with a password login): where every app keeps its files, local or Azure Blob.
+- **Keys tab:** the site's mail server, WhatsApp, the YouTube API key (where the YouTube player is built) and quick logins (super admin with a password login).
 - **Links from inside an app:** `/master?tab=general&app=<code>` opens that app's section, and `/profile` opens the profile.
 - **New app setting:** add a panel component in the app's folder and list it in `FEATURE_SETTINGS` on that app's branch. Never add a settings page to the app.
 
