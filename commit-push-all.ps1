@@ -5,9 +5,9 @@
 .DESCRIPTION
     Run it from any branch folder (or double-click commit-push-all.bat).
 
-    1. Finds every worktree of this repository: banni-linux, Matrix, every Features/App/* branch and Mojito
-       (see App-Document/branch-guide.md). A folder that was renamed (a "prunable" worktree) is still found
-       by looking inside the thakurg-branches folder.
+    1. Finds every worktree or clone of this repository: banni-linux, Matrix, every Features/App/* branch and Mojito
+       (see App-Document/branch-guide.md). Folders are found in thakurg (banni-linux) and inside thakurg-branches, as git
+       worktrees or as separate clones of the same GitHub repository.
     2. Lists, per branch, the modified / added / deleted / renamed / new files, and any commits that are
        committed but not yet pushed.
     3. Lets you pick the branches (Enter = all), asks for one generic commit message and a final y/N.
@@ -74,13 +74,27 @@ if (-not $commonDir) {
     exit 1
 }
 $commonDir = Get-NormalPath $commonDir
-$mainFolder = Split-Path $commonDir -Parent
-$branchesFolder = Join-Path (Split-Path $mainFolder -Parent) 'thakurg-branches'
+
+# The same GitHub repository, written one way, so a separate clone of it counts as one of the branch folders.
+function Get-RemoteKey([string]$Path) {
+    $url = (& git -C $Path remote get-url origin 2>$null) | Select-Object -First 1
+    if (-not $url) { return '' }
+    return $url.Trim().TrimEnd('/').ToLowerInvariant() -replace '\.git$', ''
+}
+
+# Layout: <root>\thakurg (banni-linux) and <root>\thakurg-branches\<one folder per branch>. Each folder may be a worktree or its own clone.
+$hereFolder = (& git -C $PSScriptRoot rev-parse --show-toplevel 2>$null).Replace('/', '\')
+$hereParent = Split-Path $hereFolder -Parent
+if ((Split-Path $hereParent -Leaf) -ieq 'thakurg-branches') { $rootFolder = Split-Path $hereParent -Parent } else { $rootFolder = $hereParent }
+$mainFolder = Join-Path $rootFolder 'thakurg'
+$branchesFolder = Join-Path $rootFolder 'thakurg-branches'
+$remoteKey = Get-RemoteKey $hereFolder
 
 $candidates = New-Object System.Collections.Generic.List[string]
 foreach ($line in (& git -C $PSScriptRoot worktree list --porcelain 2>$null)) {
     if ($line -like 'worktree *') { $candidates.Add($line.Substring(9)) }
 }
+$candidates.Add($hereFolder)
 $candidates.Add($mainFolder)
 if (Test-Path $branchesFolder) {
     Get-ChildItem $branchesFolder -Directory | ForEach-Object { $candidates.Add($_.FullName) }
@@ -93,7 +107,9 @@ foreach ($candidate in $candidates) {
     $top = (& git -C $candidate rev-parse --show-toplevel 2>$null)
     $common = (& git -C $candidate rev-parse --path-format=absolute --git-common-dir 2>$null)
     if (-not $top -or -not $common) { continue }
-    if ((Get-NormalPath $common) -ne $commonDir) { continue }
+    $sameRepo = (Get-NormalPath $common) -eq $commonDir
+    if (-not $sameRepo -and $remoteKey) { $sameRepo = (Get-RemoteKey $top) -eq $remoteKey }
+    if (-not $sameRepo) { continue }
     $key = Get-NormalPath $top
     if ($seen.ContainsKey($key)) { continue }
     $seen[$key] = $true
