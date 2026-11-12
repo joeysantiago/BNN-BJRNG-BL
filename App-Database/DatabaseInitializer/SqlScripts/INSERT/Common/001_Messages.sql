@@ -792,26 +792,6 @@ BEGIN
             "hi": "आपका हिसाब बराबर है।",
             "ar": "رصيدك مُسدَّد."
         }'),
-        ('KHATA_STORAGE_SAVED', N'{
-            "en": "Storage settings were saved.",
-            "hi": "स्टोरेज सेटिंग्स सहेज ली गईं।",
-            "ar": "تم حفظ إعدادات التخزين."
-        }'),
-        ('KHATA_STORAGE_INVALID', N'{
-            "en": "Choose local or Azure storage. Azure needs a valid account name, a container name (3 to 63 lowercase letters, digits or hyphens) and a connection string or account key.",
-            "hi": "लोकल या Azure स्टोरेज चुनें। Azure के लिए मान्य अकाउंट नाम, कंटेनर नाम (3 से 63 छोटे अक्षर, अंक या हाइफ़न) और कनेक्शन स्ट्रिंग या अकाउंट की चाहिए।",
-            "ar": "اختر التخزين المحلي أو Azure. يحتاج Azure إلى اسم حساب صالح واسم حاوية (من 3 إلى 63 حرفًا صغيرًا أو رقمًا أو شرطة) وسلسلة اتصال أو مفتاح الحساب."
-        }'),
-        ('KHATA_STORAGE_REACHABLE', N'{
-            "en": "The storage container was reached.",
-            "hi": "स्टोरेज कंटेनर तक पहुँच हो गई।",
-            "ar": "تم الوصول إلى حاوية التخزين."
-        }'),
-        ('KHATA_STORAGE_UNREACHABLE', N'{
-            "en": "The storage container could not be reached. Check the connection string and the container name.",
-            "hi": "स्टोरेज कंटेनर तक नहीं पहुँचा जा सका। कनेक्शन स्ट्रिंग और कंटेनर का नाम जाँचें।",
-            "ar": "تعذّر الوصول إلى حاوية التخزين. تحقق من سلسلة الاتصال واسم الحاوية."
-        }'),
         ('KHATA_EXPORT_DATE', N'{
             "en": "Date",
             "hi": "तारीख",
@@ -966,6 +946,36 @@ BEGIN
             "en": "Enter a valid mobile number, for example +91 98765 43210.",
             "hi": "सही मोबाइल नंबर लिखें, जैसे +91 98765 43210।",
             "ar": "أدخل رقم جوال صالحًا، مثل +91 98765 43210."
+        }'),
+        ('STORAGE_SAVED', N'{
+            "en": "File storage saved. Every app now reads and saves its files there.",
+            "hi": "फ़ाइल स्टोरेज सहेज लिया गया। अब हर ऐप अपनी फ़ाइलें वहीं से पढ़ता और वहीं सहेजता है।",
+            "ar": "تم حفظ تخزين الملفات. كل تطبيق يقرأ ملفاته ويحفظها هناك الآن."
+        }'),
+        ('STORAGE_INVALID', N'{
+            "en": "Choose local files or Azure Blob storage.",
+            "hi": "लोकल फ़ाइलें या Azure Blob स्टोरेज चुनें।",
+            "ar": "اختر الملفات المحلية أو تخزين Azure Blob."
+        }'),
+        ('STORAGE_NOT_CONFIGURED', N'{
+            "en": "Azure Blob storage is not set up on this server: the AzureStorageConnectionString setting is missing.",
+            "hi": "इस सर्वर पर Azure Blob स्टोरेज सेट नहीं है: AzureStorageConnectionString सेटिंग मौजूद नहीं है।",
+            "ar": "تخزين Azure Blob غير مُعدّ على هذا الخادم: الإعداد AzureStorageConnectionString غير موجود."
+        }'),
+        ('STORAGE_REACHABLE', N'{
+            "en": "The file storage was reached.",
+            "hi": "फ़ाइल स्टोरेज तक पहुँच हो गई।",
+            "ar": "تم الوصول إلى تخزين الملفات."
+        }'),
+        ('STORAGE_UNREACHABLE', N'{
+            "en": "The file storage could not be reached. Check the connection string and the container.",
+            "hi": "फ़ाइल स्टोरेज तक नहीं पहुँचा जा सका। कनेक्शन स्ट्रिंग और कंटेनर जाँचें।",
+            "ar": "تعذّر الوصول إلى تخزين الملفات. تحقق من سلسلة الاتصال والحاوية."
+        }'),
+        ('STORAGE_COPIED', N'{
+            "en": "{0} files copied, {1} were already there.",
+            "hi": "{0} फ़ाइलें कॉपी हुईं, {1} पहले से मौजूद थीं।",
+            "ar": "تم نسخ {0} ملفًا، و{1} كانت موجودة بالفعل."
         }'),
         ('AUTH_EMAIL_BLOCKED', N'{
             "en": "Disposable e-mail addresses cannot sign up. Use your own e-mail address.",

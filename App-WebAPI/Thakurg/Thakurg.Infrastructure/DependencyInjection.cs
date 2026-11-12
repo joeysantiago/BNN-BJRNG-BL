@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Thakurg.Application.Common;
 using Thakurg.Application.Repositories;
 using Thakurg.Application.Services;
+using Thakurg.Application.Storage;
 using Thakurg.Contracts.Configurations;
 using Thakurg.Infrastructure.Common;
 using Thakurg.Infrastructure.Email;
@@ -13,6 +14,7 @@ using Thakurg.Infrastructure.Notifications;
 using Thakurg.Infrastructure.Persistence;
 using Thakurg.Infrastructure.Repositories;
 using Thakurg.Infrastructure.Services;
+using Thakurg.Infrastructure.Storage;
 
 namespace Thakurg.Infrastructure;
 
@@ -36,7 +38,8 @@ public static partial class DependencyInjection
     {
         services.AddOptions<HostingOptions>().Bind(configuration.GetSection(HostingOptions.SectionName)).Validate(o => o.HostedOn is HostingOptions.Local or HostingOptions.Azure, "Hosting:HostedOn must be Local or Azure.").ValidateOnStart();
         services.Configure<StreamingOptions>(configuration.GetSection(StreamingOptions.SectionName));
-        services.AddOptions<AvatarOptions>().Bind(configuration.GetSection(AvatarOptions.SectionName)).Validate(o => o.Root.Length > 0 && o.MaxBytes > 0 && o.Extensions.Count > 0, "Avatars:Root, Avatars:MaxBytes and Avatars:Extensions must be set.").ValidateOnStart();
+        services.AddOptions<FileStorageOptions>().Bind(configuration.GetSection(FileStorageOptions.SectionName)).Validate(o => o is { LocalRoot.Length: > 0, ContainerName.Length: > 0, EnvironmentFolder.Length: > 0, ConnectionStringName.Length: > 0, MaxRetries: >= 0, NetworkTimeoutSeconds: > 0, CacheSeconds: > 0 }, "Every FileStorage value must be set (LocalRoot, ContainerName, EnvironmentFolder, ConnectionStringName, MaxRetries, NetworkTimeoutSeconds, CacheSeconds).").ValidateOnStart();
+        services.AddOptions<AvatarOptions>().Bind(configuration.GetSection(AvatarOptions.SectionName)).Validate(o => o.Folder.Length > 0 && o.MaxBytes > 0 && o.Extensions.Count > 0, "Avatars:Folder, Avatars:MaxBytes and Avatars:Extensions must be set.").ValidateOnStart();
         services.AddOptions<ExportOptions>().Bind(configuration.GetSection(ExportOptions.SectionName)).Validate(o => o is { PdfMargin: >= 0, PdfFontSize: > 0, PdfTitleFontSize: > 0, PdfCellPadding: >= 0, PdfLineWidth: >= 0, SheetNameLength: > 0 }, "Every Export value must be set (sizes above 0).").ValidateOnStart();
         services.AddOptions<ProfileOptions>().Bind(configuration.GetSection(ProfileOptions.SectionName)).Validate(o => o.Limits is { AddressLength: > 0, CityLength: > 0, StateLength: > 0, PostalCodeLength: > 0, CountryLength: > 0, MobileLength: > 0, CompanyNameLength: > 0, CompanyTaxIdLength: > 0, CompanyEmailLength: > 0, CompanyPhoneLength: > 0, CompanyAddressLength: > 0 }, "Every Profile:Limits value must be above 0.").ValidateOnStart();
         services.AddOptions<SiteOptions>().Bind(configuration.GetSection(SiteOptions.SectionName)).Validate(o => Uri.TryCreate(o.PublicUrl, UriKind.Absolute, out _), "Site:PublicUrl must be the web site's absolute address.").ValidateOnStart();
@@ -50,6 +53,8 @@ public static partial class DependencyInjection
         services.AddSingleton<IAuthTokenService, AuthTokenService>();
         services.AddSingleton<IMailSecretProtector, MailSecretProtector>();
         services.AddSingleton<IWhatsAppSecretProtector, WhatsAppSecretProtector>();
+        services.AddSingleton<IFileBackend, LocalFileStore>();
+        services.AddSingleton<IFileBackend, AzureBlobFileStore>();
 
         services.AddScoped<IOtpRepository, OtpRepository>();
         services.AddScoped<IAuthRepository, AuthRepository>();
@@ -70,6 +75,7 @@ public static partial class DependencyInjection
         services.AddScoped<IExportService, ExportService>();
         services.AddScoped<IEmailSender, SmtpEmailSender>();
         services.AddScoped<IUserProfileService, UserProfileService>();
+        services.AddScoped<IFileStore, FileStore>();
         services.AddScoped<IAvatarService, AvatarService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<ILookupService, LookupService>();
@@ -82,6 +88,7 @@ public static partial class DependencyInjection
         services.AddScoped<IUserAccessService, UserAccessService>();
         services.AddScoped<IMailSettingService, MailSettingService>();
         services.AddScoped<IWhatsAppSettingService, WhatsAppSettingService>();
+        services.AddScoped<IStorageSettingService, StorageSettingService>();
         services.AddScoped<ITranslationService, TranslationService>();
         services.AddScoped<IRolePermissionService, RolePermissionService>();
 
