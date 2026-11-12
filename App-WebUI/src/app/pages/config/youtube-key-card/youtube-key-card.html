@@ -1,0 +1,19 @@
+<section class="sec" aria-labelledby="cfg-yt">
+  <h2 id="cfg-yt" class="sec-h">{{ i18n.t('cfg.yt.h') }}</h2>
+  <p class="help">{{ i18n.t('cfg.yt.lead') }}</p>
+  @if (keySet() !== null) {
+    <p class="status" role="status">{{ i18n.t(keySet() ? 'cfg.yt.set' : 'cfg.yt.notset') }}</p>
+  }
+  <form [attr.aria-busy]="busy()" (submit)="save($event, ytKey)">
+    <label class="field-row">
+      <span class="txt"><b>{{ i18n.t('cfg.yt.label') }}</b></span>
+      <input #ytKey type="password" name="youtube-api-key" autocomplete="off" spellcheck="false" [disabled]="busy()" />
+    </label>
+    <div class="foot">
+      <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t(busy() ? 'cfg.yt.saving' : 'cfg.yt.save') }}</button>
+      @if (notice(); as n) {
+        <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+      }
+    </div>
+  </form>
+</section>

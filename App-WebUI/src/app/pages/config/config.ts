@@ -1,7 +1,6 @@
 import { KeysTab } from './keys-tab/keys-tab';
 import { RolesTab } from './roles-tab/roles-tab';
 import { UsersTab } from './users-tab/users-tab';
-import { ApiService } from '../../core/api.service';
 import { SeoService } from '../../core/seo.service';
 import { FEATURE_APPS } from '../../feature-routes';
 import { AuthService } from '../../core/auth.service';
@@ -10,15 +9,14 @@ import { AccountTab } from './account-tab/account-tab';
 import { GeneralTab } from './general-tab/general-tab';
 import { SettingsIcon } from '../../shared/settings-icon';
 import { TranslationKey } from '../../core/models/i18n.model';
-import { KeyStatus } from '../../core/models/key-status.model';
 import { PermissionsTab } from './permissions-tab/permissions-tab';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FeatureSwitches } from './feature-switches/feature-switches';
 import { SettingsService, validStops } from '../../core/settings.service';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FEATURES, FEATURE_GROUPS, featureBuilt } from '../../core/features';
-import { Component, afterNextRender, computed, effect, inject, signal } from '@angular/core';
-import { ConfigGroup, PanelNotice, SaveNotice, SaveTarget, SettingsTab, TabInfo } from './config.model';
-import { ConnectionField, FeatureGroup, SettingsOverrides, SettingsSection } from '../../core/models/app-settings.model';
+import { ConfigGroup, SaveNotice, SaveTarget, SettingsTab, TabInfo } from './config.model';
+import { ConnectionField, FeatureGroup, SettingsSection } from '../../core/models/app-settings.model';
 
 /** Every tab of the page, in order. A tab shows when the user's role may view its page and this branch holds what it is about. */
 const TABS: TabInfo[] = [
@@ -31,14 +29,12 @@ const TABS: TabInfo[] = [
   { id: 'features', page: 'settings.features' },
   { id: 'connection', page: 'settings.connection' },
   { id: 'services', page: 'settings.services' },
-  { id: 'youtube', page: 'settings.youtube' },
-  { id: 'json', page: 'settings.json' },
 ];
 
 /**
  * /master, the Settings page. One tab per area, shown by the rights of the user's role (Role rights tab; a super admin sees every tab).
  * General comes first, for every logged-in user: one section per app they may open, with its name (a super admin renames it), switches and the app's own settings.
- * Keys, for a super admin who logged in with a password: the settings with a login, key or password, kept encrypted in the database.
+ * Keys, for a super admin who logged in with a password: the settings with a login, key or password (mail, WhatsApp, the YouTube API key), kept encrypted in the database.
  * For me (language, skin, password and the options of their own pages, for every user), Users, Roles, Role rights, and the site settings of this branch's apps
  * (FEATURE_APPS). Site setting edits are drafts that preview at once in this browser; a Save button in every section (and Save all) writes them to the database.
  * The API checks every right again, so a hidden button is a convenience, not the protection.
@@ -51,9 +47,7 @@ const TABS: TabInfo[] = [
 })
 
 export class Config {
-  protected readonly busy = signal(false);
   private readonly router = inject(Router);
-  private readonly api = inject(ApiService);
   private readonly seo = inject(SeoService);
   protected readonly gaugeBad = signal(false);
   private readonly route = inject(ActivatedRoute);
@@ -63,15 +57,10 @@ export class Config {
   protected readonly cfg = inject(SettingsService);
   protected readonly settings = this.cfg.settings;
   protected readonly defaults = this.cfg.defaults;
-  protected readonly ytKeySet = signal<boolean | null>(null);
   protected readonly saving = signal<SaveTarget | null>(null);
   protected readonly count = computed(() => this.cfg.pending());
-  protected readonly ytNotice = signal<PanelNotice | null>(null);
   protected readonly saveNotice = signal<SaveNotice | null>(null);
-  protected readonly importMessage = signal<'' | 'ok' | 'bad'>('');
   protected readonly hasSpeed = featureBuilt('speed', FEATURE_APPS);
-  protected readonly hasYoutube = featureBuilt('youtube', FEATURE_APPS);
-  protected readonly json = computed(() => JSON.stringify(this.cfg.overrides(), null, 2));
   /** The Keys tab: a super admin who logged in with a password, as the API's mail settings need (SuperAdminPassword). */
   protected readonly canKeys = computed(() => this.auth.isSuperAdmin() && this.auth.user()?.loginMethod !== 'otp');
   /** General is for every logged-in user, Keys for a super admin with a password login, the rest by the View right of their page. */
@@ -95,12 +84,6 @@ export class Config {
         // A tool for the site's users and owner, not a page to find in search results.
         noindex: true,
       });
-    });
-
-    // The guard has restored the login before this page opens, so the rights are known here.
-    afterNextRender(() => {
-      if (this.hasYoutube && this.auth.can('settings.youtube'))
-        void this.loadKeyState();
     });
   }
 
@@ -136,18 +119,6 @@ export class Config {
     // On phones the tab row scrolls sideways: bring the chosen tab fully into view.
     document.getElementById(`cfg-tab-${id}`)?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
     void this.router.navigate([], { relativeTo: this.route, queryParams: { tab: id }, queryParamsHandling: 'merge', replaceUrl: true });
-  }
-
-  importJson(text: string): void {
-    try {
-      const parsed = JSON.parse(text) as SettingsOverrides;
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
-        throw new Error('not an object');
-      this.cfg.import(parsed);
-      this.importMessage.set('ok');
-    } catch {
-      this.importMessage.set('bad');
-    }
   }
 
   saveLabel(target: SaveTarget): string {
@@ -196,26 +167,6 @@ export class Config {
     document.getElementById(`cfg-tab-${next.id}`)?.focus();
   }
 
-  /** Sends the YouTube API key. The API checks that the caller is an administrator and checks the key with Google, then stores it in the database. */
-  async saveYoutube(ev: Event, input: HTMLInputElement): Promise<void> {
-    ev.preventDefault();
-    const key = input.value.trim();
-    if (!key || this.busy())
-      return;
-    this.busy.set(true);
-    this.ytNotice.set(null);
-    try {
-      const text = await this.api.message('POST', '/youtube/key', this.api.json({ apiKey: key }), 30000);
-      this.ytKeySet.set(true);
-      this.ytNotice.set({ text, error: false });
-      input.value = '';
-    } catch (e) {
-      this.ytNotice.set({ text: this.failureText(e), error: true });
-    } finally {
-      this.busy.set(false);
-    }
-  }
-
   // #endregion
 
   // #region Private Methods
@@ -226,22 +177,14 @@ export class Config {
     return this.hasSpeed ? [...groups, 'connection', 'services'] : groups;
   }
 
-  /** Whether this branch holds what the tab is about (a Creta build has no speed test or YouTube settings). */
+  /** Whether this branch holds what the tab is about (a Creta build has no speed test settings). */
   private built(id: SettingsTab): boolean {
-    return id === 'connection' || id === 'services' ? this.hasSpeed : id === 'youtube' ? this.hasYoutube : id === 'features' ? this.groups.length > 0 : true;
+    return id === 'connection' || id === 'services' ? this.hasSpeed : id === 'features' ? this.groups.length > 0 : true;
   }
 
   /** The server's own message when it answered; "server unreachable" when it did not. */
   private failureText(e: unknown): string {
     return (e as { status?: number }).status !== undefined ? (e as Error).message : this.i18n.t('yt.serverdown');
-  }
-
-  private async loadKeyState(): Promise<void> {
-    try {
-      this.ytKeySet.set((await this.api.get<KeyStatus>('/youtube/key')).isSet);
-    } catch (e) {
-      this.ytNotice.set({ text: this.failureText(e), error: true });
-    }
   }
 
   // #endregion

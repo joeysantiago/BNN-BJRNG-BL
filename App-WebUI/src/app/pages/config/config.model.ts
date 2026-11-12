@@ -35,7 +35,7 @@ export interface UserNotice {
 export type UserStatus = 'all' | 'active' | 'archived' | 'deleted';
 
 /** A tab of the Settings page. */
-export type SettingsTab = 'general' | 'keys' | 'account' | 'users' | 'roles' | 'permissions' | 'features' | 'connection' | 'services' | 'youtube' | 'json';
+export type SettingsTab = 'general' | 'keys' | 'account' | 'users' | 'roles' | 'permissions' | 'features' | 'connection' | 'services';
 
 /** A tab of the Settings page and the page code whose View right shows it; null = General (every logged-in user) or Keys (super admin with a password login). */
 export interface TabInfo {

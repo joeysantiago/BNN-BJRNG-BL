@@ -7,8 +7,8 @@ using Thakurg.Contracts.Settings;
 
 namespace Thakurg.Infrastructure.Storage;
 
-// Sends every file call to the store chosen in Settings > Keys (AppSettings Storage.Provider: local or azure), read again every FileStorage:CacheSeconds.
-// Files are read only from the chosen store; Settings > Keys can copy the files of the other store into it.
+// Sends every file call to the store chosen in Settings > General (AppSettings Storage.Provider: local or azure), read again every FileStorage:CacheSeconds.
+// Files are read only from the chosen store; Settings > General can copy the files of the other store into it.
 public class FileStore : IFileStore
 {
     private readonly IMemoryCache _cache;
