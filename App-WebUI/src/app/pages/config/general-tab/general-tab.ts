@@ -5,6 +5,7 @@ import { SignupCard } from '../signup-card/signup-card';
 import { AuthService } from '../../../core/auth.service';
 import { I18nService } from '../../../core/i18n.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { StorageCard } from '../storage-card/storage-card';
 import { AppNameForm } from '../app-name-form/app-name-form';
 import { AppSection, LoadedPanels } from './general-tab.model';
 import { PageId } from '../../../core/models/app-settings.model';
@@ -17,10 +18,11 @@ import { Component, afterNextRender, computed, inject, signal } from '@angular/c
  * The General tab of the Settings page, for every logged-in user: one section per app the user may open (and this branch holds), so every app is set up
  * in one place. A super admin sees every app and can rename it; anyone else sees only their own apps. Each section shows the app's name, its site switches
  * (with the Site options right) and the settings the app brings itself (FEATURE_SETTINGS of feature-routes.ts, loaded lazily). ?app=<code> opens one section.
+ * A super admin also sets the sign-up and, with a password login (the API checks the same), where every app keeps its files.
  */
 @Component({
   selector: 'app-general-tab',
-  imports: [NgComponentOutlet, AppNameForm, FeatureSwitches, SignupCard],
+  imports: [NgComponentOutlet, AppNameForm, FeatureSwitches, SignupCard, StorageCard],
   templateUrl: './general-tab.html',
   styleUrl: './general-tab.scss',
 })
@@ -33,6 +35,8 @@ export class GeneralTab {
   private readonly route = inject(ActivatedRoute);
   protected readonly loaded = signal<LoadedPanels>({});
   protected readonly opened = signal(this.route.snapshot.queryParamMap.get('app'));
+  /** File storage: a super admin who logged in with a password, as the API's storage settings need. */
+  protected readonly canStorage = computed(() => this.auth.isSuperAdmin() && this.auth.user()?.loginMethod !== 'otp');
   /** The apps of this branch the user may open (the speed test is open to everyone) that have something to set for them. */
   protected readonly sections = computed(() => FEATURE_APPS.filter((c) => c === 'speedtest' || this.auth.hasApp(c)).map((c) => this.section(c)).filter((s) => s.canRename || s.features.length || s.panels.length));
 

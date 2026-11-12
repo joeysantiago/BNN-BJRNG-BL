@@ -4,7 +4,7 @@ Every app keeps its files through one shared store, `IFileStore` (`Thakurg.Appli
 
 ## One switch for the whole site
 
-- **Where it is set:** Settings > Keys > File storage, by a super admin. It is saved in `AppSettings` as `Storage.Provider` (`azure` or `local`), and the seed value is `azure`.
+- **Where it is set:** Settings > General > File storage, by a super admin. It is saved in `AppSettings` as `Storage.Provider` (`azure` or `local`), and the seed value is `azure`.
 - **What it controls:** every app reads and saves files **only** in the chosen store. Before you switch, use the copy buttons on the same card: "Copy local files to Azure" or "Copy Azure files to local". A copy keeps each path and skips files that are already there with the same size.
 - **When Azure can be chosen:** only when the server has the connection string. It is read from the configuration value named in `FileStorage:ConnectionStringName` (`AzureStorageConnectionString`, an App Service environment variable or a connection string of that name). It is never written in appsettings.
 
