@@ -1,11 +1,12 @@
-/* One row of options in an inset track; the chosen one is filled with the skin's primary colour. Options wrap on narrow screens; tap targets stay 44px. */
+/* One row of options in an inset track; the chosen one is filled with the skin's primary colour. Each option is as wide as its label and a label never breaks;
+   when they do not fit, whole options move to the next line (sharing the width). Tap targets stay 44px. */
 :host {
   display: block;
   min-width: 0;
 }
 .choice {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin: 0;
   padding: 5px;
@@ -19,14 +20,15 @@
 }
 label {
   display: flex;
-  min-width: 0;
+  flex: 1 1 auto;
+  max-width: 100%;
 }
 input {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
-span {
+label > span {
   display: flex;
   flex: 1;
   align-items: center;
@@ -40,11 +42,13 @@ span {
   color: var(--inset-muted, var(--muted));
   font: 700 15px/1.2 var(--font-body);
   text-align: center;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
   transition: background 0.25s, color 0.25s, box-shadow 0.25s;
 }
-.choice:disabled span {
+.choice:disabled label > span {
   cursor: default;
 }
 label:hover input:not(:checked) + span {

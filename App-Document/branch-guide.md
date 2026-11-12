@@ -9,7 +9,7 @@ A short guide to the branches and their folders. Read it at the start of any wor
           BASE                     MIDDLE                            FINAL
         ┌────────┐      ┌──── Features/App/Creta ───────┐
         │        │      ├──── Features/App/Nexon ───────┤
-        │ matrix │ ───► ├──── Features/App/Youtube ─────┤ ───►  banni-linux
+        │ Matrix │ ───► ├──── Features/App/Youtube ─────┤ ───►  banni-linux
         │        │      ├──── Features/App/Khata ───────┤       (every app + Atrium HR,
         └────────┘      ├──── Features/App/snapTracker ─┤        deployed as thakurg.com)
      shared code only   ├──── Features/App/speedtest ───┤
@@ -19,7 +19,7 @@ A short guide to the branches and their folders. Read it at the start of any wor
 
 | Level | Branch | Holds | Home page (`/`) |
 |---|---|---|---|
-| Base | `matrix` | Only the shared code (login, header, footer, settings, roles, PWA, infrastructure, Common SQL, docs); not deployed | none |
+| Base | `Matrix` | Only the shared code (login, header, footer, settings, roles, PWA, infrastructure, Common SQL, docs); not deployed | none |
 | Middle | `Features/App/Creta` | Shared + Creta audio player (music code, Creta player only) | `/creta` |
 | Middle | `Features/App/Nexon` | Shared + Nexon audio player (music code, Nexon player only) | `/nexon` |
 | Middle | `Features/App/Youtube` | Shared + YouTube player | `/youtube` |
@@ -41,7 +41,7 @@ Each branch is checked out in its own git worktree, so you switch folders instea
 | Folder | Branch |
 |---|---|
 | `D:\Project\POC - Alll\thakurg` | `banni-linux` (final) |
-| `D:\Project\POC - Alll\thakurg-branches\matrix` | `matrix` (base) |
+| `D:\Project\POC - Alll\thakurg-branches\Matrix` | `Matrix` (base) |
 | `D:\Project\POC - Alll\thakurg-branches\Creta` | `Features/App/Creta` |
 | `D:\Project\POC - Alll\thakurg-branches\Nexon` | `Features/App/Nexon` |
 | `D:\Project\POC - Alll\thakurg-branches\Youtube` | `Features/App/Youtube` |
@@ -60,18 +60,18 @@ example, Planner was registered as `thakurg-branches\Tasks`. Fix it with `git wo
 
 | Change | Make it on (folder) | Then bring it forward |
 |---|---|---|
-| Shared code: login, header, pages, settings, infrastructure, Common SQL, docs | `matrix` | `git merge matrix` in every feature branch and in `banni-linux` |
+| Shared code: login, header, pages, settings, infrastructure, Common SQL, docs | `Matrix` | `git merge Matrix` in every feature branch and in `banni-linux` |
 | One app | that app's feature branch | `git merge Features/App/<Name>` in `banni-linux` |
 | Music code that Creta and Nexon both use | Creta or Nexon | `git cherry-pick` the same commit to the other one, then merge both into `banni-linux` |
 | Atrium HR | `banni-linux` | nothing |
-| A truly common fix (for example the PWA/install files) | `matrix` | merge it down. Where it must also be typed on a branch, use identical content so the merge stays clean |
+| A truly common fix (for example the PWA/install files) | `Matrix` | merge it down. Where it must also be typed on a branch, use identical content so the merge stays clean |
 
 Make every change **once**, on the branch it belongs to. If the same fix is typed on both a feature branch and `banni-linux`, the merge conflicts.
 
 ## Release order (shared change through to deploy)
 
-1. Commit on `matrix` (folder `thakurg-branches\matrix`).
-2. In each feature folder, run `git merge matrix`, resolve conflicts, then build.
+1. Commit on `Matrix` (folder `thakurg-branches\Matrix`).
+2. In each feature folder, run `git merge Matrix`, resolve conflicts, then build.
 3. Make the feature's own changes on its branch.
 4. In `D:\Project\POC - Alll\thakurg` (`banni-linux`), run `git merge Features/App/<Name>` for each branch that changed.
 5. Build and check `banni-linux`. It is the deployed site.
@@ -81,7 +81,7 @@ not permission to run it.
 
 ## Never
 
-1. Never merge `banni-linux` (or `main`) down into `matrix` or into a feature branch. It holds every app, so the merge would add all of them.
+1. Never merge `banni-linux` (or `main`) down into `Matrix` or into a feature branch. It holds every app, so the merge would add all of them.
 2. Never merge one feature branch into another. Creta and Nexon share code through cherry-pick only.
 3. Never copy code that exists on `banni-linux` because of one app into other branches, even if it looks shared. For example, OTP, mail settings,
    profile details, export and SMS/WhatsApp all exist because of Khata. Don't try to "make branches equal to banni-linux".
@@ -90,7 +90,7 @@ not permission to run it.
 
 ## Files that list a branch's own apps
 
-These files differ on purpose. `matrix` lists no apps in them, each feature branch lists only its own app, and `banni-linux` lists all apps:
+These files differ on purpose. `Matrix` lists no apps in them, each feature branch lists only its own app, and `banni-linux` lists all apps:
 
 - `App-WebUI/src/app/feature-routes.ts`: the feature routes, `FEATURE_APPS`, and `FEATURE_SETTINGS` / `FEATURE_PROFILE` (each app's panels of the central Settings > General and Profile pages)
 - `App-WebUI/angular.json`: the SnapKhata style bundle, only where Khata is
@@ -132,9 +132,9 @@ There is one Settings page (`/master`) and one Profile page (`/profile`) for eve
 
 ## Adding a new file or a new app
 
-- **New file for an existing app:** put it on that app's branch and add its path under the feature in `feature-branches.json` (on `matrix`).
+- **New file for an existing app:** put it on that app's branch and add its path under the feature in `feature-branches.json` (on `Matrix`).
   A file that isn't listed there counts as shared.
-- **New app:** `git switch -c Features/App/<Name> matrix`. Add a worktree folder under `thakurg-branches\<Name>`, give the app its own
+- **New app:** `git switch -c Features/App/<Name> Matrix`. Add a worktree folder under `thakurg-branches\<Name>`, give the app its own
   partial/feature files, add it to `feature-branches.json`, then merge it into `banni-linux`.
 
 ## Checking where things stand
@@ -144,7 +144,7 @@ Run these from any worktree folder:
 ```
 git worktree list                                  # folder for each branch
 git branch -vv                                     # each branch against its remote (ahead/behind)
-git log --oneline banni-linux..matrix              # matrix commits not yet in banni-linux
-git log --oneline Features/App/Nexon..matrix       # matrix commits not yet merged into a feature branch
+git log --oneline banni-linux..Matrix              # Matrix commits not yet in banni-linux
+git log --oneline Features/App/Nexon..Matrix       # Matrix commits not yet merged into a feature branch
 git log --oneline banni-linux..Features/App/Nexon  # feature commits not yet in banni-linux
 ```
