@@ -13,7 +13,7 @@ using Thakurg.Infrastructure.Storage;
 
 namespace Thakurg.Infrastructure.Services;
 
-// Settings > Keys > File storage (super admin, password session only): one site-wide choice of where every app keeps its files, the App-Data folder
+// Settings > General > File storage (super admin, password session only): one site-wide choice of where every app keeps its files, the App-Data folder
 // or the Azure Blob container. Azure can be chosen only when the server has its connection string. The copy moves the files of the other store into one.
 public class StorageSettingService : IStorageSettingService
 {

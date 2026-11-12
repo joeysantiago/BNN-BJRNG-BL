@@ -36,31 +36,6 @@
           @case ('permissions') {
             <app-permissions-tab />
           }
-          @case ('youtube') {
-            <section class="sec" aria-labelledby="cfg-yt">
-              <h2 id="cfg-yt" class="sec-h">{{ i18n.t('cfg.yt.h') }}</h2>
-              <p class="help">{{ i18n.t('cfg.yt.lead') }}</p>
-              @if (ytKeySet() !== null) {
-                <p class="status" role="status">{{ i18n.t(ytKeySet() ? 'cfg.yt.set' : 'cfg.yt.notset') }}</p>
-              }
-              @if (auth.can('settings.youtube', 'edit')) {
-                <form [attr.aria-busy]="busy()" (submit)="saveYoutube($event, ytKey)">
-                  <label class="field-row">
-                    <span class="txt"><b>{{ i18n.t('cfg.yt.label') }}</b></span>
-                    <input #ytKey type="password" name="youtube-api-key" autocomplete="off" spellcheck="false" [disabled]="busy()" />
-                  </label>
-                  <div class="foot">
-                    <button type="submit" class="btn pri" [disabled]="busy()">{{ i18n.t(busy() ? 'cfg.yt.saving' : 'cfg.yt.save') }}</button>
-                    @if (ytNotice(); as n) {
-                      <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
-                    }
-                  </div>
-                </form>
-              } @else {
-                <p class="note">{{ i18n.t('cfg.readonly') }}</p>
-              }
-            </section>
-          }
           @default {
             <!-- The site settings tabs share the unsaved-edits bar: Save all saves every section the user may edit. -->
             @if (editable().length && count()) {
@@ -146,23 +121,6 @@
                     <button type="button" class="btn pri" [disabled]="!pendingIn('services') || saving() !== null" [attr.title]="pendingIn('services') ? null : i18n.t('cfg.save.nothing')" (click)="save('services')">{{ saveLabel('services') }}</button>
                     @if (noticeFor('services'); as n) {
                       <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
-                    }
-                  </div>
-                }
-              </section>
-            }
-
-            @if (tab.id === 'json') {
-              <section class="sec" aria-labelledby="cfg-json">
-                <h2 id="cfg-json" class="sec-h">{{ i18n.t('cfg.json.h') }}</h2>
-                <p class="help">{{ i18n.t('cfg.json.help') }}</p>
-                <label class="sr-only" for="cfg-json-box">{{ i18n.t('cfg.json.h') }}</label>
-                <textarea #box id="cfg-json-box" rows="10" spellcheck="false" [value]="json()"></textarea>
-                @if (auth.can('settings.json', 'edit')) {
-                  <div class="foot">
-                    <button type="button" class="btn pri" (click)="importJson(box.value)">{{ i18n.t('cfg.json.import') }}</button>
-                    @if (importMessage(); as m) {
-                      <p class="status" [class.bad]="m === 'bad'" [attr.role]="m === 'bad' ? 'alert' : 'status'">{{ i18n.t(m === 'ok' ? 'cfg.json.ok' : 'cfg.json.bad') }}</p>
                     }
                   </div>
                 }

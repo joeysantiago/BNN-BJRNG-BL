@@ -4,6 +4,10 @@
   <app-signup-card />
 }
 
+@if (canStorage()) {
+  <app-storage-card />
+}
+
 @for (s of sections(); track s.code) {
   <details class="app" [id]="'gen-app-' + s.code" [open]="opened() === s.code" (toggle)="toggle(s.code, $event)">
     <summary class="app-h">
