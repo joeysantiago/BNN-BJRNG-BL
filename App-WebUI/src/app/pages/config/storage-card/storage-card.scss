@@ -1,0 +1,27 @@
+@use '../config';
+
+:host {
+  display: grid;
+}
+app-choice-group {
+  max-width: 520px;
+}
+.where {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  margin: 12px 0;
+}
+.where dt {
+  font-weight: 600;
+}
+.where dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.where .bad {
+  color: var(--bad, #c0392b);
+}
+.foot .btn {
+  min-height: 44px;
+}
