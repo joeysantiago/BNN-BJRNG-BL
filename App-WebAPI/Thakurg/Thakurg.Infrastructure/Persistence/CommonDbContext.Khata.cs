@@ -25,8 +25,6 @@ public partial class CommonDbContext
 
     public DbSet<KhataIdempotencyKey> KhataIdempotencyKeys => Set<KhataIdempotencyKey>();
 
-    public DbSet<KhataStorageSetting> KhataStorageSettings => Set<KhataStorageSetting>();
-
     public DbSet<KhataNotificationLog> KhataNotificationLogs => Set<KhataNotificationLog>();
 
     public DbSet<KhataNotificationPref> KhataNotificationPrefs => Set<KhataNotificationPref>();
@@ -44,7 +42,6 @@ public partial class CommonDbContext
         modelBuilder.Entity<KhataCurrency>().ToTable("KhataCurrencies");
         modelBuilder.Entity<KhataStoredFile>().ToTable("KhataStoredFiles");
         modelBuilder.Entity<KhataNotificationLog>().ToTable("KhataNotificationLog");
-        modelBuilder.Entity<KhataStorageSetting>().ToTable("KhataStorageSettings");
         modelBuilder.Entity<KhataNotificationPref>().ToTable("KhataNotificationPrefs");
         modelBuilder.Entity<KhataAttachment>().ToTable("KhataAttachments");
         modelBuilder.Entity<KhataIdempotencyKey>().ToTable("KhataIdempotencyKeys");

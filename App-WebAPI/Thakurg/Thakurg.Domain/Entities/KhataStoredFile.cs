@@ -2,7 +2,7 @@ using Thakurg.Domain.Common;
 
 namespace Thakurg.Domain.Entities;
 
-// One stored copy of a file (a bill photo, ledger.json, ...). For Provider = Local, FileId is the path under Khata:LocalFiles:Root.
+// One stored file (a bill photo or a contact photo). FileId is its path inside the Khata:Folder folder of the file store chosen in Settings > Keys.
 public class KhataStoredFile : BaseEntity
 {
     public int Id { get; set; }
@@ -14,8 +14,6 @@ public class KhataStoredFile : BaseEntity
     public int? BookId { get; set; }
 
     public byte FileKind { get; set; }
-
-    public byte Provider { get; set; }
 
     public int? ContactId { get; set; }
 

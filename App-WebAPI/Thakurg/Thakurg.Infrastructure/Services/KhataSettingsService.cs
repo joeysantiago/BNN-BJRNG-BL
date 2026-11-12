@@ -5,24 +5,20 @@ using Thakurg.Contracts.Khata;
 using Thakurg.Contracts.Messages;
 using Thakurg.Contracts.Wrappers;
 using Thakurg.Domain.Entities;
-using Thakurg.Infrastructure.Common;
 
 namespace Thakurg.Infrastructure.Services;
 
-// The user's own SnapKhata settings (KhataUsers): whether their parties get messages about entries; plus, read only, where new bill photos are kept.
+// The user's own SnapKhata settings (KhataUsers): whether their parties get messages about entries. Where photos are kept is the site's file storage (Settings > Keys).
 public class KhataSettingsService : IKhataSettingsService
 {
     private readonly IMessageService _messageService;
 
     private readonly IKhataUserRepository _userRepository;
 
-    private readonly IKhataStorageRepository _storageRepository;
-
-    public KhataSettingsService(IMessageService messageService, IKhataUserRepository userRepository, IKhataStorageRepository storageRepository)
+    public KhataSettingsService(IMessageService messageService, IKhataUserRepository userRepository)
     {
         _messageService = messageService;
         _userRepository = userRepository;
-        _storageRepository = storageRepository;
     }
 
     #region Public Methods
@@ -31,7 +27,7 @@ public class KhataSettingsService : IKhataSettingsService
     {
         var user = await RequireUserAsync(caller, cancellationToken);
 
-        return await ToDtoAsync(user, cancellationToken);
+        return ToDto(user);
     }
 
     public async Task<ServiceResultDto<KhataSettingsDto>> SaveAsync(KhataCallerDto caller, KhataSettingsRequestDto request, CancellationToken cancellationToken)
@@ -45,19 +41,16 @@ public class KhataSettingsService : IKhataSettingsService
             await _userRepository.SaveChangesAsync(cancellationToken);
         }
 
-        return new ServiceResultDto<KhataSettingsDto> { Data = await ToDtoAsync(user, cancellationToken), Message = await _messageService.GetAsync(MessageCodes.KhataSettingsSaved) };
+        return new ServiceResultDto<KhataSettingsDto> { Data = ToDto(user), Message = await _messageService.GetAsync(MessageCodes.KhataSettingsSaved) };
     }
 
     #endregion
 
     #region Private Methods
 
-    private async Task<KhataSettingsDto> ToDtoAsync(KhataUser user, CancellationToken cancellationToken)
+    private static KhataSettingsDto ToDto(KhataUser user)
     {
-        var storage = await _storageRepository.GetAsync(cancellationToken);
-        var provider = KhataStorageRules.IsAzureActive(storage) ? KhataStorageProviders.Azure : KhataStorageProviders.Local;
-
-        return new KhataSettingsDto { NotificationsEnabled = user.NotificationsEnabled, Storage = new KhataStorageInfoDto { Provider = provider } };
+        return new KhataSettingsDto { NotificationsEnabled = user.NotificationsEnabled };
     }
 
     private async Task<KhataUser> RequireUserAsync(KhataCallerDto caller, CancellationToken cancellationToken)

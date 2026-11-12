@@ -2,7 +2,7 @@ import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { I18nService } from './i18n.service';
 import { Injectable, inject, signal } from '@angular/core';
-import { KhataAttachment, KhataBook, KhataBookContacts, KhataBookRequest, KhataBookSummary, KhataContact, KhataContactRequest, KhataCurrency, KhataCurrencyRequest, KhataEntry, KhataEntryDetail, KhataEntryHistory, KhataEntryPage, KhataEntryQuery, KhataEntryRequest, KhataUpload, KhataExportFormat, KhataNotify, KhataPinSaved, KhataPinStatus, KhataSettings, KhataStorage, KhataStorageRequest } from './models/khata.model';
+import { KhataAttachment, KhataBook, KhataBookContacts, KhataBookRequest, KhataBookSummary, KhataContact, KhataContactRequest, KhataCurrency, KhataCurrencyRequest, KhataEntry, KhataEntryDetail, KhataEntryHistory, KhataEntryPage, KhataEntryQuery, KhataEntryRequest, KhataUpload, KhataExportFormat, KhataNotify, KhataPinSaved, KhataPinStatus, KhataSettings } from './models/khata.model';
 
 const TIMEOUT = 30000;
 const UPLOAD_TIMEOUT = 120000;
@@ -28,14 +28,6 @@ export class KhataApiService {
 
   books(): Promise<KhataBook[]> {
     return this.call('GET', '/khata/books');
-  }
-
-  testStorage(): Promise<string> {
-    return this.call('POST', '/khata/storage/test', {}, {}, true);
-  }
-
-  storage(): Promise<KhataStorage> {
-    return this.call('GET', '/khata/storage');
   }
 
   settings(): Promise<KhataSettings> {
@@ -113,10 +105,6 @@ export class KhataApiService {
 
   deleteContactPhoto(contactId: number): Promise<string> {
     return this.call('DELETE', `/khata/contacts/${contactId}/photo`, undefined, {}, true);
-  }
-
-  saveStorage(request: KhataStorageRequest): Promise<string> {
-    return this.call('PUT', '/khata/storage', request, {}, true);
   }
 
   saveSettings(notificationsEnabled: boolean): Promise<string> {

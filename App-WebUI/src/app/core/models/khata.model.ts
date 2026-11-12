@@ -329,8 +329,6 @@ export interface KhataNotify {
   whatsApp: boolean;
 }
 
-export type KhataStorageProvider = 'local' | 'azure';
-
 /**
  * The app lock of the installed app: checking = asking the server, open = unlocked, locked = asks the PIN, create = first PIN after login,
  * change = new PIN from Settings, reset = new PIN after "Forgot PIN?" and a fresh login.
@@ -363,24 +361,6 @@ export interface KhataPinSaved {
 /** The reader's own SnapKhata settings. */
 export interface KhataSettings {
   notificationsEnabled: boolean;
-  storage: { provider: KhataStorageProvider };
-}
-
-/** Where bill photos are kept, for the whole site. Only a super admin logged in with a password sees and changes it; the key is never sent back. */
-export interface KhataStorage {
-  hasKey: boolean;
-  enabled: boolean;
-  accountName: string;
-  containerName: string;
-  provider: KhataStorageProvider;
-}
-
-export interface KhataStorageRequest {
-  enabled: boolean;
-  accountName: string;
-  containerName: string;
-  connectionString?: string;
-  provider: KhataStorageProvider;
 }
 
 export type KhataExportFormat = 'pdf' | 'xlsx' | 'csv';
