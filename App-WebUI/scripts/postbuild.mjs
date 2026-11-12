@@ -61,20 +61,25 @@ console.log(`ok: ${pages.length} pages prerendered`);
 const DOMAIN = 'thakurg.com';
 const SITE = `https://${DOMAIN}`;
 const today = new Date().toISOString().slice(0, 10);
-
+// True only when the build was started with "npm run build:qa". QA must not appear in Google.
+const isQa = /(^|:)qa$/.test(process.env.npm_lifecycle_event ?? '');
 
 writeFileSync(
   join(dist, 'robots.txt'),
-  [
-    '# Everything is open to crawlers. Pages that should not be listed (error, offline, the Atrium app frame) carry a',
-    '# noindex tag, which Google can only read if it is allowed to fetch them.',
-    'User-agent: *',
-    'Allow: /',
-    '',
-    `Sitemap: ${SITE}/sitemap.xml`,
-    '',
-  ].join('\n'),
+  (isQa
+    ? ['# QA site: not for search engines.', 'User-agent: *', 'Disallow: /', '']
+    : [
+        '# Everything is open to crawlers. Pages that should not be listed (error, offline, the Atrium app frame) carry a',
+        '# noindex tag, which Google can only read if it is allowed to fetch them.',
+        'User-agent: *',
+        'Allow: /',
+        '',
+        `Sitemap: ${SITE}/sitemap.xml`,
+        '',
+      ]
+  ).join('\n'),
 );
+console.log(isQa ? 'robots.txt: QA (Disallow all)' : 'robots.txt: live (Allow all)');
 
 // Pages that belong in search results. The speed test has three language versions that point at each other (entries with alt: true).
 const langs = [
@@ -82,7 +87,11 @@ const langs = [
   ['hi', '/hi/'],
   ['ar', '/ar/'],
 ];
-const entries = lists.flatMap((l) => l.sitemap);
+
+// Only the speed test (entries with alt: true) is offered to Google. Login, signup, about, privacy and terms stay out of the sitemap.
+const entries = lists.flatMap((l) => l.sitemap).filter((e) => e.alt);
+
+
 const alternates = [...langs.map(([l, p]) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${SITE}${p}" />`), `    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE}/" />`].join('\n');
 const urls = entries
   .map((e) => `  <url>\n    <loc>${SITE}${e.path}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${e.priority}</priority>${e.alt ? '\n' + alternates : ''}\n  </url>`)

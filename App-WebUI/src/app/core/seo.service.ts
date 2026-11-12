@@ -3,6 +3,7 @@ import { SeoConfig } from './models/seo.model';
 import { Injectable, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { LANGS, Lang, SITE_NAME, SITE_URL, langInfo } from './site';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 
@@ -10,6 +11,9 @@ export class SeoService {
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);
   private readonly doc = inject(DOCUMENT);
+
+    // Only the speed test (home page and its language versions) is offered to Google. Every other page gets noindex.
+   private static readonly INDEXABLE = ['/', '/hi/', '/ar/'];
 
   // #region Public Methods
 
@@ -21,7 +25,9 @@ export class SeoService {
 
     this.title.setTitle(cfg.title);
     this.setName('description', cfg.description);
-    this.setName('robots', cfg.noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1');
+
+    const hidden = cfg.noindex || environment.name === 'qa' || !SeoService.INDEXABLE.includes(cfg.path);
+    this.setName('robots', hidden ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1');
 
     this.setProp('og:type', 'website');
     this.setProp('og:site_name', SITE_NAME);
