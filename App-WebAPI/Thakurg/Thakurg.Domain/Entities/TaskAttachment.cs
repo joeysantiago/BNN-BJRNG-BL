@@ -2,7 +2,7 @@ using Thakurg.Domain.Common;
 
 namespace Thakurg.Domain.Entities;
 
-// One picture of a task. FileId is the file's path under Tasks:LocalFiles:Root ("<userId>/<taskId>/<name>"); only the task's owner can open it.
+// One picture of a task. FileId is the file's path inside the Tasks:Folder folder of the file store ("<userId>/<name>"); only the task's owner can open it.
 public class TaskAttachment : BaseEntity
 {
     public int Id { get; set; }

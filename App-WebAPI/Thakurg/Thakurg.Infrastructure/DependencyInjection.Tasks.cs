@@ -23,18 +23,18 @@ public static partial class DependencyInjection
 
         var reminders = options.Reminders is { IntervalSeconds: > 0, UpcomingDays: > 0 } && TimeZoneInfo.TryFindSystemTimeZoneById(options.NewUser.TimeZone, out _);
 
-        return pin && newUser && reminders && options.LocalFiles.Root.Length > 0;
+        return pin && newUser && reminders && options.Folder.Length > 0;
     }
 
     static partial void AddTasksFeature(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddOptions<TasksOptions>().Bind(configuration.GetSection(TasksOptions.SectionName)).Validate(IsValidTasks, "Tasks:Pin, Tasks:Reminders, Tasks:NewUser (with a system category and a known TimeZone) and Tasks:LocalFiles:Root must be set; Pin:MaxFailures must be above Pin:MaxAttempts.").ValidateOnStart();
+        services.AddOptions<TasksOptions>().Bind(configuration.GetSection(TasksOptions.SectionName)).Validate(IsValidTasks, "Tasks:Pin, Tasks:Reminders, Tasks:NewUser (with a system category and a known TimeZone) and Tasks:Folder must be set; Pin:MaxFailures must be above Pin:MaxAttempts.").ValidateOnStart();
 
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<ITaskUserRepository, TaskUserRepository>();
         services.AddScoped<ITaskReminderRepository, TaskReminderRepository>();
 
-        services.AddScoped<ITaskFileStore, LocalTaskFileStore>();
+        services.AddScoped<ITaskFileStore, TaskFileStore>();
         services.AddScoped<ITaskService, TaskService>();
         services.AddScoped<ITaskLimitsService, TaskLimitsService>();
         services.AddScoped<ITaskReminderService, TaskReminderService>();
