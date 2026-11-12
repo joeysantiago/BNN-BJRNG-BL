@@ -144,7 +144,7 @@
       "App-WebAPI/Thakurg/Thakurg.Infrastructure/Persistence/CommonDbContext.Tasks.cs",
       "App-WebAPI/Thakurg/Thakurg.Infrastructure/Repositories/Task*.cs",
       "App-WebAPI/Thakurg/Thakurg.Infrastructure/Services/Task*.cs",
-      "App-WebAPI/Thakurg/Thakurg.Infrastructure/Storage/LocalTaskFileStore.cs",
+      "App-WebAPI/Thakurg/Thakurg.Infrastructure/Storage/TaskFileStore.cs",
       "App-WebAPI/Thakurg/Thakurg.Infrastructure/Notifications/TaskReminderWorker.cs",
       "App-Database/DatabaseInitializer/SqlScripts/CREATE/Tasks/**",
       "App-Database/DatabaseInitializer/Seeding/TasksDatabaseSeeder.cs",
