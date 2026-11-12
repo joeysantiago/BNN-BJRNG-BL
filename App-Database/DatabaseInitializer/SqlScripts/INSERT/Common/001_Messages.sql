@@ -792,26 +792,6 @@ BEGIN
             "hi": "आपका हिसाब बराबर है।",
             "ar": "رصيدك مُسدَّد."
         }'),
-        ('KHATA_STORAGE_SAVED', N'{
-            "en": "Storage settings were saved.",
-            "hi": "स्टोरेज सेटिंग्स सहेज ली गईं।",
-            "ar": "تم حفظ إعدادات التخزين."
-        }'),
-        ('KHATA_STORAGE_INVALID', N'{
-            "en": "Choose local or Azure storage. Azure needs a valid account name, a container name (3 to 63 lowercase letters, digits or hyphens) and a connection string or account key.",
-            "hi": "लोकल या Azure स्टोरेज चुनें। Azure के लिए मान्य अकाउंट नाम, कंटेनर नाम (3 से 63 छोटे अक्षर, अंक या हाइफ़न) और कनेक्शन स्ट्रिंग या अकाउंट की चाहिए।",
-            "ar": "اختر التخزين المحلي أو Azure. يحتاج Azure إلى اسم حساب صالح واسم حاوية (من 3 إلى 63 حرفًا صغيرًا أو رقمًا أو شرطة) وسلسلة اتصال أو مفتاح الحساب."
-        }'),
-        ('KHATA_STORAGE_REACHABLE', N'{
-            "en": "The storage container was reached.",
-            "hi": "स्टोरेज कंटेनर तक पहुँच हो गई।",
-            "ar": "تم الوصول إلى حاوية التخزين."
-        }'),
-        ('KHATA_STORAGE_UNREACHABLE', N'{
-            "en": "The storage container could not be reached. Check the connection string and the container name.",
-            "hi": "स्टोरेज कंटेनर तक नहीं पहुँचा जा सका। कनेक्शन स्ट्रिंग और कंटेनर का नाम जाँचें।",
-            "ar": "تعذّر الوصول إلى حاوية التخزين. تحقق من سلسلة الاتصال واسم الحاوية."
-        }'),
         ('KHATA_EXPORT_DATE', N'{
             "en": "Date",
             "hi": "तारीख",
