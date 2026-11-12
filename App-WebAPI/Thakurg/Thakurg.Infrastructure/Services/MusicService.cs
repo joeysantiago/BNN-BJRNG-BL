@@ -18,11 +18,12 @@ namespace Thakurg.Infrastructure.Services;
 
 // Players and track lists are kept in memory for MusicStorage:CacheMinutes, so the many audio packets of a song do not query the database
 // (a free Azure SQL database can then sleep). Uploading or deleting a song clears the player's list at once.
+// Songs and covers are kept in the file store chosen in Settings > Keys, in the player's folder: App-Data/creta/<file> or <env>/creta/<file> in the container.
 public class MusicService : IMusicService
 {
     private readonly IMemoryCache _cache;
 
-    private readonly IMusicFileStore _fileStore;
+    private readonly IFileStore _fileStore;
 
     private readonly StreamingOptions _streaming;
 
@@ -38,7 +39,7 @@ public class MusicService : IMusicService
 
     private static readonly Regex BitrateTag = new(@"\s*[\[(]?\s*\d{2,3}\s*kbps\s*[\])]?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    public MusicService(IOptions<MusicStorageOptions> options, IOptions<StreamingOptions> streaming, IMusicFileStore fileStore, IMessageService messageService, IMusicRepository musicRepository, IMemoryCache cache)
+    public MusicService(IOptions<MusicStorageOptions> options, IOptions<StreamingOptions> streaming, IFileStore fileStore, IMessageService messageService, IMusicRepository musicRepository, IMemoryCache cache)
     {
         _options = options.Value;
         _streaming = streaming.Value;
@@ -65,10 +66,10 @@ public class MusicService : IMusicService
 
         await _musicRepository.RemoveTrackAsync(track, cancellationToken);
         _cache.Remove(TracksKey(musicPlayer.Id));
-        _fileStore.Delete(musicPlayer.FolderName, track.FileName);
+        await _fileStore.DeleteAsync(PathOf(musicPlayer, track.FileName), cancellationToken);
 
         if (track.CoverFileName is not null)
-            _fileStore.Delete(musicPlayer.FolderName, track.CoverFileName);
+            await _fileStore.DeleteAsync(PathOf(musicPlayer, track.CoverFileName), cancellationToken);
 
         return await _messageService.GetAsync(MessageCodes.MusicTrackDeleted);
     }
@@ -81,7 +82,7 @@ public class MusicService : IMusicService
         if (track.CoverFileName is null)
             throw new BusinessException(MessageCodes.MusicFileMissing, 404);
 
-        return OpenFile(musicPlayer, track.CoverFileName);
+        return await OpenFileAsync(musicPlayer, track.CoverFileName, cancellationToken);
     }
 
     public async Task<FileStreamDto> OpenAudioAsync(string player, int trackId, string? range, CancellationToken cancellationToken)
@@ -89,7 +90,7 @@ public class MusicService : IMusicService
         var musicPlayer = await RequirePlayerAsync(player, cancellationToken);
         var track = await FindTrackAsync(musicPlayer, trackId, cancellationToken);
 
-        return PacketRange.Apply(OpenFile(musicPlayer, track.FileName), range, _streaming.PacketBytes);
+        return PacketRange.Apply(await OpenFileAsync(musicPlayer, track.FileName, cancellationToken), range, _streaming.PacketBytes);
     }
 
     public async Task<ServiceResultDto<MusicTracksDto>> UploadAsync(string player, List<UploadedFileDto> files, CancellationToken cancellationToken)
@@ -113,19 +114,19 @@ public class MusicService : IMusicService
 
         foreach (var audio in uploads.Where(f => IsAudio(f.FileName) && !known.Contains(f.FileName)))
         {
-            await _fileStore.SaveAsync(musicPlayer.FolderName, audio.FileName, audio.Content, cancellationToken);
+            var tags = ReadTags(audio);
+            await _fileStore.SaveAsync(PathOf(musicPlayer, audio.FileName), audio.Content, cancellationToken);
             var cover = covers.FirstOrDefault(c => string.Equals(Path.GetFileNameWithoutExtension(c.FileName), Path.GetFileNameWithoutExtension(audio.FileName), StringComparison.OrdinalIgnoreCase));
 
             if (cover is not null)
-                await _fileStore.SaveAsync(musicPlayer.FolderName, cover.FileName, cover.Content, cancellationToken);
+                await _fileStore.SaveAsync(PathOf(musicPlayer, cover.FileName), cover.Content, cancellationToken);
 
-            var tags = ReadTags(musicPlayer, audio.FileName);
             var coverFileName = cover?.FileName;
 
             if (coverFileName is null && tags.Cover is not null)
             {
                 coverFileName = $"{Path.GetFileNameWithoutExtension(audio.FileName)}.cover{tags.CoverExtension}";
-                await _fileStore.SaveAsync(musicPlayer.FolderName, coverFileName, new MemoryStream(tags.Cover), cancellationToken);
+                await _fileStore.SaveAsync(PathOf(musicPlayer, coverFileName), new MemoryStream(tags.Cover), cancellationToken);
             }
 
             added.Add(new MusicTrack { PlayerId = musicPlayer.Id, Title = tags.Title ?? TitleOf(audio.FileName), Artist = tags.Artist, FileName = audio.FileName, CoverFileName = coverFileName, SortOrder = ++order, CreatedOn = DateTime.UtcNow });
@@ -173,19 +174,21 @@ public class MusicService : IMusicService
         return string.Concat(name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
     }
 
-    private FileStreamDto OpenFile(MusicPlayer player, string fileName)
+    // The tags are read from the upload itself (not from the store, which may be Azure), then the upload is rewound so it can be saved.
+    private static MusicTags.Info ReadTags(UploadedFileDto audio)
     {
-        var content = _fileStore.Open(player.FolderName, fileName) ?? throw new BusinessException(MessageCodes.MusicFileMissing, 404);
-        ContentTypes.TryGetContentType(fileName, out var contentType);
+        if (!audio.Content.CanSeek)
+            return new MusicTags.Info(null, null, null, null);
 
-        return new FileStreamDto { Content = content, ContentType = contentType ?? "application/octet-stream" };
+        var tags = MusicTags.Read(audio.Content, audio.FileName);
+        audio.Content.Position = 0;
+
+        return tags;
     }
 
-    private MusicTags.Info ReadTags(MusicPlayer player, string fileName)
+    private static string PathOf(MusicPlayer player, string fileName)
     {
-        using var content = _fileStore.Open(player.FolderName, fileName);
-
-        return content is null ? new MusicTags.Info(null, null, null, null) : MusicTags.Read(content, fileName);
+        return $"{player.FolderName.ToLowerInvariant()}/{fileName}";
     }
 
     private static MusicTracksDto ToDto(MusicPlayer player, List<MusicTrack> tracks)
@@ -227,6 +230,14 @@ public class MusicService : IMusicService
     private async Task<MusicTrack> RequireTrackAsync(MusicPlayer player, int trackId, CancellationToken cancellationToken)
     {
         return await _musicRepository.GetTrackAsync(player.Id, trackId, cancellationToken) ?? throw new BusinessException(MessageCodes.MusicTrackNotFound, 404);
+    }
+
+    private async Task<FileStreamDto> OpenFileAsync(MusicPlayer player, string fileName, CancellationToken cancellationToken)
+    {
+        var content = await _fileStore.OpenAsync(PathOf(player, fileName), cancellationToken) ?? throw new BusinessException(MessageCodes.MusicFileMissing, 404);
+        ContentTypes.TryGetContentType(fileName, out var contentType);
+
+        return new FileStreamDto { Content = content, ContentType = contentType ?? "application/octet-stream" };
     }
 
     #endregion
