@@ -1,0 +1,29 @@
+<section class="sec" aria-labelledby="gen-store">
+  <h2 id="gen-store" class="sec-h">{{ i18n.t('gen.store.h') }}</h2>
+  <p class="help">{{ i18n.t('gen.store.lead') }}</p>
+  @if (error()) {
+    <p class="status bad" role="alert">{{ error() }}</p>
+  }
+  @if (setting(); as s) {
+    <app-choice-group name="storageProvider" [label]="i18n.t('gen.store.h')" [options]="providers()" [value]="s.provider" [disabled]="busy()" (picked)="pick($event)" />
+    <dl class="where">
+      <dt>{{ i18n.t('gen.store.localAt') }}</dt>
+      <dd><code>{{ s.localRoot }}</code></dd>
+      <dt>{{ i18n.t('gen.store.azureAt') }}</dt>
+      <dd><code>{{ s.containerName }}/{{ s.environmentFolder }}/</code> <span [class.bad]="!s.azureReady">{{ i18n.t(s.azureReady ? 'gen.store.ready' : 'gen.store.missing') }}</span></dd>
+    </dl>
+    <div class="foot" [attr.aria-busy]="busy()">
+      <button type="button" class="btn" [disabled]="busy()" (click)="copy('local')">{{ i18n.t('gen.store.toLocal') }}</button>
+      <button type="button" class="btn" [disabled]="busy() || !s.azureReady" (click)="copy('azure')">{{ i18n.t('gen.store.toAzure') }}</button>
+      <button type="button" class="btn" [disabled]="busy()" (click)="test()">{{ i18n.t('gen.store.test') }}</button>
+      @if (busy()) {
+        <p class="note" role="status">{{ i18n.t('gen.store.working') }}</p>
+      }
+      @if (notice(); as n) {
+        <p class="status" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
+      }
+    </div>
+  } @else if (!error()) {
+    <p class="note" role="status">{{ i18n.t('gen.loading') }}</p>
+  }
+</section>
