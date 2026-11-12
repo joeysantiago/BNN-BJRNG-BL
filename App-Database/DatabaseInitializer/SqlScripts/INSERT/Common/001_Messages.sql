@@ -967,6 +967,36 @@ BEGIN
             "hi": "सही मोबाइल नंबर लिखें, जैसे +91 98765 43210।",
             "ar": "أدخل رقم جوال صالحًا، مثل +91 98765 43210."
         }'),
+        ('STORAGE_SAVED', N'{
+            "en": "File storage saved. Every app now reads and saves its files there.",
+            "hi": "फ़ाइल स्टोरेज सहेज लिया गया। अब हर ऐप अपनी फ़ाइलें वहीं से पढ़ता और वहीं सहेजता है।",
+            "ar": "تم حفظ تخزين الملفات. كل تطبيق يقرأ ملفاته ويحفظها هناك الآن."
+        }'),
+        ('STORAGE_INVALID', N'{
+            "en": "Choose local files or Azure Blob storage.",
+            "hi": "लोकल फ़ाइलें या Azure Blob स्टोरेज चुनें।",
+            "ar": "اختر الملفات المحلية أو تخزين Azure Blob."
+        }'),
+        ('STORAGE_NOT_CONFIGURED', N'{
+            "en": "Azure Blob storage is not set up on this server: the AzureStorageConnectionString setting is missing.",
+            "hi": "इस सर्वर पर Azure Blob स्टोरेज सेट नहीं है: AzureStorageConnectionString सेटिंग मौजूद नहीं है।",
+            "ar": "تخزين Azure Blob غير مُعدّ على هذا الخادم: الإعداد AzureStorageConnectionString غير موجود."
+        }'),
+        ('STORAGE_REACHABLE', N'{
+            "en": "The file storage was reached.",
+            "hi": "फ़ाइल स्टोरेज तक पहुँच हो गई।",
+            "ar": "تم الوصول إلى تخزين الملفات."
+        }'),
+        ('STORAGE_UNREACHABLE', N'{
+            "en": "The file storage could not be reached. Check the connection string and the container.",
+            "hi": "फ़ाइल स्टोरेज तक नहीं पहुँचा जा सका। कनेक्शन स्ट्रिंग और कंटेनर जाँचें।",
+            "ar": "تعذّر الوصول إلى تخزين الملفات. تحقق من سلسلة الاتصال والحاوية."
+        }'),
+        ('STORAGE_COPIED', N'{
+            "en": "{0} files copied, {1} were already there.",
+            "hi": "{0} फ़ाइलें कॉपी हुईं, {1} पहले से मौजूद थीं।",
+            "ar": "تم نسخ {0} ملفًا، و{1} كانت موجودة بالفعل."
+        }'),
         ('AUTH_EMAIL_BLOCKED', N'{
             "en": "Disposable e-mail addresses cannot sign up. Use your own e-mail address.",
             "hi": "अस्थायी ई-मेल पते से साइन अप नहीं हो सकता। अपना ई-मेल पता इस्तेमाल करें।",
