@@ -6,7 +6,7 @@ This document covers the features, research findings, recommended architecture, 
 Status: **proposal, local development only.** Everything runs on the developer machine: Angular dev server, the local `Thakurg.API` and SQL Server LocalDB. Hosting is out of scope for now.
 
 > **File storage as built (replaces the storage parts of this proposal).**
-> - SnapKhata keeps bill photos and contact photos in the **site's shared file store**, like every other app (see `file-storage.md`). There is one switch for the whole site, in Settings > Keys > File storage: local files or Azure Blob storage. Files are read only from the chosen store.
+> - SnapKhata keeps bill photos and contact photos in the **site's shared file store**, like every other app (see `file-storage.md`). There is one switch for the whole site, in Settings > General > File storage: local files or Azure Blob storage. Files are read only from the chosen store.
 > - **Paths:** `khata/{userId}/{bookId}/{file}`. Locally that is `App-Data/khata/…`. In Azure it is container `app-data`, under the environment folder, for example `app-data/QA/khata/…` or `app-data/thakurg/khata/…`. `KhataStoredFiles.FileId` holds `{userId}/{bookId}/{file}`.
 > - **Code:** `IKhataFileStore` / `KhataFileStore`, on top of the shared `IFileStore`. The folder comes from `Khata:Folder` (`khata`).
 > - **Removed:** SnapKhata's own storage setting (the `KhataStorageSettings` table, `api/khata/storage`, its encrypted connection string, `Khata:Storage` and `Khata:LocalFiles`) and the `KhataStoredFiles.Provider` column.
@@ -101,7 +101,7 @@ From OkCredit's public pages and store listing:
   - While a user is on local storage, a small banner reminds them to connect Drive.
   - When they later connect Drive, their local files are **moved** into the new Drive, using the same migration job as changing Google account (§5.8).
 - **One storage interface:** `IFileStore`, with `GoogleDriveFileStore` and `LocalFileStore`. The API picks the implementation from the target user's `StorageProvider`, so the upload, copy, move and JSON code doesn't care where files go.
-  *As built:* `IFileStore` is the site's shared file store. Its local version keeps files in `App-Data` and its Azure Blob version uses the `app-data` container, and one site-wide switch in Settings > Keys picks between them, not a per-user choice. SnapKhata uses it through `IKhataFileStore` (see the note at the top and `file-storage.md`).
+  *As built:* `IFileStore` is the site's shared file store. Its local version keeps files in `App-Data` and its Azure Blob version uses the `app-data` container, and one site-wide switch in Settings > General picks between them, not a per-user choice. SnapKhata uses it through `IKhataFileStore` (see the note at the top and `file-storage.md`).
 
 ### 3.3 OTP login: email first; SMS in India needs DLT
 - **SMS in India:** TRAI's DLT rules apply to all business SMS, OTP included. Before any SMS is delivered you must register the entity (about ₹5,900), a sender ID and each template. Expect 2–4 weeks the first time. After that, gateways such as MSG91 cost about ₹0.15–0.20 per OTP. *(Vendor figures; check the current rate card.)*
@@ -503,7 +503,7 @@ SnapKhata reuses this setup and adds **two layers**:
    │  KhataAuthController / KhataGoogleController / KhataController
    │  Controller → Service → Repository (CLAUDE.md §9)
    ├──► SQL Server LocalDB  (localdb)\MSSQLLocalDB, thakurg-meta   source of truth
-   ├──► IFileStore (as built: one site-wide store, Settings > Keys > File storage)
+   ├──► IFileStore (as built: one site-wide store, Settings > General > File storage)
    │      ├─ LocalFileStore        App-Data/khata/{userId}/{bookId}/… (repo root, git-ignored)
    │      ├─ AzureBlobFileStore    container app-data: <env>/khata/{userId}/{bookId}/…
    │      └─ GoogleDriveFileStore  proposal only, not built: Ramesh → Ramesh's Drive, John → John's Drive
@@ -965,7 +965,7 @@ Every table also has the standard columns from CLAUDE.md §9: `IsActive`, `IsSof
 | GoogleConnectionId | INT NULL FK | reserved for the Google Drive proposal |
 | FileId | NVARCHAR(400) NULL | `{userId}/{bookId}/{file}`, inside the `khata` folder of the site's file store |
 
-*As built:* there is no `Provider` column. Every file is read from the store chosen in Settings > Keys (`file-storage.md`).
+*As built:* there is no `Provider` column. Every file is read from the store chosen in Settings > General (`file-storage.md`).
 | FolderId | NVARCHAR(400) NULL | |
 | SyncStatus | TINYINT | 0 pending, 1 synced, 2 failed, 3 moving, 4 moved |
 | SyncAttempts | INT | |

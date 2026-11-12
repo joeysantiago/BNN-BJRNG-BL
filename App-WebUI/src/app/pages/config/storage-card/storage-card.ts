@@ -7,7 +7,7 @@ import { ChoiceOption } from '../../../shared/models/choice.model';
 import { Component, afterNextRender, computed, inject, signal } from '@angular/core';
 
 /**
- * Settings > Keys > File storage (super admin, password login; the API checks the same): one switch for where every app keeps its files, the App-Data
+ * Settings > General > File storage (super admin, password login; the API checks the same): one switch for where every app keeps its files, the App-Data
  * folder or the Azure Blob container (under this environment's folder). Saved as soon as it is picked. Files are read only from the chosen store, so the
  * copy buttons move every file of the other store across first. The Azure connection string comes from the server's AzureStorageConnectionString setting.
  */
