@@ -5,6 +5,13 @@ This document covers the features, research findings, recommended architecture, 
 
 Status: **proposal, local development only.** Everything runs on the developer machine: Angular dev server, the local `Thakurg.API` and SQL Server LocalDB. Hosting is out of scope for now.
 
+> **File storage as built (replaces the storage parts of this proposal).**
+> - SnapKhata keeps bill photos and contact photos in the **site's shared file store**, like every other app (see `file-storage.md`). There is one switch for the whole site, in Settings > Keys > File storage: local files or Azure Blob storage. Files are read only from the chosen store.
+> - **Paths:** `khata/{userId}/{bookId}/{file}`. Locally that is `App-Data/khata/…`. In Azure it is container `app-data`, under the environment folder, for example `app-data/QA/khata/…` or `app-data/thakurg/khata/…`. `KhataStoredFiles.FileId` holds `{userId}/{bookId}/{file}`.
+> - **Code:** `IKhataFileStore` / `KhataFileStore`, on top of the shared `IFileStore`. The folder comes from `Khata:Folder` (`khata`).
+> - **Removed:** SnapKhata's own storage setting (the `KhataStorageSettings` table, `api/khata/storage`, its encrypted connection string, `Khata:Storage` and `Khata:LocalFiles`) and the `KhataStoredFiles.Provider` column.
+> - **Not built:** the per-user Google Drive storage, the Skip step, the shared-ledger copies and the file moves described in §3.1, §3.2, §5.3, §5.6 and §5.8. Those sections remain a proposal.
+
 ---
 
 ## 1. Requirements
@@ -94,6 +101,7 @@ From OkCredit's public pages and store listing:
   - While a user is on local storage, a small banner reminds them to connect Drive.
   - When they later connect Drive, their local files are **moved** into the new Drive, using the same migration job as changing Google account (§5.8).
 - **One storage interface:** `IFileStore`, with `GoogleDriveFileStore` and `LocalFileStore`. The API picks the implementation from the target user's `StorageProvider`, so the upload, copy, move and JSON code doesn't care where files go.
+  *As built:* `IFileStore` is the site's shared file store. Its local version keeps files in `App-Data` and its Azure Blob version uses the `app-data` container, and one site-wide switch in Settings > Keys picks between them, not a per-user choice. SnapKhata uses it through `IKhataFileStore` (see the note at the top and `file-storage.md`).
 
 ### 3.3 OTP login: email first; SMS in India needs DLT
 - **SMS in India:** TRAI's DLT rules apply to all business SMS, OTP included. Before any SMS is delivered you must register the entity (about ₹5,900), a sender ID and each template. Expect 2–4 weeks the first time. After that, gateways such as MSG91 cost about ₹0.15–0.20 per OTP. *(Vendor figures; check the current rate card.)*
@@ -495,9 +503,10 @@ SnapKhata reuses this setup and adds **two layers**:
    │  KhataAuthController / KhataGoogleController / KhataController
    │  Controller → Service → Repository (CLAUDE.md §9)
    ├──► SQL Server LocalDB  (localdb)\MSSQLLocalDB, thakurg-meta   source of truth
-   ├──► IFileStore per user
-   │      ├─ GoogleDriveFileStore  Google OAuth + Drive API: Ramesh → Ramesh's Drive, John → John's Drive
-   │      └─ LocalFileStore        App-Data/khata/ (repo root, git-ignored) for users who skipped
+   ├──► IFileStore (as built: one site-wide store, Settings > Keys > File storage)
+   │      ├─ LocalFileStore        App-Data/khata/{userId}/{bookId}/… (repo root, git-ignored)
+   │      ├─ AzureBlobFileStore    container app-data: <env>/khata/{userId}/{bookId}/…
+   │      └─ GoogleDriveFileStore  proposal only, not built: Ramesh → Ramesh's Drive, John → John's Drive
    ├──► Google Sign-In (OpenID Connect)   login + Drive consent in one step
    ├──► IOtpSender            DevOtpSender (console) │ Brevo │ SMS (later)
    └──► Web Push (VAPID)      app notifications
@@ -639,6 +648,9 @@ Edits and soft deletes of an entry rewrite ledger.json on BOTH sides. A changed 
 
 ### 5.6 Storage layout, the same in Drive and in `App-Data` (requirement 6)
 
+*As built:* the photos are stored flat, as `khata/{userId}/{bookId}/{random name}.{ext}` (contact photos are named `contact-{random}.{ext}`), in the site's chosen store:
+`App-Data/khata/…` locally, or `app-data/<env>/khata/…` in Azure Blob. No `ledger.json`, `book.json` or `shared/` copies are written yet. The layout below is still the proposal for Google Drive.
+
 ```
 John's Google Drive  (owner of the ledger with Ramesh)
   SnapKhata/
@@ -664,7 +676,7 @@ App-Data/khata/  (repo root, git-ignored; for users who skipped Drive)
 ```
 
 - Drive folder IDs are stored in SQL (`KhataGoogleConnections.RootFolderId`, `KhataStoredFiles.FolderId`). If a user deletes the folder, the next upload gets 404 and the API recreates it.
-- `LocalFileStore` only writes inside the configured `App-Data` root. Paths are built from numeric Ids, and names are cleaned, so path traversal isn't possible.
+- `LocalFileStore` only writes inside the configured `App-Data` root (`FileStorage:LocalRoot`). Paths are built from numeric Ids, and names are cleaned. The shared store also refuses any path with `.` or `..`, so path traversal isn't possible.
 - `ledger.json` example:
 
 ```json
@@ -950,9 +962,10 @@ Every table also has the standard columns from CLAUDE.md §9: `IsActive`, `IsSof
 | ContactId | INT FK | which ledger |
 | AttachmentId | INT NULL FK | empty for `ledger.json` |
 | Role | TINYINT | 1 Home (owner), 2 Copy (contact) |
-| Provider | TINYINT | 1 Local, 2 GoogleDrive |
-| GoogleConnectionId | INT NULL FK | when Provider = GoogleDrive |
-| FileId | NVARCHAR(400) NULL | Drive file ID, or relative path under `App-Data` |
+| GoogleConnectionId | INT NULL FK | reserved for the Google Drive proposal |
+| FileId | NVARCHAR(400) NULL | `{userId}/{bookId}/{file}`, inside the `khata` folder of the site's file store |
+
+*As built:* there is no `Provider` column. Every file is read from the store chosen in Settings > Keys (`file-storage.md`).
 | FolderId | NVARCHAR(400) NULL | |
 | SyncStatus | TINYINT | 0 pending, 1 synced, 2 failed, 3 moving, 4 moved |
 | SyncAttempts | INT | |
@@ -1134,7 +1147,7 @@ Following CLAUDE.md:
   "UiBaseUrl": "http://localhost:4200",
   "Jwt": { "Issuer": "thakurg-local", "AccessMinutes": 15, "RefreshDays": 30 },
   "Google": { "RedirectUri": "https://localhost:7001/api/khata/google/callback", "RootFolderName": "SnapKhata" },
-  "LocalFiles": { "Root": "../../../App-Data/khata" },
+  "Folder": "khata",
   "Otp": { "Sender": "Dev", "ExpiryMinutes": 5, "MaxAttempts": 5 },
   "Pin": { "MinLength": 4, "MaxLength": 6, "LockAfterMinutes": 5, "MaxTries": 5, "LockoutMinutes": 15, "ResetAfterTries": 10, "ProofSeconds": 120 },
   "Limits": { "MaxBooks": 20, "MaxCustomCurrencies": 20, "MaxContactsPerBook": 5000, "MaxPhotosPerEntry": 3, "MaxPhotoBytes": 2097152, "UploadsPerDay": 200, "OtpCooldownSeconds": 45, "OtpPer10Min": 3, "OtpPerDay": 10, "EmailsPerDay": 300 }
