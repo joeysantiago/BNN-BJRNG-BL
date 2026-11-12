@@ -1,5 +1,5 @@
 {
-  "$comment": "Which files belong to which feature, and which features each Features/App/* branch holds (explained in App-Document/branch-architecture.md). Every path not listed under a feature is shared and lives on the matrix branch; a feature branch starts from matrix and adds only its own features' files. Patterns are git glob pathspecs relative to the repo root.",
+  "$comment": "Which files belong to which feature, and which features each Features/App/* branch holds (explained in App-Document/branch-architecture.md). Every path not listed under a feature is shared and lives on the Matrix branch; a feature branch starts from Matrix and adds only its own features' files. Patterns are git glob pathspecs relative to the repo root.",
   "features": {
     "speedtest": [
       "App-WebAPI/Thakurg/Thakurg.API/Controllers/SpeedTestController.cs",
