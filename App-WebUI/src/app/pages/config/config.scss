@@ -241,10 +241,13 @@ h1 {
   cursor: not-allowed;
 }
 
-/* Text fields on the right of a row. */
+/* Text fields on the right of a row (and every other text-like field, such as the phone number of a test message). */
 select,
 input[type='text'],
+input[type='tel'],
+input[type='url'],
 input[type='email'],
+input[type='search'],
 input[type='number'],
 input[type='password'],
 textarea {

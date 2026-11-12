@@ -2,18 +2,26 @@
   <section class="sec" aria-labelledby="acc-look">
     <h2 id="acc-look" class="sec-h">{{ i18n.t('acc.look.h') }}</h2>
     <p class="help">{{ i18n.t('acc.look.help') }}</p>
-    <div class="field-row pick-row">
+    <label class="field-row">
       <span class="txt"><b>{{ i18n.t('auth.p.language') }}</b></span>
-      <app-choice-group name="language" [label]="i18n.t('auth.p.language')" [options]="languages()" [value]="u.language || i18n.lang()" [disabled]="!canEdit() || saving() !== null" (picked)="saveLanguage($event)" />
-    </div>
+      <select name="language" [disabled]="!canEdit() || saving() !== null" (change)="saveLanguage($any($event.target).value)">
+        @for (l of i18n.languages; track l.code) {
+          <option [value]="l.code" [selected]="l.code === (u.language || i18n.lang())">{{ l.native }}</option>
+        }
+      </select>
+    </label>
     <div class="field-row pick-row">
       <span class="txt"><b>{{ i18n.t('theme.mode') }}</b></span>
-      <app-choice-group name="mode" [label]="i18n.t('theme.mode')" [options]="modes()" [value]="theme.activeMode()" (picked)="pickMode($event)" />
+      <app-choice-group name="mode" [label]="i18n.t('theme.mode')" [options]="modes()" [value]="theme.activeMode()" [iconOnly]="true" (picked)="pickMode($event)" />
     </div>
-    <div class="field-row pick-row">
+    <label class="field-row">
       <span class="txt"><b>{{ i18n.t('theme.label') }}</b></span>
-      <app-choice-group name="skin" [label]="i18n.t('theme.label')" [options]="skins()" [value]="theme.skin()" (picked)="pickSkin($event)" />
-    </div>
+      <select name="skin" (change)="pickSkin($any($event.target).value)">
+        @for (s of theme.skins; track s.id) {
+          <option [value]="s.id" [selected]="s.id === theme.skin()">{{ i18n.t(s.labelKey) }}</option>
+        }
+      </select>
+    </label>
     @if (noticeFor('language'); as n) {
       <p class="status note-line" [class.bad]="n.error" [attr.role]="n.error ? 'alert' : 'status'">{{ n.text }}</p>
     }

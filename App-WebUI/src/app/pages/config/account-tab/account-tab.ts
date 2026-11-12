@@ -15,6 +15,13 @@ import { FeatureId, FeatureGroup } from '../../../core/models/app-settings.model
 /** The groups a user may switch off for themselves, and the apps that make them their own (none = every user). Same rule as the API (AuthService.OwnFeatureApps). */
 const OWN_GROUP_APPS: Partial<Record<FeatureGroup, string[]>> = { site: [], speed: [], youtube: ['youtube'], audio: ['creta', 'nexon'] };
 
+/** The icons of Light or dark: a moon, a sun and a screen (the paths of 24 x 24 line icons). */
+const MODE_ICONS: Record<string, string[]> = {
+  dark: ['M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z'],
+  light: ['M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z', 'M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41'],
+  system: ['M4 4h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z', 'M8 20h8M12 16v4'],
+};
+
 /**
  * The For me tab of the Settings page, for every user whose role may view it (the Standard User sees only this tab): the language, the skin, the password,
  * and which options of their own pages (the header, the speed test and the apps they can open) are shown to them. A switched-off option is hidden only for this user.
@@ -39,9 +46,7 @@ export class AccountTab {
   protected readonly canEdit = computed(() => this.auth.can('settings.account', 'edit'));
   protected readonly groups = computed<OwnGroup[]>(() => FEATURE_GROUPS.filter((g) => this.isOwn(g.id) && featureBuilt(g.id, FEATURE_APPS)).map((g) => ({ id: g.id, label: g.label, items: FEATURES.filter((f) => f.group === g.id && featureBuilt(f.id, FEATURE_APPS)) })).filter((g) => g.items.length));
 
-  protected readonly languages = computed<ChoiceOption[]>(() => this.i18n.languages.map((l) => ({ value: l.code, label: l.native })));
-  protected readonly modes = computed<ChoiceOption[]>(() => this.theme.modes.map((m) => ({ value: m.id, label: this.i18n.t(m.labelKey) })));
-  protected readonly skins = computed<ChoiceOption[]>(() => this.theme.skins.map((s) => ({ value: s.id, label: this.i18n.t(s.labelKey) })));
+  protected readonly modes = computed<ChoiceOption[]>(() => this.theme.modes.map((m) => ({ value: m.id, label: this.i18n.t(m.labelKey), icon: MODE_ICONS[m.id] })));
 
   // #region Public Methods
 

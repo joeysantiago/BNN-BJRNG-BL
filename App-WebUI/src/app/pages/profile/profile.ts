@@ -7,11 +7,9 @@ import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
 import { UserAvatar } from '../../shared/user-avatar';
 import { FEATURE_PROFILE } from '../../feature-routes';
-import { ChoiceGroup } from '../../shared/choice-group';
 import { LookupService } from '../../core/lookup.service';
 import { LookupItem } from '../../core/models/lookup.model';
 import { ProfileDetails } from '../../core/models/auth.model';
-import { ChoiceOption } from '../../shared/models/choice.model';
 import { DetailField, ProfileForm, ProfileNotice } from './profile.model';
 import { formatDate, formatDateTimeWithZone } from '../../core/date-format';
 import { Component, Type, WritableSignal, afterNextRender, computed, effect, inject, signal } from '@angular/core';
@@ -34,7 +32,7 @@ const PERSONAL: DetailField[] = [
  */
 @Component({
   selector: 'app-profile',
-  imports: [RouterLink, UserAvatar, NgComponentOutlet, ChoiceGroup],
+  imports: [RouterLink, UserAvatar, NgComponentOutlet],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -67,7 +65,6 @@ export class Profile {
   protected readonly since = computed(() => formatDate(this.auth.user()?.createdOn));
   protected readonly byCode = computed(() => this.auth.user()?.loginMethod === 'otp');
   protected readonly lastLogin = computed(() => formatDateTimeWithZone(this.auth.user()?.lastLoginOn));
-  protected readonly languages = computed<ChoiceOption[]>(() => this.i18n.languages.map((l) => ({ value: l.code, label: l.native })));
   /** A feature branch may not have every app's pages: an app whose page is not routed here is listed without a link. */
   protected readonly apps = computed(() => (this.auth.isAdmin() ? APP_LINKS : this.auth.apps().map(appLink)).map((a) => (a.path && this.router.config.some((r) => r.path === a.path!.split('/')[1]) ? a : { ...a, path: null })));
 
