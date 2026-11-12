@@ -45,10 +45,14 @@
               <span>{{ i18n.t('auth.name') }}</span>
               <input name="displayName" type="text" autocomplete="name" maxlength="100" required [value]="u.displayName" [disabled]="saving() === 'details'" />
             </label>
-            <div class="field">
+            <label class="field">
               <span>{{ i18n.t('auth.p.language') }}</span>
-              <app-choice-group name="language" [label]="i18n.t('auth.p.language')" [options]="languages()" [value]="u.language || i18n.lang()" [disabled]="saving() === 'details'" />
-            </div>
+              <select name="language" [disabled]="saving() === 'details'">
+                @for (l of i18n.languages; track l.code) {
+                  <option [value]="l.code" [selected]="l.code === (u.language || i18n.lang())">{{ l.native }}</option>
+                }
+              </select>
+            </label>
             <div class="bar">
               <button type="submit" class="btn pri" [disabled]="saving() !== null">{{ i18n.t(saving() === 'details' ? 'auth.busy' : 'auth.p.save') }}</button>
               @if (infoNotice(); as n) {

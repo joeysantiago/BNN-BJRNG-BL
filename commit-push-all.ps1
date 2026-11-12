@@ -5,7 +5,7 @@
 .DESCRIPTION
     Run it from any branch folder (or double-click commit-push-all.bat).
 
-    1. Finds every worktree or clone of this repository: banni-linux, matrix, every Features/App/* branch and Mojito
+    1. Finds every worktree or clone of this repository: banni-linux, Matrix, every Features/App/* branch and Mojito
        (see App-Document/branch-guide.md). Folders are found in thakurg (banni-linux) and inside thakurg-branches, as git
        worktrees or as separate clones of the same GitHub repository.
     2. Lists, per branch, the modified / added / deleted / renamed / new files, and any commits that are
@@ -13,11 +13,11 @@
     3. Lets you pick the branches (Enter = all), asks for one generic commit message and a final y/N.
     4. In each picked folder: git add -A, git commit -m "<message>", git push to the branch's own upstream.
 
-    Branches are handled in release order: matrix, Features/App/*, banni-linux, then the rest.
+    Branches are handled in release order: Matrix, Features/App/*, banni-linux, then the rest.
     The old stub branches (main, master, base, old-master) are never touched.
     Nothing is committed or pushed until you type the message and answer y.
 
-    This script does not merge matrix into the feature branches - that still follows the release
+    This script does not merge Matrix into the feature branches - that still follows the release
     order in App-Document/branch-guide.md.
 .PARAMETER Message
     Commit message to use instead of being asked for one. You are still asked to confirm.
@@ -48,7 +48,7 @@ function Get-NormalPath([string]$Path) {
 }
 
 function Get-BranchOrder([string]$Branch) {
-    if ($Branch -eq 'matrix') { return 0 }
+    if ($Branch -eq 'Matrix') { return 0 }
     if ($Branch -like 'Features/App/*') { return 1 }
     if ($Branch -eq 'banni-linux') { return 2 }
     return 3
