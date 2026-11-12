@@ -16,20 +16,20 @@ namespace Thakurg.Infrastructure.Services;
 // Contacts (customers and suppliers) of one book. The balance is never set here: only entries change it (design S3).
 public class KhataContactService : IKhataContactService
 {
+    private readonly IKhataFileStore _fileStore;
+
     private readonly KhataLimitsOptions _limits;
 
     private readonly IKhataCommonServices _common;
-
-    private readonly IKhataFileStorage _fileStorage;
 
     private readonly IKhataBookRepository _bookRepository;
 
     private readonly IKhataContactRepository _contactRepository;
 
-    public KhataContactService(IOptions<KhataOptions> options, IKhataCommonServices common, IKhataBookRepository bookRepository, IKhataContactRepository contactRepository, IKhataFileStorage fileStorage)
+    public KhataContactService(IOptions<KhataOptions> options, IKhataCommonServices common, IKhataBookRepository bookRepository, IKhataContactRepository contactRepository, IKhataFileStore fileStore)
     {
         _limits = options.Value.Limits;
-        _fileStorage = fileStorage;
+        _fileStore = fileStore;
         _common = common;
         _bookRepository = bookRepository;
         _contactRepository = contactRepository;
@@ -87,13 +87,12 @@ public class KhataContactService : IKhataContactService
         return await _common.Messages.GetAsync(MessageCodes.KhataContactPhotoDeleted);
     }
 
-    // Read from whichever store its KhataStoredFiles row names; the type follows the extension it was saved with.
+    // Read from the file store chosen in Settings > Keys; the type follows the extension it was saved with.
     public async Task<FileStreamDto> OpenPhotoAsync(KhataCallerDto caller, int contactId, CancellationToken cancellationToken)
     {
         var contact = await RequireContactAsync(caller, contactId, cancellationToken);
         var photo = contact.PhotoStoredFileId is int photoId ? await _contactRepository.GetStoredFileAsync(photoId, cancellationToken) : null;
-        var store = photo is null ? null : _fileStorage.Get((KhataStorageProvider)photo.Provider);
-        var content = store is null || photo?.FileId is null ? null : await store.OpenAsync(photo.FileId, cancellationToken);
+        var content = photo?.FileId is null ? null : await _fileStore.OpenAsync(photo.FileId, cancellationToken);
 
         return content is null ? throw new BusinessException(MessageCodes.KhataContactPhotoNotFound, 404) : new FileStreamDto { Content = content, ContentType = KhataImageType.FromFileId(photo!.FileId!) };
     }
@@ -133,9 +132,8 @@ public class KhataContactService : IKhataContactService
     {
         var contact = await RequireContactAsync(caller, contactId, cancellationToken);
         var (bytes, contentType) = await ReadPhotoAsync(file, cancellationToken);
-        var store = await _fileStorage.GetUploadStoreAsync(cancellationToken);
-        var fileId = await store.SaveAsync(caller.UserId, contact.BookId, $"contact-{Guid.NewGuid():N}{KhataImageType.Extensions[contentType]}", bytes, contentType, cancellationToken);
-        var storedFile = new KhataStoredFile { UserId = caller.UserId, BookId = contact.BookId, ContactId = contactId, FileKind = (byte)KhataFileKind.ContactPhoto, Role = (byte)KhataFileRole.Home, Provider = (byte)store.Provider, FileId = fileId, SyncStatus = (byte)KhataSyncStatus.Synced };
+        var fileId = await _fileStore.SaveAsync(caller.UserId, contact.BookId, $"contact-{Guid.NewGuid():N}{KhataImageType.Extensions[contentType]}", bytes, cancellationToken);
+        var storedFile = new KhataStoredFile { UserId = caller.UserId, BookId = contact.BookId, ContactId = contactId, FileKind = (byte)KhataFileKind.ContactPhoto, Role = (byte)KhataFileRole.Home, FileId = fileId, SyncStatus = (byte)KhataSyncStatus.Synced };
         KhataStoredFile? previous;
 
         try
@@ -145,7 +143,7 @@ public class KhataContactService : IKhataContactService
         }
         catch
         {
-            await store.DeleteAsync(fileId, CancellationToken.None);
+            await _fileStore.DeleteAsync(fileId, CancellationToken.None);
             throw;
         }
 
@@ -243,10 +241,8 @@ public class KhataContactService : IKhataContactService
     // The rows are already saved, so a file that cannot be removed now is only left behind.
     private async Task DeleteFileAsync(KhataStoredFile? storedFile)
     {
-        var store = storedFile is null ? null : _fileStorage.Get((KhataStorageProvider)storedFile.Provider);
-
-        if (store is not null && storedFile?.FileId is not null)
-            await store.DeleteAsync(storedFile.FileId, CancellationToken.None);
+        if (storedFile?.FileId is not null)
+            await _fileStore.DeleteAsync(storedFile.FileId, CancellationToken.None);
     }
 
     // An empty mobile or email is allowed; a filled one must be valid (same rules as login, so the contact can be linked when they log in).

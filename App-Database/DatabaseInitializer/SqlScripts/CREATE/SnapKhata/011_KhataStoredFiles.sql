@@ -9,7 +9,6 @@ BEGIN
         AttachmentId       INT               NULL                                                                        ,
         FileKind           TINYINT           NOT NULL                                                                    ,
         Role               TINYINT           NOT NULL CONSTRAINT DF_KhataStoredFiles_Role DEFAULT (1)                    ,
-        Provider           TINYINT           NOT NULL                                                                    ,
         GoogleConnectionId INT               NULL                                                                        ,
         FileId             NVARCHAR(400)     NULL                                                                        ,
         FolderId           NVARCHAR(400)     NULL                                                                        ,

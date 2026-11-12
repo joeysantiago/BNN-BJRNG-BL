@@ -68,8 +68,6 @@ public static partial class MessageCodes
 
     public const string KhataQueryInvalid = "KHATA_QUERY_INVALID";
 
-    public const string KhataStorageSaved = "KHATA_STORAGE_SAVED";
-
     public const string KhataBookNotFound = "KHATA_BOOK_NOT_FOUND";
 
     public const string KhataNotifyYouGet = "KHATA_NOTIFY_YOU_GET";
@@ -108,8 +106,6 @@ public static partial class MessageCodes
 
     public const string KhataExportSupplier = "KHATA_EXPORT_SUPPLIER";
 
-    public const string KhataStorageInvalid = "KHATA_STORAGE_INVALID";
-
     public const string KhataExportAllDates = "KHATA_EXPORT_ALL_DATES";
 
     public const string KhataContactRestored = "KHATA_CONTACT_RESTORED";
@@ -126,8 +122,6 @@ public static partial class MessageCodes
 
     public const string KhataChangedElsewhere = "KHATA_CHANGED_ELSEWHERE";
 
-    public const string KhataStorageReachable = "KHATA_STORAGE_REACHABLE";
-
     public const string KhataCurrencyNotFound = "KHATA_CURRENCY_NOT_FOUND";
 
     public const string KhataExportMobileLine = "KHATA_EXPORT_MOBILE_LINE";
@@ -143,8 +137,6 @@ public static partial class MessageCodes
     public const string KhataExportBalanceLine = "KHATA_EXPORT_BALANCE_LINE";
 
     public const string KhataRequestInProgress = "KHATA_REQUEST_IN_PROGRESS";
-
-    public const string KhataStorageUnreachable = "KHATA_STORAGE_UNREACHABLE";
 
     public const string KhataAttachmentNotFound = "KHATA_ATTACHMENT_NOT_FOUND";
 
