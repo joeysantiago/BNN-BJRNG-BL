@@ -1,7 +1,7 @@
 namespace Thakurg.Infrastructure.Storage;
 
 // One place files can be kept: the App-Data folder (LocalFileStore) or the Azure Blob container (AzureBlobFileStore). FileStore uses the one chosen
-// in Settings > Keys; the copy in Settings > Keys moves every file from one to the other under the same path.
+// in Settings > General; the copy in Settings > General moves every file from one to the other under the same path.
 public interface IFileBackend
 {
     bool IsReady { get; }
