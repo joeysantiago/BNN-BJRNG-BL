@@ -1,15 +1,17 @@
 import { I18nService } from '../../../core/i18n.service';
 import { TrackerNotice } from '../../../core/models/tracker.model';
 import { TrackerApiService } from '../../../core/tracker-api.service';
+import { TrackerDetails } from '../ui/tracker-details/tracker-details';
 import { TrackerStateService } from '../../../core/tracker-state.service';
 import { Component, afterNextRender, computed, inject, signal } from '@angular/core';
 
 /**
- * SnapTracker's part of the Profile page (FEATURE_PROFILE): your data in SnapTracker. Download it all (JSON), delete the original SMS texts but keep the
- * transactions, or delete everything SnapTracker keeps for you. Each delete asks again before it runs. The account, its login and the other apps stay.
+ * SnapTracker's part of the Profile page (FEATURE_PROFILE): "My details" (the names and mobiles that make a transfer between your own accounts a self transfer)
+ * and your data in SnapTracker. Download it all (JSON), delete the original SMS texts but keep the transactions, or delete everything SnapTracker keeps for you. Each delete asks again before it runs. The account, its login and the other apps stay.
  */
 @Component({
   selector: 'app-tracker-profile-panel',
+  imports: [TrackerDetails],
   templateUrl: './tracker-profile-panel.html',
   styleUrl: './tracker-profile-panel.scss',
 })
@@ -65,7 +67,9 @@ export class TrackerProfilePanel {
 
   private async load(): Promise<void> {
     try {
-      this.withText.set((await this.api.state()).txns.filter((t) => t.sms).length);
+      const data = await this.api.state();
+      this.state.data.set(data);
+      this.withText.set(data.txns.filter((t) => t.sms).length);
     } catch (e) {
       this.notice.set({ text: (e as Error).message, error: true });
     }

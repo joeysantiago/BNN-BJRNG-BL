@@ -19,7 +19,9 @@ export const TRACKER_ROUTES: Routes = [
     children: [
       { path: '', loadComponent: () => import('./dashboard/tracker-dashboard').then((m) => m.TrackerDashboard) },
       { path: 'transactions', loadComponent: () => import('./transactions/tracker-transactions').then((m) => m.TrackerTransactions) },
-      { path: 'privacy', loadComponent: () => import('./privacy/tracker-privacy').then((m) => m.TrackerPrivacy) },
+      { path: 'cards', loadComponent: () => import('./cards/tracker-cards').then((m) => m.TrackerCards) },
+      // SMS reading and privacy are now a part of the How page.
+      { path: 'privacy', redirectTo: 'how' },
       { path: 'alerts', loadComponent: () => import('./alerts/tracker-alerts').then((m) => m.TrackerAlerts) },
       { path: 'how', loadComponent: () => import('./how/tracker-how').then((m) => m.TrackerHow) },
       { path: '**', redirectTo: '' },

@@ -10,18 +10,22 @@ using Thakurg.Contracts.Wrappers;
 namespace Thakurg.API.Controllers;
 
 // SnapTracker of the caller: everything the app shows, the settings (Settings > General > SnapTracker), SMS reading on the phone, the alerts and the
-// user's data (Profile > SnapTracker: download, delete the SMS texts, delete everything).
+// user's data (Profile > SnapTracker: download, delete the SMS texts, delete everything), the user's own names and mobiles ("My details") and the names
+// of their accounts, cards and loans.
 [ApiController]
 [Route("api/tracker")]
 [Authorize(Policy = AuthPolicies.Tracker)]
 [TypeFilter(typeof(TrackerProfileFilter))]
 public class TrackerController : ControllerBase
 {
+    private readonly ITrackerFlowService _flowService;
+
     private readonly ITrackerService _trackerService;
 
-    public TrackerController(ITrackerService trackerService)
+    public TrackerController(ITrackerService trackerService, ITrackerFlowService flowService)
     {
         _trackerService = trackerService;
+        _flowService = flowService;
     }
 
     #region Public Methods
@@ -63,10 +67,22 @@ public class TrackerController : ControllerBase
         return Result(await _trackerService.TrackingAsync(HttpContext.TrackerCaller(), command, cancellationToken));
     }
 
+    [HttpPut("details")]
+    public async Task<ActionResult<ApiResponse<TrackerDataDto>>> SaveDetails([FromBody] TrackerOwnerDto request, CancellationToken cancellationToken)
+    {
+        return Result(await _flowService.SaveOwnerAsync(HttpContext.TrackerCaller(), request, cancellationToken));
+    }
+
     [HttpPut("settings")]
     public async Task<ActionResult<ApiResponse<TrackerDataDto>>> SaveSettings([FromBody] TrackerSettingsDto request, CancellationToken cancellationToken)
     {
         return Result(await _trackerService.SaveSettingsAsync(HttpContext.TrackerCaller(), request, cancellationToken));
+    }
+
+    [HttpPut("accounts/{id:int}")]
+    public async Task<ActionResult<ApiResponse<TrackerDataDto>>> SaveAccount(int id, [FromBody] TrackerAccountRequestDto request, CancellationToken cancellationToken)
+    {
+        return Result(await _flowService.SetAccountLabelAsync(HttpContext.TrackerCaller(), id, request, cancellationToken));
     }
 
     #endregion

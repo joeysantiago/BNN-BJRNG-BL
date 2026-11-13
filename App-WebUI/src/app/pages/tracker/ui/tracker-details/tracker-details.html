@@ -1,0 +1,17 @@
+<form class="details-form" (submit)="$event.preventDefault(); save()">
+  <p class="muted">{{ i18n.t('tracker.details.p') }}</p>
+  <label class="field">
+    <span>{{ i18n.t('tracker.details.names') }}</span>
+    <input class="input" autocomplete="name" maxlength="320" [value]="names()" (input)="names.set($any($event.target).value)" [placeholder]="i18n.t('tracker.details.namesHint')" />
+  </label>
+  <label class="field">
+    <span>{{ i18n.t('tracker.details.mobiles') }}</span>
+    <input class="input" type="text" inputmode="tel" autocomplete="tel" maxlength="80" [value]="mobiles()" (input)="mobiles.set($any($event.target).value)" [placeholder]="i18n.t('tracker.details.mobilesHint')" />
+  </label>
+  <div class="row">
+    <button type="submit" class="btn pri" [disabled]="state.busy()">{{ i18n.t('tracker.details.save') }}</button>
+    @if (prompt()) {
+      <button type="button" class="btn" (click)="done.emit()">{{ i18n.t('tracker.details.later') }}</button>
+    }
+  </div>
+</form>

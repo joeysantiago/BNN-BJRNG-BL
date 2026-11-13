@@ -17,11 +17,12 @@ export interface NativeSms {
   senderName: string | null;
 }
 
-/** SMS reading on the phone: on only when the user allowed SMS access and tracking is on. */
+/** SMS reading on the phone: on only when the user allowed SMS access and tracking is on; inboxReadUntil is how far the inbox was sent (ms, 0 never). */
 export interface NativeSmsStatus {
   queued: number;
   enabled: boolean;
   permission: string;
+  inboxReadUntil: number;
 }
 
 /** One read of the inbox: the bank SMS found, how far it was read (ms) and whether more is left. */
@@ -39,7 +40,7 @@ export interface SmsTrackerPlugin {
   revoke(): Promise<NativeSmsStatus>;
   getStatus(): Promise<NativeSmsStatus>;
   getPending(): Promise<{ messages: NativeSms[] }>;
-  readInbox(options: { since: number }): Promise<NativeInbox>;
+  readInbox(options: { since: number; full?: boolean }): Promise<NativeInbox>;
   markInbox(options: { until: number }): Promise<NativeSmsStatus>;
   acknowledge(options: { ids: string[] }): Promise<{ removed: number }>;
   addListener(event: 'smsReceived', listener: (sms: NativeSms) => void): Promise<NativeListener>;

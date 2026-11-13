@@ -1,12 +1,15 @@
-import { RouterLink } from '@angular/router';
 import { Component, inject } from '@angular/core';
 import { I18nService } from '../../../core/i18n.service';
+import { TrackerPrivacy } from '../privacy/tracker-privacy';
 import { TrackerStateService } from '../../../core/tracker-state.service';
 
-/** How SnapTracker works (/tracker/app/how): the parts (Android app, server, this app) and the way from an SMS to a transaction, in plain words. */
+/**
+ * How SnapTracker works (/tracker/app/how): the parts (Android app, server, this app) and the way from an SMS to a transaction, in plain words; then SMS reading
+ * and privacy (#privacy): turning reading on, pausing or turning it off, what is read and never read, and the ignored counts.
+ */
 @Component({
   selector: 'app-tracker-how',
-  imports: [RouterLink],
+  imports: [TrackerPrivacy],
   templateUrl: './tracker-how.html',
 })
 

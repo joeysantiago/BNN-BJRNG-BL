@@ -10,6 +10,8 @@ public partial interface ICommonDbContext
 
     DbSet<TrackerAlert> TrackerAlerts { get; }
 
+    DbSet<TrackerAccount> TrackerAccounts { get; }
+
     DbSet<TrackerSmsText> TrackerSmsTexts { get; }
 
     DbSet<TrackerTransaction> TrackerTransactions { get; }

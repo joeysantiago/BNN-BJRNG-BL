@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Options;
+using Thakurg.Application.Common;
 using Thakurg.Application.Repositories;
 using Thakurg.Application.Services;
 using Thakurg.Contracts.Configurations;
@@ -25,6 +26,8 @@ public class TrackerTransactionService : ITrackerTransactionService
 
     private readonly ITrackerSmsReader _reader;
 
+    private readonly ITrackerFlowService _flows;
+
     private readonly ITrackerRepository _repository;
 
     private readonly IMessageService _messageService;
@@ -33,11 +36,12 @@ public class TrackerTransactionService : ITrackerTransactionService
 
     private readonly ITrackerSecretProtector _protector;
 
-    public TrackerTransactionService(ITrackerRepository repository, ITrackerSmsReader reader, ITrackerSecretProtector protector, ITrackerService trackerService, IMessageService messageService, IOptions<TrackerOptions> options)
+    public TrackerTransactionService(ITrackerRepository repository, ITrackerSmsServices sms, ITrackerService trackerService, IMessageService messageService, IOptions<TrackerOptions> options)
     {
         _repository = repository;
-        _reader = reader;
-        _protector = protector;
+        _reader = sms.Reader;
+        _protector = sms.Protector;
+        _flows = sms.Flows;
         _trackerService = trackerService;
         _messageService = messageService;
         _options = options.Value;
@@ -66,7 +70,15 @@ public class TrackerTransactionService : ITrackerTransactionService
         var sender = string.IsNullOrWhiteSpace(request.Sender) ? GuessSender(body) : request.Sender.Trim();
         var result = await ProcessAsync(user, sender, body, DateTime.UtcNow, true, cancellationToken);
 
-        return new TrackerSmsReadDto { Result = result, State = await _trackerService.GetStateAsync(caller, cancellationToken) };
+        if (result.Txn is null)
+            return new TrackerSmsReadDto { Result = result, State = await _trackerService.GetStateAsync(caller, cancellationToken) };
+
+        // The new transaction may pair with an earlier one (a self transfer, a card bill), so every flow is worked out again.
+        await _flows.ReflowAsync(user, cancellationToken);
+        var state = await _trackerService.GetStateAsync(caller, cancellationToken);
+        result.Txn = state.Txns.FirstOrDefault(t => t.Id == result.Txn.Id) ?? result.Txn;
+
+        return new TrackerSmsReadDto { Result = result, State = state };
     }
 
     public async Task<ServiceResultDto<TrackerDataDto>> ActAsync(TrackerCallerDto caller, int id, string action, CancellationToken cancellationToken)
@@ -115,6 +127,9 @@ public class TrackerTransactionService : ITrackerTransactionService
             else
                 Count(result, (await ProcessAsync(user, message.Sender?.Trim() ?? string.Empty, body, receivedAt, false, cancellationToken)).Outcome);
         }
+
+        if (result.Created + result.Duplicates > 0)
+            await _flows.ReflowAsync(user, cancellationToken);
 
         return new TrackerImportReadDto { Result = result, State = await _trackerService.GetStateAsync(caller, cancellationToken) };
     }
@@ -209,6 +224,16 @@ public class TrackerTransactionService : ITrackerTransactionService
         return text is null || text.Length <= length ? text : text[..length];
     }
 
+    private static void Ignore(TrackerUser user, string why)
+    {
+        if (why == "balance")
+            user.FilteredBalance++;
+        else if (why == "notice")
+            user.FilteredNotice++;
+        else
+            user.FilteredOther++;
+    }
+
     private static void Count(TrackerImportResultDto result, string outcome)
     {
         if (outcome == "created")
@@ -228,8 +253,13 @@ public class TrackerTransactionService : ITrackerTransactionService
         _repository.AddAlert(new TrackerAlert { TrackerUserId = user.Id, Type = type, TransactionId = transaction?.Id, Args = args });
     }
 
+    // A transaction typed in: its fields, and what it counts towards (unless the user chose that with "Mark as…"): a salary or other income, a card purchase
+    // or a spend.
     private static void Apply(TrackerTransaction transaction, TrackerTxnRequestDto request)
     {
+        if (!transaction.FlowEdited)
+            transaction.FlowCode = request.Type == TrackerTypes.Credit ? (request.Category == "salary" ? TrackerFlows.Salary : TrackerFlows.Income) : request.Method == TrackerMethods.CreditCard ? TrackerFlows.CardSpend : request.Category == "emi" ? TrackerFlows.Emi : TrackerFlows.Spend;
+
         transaction.AmountMinor = (long)Math.Round(request.Amount * 100);
         transaction.Type = request.Type;
         transaction.CategoryCode = request.Category;
@@ -326,6 +356,21 @@ public class TrackerTransactionService : ITrackerTransactionService
             return await SkipAsync(() => user.FilteredFailed++, "failed");
         }
 
+        var owner = TrackerMapper.Owner(user);
+
+        // A balance, a reminder, a statement or a notice is not a transaction; what a reminder or statement says is due is kept on the loan or card.
+        if (_reader.Skip(body, owner) is { } why)
+        {
+            Step("server", "notice", false, new() { ["why"] = why });
+
+            if (why == "notice" && _reader.Due(body) is { } due)
+                await _flows.RecordDueAsync(user, due, senderName, cancellationToken);
+
+            return await SkipAsync(() => Ignore(user, why), why);
+        }
+
+        Step("server", "notice", true);
+
         var parsed = _reader.Parse(body, receivedAt);
 
         if (parsed.Amount <= 0)
@@ -336,7 +381,7 @@ public class TrackerTransactionService : ITrackerTransactionService
         }
 
         Step("server", "details", true, new() { ["amount"] = parsed.Amount, ["type"] = parsed.Type ?? string.Empty, ["method"] = parsed.Method, ["account"] = parsed.Account ?? string.Empty, ["ref"] = parsed.Ref ?? string.Empty });
-        var rules = (await _repository.GetRulesAsync(user.Id, cancellationToken)).ToDictionary(r => r.MerchantKey, r => r.CategoryCode);
+        var rules = (await _repository.GetRulesAsync(user.Id, cancellationToken)).Where(r => r.CategoryCode is not null).ToDictionary(r => r.MerchantKey, r => r.CategoryCode!);
         var category = _reader.Categorize(parsed, body, rules);
         var marks = new[] { parsed.AmountText, parsed.MerchantRaw, parsed.AccountText, parsed.RefText }.Where(m => !string.IsNullOrEmpty(m));
         var hash = Hash(body);
@@ -350,6 +395,7 @@ public class TrackerTransactionService : ITrackerTransactionService
             CurrencyCode = _options.CurrencyCode,
             Merchant = Cut(parsed.Merchant, _options.Limits.MerchantLength),
             CategoryCode = category,
+            FlowCode = _reader.Flow(parsed, body, owner),
             Kind = parsed.MerchantKind,
             Method = parsed.Method,
             AccountLast4 = parsed.Account,

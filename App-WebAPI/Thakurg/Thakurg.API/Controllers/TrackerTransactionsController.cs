@@ -10,18 +10,21 @@ using Thakurg.Contracts.Wrappers;
 namespace Thakurg.API.Controllers;
 
 // SnapTracker's transactions of the caller: read a pasted or shared SMS or a batch of an SMS backup, add or edit one by hand, confirm / ignore / restore / not a duplicate, change the
-// category (optionally for every later transaction of the merchant) and delete. Every answer carries the whole SnapTracker state.
+// category (optionally for every later transaction of the merchant), mark what it counts towards ("Mark as…") and delete. Every answer carries the whole SnapTracker state.
 [ApiController]
 [Route("api/tracker")]
 [Authorize(Policy = AuthPolicies.Tracker)]
 [TypeFilter(typeof(TrackerProfileFilter))]
 public class TrackerTransactionsController : ControllerBase
 {
+    private readonly ITrackerFlowService _flowService;
+
     private readonly ITrackerTransactionService _transactionService;
 
-    public TrackerTransactionsController(ITrackerTransactionService transactionService)
+    public TrackerTransactionsController(ITrackerTransactionService transactionService, ITrackerFlowService flowService)
     {
         _transactionService = transactionService;
+        _flowService = flowService;
     }
 
     #region Public Methods
@@ -55,6 +58,12 @@ public class TrackerTransactionsController : ControllerBase
     public async Task<ActionResult<ApiResponse<TrackerDataDto>>> Edit(int id, [FromBody] TrackerTxnRequestDto request, CancellationToken cancellationToken)
     {
         return Result(await _transactionService.EditAsync(HttpContext.TrackerCaller(), id, request, cancellationToken));
+    }
+
+    [HttpPut("transactions/{id:int}/flow")]
+    public async Task<ActionResult<ApiResponse<TrackerDataDto>>> SetFlow(int id, [FromBody] TrackerFlowRequestDto request, CancellationToken cancellationToken)
+    {
+        return Result(await _flowService.SetFlowAsync(HttpContext.TrackerCaller(), id, request, cancellationToken));
     }
 
     [HttpPost("sms/import")]

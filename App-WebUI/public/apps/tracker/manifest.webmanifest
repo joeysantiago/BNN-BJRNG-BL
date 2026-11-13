@@ -1,0 +1,18 @@
+{
+  "id": "/tracker-app",
+  "name": "SnapTracker",
+  "short_name": "SnapTracker",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/apps/tracker/?source=pwa#/tracker/app",
+  "scope": "/apps/tracker/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef1f7",
+  "theme_color": "#2f5bea",
+  "icons": [
+    { "src": "/icons/tracker-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/tracker-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/tracker-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

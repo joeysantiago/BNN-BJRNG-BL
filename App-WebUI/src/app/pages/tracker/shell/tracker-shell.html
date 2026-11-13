@@ -27,7 +27,7 @@
         <span class="crumb">{{ crumb() }}</span>
         <div class="top-actions">
           @if (state.data(); as d) {
-            <a [class]="'status ' + d.tracking.state" routerLink="/tracker/app/privacy" [attr.aria-label]="i18n.t('tracker.state.' + d.tracking.state) + '. ' + i18n.t('tracker.state.open')">
+            <a [class]="'status ' + d.tracking.state" routerLink="/tracker/app/how" fragment="privacy" [attr.aria-label]="i18n.t('tracker.state.' + d.tracking.state) + '. ' + i18n.t('tracker.state.open')">
               <span class="sdot"></span><span class="slbl">{{ i18n.t('tracker.state.' + d.tracking.state) }}</span>
             </a>
           }
@@ -50,7 +50,7 @@
         <span class="tab-ico"><svg stIco="list" [size]="22"></svg>@if (state.pending().length) {<b class="tab-cnt">{{ state.pending().length }}</b>}</span>{{ i18n.t('tracker.nav.activity') }}
       </a>
       <button type="button" class="fab" [attr.aria-label]="i18n.t('tracker.add')" (click)="state.addOpen.set(true)"><svg stIco="plus" [size]="26"></svg></button>
-      <a class="tab" routerLink="/tracker/app/privacy" [attr.aria-current]="current('/tracker/app/privacy')"><svg stIco="shield" [size]="22"></svg>{{ i18n.t('tracker.nav.privacy') }}</a>
+      <a class="tab" routerLink="/tracker/app/cards" [attr.aria-current]="current('/tracker/app/cards')"><svg stIco="wallet" [size]="22"></svg>{{ i18n.t('tracker.nav.cards') }}</a>
       <a class="tab" routerLink="/profile"><svg stIco="user" [size]="22"></svg>{{ i18n.t('tracker.nav.profile') }}</a>
     </nav>
   </div>
@@ -60,6 +60,18 @@
   }
   @if (state.addOpen()) {
     <app-tracker-add />
+  }
+  @if (askDetails()) {
+    <div class="scrim" (click)="later()"></div>
+    <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="tr-det-h">
+      <div class="drawer-head">
+        <h2 id="tr-det-h">{{ i18n.t('tracker.details.h') }}</h2>
+        <button type="button" class="btn ghost icon" [attr.aria-label]="i18n.t('tracker.close')" (click)="later()"><svg stIco="x"></svg></button>
+      </div>
+      <div class="drawer-body">
+        <app-tracker-details [prompt]="true" (done)="later()" />
+      </div>
+    </section>
   }
 
   <app-tracker-overlays />

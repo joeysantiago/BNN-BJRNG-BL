@@ -7,6 +7,8 @@ public interface ITrackerRepository
 {
     void AddAlert(TrackerAlert alert);
 
+    void AddAccount(TrackerAccount account);
+
     void AddRule(TrackerCategoryRule rule);
 
     void AddTransaction(TrackerTransaction transaction);
@@ -22,6 +24,8 @@ public interface ITrackerRepository
     Task<bool> TryAddUserAsync(TrackerUser user, CancellationToken cancellationToken);
 
     Task TrimAlertsAsync(int userId, int keep, CancellationToken cancellationToken);
+
+    Task<List<TrackerAccount>> GetAccountsAsync(int userId, CancellationToken cancellationToken);
 
     Task<List<TrackerAlert>> GetAlertsAsync(int userId, CancellationToken cancellationToken);
 

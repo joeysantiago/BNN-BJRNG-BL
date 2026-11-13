@@ -1,7 +1,7 @@
 import { ApiService } from './api.service';
 import { I18nService } from './i18n.service';
 import { Injectable, inject } from '@angular/core';
-import { TrackerData, TrackerImportResult, TrackerImportSms, TrackerSettings, TrackerSmsResult, TrackerTxnRequest } from './models/tracker.model';
+import { TrackerData, TrackerFlow, TrackerImportResult, TrackerImportSms, TrackerOwner, TrackerSettings, TrackerSmsResult, TrackerTxnRequest } from './models/tracker.model';
 
 const TIMEOUT = 30000;
 
@@ -45,6 +45,11 @@ export class TrackerApiService {
     return this.change('POST', '/tracker/transactions', request);
   }
 
+  /** The user's own names and mobiles ("My details"); every transaction is worked out again with them. */
+  saveDetails(owner: TrackerOwner): Promise<{ text: string; data: TrackerData }> {
+    return this.change('PUT', '/tracker/details', owner);
+  }
+
   saveSettings(settings: TrackerSettings): Promise<{ text: string; data: TrackerData }> {
     return this.change('PUT', '/tracker/settings', settings);
   }
@@ -61,6 +66,16 @@ export class TrackerApiService {
   /** Imports one batch of received bank and UPI messages of an SMS backup; each keeps the date it was received. */
   importSms(messages: TrackerImportSms[]): Promise<{ result: TrackerImportResult; state: TrackerData }> {
     return this.api.send<{ result: TrackerImportResult; state: TrackerData }>('POST', '/tracker/sms/import', this.init({ messages }), TIMEOUT);
+  }
+
+  /** The user's own name for a bank account, card or loan; empty clears it. */
+  label(id: number, label: string | null): Promise<{ text: string; data: TrackerData }> {
+    return this.change('PUT', `/tracker/accounts/${id}`, { label });
+  }
+
+  /** "Mark as…": what the transaction counts towards; remember applies it to the merchant (or, for an EMI, every debit of about that amount). */
+  flow(id: number, flow: TrackerFlow, remember: boolean): Promise<{ text: string; data: TrackerData }> {
+    return this.change('PUT', `/tracker/transactions/${id}/flow`, { flow, remember });
   }
 
   category(id: number, category: string, remember: boolean): Promise<{ text: string; data: TrackerData }> {

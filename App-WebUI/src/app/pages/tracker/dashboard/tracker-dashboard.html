@@ -22,6 +22,8 @@
       </section>
     }
 
+    <app-tracker-period />
+
     @if (!d.txns.length) {
       <section class="card empty" aria-labelledby="tr-empty-h">
         <span class="e-ic" aria-hidden="true">📭</span>
@@ -35,27 +37,40 @@
       <div class="dash">
         <section class="card hero span-2" aria-labelledby="tr-month-h">
           <div class="row between">
-            <p class="eyebrow" id="tr-month-h">{{ i18n.t('tracker.dash.month', { month: monthName() }) }}</p>
+            <p class="eyebrow" id="tr-month-h">{{ i18n.t('tracker.dash.spending', { period: state.periodName() }) }}</p>
             @if (state.totals().delta !== null) {
               <span class="chip"><svg [stIco]="state.totals().delta! > 0 ? 'up' : 'down'" [size]="14"></svg>{{ i18n.t('tracker.dash.delta', { n: abs(state.totals().delta!) }) }}</span>
             }
           </div>
-          <p class="big num">{{ state.money(round(state.totals().spent)) }}</p>
+          <p class="big num">{{ state.money(round(state.totals().spending)) }}</p>
           <div class="hero-stats">
-            <div>{{ i18n.t('tracker.dash.today') }}<b class="num">{{ state.money(round(state.totals().todaySpent)) }}</b></div>
+            @if (state.current()) {
+              <div>{{ i18n.t('tracker.dash.today') }}<b class="num">{{ state.money(round(state.totals().todaySpent)) }}</b></div>
+            }
             <div>{{ i18n.t('tracker.dash.income') }}<b class="num">{{ state.money(round(state.totals().income)) }}</b></div>
-            <div>{{ i18n.t('tracker.dash.detected') }}<b class="num">{{ state.totals().detected }}</b></div>
+            <div>{{ i18n.t('tracker.dash.left') }}<b class="num">{{ state.money(round(state.totals().left)) }}</b></div>
+            @if (state.totals().borrowed) {
+              <div>{{ i18n.t('tracker.dash.borrowed') }}<b class="num">{{ state.money(round(state.totals().borrowed)) }}</b></div>
+            }
           </div>
           <svg class="spark-line" viewBox="0 0 300 60" preserveAspectRatio="none" role="img" [attr.aria-label]="i18n.t('tracker.dash.lineLabel')"><polyline [attr.points]="line()" /></svg>
         </section>
 
-        <a class="card kpi" routerLink="/tracker/app/transactions" [queryParams]="{ f: 'debit' }">
-          <span class="k-ic r"><svg stIco="down"></svg></span><span class="k-lbl">{{ i18n.t('tracker.kpi.expenses') }}</span>
-          <b class="num">{{ state.money(round(state.totals().autoDebits)) }}</b><small>{{ i18n.t('tracker.kpi.expensesSub', { n: state.totals().autoDebitCount }) }}</small>
-        </a>
         <a class="card kpi" routerLink="/tracker/app/transactions" [queryParams]="{ f: 'credit' }">
           <span class="k-ic g"><svg stIco="up"></svg></span><span class="k-lbl">{{ i18n.t('tracker.kpi.income') }}</span>
-          <b class="num">{{ state.money(round(state.totals().incomeAll)) }}</b><small>{{ i18n.t('tracker.kpi.incomeSub', { n: state.totals().incomeCount }) }}</small>
+          <b class="num">{{ state.money(round(state.totals().income)) }}</b><small>{{ i18n.t('tracker.kpi.incomeSub2') }}</small>
+        </a>
+        <a class="card kpi" routerLink="/tracker/app/transactions" [queryParams]="{ f: 'debit' }">
+          <span class="k-ic r"><svg stIco="down"></svg></span><span class="k-lbl">{{ i18n.t('tracker.kpi.bankOut') }}</span>
+          <b class="num">{{ state.money(round(state.totals().bankOut)) }}</b><small>{{ i18n.t('tracker.kpi.bankOutSub', { bill: state.money(round(state.totals().cardBill)) }) }}</small>
+        </a>
+        <a class="card kpi" routerLink="/tracker/app/cards">
+          <span class="k-ic"><svg stIco="wallet"></svg></span><span class="k-lbl">{{ i18n.t('tracker.kpi.cardSpend') }}</span>
+          <b class="num">{{ state.money(round(state.totals().cardSpend)) }}</b><small>{{ i18n.t('tracker.kpi.cardSpendSub') }}</small>
+        </a>
+        <a class="card kpi" routerLink="/tracker/app/cards" fragment="loans">
+          <span class="k-ic p"><svg stIco="layers"></svg></span><span class="k-lbl">{{ i18n.t('tracker.kpi.emi') }}</span>
+          <b class="num">{{ state.money(round(state.totals().emi)) }}</b><small>{{ i18n.t('tracker.kpi.emiSub') }}</small>
         </a>
         <a class="card kpi" routerLink="/tracker/app/transactions" [queryParams]="{ f: 'pending' }">
           <span class="k-ic y"><svg stIco="alert"></svg></span><span class="k-lbl">{{ i18n.t('tracker.kpi.verify') }}</span>
@@ -63,7 +78,7 @@
         </a>
         <a class="card kpi" routerLink="/tracker/app/transactions" [queryParams]="{ f: 'dup' }">
           <span class="k-ic p"><svg stIco="copies"></svg></span><span class="k-lbl">{{ i18n.t('tracker.kpi.dups') }}</span>
-          <b class="num">{{ state.totals().dups }}</b><small>{{ i18n.t('tracker.kpi.dupsSub', { n: state.totals().ignoredOnPhone }) }}</small>
+          <b class="num">{{ state.totals().dups }}</b><small>{{ i18n.t('tracker.kpi.dupsSub', { n: state.totals().ignored }) }}</small>
         </a>
 
         <section class="card span-2" aria-labelledby="tr-bars-h">
@@ -75,9 +90,9 @@
             @for (b of bars(); track b.label) {
               <g>
                 <title>{{ b.label }}: {{ b.title }}</title>
-                <rect class="spent" [attr.x]="b.x" [attr.y]="170 - b.spent" width="30" [attr.height]="b.spent" rx="6" />
-                <rect class="income" [attr.x]="b.x + 34" [attr.y]="170 - b.income" width="30" [attr.height]="b.income" rx="6" />
-                <text [attr.x]="b.x + 32" y="192" text-anchor="middle">{{ b.label }}</text>
+                <rect class="spent" [attr.x]="b.x" [attr.y]="170 - b.spent" [attr.width]="b.width" [attr.height]="b.spent" rx="5" />
+                <rect class="income" [attr.x]="b.x + b.width + 4" [attr.y]="170 - b.income" [attr.width]="b.width" [attr.height]="b.income" rx="5" />
+                <text [attr.x]="b.x + b.width + 2" y="192" text-anchor="middle">{{ b.label }}</text>
               </g>
             }
           </svg>

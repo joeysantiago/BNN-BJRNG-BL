@@ -241,4 +241,20 @@ shot(khataIcon(512, { radius: 118, glyphScale: 0.58 }), join(outIcons, 'khata-51
 shot(khataIcon(512, { radius: 0, glyphScale: 0.44 }), join(outIcons, 'khata-maskable-512.png'), 512, 512);
 shot(khataIcon(180, { radius: 0, glyphScale: 0.54 }), join(outIcons, 'khata-apple-touch-icon.png'), 180, 180);
 console.log('SnapKhata icons');
+
+/* ---------- SnapTracker app icons (public/apps/tracker/manifest.webmanifest) ---------- */
+// The app's logo: the "spark" drawing of tracker-icons.ts on the brand gradient of the tracker's default skin.
+const trackerGlyph = (size) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/></svg>`;
+const trackerIcon = (size, { radius, glyphScale }) =>
+  page(
+    `<div class="t"><div class="g">${trackerGlyph(size * glyphScale)}</div></div>`,
+    `body{background:transparent}.t{position:absolute;left:0;top:0;width:${size}px;height:${size}px;border-radius:${radius}px;display:grid;place-items:center;background:linear-gradient(135deg,#3a66f5 0%,#5b5cf6 100%);box-shadow:inset 0 ${size * 0.01}px 0 rgba(255,255,255,.35)}
+.g{display:grid;place-items:center}`,
+  );
+
+shot(trackerIcon(192, { radius: 44, glyphScale: 0.58 }), join(outIcons, 'tracker-192.png'), 192, 192, true);
+shot(trackerIcon(512, { radius: 118, glyphScale: 0.58 }), join(outIcons, 'tracker-512.png'), 512, 512, true);
+shot(trackerIcon(512, { radius: 0, glyphScale: 0.44 }), join(outIcons, 'tracker-maskable-512.png'), 512, 512);
+shot(trackerIcon(180, { radius: 0, glyphScale: 0.54 }), join(outIcons, 'tracker-apple-touch-icon.png'), 180, 180);
+console.log('SnapTracker icons');
 rmSync(work, { recursive: true, force: true });

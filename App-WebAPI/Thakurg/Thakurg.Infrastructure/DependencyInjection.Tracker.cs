@@ -1,10 +1,12 @@
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Thakurg.Application.Common;
 using Thakurg.Application.Repositories;
 using Thakurg.Application.Services;
 using Thakurg.Contracts.Configurations;
 using Thakurg.Contracts.Tracker;
+using Thakurg.Infrastructure.Common;
 using Thakurg.Infrastructure.Repositories;
 using Thakurg.Infrastructure.Services;
 
@@ -31,7 +33,7 @@ public static partial class DependencyInjection
 
     private static bool IsValidTracker(TrackerOptions options)
     {
-        var limits = options.Limits is { MaxAlerts: > 0, NoteLength: > 0, MaxSmsLength: > 0, MaxImportBatch: > 0, MaxAmountMinor: > 0, MerchantLength: > 0, DuplicateMinutes: > 0, MinAutoApprovePercent: > 0 } && options.Limits.MaxAutoApprovePercent is > 0 and < 100 && options.Limits.MinAutoApprovePercent < options.Limits.MaxAutoApprovePercent;
+        var limits = options.Limits is { MaxAlerts: > 0, NoteLength: > 0, MaxSmsLength: > 0, MaxImportBatch: > 0, MaxAmountMinor: > 0, MerchantLength: > 0, DuplicateMinutes: > 0, MinAutoApprovePercent: > 0, PairHours: > 0, CardBillDays: > 0, EmiTolerancePercent: >= 0, UnnamedSelfMinor: > 0, OwnEntries: > 0, OwnNameLength: > 0 } && options.Limits.MaxAutoApprovePercent is > 0 and < 100 && options.Limits.MinAutoApprovePercent < options.Limits.MaxAutoApprovePercent;
         var newUser = TrackerApprovals.All.Contains(options.NewUser.ApprovalMode) && options.NewUser.AutoApprovePercent >= options.Limits.MinAutoApprovePercent && options.NewUser.AutoApprovePercent <= options.Limits.MaxAutoApprovePercent && options.NewUser.AlertTypes.All(TrackerAlertTypes.All.Contains);
         var lists = options.Categories.Contains("other") && options.Senders.Count > 0 && options.Merchants.All(m => m.Name.Length > 0 && options.Categories.Contains(m.Category) && IsPattern(m.Pattern));
 
@@ -46,6 +48,8 @@ public static partial class DependencyInjection
 
         services.AddSingleton<ITrackerSmsReader, TrackerSmsReader>();
         services.AddScoped<ITrackerService, TrackerService>();
+        services.AddScoped<ITrackerSmsServices, TrackerSmsServices>();
+        services.AddScoped<ITrackerFlowService, TrackerFlowService>();
         services.AddScoped<ITrackerProfileService, TrackerProfileService>();
         services.AddScoped<ITrackerSecretProtector, TrackerSecretProtector>();
         services.AddScoped<ITrackerTransactionService, TrackerTransactionService>();

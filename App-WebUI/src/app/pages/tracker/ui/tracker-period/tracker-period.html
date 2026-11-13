@@ -1,0 +1,11 @@
+<nav class="card period" [attr.aria-label]="i18n.t('tracker.period.label')">
+  <div class="seg" role="group" [attr.aria-label]="i18n.t('tracker.period.kind')">
+    <button type="button" [class.on]="state.period().kind === 'month'" [attr.aria-pressed]="state.period().kind === 'month'" (click)="setKind('month')">{{ i18n.t('tracker.period.month') }}</button>
+    <button type="button" [class.on]="state.period().kind === 'year'" [attr.aria-pressed]="state.period().kind === 'year'" (click)="setKind('year')">{{ i18n.t('tracker.period.year') }}</button>
+  </div>
+  <div class="p-nav">
+    <button type="button" class="btn sm icon" [attr.aria-label]="i18n.t('tracker.period.prev')" (click)="state.shift(-1)"><svg stIco="chev" class="back"></svg></button>
+    <b class="p-name" aria-live="polite">{{ state.periodName() }}</b>
+    <button type="button" class="btn sm icon" [disabled]="latest()" [attr.aria-label]="i18n.t('tracker.period.next')" (click)="state.shift(1)"><svg stIco="chev"></svg></button>
+  </div>
+</nav>

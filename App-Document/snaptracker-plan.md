@@ -287,3 +287,30 @@ Nothing is committed or merged without your yes.
   3. `banni-linux` gets Tracker by merge.
   4. `feature-routes.ts` in `banni-linux` lists all apps (`merge=ours`), so its Tracker entries are added by hand there, as was done for Khata.
 - **Planner's worktree has an old path.** `git worktree list` shows Planner's worktree as *prunable*, because Git still records it as `thakurg-branches\Tasks`. The folder is now `thakurg-branches\Planner` and works. Running `git worktree repair` once inside the Planner folder updates the record. Don't run `git worktree prune`: it would drop the record of a worktree that is in use.
+
+## 12. Flows, cards, loans and periods (November 2026 rework)
+
+Built from a real backup of 1,038 bank SMS (May 2025 to Nov 2026). Every transaction now has a **flow** (`TrackerFlows`, column `FlowCode`) next to its debit or credit type, and the dashboard counts by flow:
+
+| Flow | Example | Counts as |
+|---|---|---|
+| `spend` | UPI, ATM, IMPS to a person or shop | spending, money out of the bank |
+| `cardSpend` | "INR 400 spent using ICICI Bank Card XX3009", "Spent Rs.4478 On HDFC Bank Card 6124" (a known card) | spending, on the card |
+| `emi` | "INR 75891 deducted … towards ICICI BANK LIMITED UMRN", a remembered monthly NEFT, HDFC Insta Jumbo statement | spending (EMI category), per loan |
+| `cardBillPaid` | "…; CRED Club credited", "Sent … To ICICI Bank Credit Card", or a bank debit equal to a card's payment received within 3 days | money out of the bank only |
+| `cardPaymentIn` | "Payment of Rs 22,850.00 has been received on your ICICI Bank Credit Card" | nothing (pairs with the bill) |
+| `salary` / `income` / `refund` / `cardRefund` | credits | income / lowers spending |
+| `loanIn` | a CRED (@yescred) credit from someone else's mobile | money borrowed, not income |
+| `selfTransfer` | to or from the user's own names and mobiles ("My details"), both sides of one UPI reference, a salary moved on the same day, a credit naming nobody from Tracker:Limits:UnnamedSelfMinor | nothing |
+
+- **Not transactions:** balance messages, reminders, statements and notices (`TrackerSmsReader.Skip`). A reminder's EMI or a statement's total and due date are kept on the loan or card (`TrackerAccounts`). The employer's "NEFT money transfer … credited to <name>" and an outgoing NEFT's "credited to the beneficiary account" next to its debit are echoes.
+- **TrackerFlowService.ReflowAsync** works every flow out again after each SMS, import batch, "Mark as…" and "My details" change, so a later SMS can still pair with an earlier one. A flow the user chose (`FlowEdited`) is never changed.
+- **New tables and columns:** `002_TrackerAccounts` (bank, card, loan); `TrackerTransactions` gets FlowCode, FlowEdited, PairId, AccountId and LoanId; `TrackerUsers` gets OwnNames, OwnMobiles, FilteredNotice and FilteredBalance; `TrackerCategoryRules` gets FlowCode.
+- **App:**
+  - Month or year selector for every number (dashboard, Activity, Cards).
+  - The Cards tab (cards, card bills paid, loans) replaces Privacy. SMS reading and privacy moved to the How page (`#privacy`), with "Read all SMS again".
+  - "Mark as…" in the drawer.
+  - "My details" (asked once, kept in Profile).
+- **Phone:** the first sync reads the whole inbox, and "Read all SMS again" re-sends it (the server skips what it has). New senders: ICICIT, BOBSMS, SLCBNK, FEDBNK, FEDSMS, HDFCBN.
+- **Salary:** the salary credit itself is not in the user's SMS (HDFC sends none), so it is added by hand (Add, type money in, category salary).
+

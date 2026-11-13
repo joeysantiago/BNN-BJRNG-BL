@@ -2,13 +2,19 @@ import { I18nService } from './i18n.service';
 import { TRACKER_CATEGORIES } from './tracker-meta';
 import { TrackerApiService } from './tracker-api.service';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { TrackerData, TrackerDay, TrackerFilter, TrackerMonth, TrackerSlice, TrackerTxn } from './models/tracker.model';
+import { TrackerData, TrackerDay, TrackerFilter, TrackerFlow, TrackerMonth, TrackerPeriod, TrackerSlice, TrackerTotals, TrackerTxn } from './models/tracker.model';
 
 const DAY = 864e5;
+
+/** The flows that are spending (what was bought), and the ones that take spending back. */
+const SPENDING: readonly TrackerFlow[] = ['spend', 'cardSpend', 'emi'];
+const REFUNDS: readonly TrackerFlow[] = ['refund', 'cardRefund'];
 
 /**
  * What SnapTracker shows: the data of GET /tracker/state, the open filter, search, transaction and Add sheet, the toasts, and every number the
  * dashboard draws (worked out here from the transactions, as the prototype did). Every list is a computed signal, so a change shows everywhere at once.
+ * The numbers are of the chosen period (a month or a year, the current month at first) and follow each transaction's flow: spending is what was
+ * bought (bank and card spends and EMIs, less refunds); money out of the bank adds the card bills paid; self transfers and the card's payments count nowhere.
  */
 @Injectable({ providedIn: 'root' })
 
@@ -29,40 +35,68 @@ export class TrackerStateService {
   readonly unread = computed(() => (this.data()?.alerts ?? []).filter((a) => !a.read).length);
   /** The transactions counted in totals: not ignored and not duplicates. */
   readonly live = computed(() => this.txns().filter((t) => t.status !== 'ignored' && t.status !== 'duplicate'));
+  /** The dashboard's period: this month at first; a month of any year, or a whole year. */
+  readonly period = signal<TrackerPeriod>({ kind: 'month', year: new Date().getFullYear(), month: new Date().getMonth() });
   readonly pending = computed(() => this.txns().filter((t) => t.status === 'pending').sort((a, b) => b.at.localeCompare(a.at)));
+  /** The counted transactions of the period. */
+  readonly inPeriod = computed(() => {
+    const [from, to] = this.range();
+    return this.live().filter((t) => this.ms(t) >= from && this.ms(t) < to);
+  });
+  /** True while the period is the current month: only then are today's spending and the comparison with last month shown. */
+  readonly current = computed(() => {
+    const [from, to] = this.range();
+    return this.period().kind === 'month' && Date.now() >= from && Date.now() < to;
+  });
   readonly recent = computed(() => this.txns().filter((t) => t.source === 'sms').sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.at.localeCompare(a.at)).slice(0, 6));
-  /** Spending of each day of this month so far (the line under the month's total). */
+  /** Start (inclusive) and end (exclusive) of the period, in ms. */
+  readonly range = computed<[number, number]>(() => {
+    const p = this.period();
+    return p.kind === 'year' ? [new Date(p.year, 0, 1).getTime(), new Date(p.year + 1, 0, 1).getTime()] : [new Date(p.year, p.month, 1).getTime(), new Date(p.year, p.month + 1, 1).getTime()];
+  });
+  /** The period's name in the user's language: "November 2026", or "2026". */
+  readonly periodName = computed(() => {
+    const p = this.period();
+    const locale = { en: 'en-IN', hi: 'hi-IN', ar: 'ar' }[this.i18n.lang()] ?? 'en-IN';
+    return new Intl.DateTimeFormat(locale, p.kind === 'year' ? { year: 'numeric' } : { month: 'long', year: 'numeric' }).format(new Date(p.year, p.kind === 'year' ? 0 : p.month, 1));
+  });
+  /** Spending of each day of the month (so far, for the current month), or of each month of the year (the line under the period's total). */
   readonly daily = computed(() => {
-    const month = this.startOfMonth(Date.now());
-    const days = new Date().getDate();
-    const out = Array.from({ length: days }, () => 0);
-    this.live().filter((t) => t.type === 'debit' && this.ms(t) >= month).forEach((t) => (out[new Date(this.ms(t)).getDate() - 1] += t.amount));
+    const p = this.period();
+    const length = p.kind === 'year' ? 12 : this.current() ? new Date().getDate() : new Date(p.year, p.month + 1, 0).getDate();
+    const out = Array.from({ length }, () => 0);
+    for (const t of this.inPeriod()) {
+      const i = p.kind === 'year' ? new Date(this.ms(t)).getMonth() : new Date(this.ms(t)).getDate() - 1;
+      if (i < length)
+        out[i] += this.spent(t);
+    }
     return out;
   });
-  /** This month's spending by category, biggest first (the donut). */
+  /** The period's spending by category, biggest first (the donut): bank and card spends and EMIs, never transfers or card bills. */
   readonly slices = computed<TrackerSlice[]>(() => {
-    const month = this.startOfMonth(Date.now());
-    const debits = this.live().filter((t) => t.type === 'debit' && this.ms(t) >= month);
+    const debits = this.inPeriod().filter((t) => SPENDING.includes(t.flow));
     const total = debits.reduce((a, t) => a + t.amount, 0);
     return TRACKER_CATEGORIES.map((c) => ({ ...c, total: debits.filter((t) => t.category === c.code).reduce((a, t) => a + t.amount, 0) })).filter((c) => c.total > 0).sort((a, b) => b.total - a.total).map((c) => ({ ...c, pct: total ? Math.round((c.total / total) * 100) : 0 }));
   });
-  /** Spent and income of the last six months, oldest first (the bar chart). */
+  /** Spending and income by month, oldest first (the bar chart): the twelve months of the chosen year, or the six months up to the chosen month. */
   readonly months = computed<TrackerMonth[]>(() => {
     const rows: TrackerMonth[] = [];
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const from = new Date(now.getFullYear(), now.getMonth() - i, 1).getTime();
-      const to = new Date(now.getFullYear(), now.getMonth() - i + 1, 1).getTime();
+    const p = this.period();
+    const [first, count] = p.kind === 'year' ? [0, 12] : [p.month - 5, 6];
+    for (let i = 0; i < count; i++) {
+      const from = new Date(p.year, first + i, 1).getTime();
+      const to = new Date(p.year, first + i + 1, 1).getTime();
       const inMonth = this.live().filter((t) => this.ms(t) >= from && this.ms(t) < to);
       const start = new Date(from);
-      rows.push({ key: `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}`, spent: inMonth.filter((t) => t.type === 'debit').reduce((a, t) => a + t.amount, 0), income: inMonth.filter((t) => t.type === 'credit').reduce((a, t) => a + t.amount, 0) });
+      rows.push({ key: `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}`, spent: inMonth.reduce((a, t) => a + this.spent(t), 0), income: inMonth.filter((t) => t.flow === 'salary' || t.flow === 'income').reduce((a, t) => a + t.amount, 0) });
     }
     return rows;
   });
-  /** The Activity list: the open filter and search, newest first, grouped by day with each day's net amount. */
+  /** The Activity list: the period's transactions of the open filter and search, newest first, grouped by day with each day's net amount. */
   readonly days = computed<TrackerDay[]>(() => {
     const q = this.search().trim().toLowerCase();
-    const list = this.txns().filter((t) => this.passes(t, this.filter())).filter((t) => !q || [t.merchant, this.describe(t), this.i18n.t('tracker.cat.' + t.category), this.i18n.t('tracker.method.' + t.method), t.sms?.body, String(t.amount)].some((v) => v && v.toLowerCase().includes(q))).sort((a, b) => b.at.localeCompare(a.at));
+    const [from, to] = this.range();
+    const list = this.txns().filter((t) => this.ms(t) >= from && this.ms(t) < to && this.passes(t, this.filter())).filter((t) => !q || [t.merchant, this.describe(t), this.i18n.t('tracker.cat.' + t.category), this.i18n.t('tracker.method.' + t.method), t.sms?.body, String(t.amount)].some((v) => v && v.toLowerCase().includes(q))).sort((a, b) => b.at.localeCompare(a.at));
     const groups: TrackerDay[] = [];
     for (const t of list) {
       const label = this.dayLabel(t.at);
@@ -75,25 +109,33 @@ export class TrackerStateService {
     }
     return groups;
   });
-  /** The dashboard's numbers for this month and today, and how this month compares with the same days of last month. */
-  readonly totals = computed(() => {
-    const now = Date.now();
-    const month = this.startOfMonth(now);
-    const prev = this.startOfMonth(month - DAY);
-    const today = new Date(new Date(now).setHours(0, 0, 0, 0)).getTime();
-    const L = this.live();
+  /**
+   * The period's money: income (salary and other income), money out of the bank (spends, EMIs paid from the bank, card bills paid) and what is left;
+   * spending (bank and card spends and EMIs, less refunds); money borrowed. For the current month also today's spending and the change against the
+   * same days of last month; the counts of detected, duplicate and ignored messages are of all time.
+   */
+  readonly totals = computed<TrackerTotals & { todaySpent: number; delta: number | null; detected: number; dups: number; ignored: number }>(() => {
+    const L = this.inPeriod();
     const sum = (list: TrackerTxn[]) => list.reduce((a, t) => a + t.amount, 0);
-    const debits = (from: number, to = Infinity) => L.filter((t) => t.type === 'debit' && this.ms(t) >= from && this.ms(t) < to);
-    const spent = sum(debits(month));
-    const prevSame = sum(debits(prev, prev + (now - month)));
-    const smsDebits = L.filter((t) => t.source === 'sms' && t.type === 'debit');
-    const smsCredits = L.filter((t) => t.source === 'sms' && t.type === 'credit');
-    const f = this.data()?.filtered ?? { otp: 0, promo: 0, other: 0, failed: 0 };
+    const by = (...flows: TrackerFlow[]) => sum(L.filter((t) => flows.includes(t.flow)));
+    const income = by('salary', 'income');
+    const bankSpend = by('spend') - by('refund');
+    const cardSpend = by('cardSpend') - by('cardRefund');
+    const emi = by('emi');
+    const cardBill = by('cardBillPaid');
+    const bankOut = by('spend') + sum(L.filter((t) => t.flow === 'emi' && t.method !== 'creditCard')) + cardBill;
+    const [from] = this.range();
+    const now = Date.now();
+    const today = new Date(new Date(now).setHours(0, 0, 0, 0)).getTime();
+    const prev = new Date(new Date(from).getFullYear(), new Date(from).getMonth() - 1, 1).getTime();
+    const spentBetween = (a: number, b: number) => this.live().filter((t) => this.ms(t) >= a && this.ms(t) < b).reduce((n, t) => n + this.spent(t), 0);
+    const prevSame = this.current() ? spentBetween(prev, prev + (now - from)) : 0;
+    const f = this.data()?.filtered ?? { otp: 0, promo: 0, other: 0, failed: 0, notice: 0, balance: 0 };
     return {
-      spent, todaySpent: sum(debits(today)), todayCount: debits(today).length, delta: prevSame ? Math.round(((spent - prevSame) / prevSame) * 100) : null,
-      income: sum(L.filter((t) => t.type === 'credit' && this.ms(t) >= month)), autoDebits: sum(smsDebits), autoDebitCount: smsDebits.length, incomeAll: sum(smsCredits), incomeCount: smsCredits.length,
-      detected: this.txns().filter((t) => t.source === 'sms').length, autoApproved: this.txns().filter((t) => t.status === 'auto').length, manual: this.txns().filter((t) => t.source === 'manual').length,
-      dups: this.txns().filter((t) => t.status === 'duplicate').length, ignoredOnPhone: f.otp + f.promo + f.other + f.failed,
+      income, bankSpend, cardSpend, emi, cardBill, bankOut, spending: bankSpend + cardSpend + emi, left: income - bankOut, borrowed: by('loanIn'),
+      todaySpent: this.current() ? spentBetween(today, Infinity) : 0, delta: prevSame ? Math.round(((spentBetween(from, now) - prevSame) / prevSame) * 100) : null,
+      detected: this.txns().filter((t) => t.source === 'sms').length, dups: this.txns().filter((t) => t.status === 'duplicate').length,
+      ignored: f.otp + f.promo + f.other + f.failed + f.notice + f.balance,
     };
   });
 
@@ -115,6 +157,13 @@ export class TrackerStateService {
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   }
 
+  /** One period back (-1) or forward (+1): the month before or after, or the year. */
+  shift(step: number): void {
+    const p = this.period();
+    const d = new Date(p.year, p.kind === 'year' ? 0 : p.month + step, 1);
+    this.period.set(p.kind === 'year' ? { ...p, year: p.year + step } : { kind: 'month', year: d.getFullYear(), month: d.getMonth() });
+  }
+
   ms(t: TrackerTxn): number {
     return new Date(t.at).getTime();
   }
@@ -130,6 +179,11 @@ export class TrackerStateService {
     } catch {
       this.failed.set(true);
     }
+  }
+
+  /** How much a transaction adds to spending: a spend, card spend or EMI its amount, a refund minus its amount, anything else nothing. */
+  spent(t: TrackerTxn): number {
+    return SPENDING.includes(t.flow) ? t.amount : REFUNDS.includes(t.flow) ? -t.amount : 0;
   }
 
   /** Today, Yesterday or the date. */
@@ -194,11 +248,6 @@ export class TrackerStateService {
   // #endregion
 
   // #region Private Methods
-
-  private startOfMonth(t: number): number {
-    const d = new Date(t);
-    return new Date(d.getFullYear(), d.getMonth(), 1).getTime();
-  }
 
   private passes(t: TrackerTxn, f: TrackerFilter): boolean {
     const counted = t.status !== 'ignored' && t.status !== 'duplicate';

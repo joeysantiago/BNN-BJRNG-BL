@@ -7,6 +7,10 @@ public class TrackerDataDto
 
     public List<TrackerAlertDto> Alerts { get; set; } = [];
 
+    public TrackerOwnerDto Owner { get; set; } = new();
+
+    public List<TrackerAccountDto> Accounts { get; set; } = [];
+
     public TrackerFilteredDto Filtered { get; set; } = new();
 
     public TrackerSettingsDto Settings { get; set; } = new();

@@ -1,5 +1,5 @@
 {
-  "apps": [],
+  "apps": ["tracker"],
   "prerender": ["tracker"],
   "sitemap": [{ "path": "/tracker/", "priority": "0.6" }]
 }

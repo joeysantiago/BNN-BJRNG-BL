@@ -15,9 +15,20 @@ public static class TrackerMapper
         return DateTime.SpecifyKind(value, DateTimeKind.Utc);
     }
 
+    // How the user appears in an SMS: their names and mobiles, kept comma-separated on the profile.
+    public static TrackerOwnerDto Owner(TrackerUser user)
+    {
+        return new TrackerOwnerDto { Names = [.. user.OwnNames.Split(',', StringSplitOptions.RemoveEmptyEntries)], Mobiles = [.. user.OwnMobiles.Split(',', StringSplitOptions.RemoveEmptyEntries)] };
+    }
+
     public static TrackerAlertDto ToDto(TrackerAlert alert)
     {
         return new TrackerAlertDto { Id = alert.Id, At = Utc(alert.CreatedOn), Read = alert.IsRead, Type = alert.Type, TxnId = alert.TransactionId, Args = JsonSerializer.Deserialize<Dictionary<string, object>>(alert.Args) ?? [] };
+    }
+
+    public static TrackerAccountDto ToDto(TrackerAccount account)
+    {
+        return new TrackerAccountDto { Id = account.Id, Type = account.AccountType, Last4 = account.Last4, Provider = account.Provider, Label = account.Label, Emi = account.EmiMinor / 100m, StatementTotal = account.StatementTotalMinor / 100m, DueOn = account.StatementDueOn is { } due ? Utc(due) : null };
     }
 
     // The SMS text is decrypted only here, for the user who owns it; a text that can no longer be read (lost keys) shows as deleted.
@@ -32,6 +43,11 @@ public static class TrackerMapper
             Amount = t.AmountMinor / 100m,
             Edited = t.IsEdited,
             Type = t.Type,
+            Flow = t.FlowCode,
+            FlowEdited = t.FlowEdited,
+            PairId = t.PairId,
+            AccountId = t.AccountId,
+            LoanId = t.LoanId,
             TypeGuessed = t.TypeGuessed,
             Category = t.CategoryCode,
             Kind = t.Kind,

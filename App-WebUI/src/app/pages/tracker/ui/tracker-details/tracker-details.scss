@@ -1,0 +1,7 @@
+// "My details" (names and mobiles of the user), inside the SnapTracker app and on the Profile page.
+.details-form { display: grid; gap: 12px; }
+.details-form .muted { margin: 0; }
+.field { display: grid; gap: 6px; font-weight: 700; font-size: 14px; }
+.field .input { min-height: 44px; width: 100%; box-sizing: border-box; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+.row .btn { min-height: 44px; }
