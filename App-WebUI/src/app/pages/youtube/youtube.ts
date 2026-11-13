@@ -7,6 +7,7 @@ import { Repeat } from '../../shared/models/player.model';
 import { AppPwaService } from '../../core/app-pwa.service';
 import { SettingsService } from '../../core/settings.service';
 import type { TranslationKey } from '../../core/models/i18n.model';
+import { NativeMediaService } from '../../core/native-media.service';
 import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { YT_ENDED, YT_PAUSED, YT_PLAYING, YtDownloadInfo, YtInput, YtMessage, YtPlayer, YtPlayerApi, YtPlaylist, YtVideo, YtWindow } from './youtube.model';
 
@@ -83,6 +84,7 @@ export class Youtube implements OnDestroy {
   private readonly api = inject(ApiService);
   private readonly seo = inject(SeoService);
   private readonly pwa = inject(AppPwaService);
+  private readonly media = inject(NativeMediaService);
   protected readonly full = signal(false);
   protected readonly failed = signal(false);
   protected readonly playing = signal(false);
@@ -148,6 +150,9 @@ export class Youtube implements OnDestroy {
   constructor() {
     // The YouTube player installs as its own app.
     this.pwa.enter('youtube');
+    // In the Android app the "Now playing" notification's buttons play this player, and it keeps playing in the background (NativeMediaService).
+    this.media.connect({ prev: () => this.prev(), next: () => this.next(), toggle: () => this.toggle() });
+    effect(() => this.media.show(this.current()?.title ?? '', this.current()?.artist ?? '', this.playing()));
     if (this.browser) {
       this.canFullscreen = !!document.fullscreenEnabled;
       try {
@@ -244,6 +249,7 @@ export class Youtube implements OnDestroy {
 
   ngOnDestroy(): void {
     this.pwa.leave();
+    this.media.disconnect();
     clearInterval(this.ticker);
     this.keepAlive?.pause();
     this.audio?.pause();

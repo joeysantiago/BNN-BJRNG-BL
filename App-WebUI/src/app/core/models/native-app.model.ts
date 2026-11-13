@@ -51,3 +51,17 @@ export interface AppBackPlugin {
   goBack(): Promise<void>;
   addListener(event: 'backButton', listener: () => void): Promise<NativeListener>;
 }
+
+/** The player buttons of the Android app's "Now playing" notification, handled by the page that plays. */
+export interface NativeMediaHandlers {
+  prev(): void;
+  next(): void;
+  toggle(): void;
+}
+
+/** Background playback of the Android app (MediaControlPlugin.java): the "Now playing" notification that keeps the app alive while it plays. */
+export interface MediaControlPlugin {
+  stop(): Promise<void>;
+  update(options: { title: string; text: string; playing: boolean }): Promise<void>;
+  addListener(event: 'action', listener: (e: { action: keyof NativeMediaHandlers }) => void): Promise<NativeListener>;
+}
