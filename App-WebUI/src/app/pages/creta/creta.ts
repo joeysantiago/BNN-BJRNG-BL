@@ -298,6 +298,28 @@ export class Creta implements OnDestroy {
     }
   }
 
+  /** Makes the list match the player's folder in storage (new song files added, rows of missing files removed) and shows the API's message. */
+  protected async sync(): Promise<void> {
+    if (this.busy())
+      return;
+    this.busy.set(true);
+    this.pendingDelete.set(null);
+    try {
+      const playingId = this.current()?.id;
+      const res = await this.api.sendFull<TracksResponse>('POST', `/music/${this.id}/tracks/sync`);
+      this.setTracks(res.data.tracks);
+      // The song that is open stays open when it is still in the list.
+      const at = this.tracks().findIndex((x) => x.id === playingId);
+      if (at >= 0)
+        this.index.set(at);
+      this.status.set({ text: res.message ?? '', error: false });
+    } catch (e) {
+      this.fail(this.errorText(e));
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
   protected async remove(t: Track): Promise<void> {
     if (this.busy())
       return;

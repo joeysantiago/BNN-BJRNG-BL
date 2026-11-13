@@ -71,6 +71,16 @@ public class LocalFileStore : IFileBackend
         await content.CopyToAsync(target, cancellationToken);
     }
 
+    public Task<List<string>> ListFolderAsync(string folder, CancellationToken cancellationToken)
+    {
+        var full = FullPath(folder);
+
+        if (full is null || !Directory.Exists(full))
+            return Task.FromResult(new List<string>());
+
+        return Task.FromResult(Directory.EnumerateFiles(full).Select(Path.GetFileName).OfType<string>().ToList());
+    }
+
     #endregion
 
     #region Private Methods

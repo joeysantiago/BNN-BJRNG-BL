@@ -39,6 +39,12 @@ public class MusicRepository : IMusicRepository
         return _dbContext.MusicTracks.AsNoTracking().WhereActive().Where(t => t.PlayerId == playerId).OrderBy(t => t.SortOrder).ThenBy(t => t.Id).ToListAsync(cancellationToken);
     }
 
+    public async Task RemoveTracksAsync(List<MusicTrack> tracks, CancellationToken cancellationToken)
+    {
+        _dbContext.MusicTracks.RemoveRange(tracks);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     public Task<MusicTrack?> GetTrackAsync(int playerId, int trackId, CancellationToken cancellationToken)
     {
         return _dbContext.MusicTracks.WhereActive().FirstOrDefaultAsync(t => t.Id == trackId && t.PlayerId == playerId, cancellationToken);

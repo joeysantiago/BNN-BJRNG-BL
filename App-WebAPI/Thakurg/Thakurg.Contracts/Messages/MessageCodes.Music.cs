@@ -8,6 +8,8 @@ public static partial class MessageCodes
 
     public const string MusicTrackDeleted = "MUSIC_TRACK_DELETED";
 
+    public const string MusicTracksSynced = "MUSIC_TRACKS_SYNCED";
+
     public const string MusicTrackNotFound = "MUSIC_TRACK_NOT_FOUND";
 
     public const string MusicTracksUploaded = "MUSIC_TRACKS_UPLOADED";
@@ -15,4 +17,6 @@ public static partial class MessageCodes
     public const string MusicPlayerNotFound = "MUSIC_PLAYER_NOT_FOUND";
 
     public const string MusicFileTypeInvalid = "MUSIC_FILE_TYPE_INVALID";
+
+    public const string MusicSyncFolderEmpty = "MUSIC_SYNC_FOLDER_EMPTY";
 }

@@ -258,6 +258,12 @@ input[type='range']::-moz-range-thumb {
   flex: 1;
   margin: 0;
 }
+.list-head .sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
 .item {
   display: flex;
   align-items: center;

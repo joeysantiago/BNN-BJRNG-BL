@@ -85,6 +85,35 @@ public class MusicService : IMusicService
         return await OpenFileAsync(musicPlayer, track.CoverFileName, cancellationToken);
     }
 
+    // Makes the player's list match its folder in the file store. A song file without a row gets one (title, artist and cover from its tags, or a
+    // picture of the same name); a row whose song file is gone is removed. Pictures are covers, never songs. Files are never deleted here.
+    public async Task<ServiceResultDto<MusicTracksDto>> SyncAsync(string player, CancellationToken cancellationToken)
+    {
+        var musicPlayer = await RequirePlayerAsync(player, cancellationToken);
+        var files = await _fileStore.ListFolderAsync(musicPlayer.FolderName.ToLowerInvariant(), cancellationToken);
+        var audio = files.Where(IsAudio).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var existing = await _musicRepository.GetTracksAsync(musicPlayer.Id, cancellationToken);
+
+        // An empty folder next to a full list is far more likely the wrong store (Settings > General) than every song deleted, so nothing is removed.
+        if (audio.Count == 0 && existing.Count > 0)
+            throw new BusinessException(MessageCodes.MusicSyncFolderEmpty, 409, existing.Count);
+
+        var known = existing.Select(t => t.FileName).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var gone = existing.Where(t => !audio.Contains(t.FileName)).ToList();
+        var order = existing.Count == 0 ? 0 : existing.Max(t => t.SortOrder);
+        var added = new List<MusicTrack>();
+
+        foreach (var fileName in audio.Where(f => !known.Contains(f)).Order(StringComparer.OrdinalIgnoreCase))
+            added.Add(await TrackFromStoreAsync(musicPlayer, fileName, files, ++order, cancellationToken));
+
+        await _musicRepository.RemoveTracksAsync(gone, cancellationToken);
+        await _musicRepository.AddTracksAsync(added, cancellationToken);
+        _cache.Remove(TracksKey(musicPlayer.Id));
+        var tracks = await _musicRepository.GetTracksAsync(musicPlayer.Id, cancellationToken);
+
+        return new ServiceResultDto<MusicTracksDto> { Data = ToDto(musicPlayer, tracks), Message = await _messageService.GetAsync(MessageCodes.MusicTracksSynced, added.Count, gone.Count, tracks.Count) };
+    }
+
     public async Task<FileStreamDto> OpenAudioAsync(string player, int trackId, string? range, CancellationToken cancellationToken)
     {
         var musicPlayer = await RequirePlayerAsync(player, cancellationToken);
@@ -238,6 +267,31 @@ public class MusicService : IMusicService
         ContentTypes.TryGetContentType(fileName, out var contentType);
 
         return new FileStreamDto { Content = content, ContentType = contentType ?? "application/octet-stream" };
+    }
+
+    // The tags of a song already in the store; the store's stream can seek, so only the parts holding the tags are read.
+    private async Task<MusicTags.Info> ReadStoredTagsAsync(MusicPlayer player, string fileName, CancellationToken cancellationToken)
+    {
+        await using var content = await _fileStore.OpenAsync(PathOf(player, fileName), cancellationToken);
+
+        return content is { CanSeek: true } ? MusicTags.Read(content, fileName) : new MusicTags.Info(null, null, null, null);
+    }
+
+    // A row for a song found in the store by SyncAsync. Its cover is a picture in the folder named like the song ("song.jpg" or "song.cover.jpg"),
+    // else the picture in its tags, saved next to it as "song.cover.<ext>" the way an upload does.
+    private async Task<MusicTrack> TrackFromStoreAsync(MusicPlayer player, string fileName, List<string> files, int sortOrder, CancellationToken cancellationToken)
+    {
+        var name = Path.GetFileNameWithoutExtension(fileName);
+        var coverFileName = files.FirstOrDefault(f => IsCover(f) && (string.Equals(Path.GetFileNameWithoutExtension(f), name, StringComparison.OrdinalIgnoreCase) || string.Equals(Path.GetFileNameWithoutExtension(f), $"{name}.cover", StringComparison.OrdinalIgnoreCase)));
+        var tags = await ReadStoredTagsAsync(player, fileName, cancellationToken);
+
+        if (coverFileName is null && tags.Cover is not null)
+        {
+            coverFileName = $"{name}.cover{tags.CoverExtension}";
+            await _fileStore.SaveAsync(PathOf(player, coverFileName), new MemoryStream(tags.Cover), cancellationToken);
+        }
+
+        return new MusicTrack { PlayerId = player.Id, Title = tags.Title ?? TitleOf(fileName), Artist = tags.Artist, FileName = fileName, CoverFileName = coverFileName, SortOrder = sortOrder };
     }
 
     #endregion
