@@ -72,12 +72,13 @@ export class KhataLockService {
       this.mode.set('change');
   }
 
-  /** Runs as an installed app (home-screen icon), not in a browser tab. */
+  /** Runs as an installed app (home-screen icon, or the Android app, whose WebView never reports display-mode standalone), not in a browser tab. */
   installed(): boolean {
     if (!this.browser)
       return false;
     const nav = navigator as Navigator & { standalone?: boolean };
-    return matchMedia(INSTALLED_QUERY).matches || nav.standalone === true || location.search.includes(INSTALLED_SOURCE);
+    const native = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.() === true;
+    return native || matchMedia(INSTALLED_QUERY).matches || nav.standalone === true || location.search.includes(INSTALLED_SOURCE);
   }
 
   /**
