@@ -1,4 +1,5 @@
 import { Router } from '@angular/router';
+import { isNativeApp } from './native-app';
 import { AuthService } from './auth.service';
 import { KhataApiService } from './khata-api.service';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
@@ -72,12 +73,12 @@ export class KhataLockService {
       this.mode.set('change');
   }
 
-  /** Runs as an installed app (home-screen icon), not in a browser tab. */
+  /** Runs as an installed app (home-screen icon, or the Android app, whose WebView never reports display-mode standalone), not in a browser tab. */
   installed(): boolean {
     if (!this.browser)
       return false;
     const nav = navigator as Navigator & { standalone?: boolean };
-    return matchMedia(INSTALLED_QUERY).matches || nav.standalone === true || location.search.includes(INSTALLED_SOURCE);
+    return isNativeApp() || matchMedia(INSTALLED_QUERY).matches || nav.standalone === true || location.search.includes(INSTALLED_SOURCE);
   }
 
   /**
