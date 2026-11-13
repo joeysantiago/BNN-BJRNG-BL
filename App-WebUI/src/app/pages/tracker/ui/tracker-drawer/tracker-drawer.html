@@ -1,7 +1,7 @@
 <div class="scrim" (click)="close()"></div>
 <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="tr-d-title">
   <div class="drawer-head">
-    <h2 id="tr-d-title">{{ i18n.t(mode() === 'edit' ? 'tracker.d.edit' : mode() === 'category' ? 'tracker.d.pickCat' : 'tracker.d.title') }}</h2>
+    <h2 id="tr-d-title">{{ i18n.t(mode() === 'edit' ? 'tracker.d.edit' : mode() === 'category' ? 'tracker.d.pickCat' : mode() === 'flow' ? 'tracker.d.pickFlow' : 'tracker.d.title') }}</h2>
     <button type="button" class="btn ghost icon" [attr.aria-label]="i18n.t('tracker.close')" (click)="close()"><svg stIco="x"></svg></button>
   </div>
   <div class="drawer-body">
@@ -18,6 +18,16 @@
         }
       </div>
       <button type="button" class="btn" (click)="mode.set('view')">{{ i18n.t('tracker.cancel') }}</button>
+    } @else if (mode() === 'flow') {
+      <p class="muted">{{ i18n.t('tracker.d.flowHelp') }}</p>
+      <label class="check-line"><input type="checkbox" [checked]="remember()" (change)="remember.set($any($event.target).checked)" />
+        <span>{{ txn().merchant ? i18n.t('tracker.d.rememberFlow', { name: txn().merchant! }) : i18n.t('tracker.d.rememberEmi') }}</span></label>
+      <div class="cat-grid">
+        @for (f of flows(); track f) {
+          <button type="button" class="cat-pick" [attr.aria-pressed]="txn().flow === f" [disabled]="state.busy()" (click)="mark(f)">{{ i18n.t('tracker.flow.' + f) }}</button>
+        }
+      </div>
+      <button type="button" class="btn" (click)="mode.set('view')">{{ i18n.t('tracker.cancel') }}</button>
     } @else {
       <div class="d-hero">
         <span class="av lg" [style.background]="cat().color + '22'" aria-hidden="true">{{ cat().emoji }}</span>
@@ -25,6 +35,7 @@
           <b>{{ state.title(txn()) }}</b>
           <div class="row tight">
             <span class="chip">{{ i18n.t('tracker.cat.' + txn().category) }}</span>
+            <span class="chip flow">{{ i18n.t('tracker.flow.' + txn().flow) }}</span>
             <span [class]="'chip ' + txn().status">{{ i18n.t('tracker.status.' + txn().status) }}</span>
             @if (txn().edited) {
               <span class="chip">{{ i18n.t('tracker.d.edited') }}</span>
@@ -94,6 +105,7 @@
         }
         <button type="button" class="btn" (click)="mode.set('edit')"><svg stIco="edit" [size]="18"></svg>{{ i18n.t('tracker.edit') }}</button>
         <button type="button" class="btn" (click)="mode.set('category')"><svg stIco="tag" [size]="18"></svg>{{ i18n.t('tracker.form.category') }}</button>
+        <button type="button" class="btn" (click)="mode.set('flow')"><svg stIco="layers" [size]="18"></svg>{{ i18n.t('tracker.d.markAs') }}</button>
         @if (txn().status === 'ignored') {
           <button type="button" class="btn" [disabled]="state.busy()" (click)="act('restore')">{{ i18n.t('tracker.restore') }}</button>
         } @else if (txn().status !== 'duplicate') {

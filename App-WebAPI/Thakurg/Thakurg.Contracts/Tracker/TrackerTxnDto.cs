@@ -7,6 +7,14 @@ public class TrackerTxnDto
 
     public int? DupOf { get; set; }
 
+    public int? LoanId { get; set; }
+
+    public int? PairId { get; set; }
+
+    public int? AccountId { get; set; }
+
+    public bool FlowEdited { get; set; }
+
     public DateTime At { get; set; }
 
     public bool Edited { get; set; }
@@ -32,6 +40,8 @@ public class TrackerTxnDto
     public TrackerSmsDto? Sms { get; set; }
 
     public string Note { get; set; } = string.Empty;
+
+    public string Flow { get; set; } = string.Empty;
 
     public string Type { get; set; } = string.Empty;
 

@@ -1,0 +1,11 @@
+// The period of SnapTracker's numbers (dashboard and Cards page). Global under .st (ViewEncapsulation.None).
+.st .period { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; padding: 10px 12px; }
+.st .period .seg { display: inline-flex; padding: 3px; border-radius: 12px; background: var(--k-surface-3); }
+.st .period .seg button { min-height: 44px; padding: 0 16px; border: 0; border-radius: 10px; background: none; color: var(--k-muted); font: 700 14px var(--k-font); cursor: pointer; }
+.st .period .seg button.on { background: var(--k-surface); color: var(--k-text); box-shadow: var(--k-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.12)); }
+.st .period .p-nav { display: inline-flex; align-items: center; gap: 8px; }
+.st .period .p-nav .btn { min-width: 44px; min-height: 44px; }
+.st .period .p-name { min-width: 9ch; text-align: center; font-size: 15px; }
+.st .period svg.back { transform: scaleX(-1); }
+.st[dir=rtl] .period svg.back { transform: none; }
+.st[dir=rtl] .period svg:not(.back) { transform: scaleX(-1); }

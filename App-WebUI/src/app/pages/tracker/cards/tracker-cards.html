@@ -1,0 +1,118 @@
+<section class="page" aria-labelledby="tracker-h1">
+  <div class="head">
+    <div>
+      <p class="eyebrow">{{ state.periodName() }}</p>
+      <h1 id="tracker-h1">{{ i18n.t('tracker.cards.h1') }}</h1>
+    </div>
+  </div>
+
+  <app-tracker-period />
+
+  @if (state.data()) {
+    <div class="cc-sum">
+      <div class="card"><span class="k-lbl">{{ i18n.t('tracker.kpi.cardSpend') }}</span><b class="num">{{ state.money(totals().cards) }}</b></div>
+      <div class="card"><span class="k-lbl">{{ i18n.t('tracker.cards.billsPaid') }}</span><b class="num">{{ state.money(totals().bills) }}</b></div>
+      <div class="card"><span class="k-lbl">{{ i18n.t('tracker.kpi.emi') }}</span><b class="num">{{ state.money(totals().emi) }}</b></div>
+    </div>
+    <p class="note small"><svg stIco="info" [size]="18"></svg>{{ i18n.t('tracker.cards.how') }}</p>
+
+    <h2 class="sec-h">{{ i18n.t('tracker.cards.cardsH') }}</h2>
+    @for (c of cards(); track c.account.id) {
+      <section class="card cc" [attr.aria-labelledby]="'tr-cc-' + c.account.id">
+        <div class="cc-head">
+          <span class="k-ic" aria-hidden="true"><svg stIco="wallet"></svg></span>
+          @if (editing() === c.account.id) {
+            <form class="cc-rename" (submit)="$event.preventDefault(); save(c.account)">
+              <label class="sr-only" [for]="'tr-cc-name-' + c.account.id">{{ i18n.t('tracker.cards.nameLabel') }}</label>
+              <input class="input" [id]="'tr-cc-name-' + c.account.id" maxlength="60" [value]="draft()" (input)="draft.set($any($event.target).value)" [placeholder]="name(c.account)" />
+              <button type="submit" class="btn sm pri" [disabled]="state.busy()">{{ i18n.t('tracker.cards.save') }}</button>
+              <button type="button" class="btn sm" (click)="cancel()">{{ i18n.t('tracker.cards.cancel') }}</button>
+            </form>
+          } @else {
+            <div class="cc-name">
+              <h3 [id]="'tr-cc-' + c.account.id">{{ name(c.account) }}</h3>
+              <small>{{ c.account.provider }} •• {{ c.account.last4 }}</small>
+            </div>
+            <button type="button" class="btn sm icon" [attr.aria-label]="i18n.t('tracker.cards.rename', { name: name(c.account) })" (click)="rename(c.account)"><svg stIco="edit"></svg></button>
+          }
+        </div>
+        <dl class="cc-stats">
+          <div><dt>{{ i18n.t('tracker.cards.spent') }}</dt><dd class="num">{{ state.money(c.spent) }}</dd></div>
+          <div><dt>{{ i18n.t('tracker.cards.paid') }}</dt><dd class="num">{{ state.money(c.paid) }}</dd></div>
+          @if (c.back) {
+            <div><dt>{{ i18n.t('tracker.cards.back') }}</dt><dd class="num">{{ state.money(c.back) }}</dd></div>
+          }
+          @if (c.account.statementTotal !== null) {
+            <div><dt>{{ i18n.t('tracker.cards.statement') }}</dt><dd class="num">{{ state.money(c.account.statementTotal) }}@if (c.account.dueOn) {<small>{{ i18n.t('tracker.cards.dueOn', { date: state.date(c.account.dueOn) }) }}</small>}</dd></div>
+          }
+        </dl>
+        @if (c.txns.length) {
+          <ul class="tl">
+            @for (t of c.txns; track t.id) {
+              <li><app-tracker-row [txn]="t" /></li>
+            }
+          </ul>
+        } @else {
+          <p class="muted">{{ i18n.t('tracker.cards.none') }}</p>
+        }
+      </section>
+    } @empty {
+      <p class="card muted">{{ i18n.t('tracker.cards.noCards') }}</p>
+    }
+
+    @if (bills().length) {
+      <section class="card" aria-labelledby="tr-cc-bills">
+        <h2 id="tr-cc-bills">{{ i18n.t('tracker.cards.billsH') }}</h2>
+        <p class="muted">{{ i18n.t('tracker.cards.billsSub') }}</p>
+        <ul class="tl">
+          @for (t of bills(); track t.id) {
+            <li><app-tracker-row [txn]="t" /></li>
+          }
+        </ul>
+      </section>
+    }
+
+    <h2 class="sec-h" id="loans">{{ i18n.t('tracker.cards.loansH') }}</h2>
+    @for (l of loans(); track l.account.id) {
+      <section class="card cc" [attr.aria-labelledby]="'tr-ln-' + l.account.id">
+        <div class="cc-head">
+          <span class="k-ic p" aria-hidden="true"><svg stIco="layers"></svg></span>
+          @if (editing() === l.account.id) {
+            <form class="cc-rename" (submit)="$event.preventDefault(); save(l.account)">
+              <label class="sr-only" [for]="'tr-ln-name-' + l.account.id">{{ i18n.t('tracker.cards.nameLabel') }}</label>
+              <input class="input" [id]="'tr-ln-name-' + l.account.id" maxlength="60" [value]="draft()" (input)="draft.set($any($event.target).value)" [placeholder]="name(l.account)" />
+              <button type="submit" class="btn sm pri" [disabled]="state.busy()">{{ i18n.t('tracker.cards.save') }}</button>
+              <button type="button" class="btn sm" (click)="cancel()">{{ i18n.t('tracker.cards.cancel') }}</button>
+            </form>
+          } @else {
+            <div class="cc-name">
+              <h3 [id]="'tr-ln-' + l.account.id">{{ name(l.account) }}</h3>
+              <small>{{ l.account.provider }} •• {{ l.account.last4 }}</small>
+            </div>
+            <button type="button" class="btn sm icon" [attr.aria-label]="i18n.t('tracker.cards.rename', { name: name(l.account) })" (click)="rename(l.account)"><svg stIco="edit"></svg></button>
+          }
+        </div>
+        <dl class="cc-stats">
+          @if (l.account.emi !== null) {
+            <div><dt>{{ i18n.t('tracker.cards.emiAmount') }}</dt><dd class="num">{{ state.money(l.account.emi) }}</dd></div>
+          }
+          <div><dt>{{ i18n.t('tracker.cards.emiPaid', { n: l.txns.length }) }}</dt><dd class="num">{{ state.money(l.paid) }}</dd></div>
+          @if (l.account.dueOn) {
+            <div><dt>{{ i18n.t('tracker.cards.nextDue') }}</dt><dd>{{ state.date(l.account.dueOn) }}</dd></div>
+          }
+        </dl>
+        @if (l.txns.length) {
+          <ul class="tl">
+            @for (t of l.txns; track t.id) {
+              <li><app-tracker-row [txn]="t" /></li>
+            }
+          </ul>
+        }
+      </section>
+    } @empty {
+      <p class="card muted">{{ i18n.t('tracker.cards.noLoans') }}</p>
+    }
+  } @else if (!state.failed()) {
+    <div class="card empty"><p class="muted">{{ i18n.t('tracker.loading') }}</p></div>
+  }
+</section>

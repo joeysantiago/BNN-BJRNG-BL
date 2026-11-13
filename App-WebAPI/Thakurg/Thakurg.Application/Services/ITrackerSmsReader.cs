@@ -14,9 +14,15 @@ public interface ITrackerSmsReader
 
     bool IsPromotion(string body, string senderKind);
 
+    TrackerDueDto? Due(string body);
+
+    string? Skip(string body, TrackerOwnerDto owner);
+
     TrackerParsedSmsDto Parse(string body, DateTime receivedAt);
 
     int Confidence(TrackerParsedSmsDto parsed, string category);
+
+    string Flow(TrackerParsedSmsDto parsed, string body, TrackerOwnerDto owner);
 
     string Categorize(TrackerParsedSmsDto parsed, string body, IReadOnlyDictionary<string, string> rules);
 

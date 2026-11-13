@@ -17,6 +17,7 @@ export const TRACKER_CATEGORIES: readonly TrackerCategory[] = [
   { code: 'rent', emoji: '🏠', color: '#64748b' },
   { code: 'cash', emoji: '🏧', color: '#94a3b8' },
   { code: 'investment', emoji: '📈', color: '#10b981' },
+  { code: 'emi', emoji: '🏦', color: '#a855f7' },
   { code: 'salary', emoji: '💼', color: '#22c55e' },
   { code: 'transfer', emoji: '🔁', color: '#6366f1' },
   { code: 'refund', emoji: '↩️', color: '#14b8a6' },
@@ -25,9 +26,9 @@ export const TRACKER_CATEGORIES: readonly TrackerCategory[] = [
 
 /** Registered SMS headers (DLT) of banks and payment apps that SnapTracker reads. Everything else is ignored. */
 export const TRACKER_SENDERS: Readonly<Record<string, string>> = {
-  HDFCBK: 'HDFC Bank', ICICIB: 'ICICI Bank', SBIINB: 'State Bank of India', SBIUPI: 'SBI UPI', CBSSBI: 'State Bank of India', ATMSBI: 'State Bank of India',
+  HDFCBK: 'HDFC Bank', HDFCBN: 'HDFC Bank', ICICIB: 'ICICI Bank', ICICIT: 'ICICI Bank', SBIINB: 'State Bank of India', SBIUPI: 'SBI UPI', CBSSBI: 'State Bank of India', ATMSBI: 'State Bank of India',
   AXISBK: 'Axis Bank', KOTAKB: 'Kotak Mahindra Bank', YESBNK: 'Yes Bank', IDFCFB: 'IDFC First Bank', INDUSB: 'IndusInd Bank', PNBSMS: 'Punjab National Bank',
-  BOBTXN: 'Bank of Baroda', CANBNK: 'Canara Bank', UNIONB: 'Union Bank', PAYTMB: 'Paytm', PHONPE: 'PhonePe', GPAYIN: 'Google Pay', AMZPAY: 'Amazon Pay',
+  BOBTXN: 'Bank of Baroda', BOBSMS: 'Bank of Baroda', FEDBNK: 'Federal Bank', FEDSMS: 'Federal Bank', SLCBNK: 'slice', CANBNK: 'Canara Bank', UNIONB: 'Union Bank', PAYTMB: 'Paytm', PHONPE: 'PhonePe', GPAYIN: 'Google Pay', AMZPAY: 'Amazon Pay',
 };
 
 /** The ways money moves, in the order of the manual form. */

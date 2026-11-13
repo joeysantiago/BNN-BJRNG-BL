@@ -13,6 +13,9 @@ export type TrackerApproval = 'review' | 'smart' | 'auto';
 /** SMS reading on the phone: not allowed yet, on, or paused (allowed, but not reading). */
 export type TrackingState = 'permission' | 'enabled' | 'paused';
 
+/** Turn SMS reading on, pause it, resume it or turn it off (POST /tracker/tracking/{action}, and in the Android app the phone too). */
+export type TrackerTrackingAction = 'enable' | 'pause' | 'resume' | 'revoke';
+
 /** The lists of the Activity screen. */
 export type TrackerFilter = 'all' | 'sms' | 'manual' | 'pending' | 'credit' | 'debit' | 'dup' | 'ignored';
 
@@ -22,8 +25,20 @@ export type TrackerAlertType = 'newTx' | 'categorized' | 'verify' | 'duplicate' 
 /** How the money moved; the name shows through the key tracker.method.<code>. */
 export type TrackerMethod = 'upi' | 'debitCard' | 'creditCard' | 'card' | 'neft' | 'imps' | 'rtgs' | 'netBanking' | 'atm' | 'bank' | 'cash';
 
-/** Why a transaction is a duplicate (tracker.dup.<code>). */
-export type TrackerDupReason = 'sameText' | 'sameRef' | 'sameAmount';
+/** Why a transaction is a duplicate (tracker.dup.<code>); echo: a bank's confirmation of a transfer already counted. */
+export type TrackerDupReason = 'sameText' | 'sameRef' | 'sameAmount' | 'echo';
+
+/**
+ * What a transaction counts towards (tracker.flow.<code>). Spend, card spend and EMI are spending; salary and income are income; a card bill paid leaves the
+ * bank but is not spending (the card's purchases already were); refunds lower spending; the card's "payment received", self transfers and money borrowed count nowhere.
+ */
+export type TrackerFlow = 'spend' | 'cardSpend' | 'emi' | 'cardBillPaid' | 'salary' | 'income' | 'refund' | 'cardRefund' | 'loanIn' | 'selfTransfer' | 'cardPaymentIn';
+
+/** A bank account, credit card or loan of the user. */
+export type TrackerAccountType = 'bank' | 'card' | 'loan';
+
+/** The dashboard's period: one month, or a whole year. */
+export type TrackerPeriodKind = 'month' | 'year';
 
 /** One step of reading an SMS: where it ran, its name (tracker.step.<key>), whether it passed, and the values of its detail line. */
 export interface TrackerStep {
@@ -80,18 +95,23 @@ export interface TrackerTxn {
   edited: boolean;
   category: string;
   createdAt: string;
+  flow: TrackerFlow;
   type: TrackerType;
   confidence: number;
   ref: string | null;
+  flowEdited: boolean;
   kind: string | null;
   dupOf: number | null;
   typeGuessed: boolean;
+  loanId: number | null;
   method: TrackerMethod;
+  pairId: number | null;
   source: TrackerSource;
   status: TrackerStatus;
   account: string | null;
   sms: TrackerSms | null;
   merchant: string | null;
+  accountId: number | null;
   dupWhy: TrackerDupReason | null;
 }
 
@@ -125,15 +145,57 @@ export interface TrackerFiltered {
   other: number;
   promo: number;
   failed: number;
+  notice: number;
+  balance: number;
 }
 
 /** Everything the app shows, loaded at once (GET /tracker/state). */
 export interface TrackerData {
   txns: TrackerTxn[];
+  owner: TrackerOwner;
   alerts: TrackerAlert[];
   filtered: TrackerFiltered;
   settings: TrackerSettings;
   tracking: TrackerTracking;
+  accounts: TrackerAccount[];
+}
+
+/** How the user appears in an SMS: the names banks write ("Kunal Kumar") and their mobile numbers; money to or from them is a self transfer. */
+export interface TrackerOwner {
+  names: string[];
+  mobiles: string[];
+}
+
+/** A bank account, credit card or loan (amounts in rupees): a card's latest statement and due date, a loan's EMI. */
+export interface TrackerAccount {
+  id: number;
+  last4: string;
+  provider: string;
+  emi: number | null;
+  dueOn: string | null;
+  label: string | null;
+  type: TrackerAccountType;
+  statementTotal: number | null;
+}
+
+/** The dashboard's period: a month (0-11) of a year, or the whole year. */
+export interface TrackerPeriod {
+  year: number;
+  month: number;
+  kind: TrackerPeriodKind;
+}
+
+/** The money of a period: income, money out of the bank (spends, EMIs, card bills), what is left, and what was bought (bank and card spends, EMIs). */
+export interface TrackerTotals {
+  emi: number;
+  left: number;
+  income: number;
+  bankOut: number;
+  borrowed: number;
+  cardBill: number;
+  spending: number;
+  bankSpend: number;
+  cardSpend: number;
 }
 
 /** A category: its code (name tracker.cat.<code>), colour and emoji. */

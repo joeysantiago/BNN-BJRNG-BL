@@ -28,6 +28,11 @@ public class TrackerRepository : ITrackerRepository
         _dbContext.TrackerCategoryRules.Add(rule);
     }
 
+    public void AddAccount(TrackerAccount account)
+    {
+        _dbContext.TrackerAccounts.Add(account);
+    }
+
     public void AddTransaction(TrackerTransaction transaction)
     {
         _dbContext.TrackerTransactions.Add(transaction);
@@ -38,7 +43,7 @@ public class TrackerRepository : ITrackerRepository
         return _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    // Removes everything of one user in SnapTracker for good (transactions, SMS texts, alerts, rules, the profile) in one transaction. The access to the app
+    // Removes everything of one user in SnapTracker for good (transactions, SMS texts, accounts, alerts, rules, the profile) in one transaction. The access to the app
     // stays; the next call makes a new profile with the starting settings.
     public async Task DeleteAllAsync(int userId, CancellationToken cancellationToken)
     {
@@ -49,8 +54,9 @@ public class TrackerRepository : ITrackerRepository
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
             var ids = _dbContext.TrackerTransactions.Where(t => t.TrackerUserId == userId).Select(t => t.Id);
             await _dbContext.TrackerSmsTexts.Where(s => ids.Contains(s.TransactionId)).ExecuteDeleteAsync(cancellationToken);
-            await _dbContext.TrackerTransactions.Where(t => t.TrackerUserId == userId).ExecuteUpdateAsync(t => t.SetProperty(x => x.DuplicateOfId, (int?)null), cancellationToken);
+            await _dbContext.TrackerTransactions.Where(t => t.TrackerUserId == userId).ExecuteUpdateAsync(t => t.SetProperty(x => x.DuplicateOfId, (int?)null).SetProperty(x => x.PairId, (int?)null), cancellationToken);
             await _dbContext.TrackerTransactions.Where(t => t.TrackerUserId == userId).ExecuteDeleteAsync(cancellationToken);
+            await _dbContext.TrackerAccounts.Where(a => a.TrackerUserId == userId).ExecuteDeleteAsync(cancellationToken);
             await _dbContext.TrackerAlerts.Where(a => a.TrackerUserId == userId).ExecuteDeleteAsync(cancellationToken);
             await _dbContext.TrackerCategoryRules.Where(r => r.TrackerUserId == userId).ExecuteDeleteAsync(cancellationToken);
             await _dbContext.TrackerUsers.Where(u => u.Id == userId).ExecuteDeleteAsync(cancellationToken);
@@ -100,6 +106,11 @@ public class TrackerRepository : ITrackerRepository
         return _dbContext.TrackerAlerts.WhereActive().Where(a => a.TrackerUserId == userId).OrderByDescending(a => a.Id).ToListAsync(cancellationToken);
     }
 
+    public Task<List<TrackerAccount>> GetAccountsAsync(int userId, CancellationToken cancellationToken)
+    {
+        return _dbContext.TrackerAccounts.WhereActive().Where(a => a.TrackerUserId == userId).OrderBy(a => a.AccountType).ThenBy(a => a.Id).ToListAsync(cancellationToken);
+    }
+
     public Task<List<TrackerCategoryRule>> GetRulesAsync(int userId, CancellationToken cancellationToken)
     {
         return _dbContext.TrackerCategoryRules.WhereActive().Where(r => r.TrackerUserId == userId).ToListAsync(cancellationToken);
@@ -115,10 +126,11 @@ public class TrackerRepository : ITrackerRepository
         return _dbContext.TrackerTransactions.WhereActive().Include(t => t.SmsText).Where(t => t.TrackerUserId == userId).OrderByDescending(t => t.OccurredOn).ToListAsync(cancellationToken);
     }
 
-    // Deletes one transaction and its SMS text; transactions that were its duplicates keep their status but no longer point at it.
+    // Deletes one transaction and its SMS text; transactions that were its duplicates or its pair keep their status but no longer point at it.
     public async Task RemoveTransactionAsync(TrackerTransaction transaction, CancellationToken cancellationToken)
     {
         await _dbContext.TrackerTransactions.Where(t => t.DuplicateOfId == transaction.Id).ExecuteUpdateAsync(t => t.SetProperty(x => x.DuplicateOfId, (int?)null), cancellationToken);
+        await _dbContext.TrackerTransactions.Where(t => t.PairId == transaction.Id).ExecuteUpdateAsync(t => t.SetProperty(x => x.PairId, (int?)null), cancellationToken);
 
         if (transaction.SmsText is not null)
             _dbContext.TrackerSmsTexts.Remove(transaction.SmsText);

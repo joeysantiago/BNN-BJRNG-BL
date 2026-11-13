@@ -1047,6 +1047,26 @@ BEGIN
             "hi": "श्रेणी बदल दी गई। {0} हमेशा इसी श्रेणी में जाएगा।",
             "ar": "تم تغيير الفئة. سيُصنَّف {0} دائمًا ضمن هذه الفئة."
         }'),
+        ('TRACKER_FLOW_SAVED', N'{
+            "en": "Saved. It now counts as you chose.",
+            "hi": "सहेजा गया। अब यह आपके चुने अनुसार गिना जाएगा।",
+            "ar": "تم الحفظ. تُحسب الآن كما اخترت."
+        }'),
+        ('TRACKER_FLOW_RULE', N'{
+            "en": "Saved. {0} will always count this way, and so will the transactions like it.",
+            "hi": "सहेजा गया। {0} और ऐसे ही लेन-देन हमेशा इसी तरह गिने जाएंगे।",
+            "ar": "تم الحفظ. ستُحسب {0} والمعاملات المماثلة دائمًا بهذه الطريقة."
+        }'),
+        ('TRACKER_ACCOUNT_SAVED', N'{
+            "en": "Name saved.",
+            "hi": "नाम सहेजा गया।",
+            "ar": "تم حفظ الاسم."
+        }'),
+        ('TRACKER_DETAILS_SAVED', N'{
+            "en": "Your details are saved. Transfers between your own accounts are now kept out of spending and income.",
+            "hi": "आपकी जानकारी सहेजी गई। अब आपके अपने खातों के बीच का पैसा ख़र्च और आमदनी में नहीं गिना जाएगा।",
+            "ar": "تم حفظ بياناتك. التحويلات بين حساباتك لم تعد تُحسب إنفاقًا أو دخلًا."
+        }'),
         ('TRACKER_DELETED', N'{
             "en": "Transaction deleted.",
             "hi": "लेन-देन हटाया गया।",

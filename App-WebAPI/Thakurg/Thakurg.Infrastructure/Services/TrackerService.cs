@@ -44,13 +44,16 @@ public class TrackerService : ITrackerService
         var user = await UserAsync(caller, cancellationToken);
         var transactions = await _repository.GetTransactionsAsync(user.Id, cancellationToken);
         var alerts = await _repository.GetAlertsAsync(user.Id, cancellationToken);
+        var accounts = await _repository.GetAccountsAsync(user.Id, cancellationToken);
 
         return new TrackerDataDto
         {
             Txns = transactions.Select(t => TrackerMapper.ToDto(t, _protector)).ToList(),
             Alerts = alerts.Select(TrackerMapper.ToDto).ToList(),
+            Accounts = accounts.Select(TrackerMapper.ToDto).ToList(),
+            Owner = TrackerMapper.Owner(user),
             Tracking = new TrackerTrackingDto { State = user.TrackingState, Since = user.TrackingSince is { } since ? TrackerMapper.Utc(since) : null },
-            Filtered = new TrackerFilteredDto { Otp = user.FilteredOtp, Promo = user.FilteredPromo, Failed = user.FilteredFailed, Other = user.FilteredOther },
+            Filtered = new TrackerFilteredDto { Otp = user.FilteredOtp, Promo = user.FilteredPromo, Failed = user.FilteredFailed, Other = user.FilteredOther, Notice = user.FilteredNotice, Balance = user.FilteredBalance },
             Settings = TrackerMapper.ToSettings(user, TrackerAlertTypes.All),
         };
     }

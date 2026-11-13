@@ -21,7 +21,15 @@ public static partial class MessageCodes
 
     public const string TrackerConfirmed = "TRACKER_CONFIRMED";
 
+    public const string TrackerFlowRule = "TRACKER_FLOW_RULE";
+
+    public const string TrackerFlowSaved = "TRACKER_FLOW_SAVED";
+
     public const string TrackerAlertsRead = "TRACKER_ALERTS_READ";
+
+    public const string TrackerAccountSaved = "TRACKER_ACCOUNT_SAVED";
+
+    public const string TrackerDetailsSaved = "TRACKER_DETAILS_SAVED";
 
     public const string TrackerTrackingOn = "TRACKER_TRACKING_ON";
 

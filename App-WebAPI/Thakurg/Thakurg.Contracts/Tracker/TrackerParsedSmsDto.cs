@@ -3,6 +3,9 @@ namespace Thakurg.Contracts.Tracker;
 // What the SMS reader found in one message before a transaction is made (TrackerSmsReader). Type is debit, credit or null when unclear.
 public class TrackerParsedSmsDto
 {
+    // A credit card moved the money (a purchase on the card, or money back to it), not a bank account.
+    public bool Card { get; set; }
+
     public bool Known { get; set; }
 
     public DateTime At { get; set; }

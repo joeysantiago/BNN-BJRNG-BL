@@ -1,0 +1,22 @@
+// Credit cards and loans of SnapTracker. Global under .st (ViewEncapsulation.None).
+.st .cc-sum { display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.st .cc-sum .card { display: grid; gap: 4px; padding: 12px 14px; margin: 0; }
+.st .cc-sum b { font-size: 18px; font-weight: 800; }
+.st .sec-h { margin: 8px 0 0; font-size: 1.15rem; scroll-margin-top: 80px; }
+.st .cc-head { display: flex; align-items: center; gap: 12px; }
+.st .cc-name { flex: 1; min-width: 0; display: grid; }
+.st .cc-name h3 { margin: 0; font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st .cc-name small { color: var(--k-muted); }
+.st .cc-head .btn.icon { min-width: 44px; min-height: 44px; }
+.st .cc-rename { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.st .cc-rename .input { flex: 1 1 160px; min-width: 0; min-height: 44px; }
+.st .cc-rename .btn { min-height: 44px; }
+.st .cc-stats { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 12px 0; }
+.st .cc-stats div { display: grid; gap: 2px; }
+.st .cc-stats dt { color: var(--k-muted); font-size: 12.5px; font-weight: 700; }
+.st .cc-stats dd { margin: 0; font-weight: 800; }
+.st .cc-stats dd small { display: block; font-weight: 600; color: var(--k-muted); font-size: 12px; }
+
+@media (max-width: 420px) {
+  .st .cc-sum { grid-template-columns: minmax(0, 1fr); }
+}
