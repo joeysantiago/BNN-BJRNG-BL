@@ -12,5 +12,7 @@ public interface IMusicRepository
 
     Task<List<MusicTrack>> GetTracksAsync(int playerId, CancellationToken cancellationToken);
 
+    Task RemoveTracksAsync(List<MusicTrack> tracks, CancellationToken cancellationToken);
+
     Task<MusicTrack?> GetTrackAsync(int playerId, int trackId, CancellationToken cancellationToken);
 }
