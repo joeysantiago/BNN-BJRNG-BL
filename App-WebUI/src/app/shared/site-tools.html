@@ -1,3 +1,21 @@
+@if (apps().length > 1) {
+  <div class="tool-menu">
+    <button type="button" class="tool" [class.is-on]="menu() === 'apps'" aria-haspopup="true" [attr.aria-expanded]="menu() === 'apps'" aria-controls="apps-menu" [attr.aria-label]="i18n.t('apps.menu')" [attr.title]="i18n.t('apps.menu')"
+      (click)="toggle('apps')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+      </svg>
+    </button>
+    @if (menu() === 'apps') {
+      <nav class="tool-pop apps-pop" id="apps-menu" [attr.aria-label]="i18n.t('apps.menu')">
+        @for (a of apps(); track a.code) {
+          <a class="tool-opt" [class.on]="isCurrent(a.path)" [routerLink]="a.path" [attr.aria-current]="isCurrent(a.path) ? 'page' : null" (click)="menu.set(null)">{{ i18n.t(a.name) }}</a>
+        }
+      </nav>
+    }
+  </div>
+}
+
 @if (cfg.on('site.install')) {
   @if (install.canPrompt()) {
     <button type="button" class="tool pri" [attr.aria-label]="i18n.t('install.btn')" [attr.title]="i18n.t('install.btn')" (click)="install.prompt()">

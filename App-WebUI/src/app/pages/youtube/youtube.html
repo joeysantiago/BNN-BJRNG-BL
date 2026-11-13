@@ -21,7 +21,26 @@
     }
 
     <!-- YouTube's own player. It stays visible, as YouTube's terms require; the controls below drive it. -->
-    <div class="video" [class.on]="!!current()" [class.off]="!showVideo()"><div #host class="host"></div></div>
+    <!-- In full screen the player shows no controls of its own (controls: 0), so pause and exit sit on top of the video; the back button exits too. -->
+    <div class="video" [class.on]="!!current()" [class.off]="!showVideo()">
+      <div #host class="host"></div>
+      @if (full()) {
+        <div class="fs-bar">
+          <button type="button" class="btn icon" [attr.aria-label]="playing() ? i18n.t('creta.pause') : i18n.t('creta.play')" (click)="toggle()">
+            @if (playing()) {
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+            } @else {
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>
+            }
+          </button>
+          <button type="button" class="btn icon" [attr.aria-label]="i18n.t('yt.fullscreen.exit')" (click)="fullscreen()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/>
+            </svg>
+          </button>
+        </div>
+      }
+    </div>
 
     @if (cfg.on('yt.play') && current(); as t) {
       @if (cfg.on('yt.video')) {

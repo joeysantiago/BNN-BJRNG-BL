@@ -9,8 +9,9 @@ const OPEN_OVERLAY = '[role="dialog"][aria-modal="true"], [aria-expanded="true"]
 const CLOSE_WAIT_MS = 100;
 
 /**
- * The Android back button in the app (thakurg-Apps/thakurg-android, plugin AppBack). It first closes what is open on top, the way Escape does: a native
- * dialog, then a sheet, drawer or menu. When nothing is open it goes to the previous page; on the first page the app asks for a second press to exit.
+ * The Android back button in the app (thakurg-Apps/thakurg-android, plugin AppBack). It first leaves full screen (a video), then closes what is open on
+ * top, the way Escape does: a native dialog, then a sheet, drawer or menu. When nothing is open it goes to the previous page; on the first page the app
+ * asks for a second press to exit.
  * In a browser there is no plugin and nothing changes.
  */
 @Injectable({ providedIn: 'root' })
@@ -38,8 +39,12 @@ export class NativeBackService {
       await this.back?.goBack();
   }
 
-  /** Closes the top open dialog, sheet, drawer or menu; resolves false when nothing was open or it did not close. */
+  /** Leaves full screen (a video), or closes the top open dialog, sheet, drawer or menu; resolves false when nothing was open or it did not close. */
   private async closeTop(): Promise<boolean> {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen().catch(() => undefined);
+      return true;
+    }
     const dialogs = document.querySelectorAll<HTMLDialogElement>('dialog[open]');
     const dialog = dialogs[dialogs.length - 1] as (HTMLDialogElement & { requestClose?: () => void }) | undefined;
     if (dialog) {

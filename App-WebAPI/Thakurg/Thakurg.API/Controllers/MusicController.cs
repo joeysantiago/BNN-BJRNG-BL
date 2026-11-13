@@ -57,6 +57,19 @@ public class MusicController : ControllerBase
         return Ok(ApiResponse<MusicTracksDto>.SuccessResponse(tracks));
     }
 
+    // Makes the track list match the player's folder in the file store: new song files are added, rows whose file is gone are removed.
+    [HttpPost("{player}/tracks/sync")]
+    [EnableRateLimiting("sensitive")]
+    public async Task<ActionResult<ApiResponse<MusicTracksDto>>> Sync(string player, CancellationToken cancellationToken)
+    {
+        if (!User.HasApp(player))
+            return Forbid();
+
+        var result = await _musicService.SyncAsync(player, cancellationToken);
+
+        return Ok(ApiResponse<MusicTracksDto>.SuccessResponse(result.Data, result.Message));
+    }
+
     [HttpDelete("{player}/tracks/{trackId:int}")]
     [EnableRateLimiting("sensitive")]
     public async Task<ActionResult<ApiResponse<object?>>> Delete(string player, int trackId, CancellationToken cancellationToken)

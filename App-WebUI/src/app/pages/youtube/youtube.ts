@@ -83,6 +83,7 @@ export class Youtube implements OnDestroy {
   private readonly api = inject(ApiService);
   private readonly seo = inject(SeoService);
   private readonly pwa = inject(AppPwaService);
+  protected readonly full = signal(false);
   protected readonly failed = signal(false);
   protected readonly playing = signal(false);
   protected readonly showTip = signal(false);
@@ -130,6 +131,18 @@ export class Youtube implements OnDestroy {
     // Phones pause embedded players when the page is hidden; start again if the listener never asked to pause.
     if (!this.audioMode() && this.wantPlay && this.player && this.player.getPlayerState() === YT_PAUSED)
       this.player.playVideo();
+  };
+
+  /** Full screen turns the phone sideways for the video and back when it ends, where the browser allows locking the orientation. */
+  private onFullscreen = (): void => {
+    const on = !!document.fullscreenElement;
+    const orientation = screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> };
+    this.full.set(on);
+    if (on) {
+      void orientation.lock?.('landscape').catch(() => undefined);
+    } else {
+      orientation.unlock?.();
+    }
   };
 
   constructor() {
@@ -223,6 +236,7 @@ export class Youtube implements OnDestroy {
       this.setupMediaSession();
       void this.loadDownloadInfo();
       document.addEventListener('visibilitychange', this.onVisible);
+      document.addEventListener('fullscreenchange', this.onFullscreen);
     });
   }
 
@@ -238,6 +252,9 @@ export class Youtube implements OnDestroy {
     if (!this.browser)
       return;
     document.removeEventListener('visibilitychange', this.onVisible);
+    document.removeEventListener('fullscreenchange', this.onFullscreen);
+    if (document.fullscreenElement)
+      void document.exitFullscreen().catch(() => undefined);
     if ('mediaSession' in navigator)
       navigator.mediaSession.metadata = null;
   }

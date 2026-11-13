@@ -14,6 +14,28 @@
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
+# Puts a dotnet that has an SDK first on PATH for this window. Windows reads the system PATH before the user PATH, so a runtime-only
+# C:\Program Files\dotnet hides an SDK installed for the user (DOTNET_ROOT or %LOCALAPPDATA%\Microsoft\dotnet), and "dotnet run" then
+# fails with "No .NET SDKs were found".
+function Use-DotnetSdk {
+    $folders = @($env:DOTNET_ROOT, (Join-Path $env:LOCALAPPDATA 'Microsoft\dotnet'), (Join-Path $env:USERPROFILE '.dotnet'), (Join-Path $env:ProgramFiles 'dotnet')) | Where-Object { $_ }
+    foreach ($folder in $folders) {
+        $sdk = Join-Path $folder 'sdk'
+        if ((Test-Path (Join-Path $folder 'dotnet.exe')) -and (Test-Path $sdk) -and (Get-ChildItem $sdk -Directory | Select-Object -First 1)) {
+            $env:Path = "$folder;$env:Path"
+            $env:DOTNET_ROOT = $folder
+            return $folder
+        }
+    }
+    return $null
+}
+
+$dotnetFolder = Use-DotnetSdk
+if (-not $dotnetFolder) {
+    Write-Warning "No .NET SDK found (looked in DOTNET_ROOT, %LOCALAPPDATA%\Microsoft\dotnet, %USERPROFILE%\.dotnet and Program Files\dotnet). Install it: winget install Microsoft.DotNet.SDK.10"
+    exit 1
+}
+
 $projectFolder = Join-Path $PSScriptRoot "App-Database\DatabaseInitializer"
 $settingsFile = Join-Path $projectFolder "appsettings.Development.json"
 
@@ -69,6 +91,7 @@ Write-Host "Database type : $providerName (from appsettings.Development.json)" -
 Write-Host "Server        : $($builder.DataSource)" -ForegroundColor Yellow
 Write-Host "Database      : $($builder.InitialCatalog)" -ForegroundColor Yellow
 if ($builder.UserID) { Write-Host "User          : $($builder.UserID)" -ForegroundColor Yellow }
+Write-Host ".NET SDK      : $(& dotnet --version) ($dotnetFolder)" -ForegroundColor Yellow
 if ($useAzure) { Write-Host "A paused free / serverless Azure database can take up to a minute to wake up." -ForegroundColor Gray }
 
 # Environment variables override appsettings, so clear any left in this window from earlier runs; the file decides.
