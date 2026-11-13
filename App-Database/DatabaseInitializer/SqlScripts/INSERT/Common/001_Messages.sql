@@ -277,6 +277,16 @@ BEGIN
             "hi": "{0} ट्रैक जोड़े गए।",
             "ar": "تمت إضافة {0} مقطع."
         }'),
+        ('MUSIC_TRACKS_SYNCED', N'{
+            "en": "Synced with the storage folder: {0} added, {1} removed, {2} track(s) in the list.",
+            "hi": "स्टोरेज फ़ोल्डर से मिलान हो गया: {0} जोड़े गए, {1} हटाए गए, सूची में {2} ट्रैक।",
+            "ar": "تمت المزامنة مع مجلد التخزين: أُضيف {0}، وحُذف {1}، وفي القائمة {2} مقطع."
+        }'),
+        ('MUSIC_SYNC_FOLDER_EMPTY', N'{
+            "en": "The storage folder has no songs, but the list has {0}. Nothing was removed: check the file storage in Settings > General.",
+            "hi": "स्टोरेज फ़ोल्डर में कोई गाना नहीं है, पर सूची में {0} हैं। कुछ भी हटाया नहीं गया: सेटिंग्स > सामान्य में फ़ाइल स्टोरेज जाँचें।",
+            "ar": "لا توجد أغانٍ في مجلد التخزين، لكن القائمة فيها {0}. لم يُحذف شيء: تحقّق من تخزين الملفات في الإعدادات > عام."
+        }'),
         ('MUSIC_TRACK_DELETED', N'{
             "en": "The track was deleted.",
             "hi": "ट्रैक हटा दिया गया।",

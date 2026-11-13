@@ -385,10 +385,26 @@ input[type='range']::-moz-range-thumb {
   gap: 6px;
 }
 .video:fullscreen {
+  position: relative;
   width: 100%;
   margin: 0;
   aspect-ratio: auto;
   border-radius: 0;
+}
+/* Pause and exit over the video in full screen (the YouTube player shows no controls of its own). */
+.fs-bar {
+  position: absolute;
+  inset-block-start: max(12px, env(safe-area-inset-top));
+  inset-inline-end: max(12px, env(safe-area-inset-right));
+  display: flex;
+  gap: 10px;
+}
+.fs-bar .btn {
+  min-width: 48px;
+  min-height: 48px;
+  color: #fff;
+  background: rgb(0 0 0 / 55%);
+  border-color: rgb(255 255 255 / 35%);
 }
 .host,
 .host :is(iframe, div) {
