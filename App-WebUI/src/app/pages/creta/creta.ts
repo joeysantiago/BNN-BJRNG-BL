@@ -11,6 +11,7 @@ import { AppPwaService } from '../../core/app-pwa.service';
 import { TranslationKey } from '../../core/models/i18n.model';
 import { SettingsService } from '../../core/settings.service';
 import { environment } from '../../../environments/environment';
+import { NativeMediaService } from '../../core/native-media.service';
 import { PlayerId, Track, TracksResponse } from './creta.model';
 import { Component, ElementRef, OnDestroy, PLATFORM_ID, afterNextRender, computed, effect, inject, signal, viewChild } from '@angular/core';
 
@@ -58,6 +59,7 @@ export class Creta implements OnDestroy {
   protected readonly shuffle = signal(false);
   private readonly auth = inject(AuthService);
   private readonly pwa = inject(AppPwaService);
+  private readonly media = inject(NativeMediaService);
   protected readonly i18n = inject(I18nService);
   protected readonly tracks = signal<Track[]>([]);
   protected readonly repeat = signal<Repeat>('off');
@@ -75,6 +77,9 @@ export class Creta implements OnDestroy {
   constructor() {
     // Creta and Nexon each install as their own app.
     this.pwa.enter(this.id);
+    // In the Android app the "Now playing" notification's buttons play this player, and it keeps playing in the background (NativeMediaService).
+    this.media.connect({ prev: () => this.prev(), next: () => this.next(), toggle: () => this.toggle() });
+    effect(() => this.media.show(this.current()?.title ?? '', this.current()?.artist ?? '', this.playing()));
     effect(() => {
       this.seo.set({
         title: this.tt('seo.title'),
@@ -118,6 +123,7 @@ export class Creta implements OnDestroy {
 
   ngOnDestroy(): void {
     this.pwa.leave();
+    this.media.disconnect();
     this.audioRef()?.nativeElement.pause();
     this.auth.keepAwake(false);
     if (this.browser && 'mediaSession' in navigator)
