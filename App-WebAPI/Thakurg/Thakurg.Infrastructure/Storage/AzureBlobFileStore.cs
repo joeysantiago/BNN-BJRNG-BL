@@ -133,6 +133,28 @@ public class AzureBlobFileStore : IFileBackend
         await container.GetBlobClient(name).UploadAsync(content, new BlobUploadOptions { HttpHeaders = new BlobHttpHeaders { ContentType = contentType } }, cancellationToken);
     }
 
+    // Lists only the blobs under "<environment>/<folder>/"; a name with another "/" is in a subfolder and is left out.
+    public async Task<List<string>> ListFolderAsync(string folder, CancellationToken cancellationToken)
+    {
+        var prefix = BlobName(folder);
+
+        if (prefix is null)
+            return [];
+
+        var container = await ContainerAsync(cancellationToken);
+        var names = new List<string>();
+
+        await foreach (var blob in container.GetBlobsAsync(BlobTraits.None, BlobStates.None, prefix + "/", cancellationToken))
+        {
+            var name = blob.Name[(prefix.Length + 1)..];
+
+            if (!name.Contains('/'))
+                names.Add(name);
+        }
+
+        return names;
+    }
+
     #endregion
 
     #region Private Methods

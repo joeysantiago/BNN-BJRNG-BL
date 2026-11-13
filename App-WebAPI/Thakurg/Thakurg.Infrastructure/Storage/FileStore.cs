@@ -57,6 +57,13 @@ public class FileStore : IFileStore
         await backend.SaveAsync(path, content, cancellationToken);
     }
 
+    public async Task<List<string>> ListFolderAsync(string folder, CancellationToken cancellationToken)
+    {
+        var backend = await ActiveAsync(cancellationToken);
+
+        return await backend.ListFolderAsync(folder, cancellationToken);
+    }
+
     #endregion
 
     #region Private Methods

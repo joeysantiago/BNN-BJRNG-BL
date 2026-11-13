@@ -11,4 +11,7 @@ public interface IFileStore
     Task<Stream?> OpenAsync(string path, CancellationToken cancellationToken);
 
     Task SaveAsync(string path, Stream content, CancellationToken cancellationToken);
+
+    // The names of the files directly in one folder, such as "creta" (files in its subfolders are not listed).
+    Task<List<string>> ListFolderAsync(string folder, CancellationToken cancellationToken);
 }

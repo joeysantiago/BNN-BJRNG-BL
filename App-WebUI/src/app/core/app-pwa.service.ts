@@ -33,8 +33,8 @@ export class AppPwaService {
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   /** The branch's own app when it has no speed test (the site's manifest is then that app's), else null. */
   private readonly home = FEATURE_APPS.includes('speedtest') ? null : ((FEATURE_APPS.find((a) => INSTALLABLE.includes(a)) ?? null) as InstallableApp | null);
-  /** The app whose own window this is (the path /apps/<code>/), or null on the plain site and on the server. */
-  private readonly own = (this.browser ? /^\/apps\/(khata|creta|nexon|youtube|speedtest)\/?$/.exec(location.pathname)?.[1] ?? null : null) as AppWindow | null;
+  /** The app whose own window this is (the path /apps/<code>/, or /apps/<code>/index.html in a one-app Android app), or null on the plain site and on the server. */
+  private readonly own = (this.browser ? /^\/apps\/(khata|creta|nexon|youtube|speedtest)(\/|\/index\.html)?$/.exec(location.pathname)?.[1] ?? null : null) as AppWindow | null;
 
   constructor() {
     const app = this.own ?? this.home;

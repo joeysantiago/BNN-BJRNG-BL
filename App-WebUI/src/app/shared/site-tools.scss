@@ -95,6 +95,24 @@
 .lang-pop {
   width: min(200px, calc(100vw - 32px));
 }
+.apps-pop {
+  width: min(240px, calc(100vw - 32px));
+}
+a.tool-opt {
+  text-decoration: none;
+}
+/* Phones: the Apps button is the first of the bar, so its menu would run off the start edge; it spans the screen just below the button instead. */
+@media (max-width: 560px) {
+  .apps-pop {
+    position: fixed;
+    inset-block-start: auto;
+    inset-inline: 12px;
+    width: auto;
+    margin-block-start: 10px;
+    max-height: calc(100dvh - 90px);
+    overflow-y: auto;
+  }
+}
 .lang-pop .tool-opt {
   /* Language names are written in their own scripts, so use system fonts and skip downloading web fonts for them. */
   font-family: system-ui, 'Segoe UI', 'Nirmala UI', 'Noto Sans', sans-serif;

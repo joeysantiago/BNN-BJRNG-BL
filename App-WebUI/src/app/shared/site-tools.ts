@@ -1,21 +1,24 @@
-import { Router } from '@angular/router';
+import { userApps } from '../core/apps';
 import { Lang, langInfo } from '../core/site';
+import { AuthService } from '../core/auth.service';
 import { I18nService } from '../core/i18n.service';
 import { ThemeService } from '../core/theme.service';
+import { Router, RouterLink } from '@angular/router';
 import { InstallService } from '../core/install.service';
 import { SettingsService } from '../core/settings.service';
 import { Skin, ThemeMode } from '../core/models/theme.model';
-import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 
 const SPEED_PATHS = new Set(['/', '/hi', '/ar']);
 
 /**
- * The Install, Theme and Language buttons of a top bar, with their menus, as on the speed test page. The site header, the My Tasks top bar and both
- * SnapKhata top bars use this one component, so the three buttons look and work the same on every page of every branch. Its own class names keep
- * the apps' .btn and .card styles off it.
+ * The Apps, Install, Theme and Language buttons of a top bar, with their menus, as on the speed test page. The site header, the My Tasks and SnapTracker
+ * top bars and both SnapKhata top bars use this one component, so the buttons look and work the same on every page of every branch. Its own class names
+ * keep the apps' .btn and .card styles off it. The Apps menu switches straight to another app of the account, so nobody has to go through the profile.
  */
 @Component({
   selector: 'app-site-tools',
+  imports: [RouterLink],
   templateUrl: './site-tools.html',
   styleUrl: './site-tools.scss',
   host: { '(document:click)': 'outside($event)', '(document:keydown.escape)': 'menu.set(null)' },
@@ -23,13 +26,16 @@ const SPEED_PATHS = new Set(['/', '/hi', '/ar']);
 
 export class SiteTools {
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
   protected readonly theme = inject(ThemeService);
   protected readonly cfg = inject(SettingsService);
   protected readonly install = inject(InstallService);
-  protected readonly menu = signal<'lang' | 'theme' | null>(null);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  protected readonly menu = signal<'apps' | 'lang' | 'theme' | null>(null);
   private readonly ios = viewChild.required<ElementRef<HTMLDialogElement>>('ios');
+  /** The apps of the Apps menu (core/apps.ts userApps, only those routed here); none while logged out. */
+  protected readonly apps = computed(() => (!this.auth.user() ? [] : userApps(this.auth.isAdmin(), this.auth.apps(), this.router.config).filter((a) => a.path)));
 
   // #region Public Methods
 
@@ -47,6 +53,11 @@ export class SiteTools {
       this.menu.set(null);
   }
 
+  /** The app whose screen is open: its path starts with the same first part as the address (/khata/app/... is SnapKhata). */
+  isCurrent(path: string | null): boolean {
+    return !!path && this.path(this.router.url).split('/')[1] === path.split('/')[1];
+  }
+
   /** Dark, Light or System; the menu stays open so a skin can be picked next. */
   pickMode(mode: ThemeMode): void {
     this.theme.setMode(mode);
@@ -60,7 +71,7 @@ export class SiteTools {
       void this.router.navigateByUrl(langInfo(code).home);
   }
 
-  toggle(menu: 'lang' | 'theme'): void {
+  toggle(menu: 'apps' | 'lang' | 'theme'): void {
     this.menu.set(this.menu() === menu ? null : menu);
   }
 

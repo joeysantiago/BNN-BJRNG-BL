@@ -1,7 +1,7 @@
 import { Lang } from '../../core/site';
+import { userApps } from '../../core/apps';
 import { SeoService } from '../../core/seo.service';
 import { NgComponentOutlet } from '@angular/common';
-import { APP_LINKS, appLink } from '../../core/apps';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
@@ -65,8 +65,8 @@ export class Profile {
   protected readonly since = computed(() => formatDate(this.auth.user()?.createdOn));
   protected readonly byCode = computed(() => this.auth.user()?.loginMethod === 'otp');
   protected readonly lastLogin = computed(() => formatDateTimeWithZone(this.auth.user()?.lastLoginOn));
-  /** A feature branch may not have every app's pages: an app whose page is not routed here is listed without a link. */
-  protected readonly apps = computed(() => (this.auth.isAdmin() ? APP_LINKS : this.auth.apps().map(appLink)).map((a) => (a.path && this.router.config.some((r) => r.path === a.path!.split('/')[1]) ? a : { ...a, path: null })));
+  /** The apps this account may open (core/apps.ts userApps); one whose page is not routed here is listed without a link. */
+  protected readonly apps = computed(() => userApps(this.auth.isAdmin(), this.auth.apps(), this.router.config));
 
   constructor() {
     effect(() => {
