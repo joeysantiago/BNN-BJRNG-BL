@@ -2,7 +2,7 @@ using DatabaseInitializer.SqlScripts;
 
 namespace DatabaseInitializer.Seeding;
 
-// My Tasks: the tables in SqlScripts/CREATE/Tasks (its Apps, PageNames, Features, Messages and Translations rows stay in Common's INSERT files).
+// Tasks: the tables in SqlScripts/CREATE/Tasks (its Apps, PageNames, Features, Messages and Translations rows stay in Common's INSERT files).
 public sealed class TasksDatabaseSeeder : IDatabaseSeeder
 {
     public string Database => "Tasks";

@@ -1,7 +1,7 @@
 import { TaskClock, TaskGroup, TaskItem, TaskPeriods, TaskStatus, TaskTab } from './models/tasks.model';
 
 /**
- * The date rules of My Tasks. Tasks are organised by their due date in the local calendar of the user, never by the creation date; months and
+ * The date rules of Tasks. Tasks are organised by their due date in the local calendar of the user, never by the creation date; months and
  * years are never hard-coded. Every function is pure, so the dashboard, the calendar and the bell agree.
  */
 

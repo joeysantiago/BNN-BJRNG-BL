@@ -11,7 +11,7 @@ using Thakurg.Infrastructure.Security;
 
 namespace Thakurg.API.Controllers;
 
-// The tasks of the caller (My Tasks). Only users with access to the app (or administrators) get here, each sees only their own tasks, and the App Lock is checked first.
+// The tasks of the caller (Tasks). Only users with access to the app (or administrators) get here, each sees only their own tasks, and the App Lock is checked first.
 [ApiController]
 [Route("api/tasks/items")]
 [Authorize(Policy = AuthPolicies.Tasks)]

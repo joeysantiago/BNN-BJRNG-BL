@@ -9,6 +9,7 @@ import { UserAvatar } from '../../../shared/user-avatar';
 import { ThemeService } from '../../../core/theme.service';
 import { TaskEditor } from '../ui/task-editor/task-editor';
 import { TasksMenus } from '../ui/tasks-menus/tasks-menus';
+import { TaskShareSheet } from '../ui/task-share/task-share';
 import { AppPwaService } from '../../../core/app-pwa.service';
 import { TasksLockService } from '../../../core/tasks-lock.service';
 import { TasksOverlays } from '../ui/tasks-overlays/tasks-overlays';
@@ -17,13 +18,13 @@ import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router
 import { Component, OnDestroy, ViewEncapsulation, afterNextRender, computed, effect, inject, signal, untracked } from '@angular/core';
 
 /**
- * The frame of the My Tasks app: a rail on wide screens, a top bar and bottom tabs with the Add button on phones, the lock screen, the task editor,
+ * The frame of the Tasks app: a rail on wide screens, a top bar and bottom tabs with the Add button on phones, the lock screen, the task editor,
  * and the reminders bell, picture viewer and toasts (TasksOverlays). The name of the app comes from the database (PageNames, code "tasks"), so a new name shows here,
  * in the browser tab and in the install manifest. The site header and footer are hidden on these screens (app.ts).
  */
 @Component({
   selector: 'app-tasks-shell',
-  imports: [RouterOutlet, RouterLink, TaskIcon, TasksLock, TaskEditor, TasksMenus, TasksOverlays, UserAvatar],
+  imports: [RouterOutlet, RouterLink, TaskIcon, TasksLock, TaskEditor, TaskShareSheet, TasksMenus, TasksOverlays, UserAvatar],
   templateUrl: './tasks-shell.html',
   styleUrl: './tasks-shell.scss',
   encapsulation: ViewEncapsulation.None,

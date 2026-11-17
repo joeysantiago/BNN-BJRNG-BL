@@ -48,7 +48,7 @@ public class TaskUserRepository : ITaskUserRepository
         return _dbContext.TaskLockSessions.WhereActive().FirstOrDefaultAsync(s => s.SessionId == sessionId, cancellationToken);
     }
 
-    // Removes everything of one user in My Tasks for good (tasks, checklists, pictures, history, reminders, categories, lock sessions, the profile) and the
+    // Removes everything of one user in Tasks for good (tasks, shares to and from them, checklists, pictures, history, reminders, categories, lock sessions, the profile) and the
     // access of the account to the app, in one transaction. Returns the picture files to delete from the store.
     public async Task<List<string>> DeleteAllAsync(int userId, int accountUserId, string appCode, CancellationToken cancellationToken)
     {
@@ -59,6 +59,7 @@ public class TaskUserRepository : ITaskUserRepository
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
             var tasks = _dbContext.TaskItems.Where(t => t.UserId == userId).Select(t => t.Id);
             var files = await _dbContext.TaskAttachments.Where(a => tasks.Contains(a.TaskId)).Select(a => a.FileId).ToListAsync(cancellationToken);
+            await _dbContext.TaskShares.Where(s => tasks.Contains(s.TaskId) || s.UserId == accountUserId).ExecuteDeleteAsync(cancellationToken);
             await _dbContext.TaskReminderLogs.Where(l => tasks.Contains(l.TaskId)).ExecuteDeleteAsync(cancellationToken);
             await _dbContext.TaskHistory.Where(h => tasks.Contains(h.TaskId)).ExecuteDeleteAsync(cancellationToken);
             await _dbContext.TaskAttachments.Where(a => tasks.Contains(a.TaskId)).ExecuteDeleteAsync(cancellationToken);

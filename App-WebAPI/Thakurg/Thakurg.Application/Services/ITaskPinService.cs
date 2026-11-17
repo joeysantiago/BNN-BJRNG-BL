@@ -3,7 +3,7 @@ using Thakurg.Contracts.Wrappers;
 
 namespace Thakurg.Application.Services;
 
-// The App Lock of My Tasks. Independent from SnapKhata: its own PIN, its own lock sessions.
+// The App Lock of Tasks. Independent from Khataebook: its own PIN, its own lock sessions.
 public interface ITaskPinService
 {
     Task EnsureUnlockedAsync(TaskCallerDto caller, CancellationToken cancellationToken);

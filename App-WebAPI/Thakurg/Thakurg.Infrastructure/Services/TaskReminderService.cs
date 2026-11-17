@@ -11,7 +11,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Services;
 
-// WhatsApp reminders of My Tasks, in the time zone and language of each user, once per task, kind and day (TaskReminderLogs):
+// WhatsApp reminders of Tasks, in the time zone and language of each user, once per task, kind and day (TaskReminderLogs):
 // - due: a task with a time, "remind before" its time; a task without a time, at the daily reminder time;
 // - overdue: at the daily reminder time, every day until it is completed (when switched on);
 // - upcoming: at the daily reminder time, for tasks due in the next UpcomingDays days (when switched on).

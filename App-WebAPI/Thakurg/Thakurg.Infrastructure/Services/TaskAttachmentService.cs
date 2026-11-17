@@ -12,7 +12,8 @@ using Thakurg.Infrastructure.Common;
 namespace Thakurg.Infrastructure.Services;
 
 // The pictures of a task: at most MaxPhotosPerTask, each at most MaxPhotoBytes, and really a JPG, PNG, GIF or WebP picture (read from its bytes).
-// Only the owner of the task can add, open or remove them; the repository finds a picture only through a live task of the caller.
+// The owner of the task can add, open or remove them; so can someone the task is shared with (open with read, all three with edit).
+// The repository finds a picture only through a live task of the caller or a live task shared with them.
 public class TaskAttachmentService : ITaskAttachmentService
 {
     private const int FileNameLength = 120;
@@ -37,7 +38,7 @@ public class TaskAttachmentService : ITaskAttachmentService
 
     public async Task<FileStreamDto> OpenAsync(TaskCallerDto caller, int attachmentId, CancellationToken cancellationToken)
     {
-        var attachment = await _taskRepository.GetAttachmentAsync(caller.UserId, attachmentId, cancellationToken) ?? throw new BusinessException(MessageCodes.TasksPhotoNotFound, 404);
+        var attachment = await RequireAttachmentAsync(caller, attachmentId, false, cancellationToken);
         var content = await _fileStore.OpenAsync(attachment.FileId) ?? throw new BusinessException(MessageCodes.TasksPhotoNotFound, 404);
 
         return new FileStreamDto { Content = content, ContentType = attachment.ContentType, FileName = attachment.FileName };
@@ -45,20 +46,20 @@ public class TaskAttachmentService : ITaskAttachmentService
 
     public async Task<ServiceResultDto<TaskChangesDto>> RemoveAsync(TaskCallerDto caller, int attachmentId, CancellationToken cancellationToken)
     {
-        var attachment = await _taskRepository.GetAttachmentAsync(caller.UserId, attachmentId, cancellationToken) ?? throw new BusinessException(MessageCodes.TasksPhotoNotFound, 404);
+        var attachment = await RequireAttachmentAsync(caller, attachmentId, true, cancellationToken);
         attachment.IsSoftDeleted = true;
         attachment.ModifiedBy = caller.AccountUserId;
         attachment.ModifiedOn = DateTime.UtcNow;
         await _taskRepository.SaveChangesAsync(cancellationToken);
         await _fileStore.DeleteAsync(attachment.FileId);
-        var task = await _taskRepository.GetTaskAsync(caller.UserId, attachment.TaskId, cancellationToken) ?? throw new BusinessException(MessageCodes.TasksNotFound, 404);
+        var task = await RequireTaskAsync(caller, attachment.TaskId, cancellationToken);
 
         return new ServiceResultDto<TaskChangesDto> { Data = new TaskChangesDto { Tasks = [TaskMapper.ToDto(task)] }, Message = await _messageService.GetAsync(MessageCodes.TasksPhotoRemoved) };
     }
 
     public async Task<ServiceResultDto<TaskChangesDto>> UploadAsync(TaskCallerDto caller, int taskId, List<TaskPhotoUploadDto> files, CancellationToken cancellationToken)
     {
-        var task = await _taskRepository.GetTaskAsync(caller.UserId, taskId, cancellationToken) ?? throw new BusinessException(MessageCodes.TasksNotFound, 404);
+        var task = await RequireTaskAsync(caller, taskId, cancellationToken);
         var count = TaskMapper.Live(task.Attachments).Count();
         var limits = await _limits.GetAsync(cancellationToken);
         var megabytes = Math.Max(1, limits.MaxPhotoBytes / (1024 * 1024));
@@ -86,7 +87,7 @@ public class TaskAttachmentService : ITaskAttachmentService
         {
             foreach (var (bytes, type, name) in pictures)
             {
-                var fileId = $"{caller.UserId}/{Guid.NewGuid():N}{TaskImageType.Extensions[type]}";
+                var fileId = $"{task.UserId}/{Guid.NewGuid():N}{TaskImageType.Extensions[type]}";
                 await _fileStore.SaveAsync(fileId, bytes, cancellationToken);
                 written.Add(fileId);
                 task.Attachments.Add(new TaskAttachment { FileId = fileId, FileName = name, ContentType = type, SizeBytes = bytes.Length, SortOrder = count++, CreatedBy = caller.AccountUserId });
@@ -118,6 +119,27 @@ public class TaskAttachmentService : ITaskAttachmentService
         var name = new string(Path.GetFileName(fileName).Where(c => !Path.GetInvalidFileNameChars().Contains(c)).ToArray()).Trim();
 
         return name.Length > FileNameLength ? name[..FileNameLength] : name;
+    }
+
+    // The caller's own task, or one shared with them with edit (a read-only share is refused, 403).
+    private async Task<TaskItem> RequireTaskAsync(TaskCallerDto caller, int taskId, CancellationToken cancellationToken)
+    {
+        if (await _taskRepository.GetTaskAsync(caller.UserId, taskId, cancellationToken) is { } own)
+            return own;
+
+        var (task, permission) = await _taskRepository.GetSharedTaskAsync(caller.AccountUserId, taskId, cancellationToken) ?? throw new BusinessException(MessageCodes.TasksNotFound, 404);
+
+        return permission == TaskSharePermissions.Edit ? task : throw new BusinessException(MessageCodes.TasksShareReadOnly, 403);
+    }
+
+    private async Task<TaskAttachment> RequireAttachmentAsync(TaskCallerDto caller, int attachmentId, bool edit, CancellationToken cancellationToken)
+    {
+        if (await _taskRepository.GetAttachmentAsync(caller.UserId, attachmentId, cancellationToken) is { } own)
+            return own;
+
+        var (attachment, permission) = await _taskRepository.GetSharedAttachmentAsync(caller.AccountUserId, attachmentId, cancellationToken) ?? throw new BusinessException(MessageCodes.TasksPhotoNotFound, 404);
+
+        return !edit || permission == TaskSharePermissions.Edit ? attachment : throw new BusinessException(MessageCodes.TasksShareReadOnly, 403);
     }
 
     #endregion

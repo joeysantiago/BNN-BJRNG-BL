@@ -12,6 +12,7 @@ import { TaskAttachment, TaskDraftItem, TaskDraftPhoto, TaskEditorState, TaskHis
  * The sheet that adds or edits a task: title (required), description, due date and time, category, status, priority, checklist (add, edit,
  * tick, reorder, remove), pictures (gallery or camera, preview, replace, remove), repeat, reminder and the history of the task.
  * New pictures are shrunk on the device and uploaded after the task is saved; removed ones are removed on save.
+ * A task shared with the user shows who shared it instead of the category; with view-only access every field is disabled and only Close stays.
  */
 @Component({
   selector: 'app-task-editor',
@@ -52,6 +53,7 @@ export class TaskEditor implements OnInit, OnDestroy {
   protected readonly task = computed(() => this.editor().task);
   protected readonly history = signal<TaskHistoryEntry[] | null>(null);
   protected readonly done = computed(() => !!this.task() && isDone(this.task()!));
+  protected readonly readOnly = computed(() => this.share()?.permission === 'read');
   private readonly camera = viewChild.required<ElementRef<HTMLInputElement>>('camera');
   private readonly picker = viewChild.required<ElementRef<HTMLInputElement>>('picker');
   protected readonly ticked = computed(() => this.items().filter((i) => i.isDone).length);
@@ -60,6 +62,7 @@ export class TaskEditor implements OnInit, OnDestroy {
   private readonly titleInput = viewChild.required<ElementRef<HTMLInputElement>>('titleInput');
   protected readonly maxPhotos = computed(() => this.state.settings()?.limits.maxPhotosPerTask ?? 0);
   protected readonly repeats: TaskRepeat[] = ['none', 'daily', 'weekly', 'monthly', 'yearly', 'custom'];
+  protected readonly share = computed(() => (this.task() ? this.state.sharedOf(this.task()!.id) : null));
   protected readonly status = computed(() => (this.task() ? statusOf(this.task()!, this.state.clock()) : null));
   protected readonly kept = computed<TaskAttachment[]>(() => (this.task()?.attachments ?? []).filter((a) => !this.removed().includes(a.id)));
 
@@ -80,6 +83,15 @@ export class TaskEditor implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.fill();
     setTimeout(() => this.titleInput().nativeElement.focus(), 50);
+  }
+
+  /** Opens the share sheet of the task in place of the editor (own tasks only). */
+  openShare(): void {
+    const task = this.task();
+    if (!task)
+      return;
+    this.close();
+    this.state.sharing.set(task);
   }
 
   ngOnDestroy(): void {
@@ -103,6 +115,13 @@ export class TaskEditor implements OnInit, OnDestroy {
 
   dropSaved(id: number): void {
     this.removed.update((list) => [...list, id]);
+  }
+
+  /** Removes a task someone shared with the user from their list, then closes the sheet. */
+  async leave(): Promise<void> {
+    const share = this.share();
+    if (share && (await this.state.leave(share)))
+      this.close();
   }
 
   dropPhoto(key: number): void {

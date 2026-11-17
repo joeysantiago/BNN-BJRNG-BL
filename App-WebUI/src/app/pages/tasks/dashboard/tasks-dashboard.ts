@@ -31,6 +31,7 @@ export class TasksDashboard {
   protected readonly state = inject(TasksStateService);
   protected readonly menu = signal<'when' | 'cat' | null>(null);
   protected readonly tabs: TaskTab[] = ['all', 'active', 'completed'];
+  protected readonly mine = computed(() => this.state.view() === 'mine');
   protected readonly scopes = ['all', 'today', 'week', 'nextweek', 'month', 'upcoming', 'overdue', 'nodate'];
   protected readonly overdueOn = computed(() => this.state.tab() === 'active' && this.state.scope() === 'overdue');
   protected readonly weekday = computed(() => new Intl.DateTimeFormat(this.state.locale(), { weekday: 'long' }).format(this.state.moment()));
@@ -61,8 +62,15 @@ export class TasksDashboard {
     }, 200);
   }
 
+  /** Shared with me: share requests to answer and the tasks others shared with the user. */
+  showShared(): void {
+    this.state.view.set('shared');
+    this.state.stopSelecting();
+  }
+
   /** The Overdue tab: the active tasks past their due date (the category and search stay). */
   showOverdue(): void {
+    this.state.view.set('mine');
     this.state.tab.set('active');
     this.state.scope.set('overdue');
     this.state.stopSelecting();
@@ -80,6 +88,7 @@ export class TasksDashboard {
 
   /** One of All, Active, Completed; leaving the Overdue tab also leaves its date filter. */
   setTab(tab: TaskTab): void {
+    this.state.view.set('mine');
     if (this.overdueOn())
       this.state.scope.set('all');
     this.state.tab.set(tab);

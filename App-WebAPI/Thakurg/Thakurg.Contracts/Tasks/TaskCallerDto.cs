@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Tasks;
 
-// Who calls a My Tasks endpoint: the TaskUsers row, the common account, its login session and whether it is a super admin.
+// Who calls a Tasks endpoint: the TaskUsers row, the common account, its login session and whether it is a super admin.
 public class TaskCallerDto
 {
     public int UserId { get; set; }

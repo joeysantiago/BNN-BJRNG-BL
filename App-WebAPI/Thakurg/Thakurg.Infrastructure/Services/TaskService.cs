@@ -54,7 +54,9 @@ public class TaskService : ITaskService
 
     public async Task<List<TaskHistoryDto>> GetHistoryAsync(TaskCallerDto caller, int taskId, CancellationToken cancellationToken)
     {
-        return (await _taskRepository.GetHistoryAsync(caller.UserId, taskId, cancellationToken)).Select(TaskMapper.ToDto).ToList();
+        var task = await RequireTaskAsync(caller, taskId, false, cancellationToken);
+
+        return (await _taskRepository.GetHistoryAsync(task.UserId, taskId, cancellationToken)).Select(TaskMapper.ToDto).ToList();
     }
 
     public async Task<ServiceResultDto<TaskChangesDto>> DeleteAsync(TaskCallerDto caller, int taskId, CancellationToken cancellationToken)
@@ -64,17 +66,17 @@ public class TaskService : ITaskService
         SoftDelete(task, caller, work);
         await SaveAsync(caller, work, cancellationToken);
 
-        return await ResultAsync(work, MessageCodes.TasksDeleted);
+        return await ResultAsync(work.ToDto(), MessageCodes.TasksDeleted);
     }
 
     public async Task<ServiceResultDto<TaskChangesDto>> ReopenAsync(TaskCallerDto caller, int taskId, CancellationToken cancellationToken)
     {
-        var task = await RequireTaskAsync(caller, taskId, cancellationToken);
+        var task = await RequireTaskAsync(caller, taskId, true, cancellationToken);
         var work = new TaskWork();
         Reopen(task, false, caller, work);
         await SaveAsync(caller, work, cancellationToken);
 
-        return await ResultAsync(work, MessageCodes.TasksReopened);
+        return await ResultAsync(Visible(work, task, caller), MessageCodes.TasksReopened);
     }
 
     public async Task<ServiceResultDto<TaskChangesDto>> RestoreAsync(TaskCallerDto caller, int taskId, CancellationToken cancellationToken)
@@ -87,17 +89,17 @@ public class TaskService : ITaskService
         work.Log(task, TaskHistoryActions.Restored);
         await SaveAsync(caller, work, cancellationToken);
 
-        return await ResultAsync(work, MessageCodes.TasksRestored);
+        return await ResultAsync(work.ToDto(), MessageCodes.TasksRestored);
     }
 
     public async Task<ServiceResultDto<TaskChangesDto>> CompleteAsync(TaskCallerDto caller, int taskId, CancellationToken cancellationToken)
     {
-        var task = await RequireTaskAsync(caller, taskId, cancellationToken);
+        var task = await RequireTaskAsync(caller, taskId, true, cancellationToken);
         var work = new TaskWork();
         Complete(task, false, caller, work);
         await SaveAsync(caller, work, cancellationToken);
 
-        return await ResultAsync(work, MessageCodes.TasksCompleted);
+        return await ResultAsync(Visible(work, task, caller), MessageCodes.TasksCompleted);
     }
 
     public async Task<ServiceResultDto<TaskChangesDto>> DuplicateAsync(TaskCallerDto caller, int taskId, CancellationToken cancellationToken)
@@ -107,12 +109,12 @@ public class TaskService : ITaskService
         await DuplicateAsync(task, caller, work, cancellationToken);
         await SaveAsync(caller, work, cancellationToken);
 
-        return await ResultAsync(work, MessageCodes.TasksDuplicated);
+        return await ResultAsync(work.ToDto(), MessageCodes.TasksDuplicated);
     }
 
     public async Task<ServiceResultDto<TaskChangesDto>> CreateAsync(TaskCallerDto caller, TaskRequestDto request, CancellationToken cancellationToken)
     {
-        await ValidateAsync(caller, request, cancellationToken);
+        await ValidateAsync(caller.UserId, request, cancellationToken);
         var work = new TaskWork();
         var task = new TaskItem { UserId = caller.UserId, CreatedBy = caller.AccountUserId };
         Apply(task, request, caller);
@@ -121,7 +123,7 @@ public class TaskService : ITaskService
         Sync(task, false, caller, work);
         await SaveAsync(caller, work, cancellationToken);
 
-        return await ResultAsync(work, MessageCodes.TasksAdded);
+        return await ResultAsync(work.ToDto(), MessageCodes.TasksAdded);
     }
 
     public async Task<ServiceResultDto<TaskChangesDto>> BulkAsync(TaskCallerDto caller, TaskBulkRequestDto request, CancellationToken cancellationToken)
@@ -144,12 +146,12 @@ public class TaskService : ITaskService
 
         await SaveAsync(caller, work, cancellationToken);
 
-        return await ResultAsync(work, MessageCodes.TasksBulkDone, tasks.Count);
+        return await ResultAsync(work.ToDto(), MessageCodes.TasksBulkDone, tasks.Count);
     }
 
     public async Task<TaskChangesDto> ToggleChecklistAsync(TaskCallerDto caller, int taskId, int itemId, bool isDone, CancellationToken cancellationToken)
     {
-        var task = await RequireTaskAsync(caller, taskId, cancellationToken);
+        var task = await RequireTaskAsync(caller, taskId, true, cancellationToken);
         var item = TaskMapper.Live(task.ChecklistItems).FirstOrDefault(c => c.Id == itemId) ?? throw new BusinessException(MessageCodes.TasksNotFound, 404);
         var work = new TaskWork();
         Touch(task, caller, work);
@@ -164,13 +166,18 @@ public class TaskService : ITaskService
 
         await SaveAsync(caller, work, cancellationToken);
 
-        return work.ToDto();
+        return Visible(work, task, caller);
     }
 
     public async Task<ServiceResultDto<TaskChangesDto>> UpdateAsync(TaskCallerDto caller, int taskId, TaskRequestDto request, CancellationToken cancellationToken)
     {
-        var task = await RequireTaskAsync(caller, taskId, cancellationToken);
-        await ValidateAsync(caller, request, cancellationToken);
+        var task = await RequireTaskAsync(caller, taskId, true, cancellationToken);
+
+        // The categories are the owner's own; someone the task is shared with keeps the category the owner gave it.
+        if (task.UserId != caller.UserId)
+            request.CategoryId = task.CategoryId;
+
+        await ValidateAsync(task.UserId, request, cancellationToken);
         var work = new TaskWork();
         var changed = Changes(task, request);
         var unticked = Apply(task, request, caller);
@@ -182,7 +189,7 @@ public class TaskService : ITaskService
         Sync(task, unticked, caller, work);
         await SaveAsync(caller, work, cancellationToken);
 
-        return await ResultAsync(work, MessageCodes.TasksSaved);
+        return await ResultAsync(Visible(work, task, caller), MessageCodes.TasksSaved);
     }
 
     #endregion
@@ -303,6 +310,17 @@ public class TaskService : ITaskService
         return unticked;
     }
 
+    // What the caller may see of a change: on a shared task only that task (the next one of a repeating task belongs to the owner).
+    private static TaskChangesDto Visible(TaskWork work, TaskItem task, TaskCallerDto caller)
+    {
+        var changes = work.ToDto();
+
+        if (task.UserId != caller.UserId)
+            changes.Tasks = changes.Tasks.Where(t => t.Id == task.Id).ToList();
+
+        return changes;
+    }
+
     private static void Reopen(TaskItem task, bool auto, TaskCallerDto caller, TaskWork work)
     {
         if (task.CompletedOn is null)
@@ -354,7 +372,7 @@ public class TaskService : ITaskService
         await _taskRepository.AddHistoryAsync(work.History.Select(h => new TaskHistory { TaskId = h.Task.Id, Action = h.Action, Detail = h.Detail, CreatedBy = caller.AccountUserId }), cancellationToken);
     }
 
-    private async Task ValidateAsync(TaskCallerDto caller, TaskRequestDto request, CancellationToken cancellationToken)
+    private async Task ValidateAsync(int ownerUserId, TaskRequestDto request, CancellationToken cancellationToken)
     {
         var title = request.Title.Trim();
 
@@ -372,18 +390,13 @@ public class TaskService : ITaskService
         if (!valid || request.Checklist.Any(c => c.Text.Trim().Length is 0 or > ItemLength))
             throw new BusinessException(MessageCodes.TasksInvalid, 400);
 
-        if (request.CategoryId is { } categoryId && await _taskRepository.GetCategoryAsync(caller.UserId, categoryId, cancellationToken) is null)
+        if (request.CategoryId is { } categoryId && await _taskRepository.GetCategoryAsync(ownerUserId, categoryId, cancellationToken) is null)
             throw new BusinessException(MessageCodes.TasksCategoryNotFound, 404);
     }
 
     private async Task<TaskItem> RequireTaskAsync(TaskCallerDto caller, int taskId, CancellationToken cancellationToken)
     {
         return await _taskRepository.GetTaskAsync(caller.UserId, taskId, cancellationToken) ?? throw new BusinessException(MessageCodes.TasksNotFound, 404);
-    }
-
-    private async Task<ServiceResultDto<TaskChangesDto>> ResultAsync(TaskWork work, string code, params object[] arguments)
-    {
-        return new ServiceResultDto<TaskChangesDto> { Data = work.ToDto(), Message = await _messageService.GetAsync(code, arguments) };
     }
 
     // A copy keeps the checklist (unticked) and the pictures (each file copied, so removing one never removes the other).
@@ -400,6 +413,25 @@ public class TaskService : ITaskService
 
         work.Added.Add(copy);
         work.Log(copy, TaskHistoryActions.Duplicated, task.Title);
+    }
+
+    // The caller's own task, or one shared with them and accepted. With edit, a read-only share is refused (403).
+    private async Task<TaskItem> RequireTaskAsync(TaskCallerDto caller, int taskId, bool edit, CancellationToken cancellationToken)
+    {
+        if (await _taskRepository.GetTaskAsync(caller.UserId, taskId, cancellationToken) is { } own)
+            return own;
+
+        var (task, permission) = await _taskRepository.GetSharedTaskAsync(caller.AccountUserId, taskId, cancellationToken) ?? throw new BusinessException(MessageCodes.TasksNotFound, 404);
+
+        if (edit && permission != TaskSharePermissions.Edit)
+            throw new BusinessException(MessageCodes.TasksShareReadOnly, 403);
+
+        return task;
+    }
+
+    private async Task<ServiceResultDto<TaskChangesDto>> ResultAsync(TaskChangesDto changes, string code, params object[] arguments)
+    {
+        return new ServiceResultDto<TaskChangesDto> { Data = changes, Message = await _messageService.GetAsync(code, arguments) };
     }
 
     private async Task ApplyBulkAsync(TaskItem task, TaskBulkRequestDto request, TaskCallerDto caller, TaskWork work, CancellationToken cancellationToken)

@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Tasks;
 
-// The My Tasks settings of the user.
+// The Tasks settings of the user.
 public class TaskSettingsDto
 {
     public string? Mobile { get; set; }

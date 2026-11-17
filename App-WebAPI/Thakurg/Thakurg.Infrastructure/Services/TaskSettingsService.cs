@@ -9,7 +9,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Services;
 
-// The My Tasks settings of a user (they never touch SnapKhata). The name of the app is renamed on Settings > General like every app (SettingsService.RenameAsync).
+// The Tasks settings of a user (they never touch Khataebook). The name of the app is renamed on Settings > General like every app (SettingsService.RenameAsync).
 public class TaskSettingsService : ITaskSettingsService
 {
     private readonly IWhatsAppSender _sender;

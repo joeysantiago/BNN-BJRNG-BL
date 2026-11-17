@@ -10,7 +10,7 @@ using Thakurg.Infrastructure.Security;
 
 namespace Thakurg.API.Controllers;
 
-// The My Tasks account of the caller: "Delete my account" removes their tasks, pictures and settings in this app and their access to it (the common account stays).
+// The Tasks account of the caller: "Delete my account" removes their tasks, pictures and settings in this app and their access to it (the common account stays).
 // It needs the App Lock open, like every other task call.
 [ApiController]
 [Route("api/tasks/me")]

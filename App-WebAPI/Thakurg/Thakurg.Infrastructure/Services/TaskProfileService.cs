@@ -10,7 +10,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Services;
 
-// The My Tasks profile (TaskUsers) of a common account. The first call makes it, with the settings and categories of Tasks:NewUser.
+// The Tasks profile (TaskUsers) of a common account. The first call makes it, with the settings and categories of Tasks:NewUser.
 public class TaskProfileService : ITaskProfileService
 {
     private readonly ITaskFileStore _fileStore;
@@ -65,7 +65,7 @@ public class TaskProfileService : ITaskProfileService
         return (await _userRepository.FindByAccountAsync(accountUserId, cancellationToken))!.Id;
     }
 
-    // "Delete my account" of My Tasks: every task, picture and setting of the caller in this app, and their access to it. The common account and the other apps stay.
+    // "Delete my account" of Tasks: every task, picture and setting of the caller in this app, and their access to it. The common account and the other apps stay.
     public async Task<string> DeleteAsync(TaskCallerDto caller, CancellationToken cancellationToken)
     {
         var files = await _userRepository.DeleteAllAsync(caller.UserId, caller.AccountUserId, AppCodes.Tasks, cancellationToken);

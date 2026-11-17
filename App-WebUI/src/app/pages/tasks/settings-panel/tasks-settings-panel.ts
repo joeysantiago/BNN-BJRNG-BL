@@ -12,8 +12,8 @@ import { TaskCategory, TaskItem, TaskPinStatus, TaskSettings } from '../../../co
 const PALETTE = ['#d6489a', '#3a66f5', '#1f9d63', '#f5a524', '#8b5cf6', '#e5484d', '#0ea5b7', '#64748b'];
 
 /**
- * My Tasks' own part of Settings > General (FEATURE_SETTINGS), for a user who may open My Tasks: the defaults of new tasks, App Lock, reminders (on this device and
- * by WhatsApp), categories and recently deleted tasks. Saved through the My Tasks API one setting at a time. The PIN screen belongs to the app, so turning the lock
+ * Tasks' own part of Settings > General (FEATURE_SETTINGS), for a user who may open Tasks: the defaults of new tasks, App Lock, reminders (on this device and
+ * by WhatsApp), categories and recently deleted tasks. Saved through the Tasks API one setting at a time. The PIN screen belongs to the app, so turning the lock
  * on or off and changing the PIN open it there (/tasks/app?lock=). Theme, language, the app name, the mobile number and access are on the shared tabs and Profile.
  */
 @Component({

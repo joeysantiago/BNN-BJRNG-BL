@@ -29,14 +29,14 @@ BEGIN
         ('hr', 'en', N'Atrium HR'),
         ('hr', 'hi', N'एट्रियम एचआर'),
         ('hr', 'ar', N'أتريوم للموارد البشرية'),
-        ('khata', 'en', N'SnapKhata'),
-        ('khata', 'hi', N'स्नैपखाता'),
-        ('khata', 'ar', N'سناب خاتا'),
+        ('khata', 'en', N'Khataebook'),
+        ('khata', 'hi', N'खाताईबुक'),
+        ('khata', 'ar', N'خاتا إي بوك'),
         ('youtube', 'en', N'YouTube player'),
         ('youtube', 'hi', N'यूट्यूब प्लेयर'),
         ('youtube', 'ar', N'مشغل يوتيوب'),
-        ('tasks', 'en', N'My Tasks'),
-        ('tasks', 'hi', N'मेरे कार्य'),
-        ('tasks', 'ar', N'مهامي');
+        ('tasks', 'en', N'Tasks'),
+        ('tasks', 'hi', N'कार्य'),
+        ('tasks', 'ar', N'المهام');
 END
 GO

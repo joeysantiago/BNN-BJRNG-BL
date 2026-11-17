@@ -1,0 +1,56 @@
+<div class="scrim" (click)="scrim($event)">
+  <form class="sheet share-sheet" role="dialog" aria-modal="true" aria-labelledby="tasks-share-h" novalidate (submit)="send($event)">
+    <div class="sheet-h">
+      <h2 id="tasks-share-h">{{ i18n.t('tasks.share.title') }}</h2>
+      <button type="button" class="btn ghost icon" [attr.aria-label]="i18n.t('tasks.close')" (click)="close()"><app-task-icon name="x" /></button>
+    </div>
+
+    <div class="sheet-b">
+      <p class="share-task"><app-task-icon name="tasks" [size]="16" /><span>{{ task().title }}</span></p>
+
+      <label class="field">
+        <span>{{ i18n.t('tasks.share.to') }}</span>
+        <input #toInput class="in" name="to" type="text" inputmode="email" autocomplete="off" maxlength="256" [placeholder]="i18n.t('tasks.share.toPlaceholder')" [value]="to()" (input)="to.set($any($event.target).value); error.set('')"
+          [attr.aria-invalid]="!!error()" aria-describedby="tasks-share-err" />
+      </label>
+      <p class="share-err" id="tasks-share-err" role="alert">{{ error() }}</p>
+
+      <div class="field"><span id="tasks-share-perm">{{ i18n.t('tasks.share.perm') }}</span>
+        <div class="seg share-seg" role="group" aria-labelledby="tasks-share-perm">
+          @for (p of permissions; track p) {
+            <button type="button" [attr.aria-pressed]="permission() === p" (click)="permission.set(p)"><app-task-icon [name]="p === 'edit' ? 'edit' : 'info'" [size]="16" />{{ i18n.t('tasks.share.perm.' + p) }}</button>
+          }
+        </div>
+      </div>
+      <small class="faint">{{ i18n.t('tasks.share.hint') }}</small>
+
+      <div class="sec">
+        <div class="sec-h"><app-task-icon name="users" [size]="16" />{{ i18n.t('tasks.share.people') }}</div>
+        @if (people(); as list) {
+          @for (p of list; track p.id) {
+            <div class="share-row">
+              <span class="share-who"><b>{{ p.name }}</b><small>{{ p.sharedWith }}</small></span>
+              <span class="pill" [class.ok]="p.status === 'accepted'" [class.bad]="p.status === 'declined'">{{ i18n.t('tasks.share.status.' + p.status) }}</span>
+              <select class="in share-perm" [attr.aria-label]="i18n.t('tasks.share.perm')" (change)="change(p, $any($event.target).value)">
+                @for (o of permissions; track o) {
+                  <option [value]="o" [selected]="p.permission === o">{{ i18n.t('tasks.share.perm.' + o) }}</option>
+                }
+              </select>
+              <button type="button" class="btn ghost icon sm" [attr.aria-label]="i18n.t('tasks.share.remove', { name: p.name })" (click)="remove(p)"><app-task-icon name="x" [size]="16" /></button>
+            </div>
+          } @empty {
+            <p class="muted">{{ i18n.t('tasks.share.none') }}</p>
+          }
+        } @else {
+          <p class="muted">{{ i18n.t('tasks.loading') }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="sheet-f">
+      <span class="sp"></span>
+      <button type="button" class="btn" (click)="close()">{{ i18n.t('tasks.close') }}</button>
+      <button class="btn pri" [disabled]="busy()"><app-task-icon name="share" [size]="18" />{{ i18n.t('tasks.share.send') }}</button>
+    </div>
+  </form>
+</div>

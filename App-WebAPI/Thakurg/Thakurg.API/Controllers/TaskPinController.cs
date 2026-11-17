@@ -11,7 +11,7 @@ using Thakurg.Infrastructure.Security;
 
 namespace Thakurg.API.Controllers;
 
-// The App Lock of My Tasks: its own PIN, independent from SnapKhata. These calls work while the app is locked, except Keep, which only keeps an open app open.
+// The App Lock of Tasks: its own PIN, independent from Khataebook. These calls work while the app is locked, except Keep, which only keeps an open app open.
 [ApiController]
 [Route("api/tasks/pin")]
 [Authorize(Policy = AuthPolicies.Tasks)]

@@ -173,6 +173,35 @@ export interface TaskToast {
   undo: (() => void) | null;
 }
 
+/** What the person a task is shared with may do: read opens it, edit also changes it. Deleting and sharing stay with the owner. */
+export type TaskSharePermission = 'read' | 'edit';
+
+/** A share waits for the person to accept it; accepted ones are in their Shared with me tab. */
+export type TaskShareStatus = 'pending' | 'accepted' | 'declined';
+
+/** The dashboard: the user's own tasks, or the tasks others shared with them. */
+export type TaskView = 'mine' | 'shared';
+
+/** One person a task is shared with, as its owner sees it. sharedWith is the e-mail or mobile number the owner typed. */
+export interface TaskShare {
+  id: number;
+  name: string;
+  createdOn: string;
+  sharedWith: string;
+  status: TaskShareStatus;
+  permission: TaskSharePermission;
+}
+
+/** A task someone shared with the user (TaskSharedDto): the share, who shared it and the task. */
+export interface TaskShared {
+  id: number;
+  task: TaskItem;
+  sharedOn: string;
+  ownerName: string;
+  status: TaskShareStatus;
+  permission: TaskSharePermission;
+}
+
 /** The editor sheet: an existing task, or a new one (optionally on a given due date). */
 export interface TaskEditorState {
   due: string | null;

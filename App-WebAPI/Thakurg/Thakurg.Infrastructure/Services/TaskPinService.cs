@@ -11,7 +11,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Services;
 
-// The App Lock of My Tasks, the same mechanism as SnapKhata but its own PIN and sessions. While the lock is on (a PIN is set), every task, category, picture and settings call
+// The App Lock of Tasks, the same mechanism as Khataebook but its own PIN and sessions. While the lock is on (a PIN is set), every task, category, picture and settings call
 // of a login session is refused with 423 until the PIN is entered; it stays open for the LockAfterMinutes of the user (at least one minute) after the last call.
 // The PIN is hashed like a password. MaxAttempts wrong tries in a row block it for LockMinutes; MaxFailures in total clear it and end every login of the account.
 public class TaskPinService : ITaskPinService

@@ -7,7 +7,10 @@ import { formatYmd, isDone, statusOf, timeOf, ymd } from '../../../../core/tasks
 
 const PRIORITY = ['', 'low', 'medium', 'high'];
 
-/** One task in a list: circular check (complete / reopen), title, due date, status, category, priority, repeat, pictures, checklist progress, and the checklist itself when opened. */
+/**
+ * One task in a list: circular check (complete / reopen), title, due date, status, category, priority, repeat, pictures, checklist progress, the checklist itself when opened,
+ * and a share button. A task shared with the user shows who shared it instead of the category; with view-only access its checks are disabled.
+ */
 @Component({
   selector: 'app-task-card',
   imports: [TaskIcon],
@@ -24,6 +27,8 @@ export class TaskCard {
   protected readonly state = inject(TasksStateService);
   protected readonly done = computed(() => isDone(this.task()));
   protected readonly total = computed(() => this.task().checklist.length);
+  protected readonly share = computed(() => this.state.sharedOf(this.task().id));
+  protected readonly readOnly = computed(() => this.share()?.permission === 'read');
   protected readonly open = computed(() => this.state.expanded().has(this.task().id));
   protected readonly picked = computed(() => this.state.selected().has(this.task().id));
   protected readonly status = computed(() => statusOf(this.task(), this.state.clock()));
@@ -54,6 +59,11 @@ export class TaskCard {
   /** Opens the pictures of the task full size, at the first one. */
   photos(): void {
     this.state.viewer.set({ index: 0, urls: this.task().attachments.map((a) => this.state.photoUrl(a.id)) });
+  }
+
+  /** The share sheet of the task (own tasks only). */
+  openShare(): void {
+    this.state.sharing.set(this.task());
   }
 
   // #endregion

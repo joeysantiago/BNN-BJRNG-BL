@@ -6,7 +6,7 @@ import { Component, ViewEncapsulation, inject } from '@angular/core';
 import { TasksLockService } from '../../../../core/tasks-lock.service';
 import { TasksStateService } from '../../../../core/tasks-state.service';
 
-/** What floats over the My Tasks app: the reminders bell, the full-size picture viewer and the toasts (with Undo where a change can be undone). */
+/** What floats over the Tasks app: the reminders bell, the full-size picture viewer and the toasts (with Undo where a change can be undone). */
 @Component({
   selector: 'app-tasks-overlays',
   imports: [TaskIcon, RouterLink],

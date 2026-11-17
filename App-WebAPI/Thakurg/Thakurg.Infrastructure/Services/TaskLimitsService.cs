@@ -5,7 +5,7 @@ using Thakurg.Contracts.Tasks;
 
 namespace Thakurg.Infrastructure.Services;
 
-// The limits of My Tasks, read from the AppSettings table (rows Tasks.*, INSERT/Common/002_AppSettings.sql) and kept in memory for a minute.
+// The limits of Tasks, read from the AppSettings table (rows Tasks.*, INSERT/Common/002_AppSettings.sql) and kept in memory for a minute.
 // A missing or invalid row is a setup error: the call fails instead of falling back to a value typed in code.
 public class TaskLimitsService : ITaskLimitsService
 {

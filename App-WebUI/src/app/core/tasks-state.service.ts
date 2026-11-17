@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { TasksApiService } from './tasks-api.service';
 import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { addDays, clockOf, formatYmd, groupTasks, inScope, inTab, isDone, isOverdue, matches, monthLabel, parseYmd, periodsOf, sortTasks, timeOf, weekRange, ymd } from './tasks-dates';
-import { TaskCategory, TaskChanges, TaskConfirm, TaskEditorState, TaskItem, TaskReminder, TaskRequest, TaskSettings, TaskSort, TaskSummary, TaskTab, TaskToast, TaskViewerState } from './models/tasks.model';
+import { TaskCategory, TaskChanges, TaskConfirm, TaskEditorState, TaskItem, TaskReminder, TaskRequest, TaskSettings, TaskShare, TaskShared, TaskSharePermission, TaskSort, TaskSummary, TaskTab, TaskToast, TaskView, TaskViewerState } from './models/tasks.model';
 
 const TICK_MS = 30000;
 const TOAST_MS = 4500;
@@ -11,7 +11,7 @@ const NOTIFIED_KEY = 'tasks-notified';
 const BEFORE_MINUTES: Record<string, number> = { '0': 0, '15m': 15, '1h': 60, '1d': 1440 };
 
 /**
- * The state of the My Tasks app: the tasks, categories and settings of the user, the dashboard filters (primary tab x date scope x category x search),
+ * The state of the Tasks app: the tasks, categories and settings of the user, the dashboard filters (primary tab x date scope x category x search),
  * the selection, the editor, the picture viewer and the toasts. Every list is a computed signal, so a change shows everywhere at once. The clock ticks,
  * so a task moves to Today, Current week or Overdue by itself when its day comes, without a reload.
  */
@@ -29,13 +29,16 @@ export class TasksStateService {
   readonly sort = signal<TaskSort>('due');
   readonly tasks = signal<TaskItem[]>([]);
   readonly tab = signal<TaskTab>('active');
+  readonly view = signal<TaskView>('mine');
   readonly toasts = signal<TaskToast[]>([]);
+  readonly shared = signal<TaskShared[]>([]);
   private readonly i18n = inject(I18nService);
   readonly flash = signal<number | null>(null);
   private readonly api = inject(TasksApiService);
   private timer?: ReturnType<typeof setInterval>;
   readonly ask = signal<TaskConfirm | null>(null);
   readonly categories = signal<TaskCategory[]>([]);
+  readonly sharing = signal<TaskItem | null>(null);
   readonly category = signal<number | 'all'>('all');
   readonly settings = signal<TaskSettings | null>(null);
   readonly editor = signal<TaskEditorState | null>(null);
@@ -45,6 +48,8 @@ export class TasksStateService {
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   readonly periods = computed(() => periodsOf(this.tasks(), this.clock()));
   readonly locale = computed(() => this.i18n.info().locale.replace('_', '-'));
+  readonly requests = computed(() => this.shared().filter((s) => s.status === 'pending'));
+  readonly accepted = computed(() => this.shared().filter((s) => s.status === 'accepted'));
   readonly clock = computed(() => clockOf(this.moment(), this.settings()?.weekStart === 'sun'));
   readonly filtered = computed(() => this.tasks().filter((t) => this.passes(t, this.tab(), this.scope(), this.category())));
   readonly groups = computed(() => groupTasks(sortTasks(this.filtered(), this.clock(), this.tab(), this.sort()), this.clock(), this.tab(), (key) => this.groupLabel(key)));
@@ -125,10 +130,11 @@ export class TasksStateService {
   /** Loads everything the app shows. Called when the app opens and after it is unlocked. */
   async load(): Promise<void> {
     try {
-      const [tasks, categories, settings] = await Promise.all([this.api.tasks(), this.api.categories(), this.api.settings()]);
+      const [tasks, categories, settings, shared] = await Promise.all([this.api.tasks(), this.api.categories(), this.api.settings(), this.api.shared().catch(() => [])]);
       if (!this.loaded())
         this.tab.set(settings.defaultTab);
       this.tasks.set(tasks);
+      this.shared.set(shared);
       this.categories.set(categories);
       this.settings.set(settings);
       void this.syncTimeZone(settings);
@@ -185,9 +191,27 @@ export class TasksStateService {
     return this.run(() => this.api.restore(id));
   }
 
+  /** The accepted share a task came through, or null for the user's own task. */
+  sharedOf(taskId: number): TaskShared | null {
+    return this.accepted().find((s) => s.task.id === taskId) ?? null;
+  }
+
   /** Completes an open task or reopens a completed one. */
   async toggle(task: TaskItem): Promise<boolean> {
     return this.run(() => (isDone(task) ? this.api.reopen(task.id) : this.api.complete(task.id)));
+  }
+
+  /** The person a task is shared with removes it from their Shared with me list. */
+  async leave(item: TaskShared): Promise<boolean> {
+    try {
+      const res = await this.api.removeShare(item.id);
+      this.shared.update((list) => list.filter((s) => s.id !== item.id));
+      this.toast(res.message ?? '');
+      return true;
+    } catch (e) {
+      this.fail(e);
+      return false;
+    }
   }
 
   async duplicate(task: TaskItem): Promise<boolean> {
@@ -203,6 +227,18 @@ export class TasksStateService {
     if (!category)
       return this.i18n.t('tasks.cat.none');
     return category.code ? this.i18n.t('tasks.cat.' + category.code) : category.name;
+  }
+
+  /** The owner stops sharing a task with one person. */
+  async stopShare(share: TaskShare): Promise<boolean> {
+    try {
+      const res = await this.api.removeShare(share.id);
+      this.toast(res.message ?? '');
+      return true;
+    } catch (e) {
+      this.fail(e);
+      return false;
+    }
   }
 
   /** Asks before a change that cannot be undone; resolves true when the user agrees. */
@@ -254,6 +290,18 @@ export class TasksStateService {
       this.apply(await this.api.toggle(task.id, itemId, !item.isDone));
     } catch (e) {
       this.patch(task);
+      this.fail(e);
+    }
+  }
+
+  /** Accepts (the task moves to Shared with me) or declines a share request. */
+  async respond(item: TaskShared, accept: boolean): Promise<void> {
+    try {
+      const res = accept ? await this.api.acceptShare(item.id) : await this.api.declineShare(item.id);
+      const kept = accept ? [res.data as TaskShared] : [];
+      this.shared.update((list) => list.flatMap((s) => (s.id === item.id ? kept : [s])));
+      this.toast(res.message ?? '');
+    } catch (e) {
       this.fail(e);
     }
   }
@@ -315,6 +363,18 @@ export class TasksStateService {
     }
   }
 
+  /** Shares a task with the account of an e-mail address or mobile number. Returns the share, or null (with the server's message) on failure. */
+  async share(task: TaskItem, to: string, permission: TaskSharePermission): Promise<TaskShare | null> {
+    try {
+      const res = await this.api.share(task.id, to, permission);
+      this.toast(res.message ?? '');
+      return res.data;
+    } catch (e) {
+      this.fail(e);
+      return null;
+    }
+  }
+
   // #endregion
 
   // #region Private Methods
@@ -365,12 +425,17 @@ export class TasksStateService {
 
   private patch(task: TaskItem): void {
     this.tasks.update((list) => list.map((t) => (t.id === task.id ? task : t)));
+    this.shared.update((list) => list.map((s) => (s.task.id === task.id ? { ...s, task } : s)));
   }
 
-  /** Merges what the server changed: removes the deleted tasks and puts in the new or changed ones. */
+  /** Merges what the server changed: removes the deleted tasks and puts in the new or changed ones. A task shared with the user is updated in Shared with me. */
   private apply(changes: TaskChanges): void {
-    const gone = new Set([...changes.deletedIds, ...changes.tasks.map((t) => t.id)]);
-    this.tasks.update((list) => [...list.filter((t) => !gone.has(t.id)), ...changes.tasks]);
+    const theirs = new Map(changes.tasks.filter((t) => this.sharedOf(t.id)).map((t) => [t.id, t]));
+    const mine = changes.tasks.filter((t) => !theirs.has(t.id));
+    const gone = new Set([...changes.deletedIds, ...mine.map((t) => t.id)]);
+    this.tasks.update((list) => [...list.filter((t) => !gone.has(t.id)), ...mine]);
+    if (theirs.size)
+      this.shared.update((list) => list.map((s) => (theirs.has(s.task.id) ? { ...s, task: theirs.get(s.task.id)! } : s)));
   }
 
   private readNotified(today: string): number[] {

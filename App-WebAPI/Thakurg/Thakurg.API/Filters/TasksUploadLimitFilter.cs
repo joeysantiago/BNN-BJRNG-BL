@@ -4,7 +4,7 @@ using Thakurg.Application.Services;
 
 namespace Thakurg.API.Filters;
 
-// Lets a picture upload of My Tasks be as large as the limits of the AppSettings table allow (every picture at its largest), and no larger.
+// Lets a picture upload of Tasks be as large as the limits of the AppSettings table allow (every picture at its largest), and no larger.
 public class TasksUploadLimitFilter : IAsyncResourceFilter
 {
     private const int PartOverhead = 64 * 1024;

@@ -3,7 +3,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Common;
 
-// Entities of My Tasks to the DTOs the app reads. Removed checklist lines and pictures (soft-deleted) are left out.
+// Entities of Tasks to the DTOs the app reads. Removed checklist lines and pictures (soft-deleted) are left out.
 public static class TaskMapper
 {
     #region Public Methods
@@ -38,9 +38,19 @@ public static class TaskMapper
         return new TaskHistoryDto { At = history.CreatedOn, Action = history.Action, Detail = history.Detail };
     }
 
+    public static TaskShareDto ToDto(TaskShare share, string name)
+    {
+        return new TaskShareDto { Id = share.Id, Name = name, SharedWith = share.SharedWith, Permission = share.Permission, Status = share.Status, CreatedOn = share.CreatedOn };
+    }
+
     public static TaskCategoryDto ToDto(TaskCategory category, int taskCount)
     {
         return new TaskCategoryDto { Id = category.Id, Code = category.Code, Name = category.Name, Color = category.Color, IsSystem = category.IsSystem, TaskCount = taskCount };
+    }
+
+    public static TaskSharedDto ToDto(TaskShare share, TaskItem task, string ownerName)
+    {
+        return new TaskSharedDto { Id = share.Id, OwnerName = ownerName, Permission = share.Permission, Status = share.Status, SharedOn = share.CreatedOn, Task = ToDto(task) };
     }
 
     public static IEnumerable<T> Live<T>(IEnumerable<T> rows) where T : Domain.Common.BaseEntity

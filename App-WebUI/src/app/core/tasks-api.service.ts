@@ -2,12 +2,12 @@ import { ApiService } from './api.service';
 import { I18nService } from './i18n.service';
 import { ApiResponse } from './models/api.model';
 import { Injectable, inject, signal } from '@angular/core';
-import { TaskCategory, TaskChanges, TaskHistoryEntry, TaskItem, TaskPinStatus, TaskRequest, TaskSettings } from './models/tasks.model';
+import { TaskCategory, TaskChanges, TaskHistoryEntry, TaskItem, TaskPinStatus, TaskRequest, TaskSettings, TaskShare, TaskShared, TaskSharePermission } from './models/tasks.model';
 
 const LOCKED = 423;
 
 /**
- * The My Tasks endpoints of the API (api/tasks/...). Every call carries the login (ApiService) and the language, so the server's messages come translated.
+ * The Tasks endpoints of the API (api/tasks/...). Every call carries the login (ApiService) and the language, so the server's messages come translated.
  * A 423 answer means the App Lock closed on the server (time ran out or another tab locked it): pinRequired then changes and the lock screen shows.
  */
 @Injectable({ providedIn: 'root' })
@@ -25,6 +25,11 @@ export class TasksApiService {
 
   deleted(): Promise<TaskItem[]> {
     return this.data<TaskItem[]>('GET', '/tasks/items/deleted');
+  }
+
+  /** The tasks others shared with the caller: requests waiting for an answer and accepted ones. */
+  shared(): Promise<TaskShared[]> {
+    return this.data<TaskShared[]>('GET', '/tasks/shared');
   }
 
   lockPin(): Promise<TaskPinStatus> {
@@ -52,12 +57,17 @@ export class TasksApiService {
     return this.api.url(`/tasks/attachments/${attachmentId}`);
   }
 
+  /** Who a task of the caller is shared with (owner only). */
+  shares(id: number): Promise<TaskShare[]> {
+    return this.data<TaskShare[]>('GET', `/tasks/items/${id}/shares`);
+  }
+
   /** A test WhatsApp message to the mobile number of the profile. Resolves with the server's message. */
   testWhatsApp(): Promise<ApiResponse<null>> {
     return this.call<null>('POST', '/tasks/settings/whatsapp-test');
   }
 
-  /** Deletes the tasks, pictures and settings of the caller in My Tasks and their access to it (the common account stays). */
+  /** Deletes the tasks, pictures and settings of the caller in Tasks and their access to it (the common account stays). */
   deleteAccount(): Promise<ApiResponse<null>> {
     return this.call<null>('DELETE', '/tasks/me');
   }
@@ -94,8 +104,21 @@ export class TasksApiService {
     return this.call<number>('DELETE', `/tasks/categories/${id}`);
   }
 
+  /** Ends a share: the owner stops sharing, or the person it is shared with removes the task from their list. */
+  removeShare(shareId: number): Promise<ApiResponse<number>> {
+    return this.call<number>('DELETE', `/tasks/shares/${shareId}`);
+  }
+
   removePin(pin: string): Promise<ApiResponse<TaskPinStatus>> {
     return this.call<TaskPinStatus>('POST', '/tasks/pin/remove', { pin });
+  }
+
+  declineShare(shareId: number): Promise<ApiResponse<number>> {
+    return this.call<number>('POST', `/tasks/shares/${shareId}/decline`);
+  }
+
+  acceptShare(shareId: number): Promise<ApiResponse<TaskShared>> {
+    return this.call<TaskShared>('POST', `/tasks/shares/${shareId}/accept`);
   }
 
   create(request: TaskRequest): Promise<ApiResponse<TaskChanges>> {
@@ -135,6 +158,11 @@ export class TasksApiService {
     for (const f of files)
       form.append('files', f.file, f.name);
     return this.call<TaskChanges>('POST', `/tasks/items/${id}/attachments`, form);
+  }
+
+  /** Shares a task with the account of an e-mail address or mobile number; sharing again with the same person changes the permission. */
+  share(id: number, to: string, permission: TaskSharePermission): Promise<ApiResponse<TaskShare>> {
+    return this.call<TaskShare>('POST', `/tasks/items/${id}/shares`, { to, permission });
   }
 
   bulk(ids: number[], action: string, categoryId: number | null): Promise<ApiResponse<TaskChanges>> {
