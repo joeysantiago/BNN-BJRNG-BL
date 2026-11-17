@@ -1,4 +1,4 @@
--- The My Tasks App Lock of one login session: unlocked until UnlockedUntil. Separate from SnapKhata's lock.
+-- The Tasks App Lock of one login session: unlocked until UnlockedUntil. Separate from Khataebook's lock.
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'TaskLockSessions')
 BEGIN
     CREATE TABLE TaskLockSessions

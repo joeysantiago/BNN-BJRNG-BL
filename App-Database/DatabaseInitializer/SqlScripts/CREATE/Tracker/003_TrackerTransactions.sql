@@ -1,4 +1,4 @@
--- A transaction of SnapTracker: made from a bank or UPI SMS, or typed in by hand. AmountMinor is in paise (BIGINT minor units, App-Document/sql-int-id.md).
+-- A transaction of Tracker: made from a bank or UPI SMS, or typed in by hand. AmountMinor is in paise (BIGINT minor units, App-Document/sql-int-id.md).
 -- Status is pending, confirmed, auto, ignored or duplicate; ignored and duplicate rows are not counted in any total. CategoryCode and Method are codes
 -- (Tracker:Categories in appsettings.json, and upi, debitCard, ...); the UI shows their names through translation keys. DuplicateOfId points at the original.
 -- FlowCode is what the transaction counts towards (spend, cardSpend, emi, cardBillPaid, salary, income, refund, cardRefund, loanIn, selfTransfer,

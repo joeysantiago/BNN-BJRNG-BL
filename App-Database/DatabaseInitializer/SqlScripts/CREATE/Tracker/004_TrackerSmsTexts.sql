@@ -25,5 +25,7 @@ BEGIN
     );
 
     CREATE UNIQUE INDEX IX_TrackerSmsTexts_TransactionId ON TrackerSmsTexts (TransactionId);
+    -- Every imported SMS is looked up by its hash (already imported, same text twice), so an import never scans the whole table.
+    CREATE INDEX IX_TrackerSmsTexts_BodyHash ON TrackerSmsTexts (BodyHash) INCLUDE (ReceivedOn, TransactionId);
 END
 GO

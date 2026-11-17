@@ -1,4 +1,4 @@
--- The My Tasks profile of a common account: its own App Lock PIN (hashed) and preferences. Starting values come from Tasks:NewUser (appsettings.json).
+-- The Tasks profile of a common account: its own App Lock PIN (hashed) and preferences. Starting values come from Tasks:NewUser (appsettings.json).
 -- TimeZone is the IANA zone of the user (the app sends the one of the device), so WhatsApp reminders follow their local day; the number is the Mobile of UserProfiles.
 -- DefaultCategoryId points at TaskCategories (no foreign key: the categories are made after the profile).
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'TaskUsers')

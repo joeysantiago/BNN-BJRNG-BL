@@ -1117,6 +1117,61 @@ BEGIN
             "hi": "यह तस्वीर नहीं मिली।",
             "ar": "لم يتم العثور على هذه الصورة."
         }'),
+        ('TASKS_SHARED', N'{
+            "en": "Task shared with {0}. It shows for them once they accept it.",
+            "hi": "कार्य {0} के साथ साझा किया गया। स्वीकार करने पर यह उन्हें दिखेगा।",
+            "ar": "تمت مشاركة المهمة مع {0}. ستظهر لديه بعد أن يقبلها."
+        }'),
+        ('TASKS_SHARE_TARGET_INVALID', N'{
+            "en": "Enter a valid e-mail address or mobile number.",
+            "hi": "मान्य ई-मेल पता या मोबाइल नंबर दर्ज करें।",
+            "ar": "أدخل بريدًا إلكترونيًا أو رقم جوال صالحًا."
+        }'),
+        ('TASKS_SHARE_NO_ACCOUNT', N'{
+            "en": "No account uses this e-mail address or mobile number.",
+            "hi": "इस ई-मेल पते या मोबाइल नंबर से कोई खाता नहीं है।",
+            "ar": "لا يوجد حساب بهذا البريد الإلكتروني أو رقم الجوال."
+        }'),
+        ('TASKS_SHARE_NO_APP', N'{
+            "en": "This person does not have access to Tasks yet.",
+            "hi": "इस व्यक्ति के पास अभी Tasks की पहुँच नहीं है।",
+            "ar": "ليس لدى هذا الشخص وصول إلى Tasks بعد."
+        }'),
+        ('TASKS_SHARE_SELF', N'{
+            "en": "You cannot share a task with yourself.",
+            "hi": "आप अपने साथ कार्य साझा नहीं कर सकते।",
+            "ar": "لا يمكنك مشاركة مهمة مع نفسك."
+        }'),
+        ('TASKS_SHARE_REMOVED', N'{
+            "en": "Sharing stopped.",
+            "hi": "साझा करना बंद किया गया।",
+            "ar": "تم إيقاف المشاركة."
+        }'),
+        ('TASKS_SHARE_LEFT', N'{
+            "en": "The task was removed from your list.",
+            "hi": "कार्य आपकी सूची से हटा दिया गया।",
+            "ar": "تمت إزالة المهمة من قائمتك."
+        }'),
+        ('TASKS_SHARE_ACCEPTED', N'{
+            "en": "Task added to Shared with me.",
+            "hi": "कार्य ''मेरे साथ साझा'' में जोड़ा गया।",
+            "ar": "تمت إضافة المهمة إلى ''المشتركة معي''."
+        }'),
+        ('TASKS_SHARE_DECLINED', N'{
+            "en": "Request declined.",
+            "hi": "अनुरोध अस्वीकार किया गया।",
+            "ar": "تم رفض الطلب."
+        }'),
+        ('TASKS_SHARE_NOT_FOUND', N'{
+            "en": "This shared task is no longer available.",
+            "hi": "यह साझा कार्य अब उपलब्ध नहीं है।",
+            "ar": "هذه المهمة المشتركة لم تعد متاحة."
+        }'),
+        ('TASKS_SHARE_READ_ONLY', N'{
+            "en": "You can only view this task.",
+            "hi": "आप यह कार्य केवल देख सकते हैं।",
+            "ar": "يمكنك عرض هذه المهمة فقط."
+        }'),
         ('TASKS_PHOTO_LIMIT', N'{
             "en": "A task can have up to {0} pictures.",
             "hi": "एक कार्य में अधिकतम {0} तस्वीरें हो सकती हैं।",
@@ -1213,9 +1268,9 @@ BEGIN
             "ar": "تم إرسال رسالة اختبار إلى {0}."
         }'),
         ('TASKS_ACCOUNT_DELETED', N'{
-            "en": "Your My Tasks account was deleted: its tasks, pictures and settings are gone, and you no longer have access to the app. Your login and other apps stay.",
-            "hi": "आपका My Tasks खाता हटा दिया गया: इसके कार्य, तस्वीरें और सेटिंग्स मिट गईं, और अब आपके पास इस ऐप की पहुंच नहीं है। आपका लॉगिन और दूसरे ऐप बने रहेंगे।",
-            "ar": "تم حذف حسابك في My Tasks: حُذفت مهامه وصوره وإعداداته، ولم يعد لديك وصول إلى التطبيق. يبقى تسجيل دخولك وتطبيقاتك الأخرى."
+            "en": "Your Tasks account was deleted: its tasks, pictures and settings are gone, and you no longer have access to the app. Your login and other apps stay.",
+            "hi": "आपका Tasks खाता हटा दिया गया: इसके कार्य, तस्वीरें और सेटिंग्स मिट गईं, और अब आपके पास इस ऐप की पहुंच नहीं है। आपका लॉगिन और दूसरे ऐप बने रहेंगे।",
+            "ar": "تم حذف حسابك في Tasks: حُذفت مهامه وصوره وإعداداته، ولم يعد لديك وصول إلى التطبيق. يبقى تسجيل دخولك وتطبيقاتك الأخرى."
         }'),
         ('TRACKER_ADDED', N'{
             "en": "Transaction added.",
@@ -1323,9 +1378,9 @@ BEGIN
             "ar": "تم إلغاء الوصول إلى الرسائل. لن تتم قراءة أي شيء بعد الآن."
         }'),
         ('TRACKER_SETTINGS_SAVED', N'{
-            "en": "SnapTracker settings saved.",
-            "hi": "SnapTracker सेटिंग्स सहेजी गईं।",
-            "ar": "تم حفظ إعدادات SnapTracker."
+            "en": "Tracker settings saved.",
+            "hi": "Tracker सेटिंग्स सहेजी गईं।",
+            "ar": "تم حفظ إعدادات Tracker."
         }'),
         ('TRACKER_ALERTS_READ', N'{
             "en": "All alerts marked as read.",
@@ -1338,9 +1393,9 @@ BEGIN
             "ar": "تم حذف نصوص الرسائل الأصلية. تبقى معاملاتك."
         }'),
         ('TRACKER_DATA_DELETED', N'{
-            "en": "All your SnapTracker data was deleted.",
-            "hi": "आपका सारा SnapTracker डेटा हटा दिया गया।",
-            "ar": "تم حذف كل بياناتك في SnapTracker."
+            "en": "All your Tracker data was deleted.",
+            "hi": "आपका सारा Tracker डेटा हटा दिया गया।",
+            "ar": "تم حذف كل بياناتك في Tracker."
         }')
 END
 GO
