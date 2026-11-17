@@ -2,7 +2,8 @@ name: Website QA
 on:
   push:
     branches: [banni-linux]
-    paths: ['App-WebUI/**']
+    # The site's built-in texts are made from the seed scripts (App-WebUI/scripts/build-texts.mjs), so a text change redeploys the site too.
+    paths: ['App-WebUI/**', 'App-Database/DatabaseInitializer/SqlScripts/INSERT/Common/004_PageNames.sql', 'App-Database/DatabaseInitializer/SqlScripts/INSERT/Common/007_Translations.sql']
   workflow_dispatch:
 
 jobs:

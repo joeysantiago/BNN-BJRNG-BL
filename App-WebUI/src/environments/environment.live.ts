@@ -6,13 +6,13 @@ export const environment = {
     authCallMs: 120000,
     tabHelloMs: 300,
     renewBeforeMs: 60000,
-    i18nLoadMs: 5000,
+    apiWakeMs: 120000,
     settingsLoadMs: 5000,
     settingsSaveMs: 15000,
     musicLoadMs: 120000,
     musicResumeGapMs: 60000
   },
-  // SnapKhata bill photos. Keep maxPhotos and maxPhotoBytes in step with the API (Khata:Limits:MaxPhotosPerEntry / MaxPhotoBytes).
+  // Khataebook bill photos. Keep maxPhotos and maxPhotoBytes in step with the API (Khata:Limits:MaxPhotosPerEntry / MaxPhotoBytes).
   khata: {
     maxPhotos: 3,
     photoEdgePx: 1600,

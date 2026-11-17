@@ -1,0 +1,15 @@
+// The share sheet of a task. The design system of Tasks (the same as Khataebook's): every colour is a token on .mt, Light and Dark are two sets of the same tokens.
+// Global under .mt (ViewEncapsulation.None); the scrim, sheet and sections come from tasks-overlays.scss.
+.mt .share-sheet { width: min(560px, 100%); }
+.mt .share-task { display: flex; align-items: center; gap: 8px; margin: 0; font-weight: 800; min-width: 0; }
+.mt .share-task span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mt .share-err { margin: -8px 0 0; min-height: 20px; color: var(--k-give); font-weight: 700; font-size: 14px; }
+.mt .share-err:empty { min-height: 0; margin-top: -12px; }
+.mt .share-seg { display: flex; flex-wrap: nowrap; }
+.mt .share-seg button { flex: 1; justify-content: center; min-height: 44px; }
+.mt .share-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid var(--k-line); }
+.mt .share-row:first-of-type { border-top: 0; }
+.mt .share-who { flex: 1; min-width: 140px; display: grid; }
+.mt .share-who small { color: var(--k-muted); font-size: 12.5px; overflow-wrap: anywhere; }
+.mt .share-perm { width: auto; min-height: 44px; }
+.mt .share-row .btn.icon.sm { min-width: 44px; min-height: 44px; }

@@ -11,7 +11,7 @@ using Thakurg.Infrastructure.Storage;
 
 namespace Thakurg.Infrastructure;
 
-// My Tasks. Its settings (Tasks in appsettings.json) must all be there, or the API does not start.
+// Tasks. Its settings (Tasks in appsettings.json) must all be there, or the API does not start.
 public static partial class DependencyInjection
 {
     #region Private Methods
@@ -32,10 +32,12 @@ public static partial class DependencyInjection
 
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<ITaskUserRepository, TaskUserRepository>();
+        services.AddScoped<ITaskShareRepository, TaskShareRepository>();
         services.AddScoped<ITaskReminderRepository, TaskReminderRepository>();
 
         services.AddScoped<ITaskFileStore, TaskFileStore>();
         services.AddScoped<ITaskService, TaskService>();
+        services.AddScoped<ITaskShareService, TaskShareService>();
         services.AddScoped<ITaskLimitsService, TaskLimitsService>();
         services.AddScoped<ITaskReminderService, TaskReminderService>();
         services.AddHostedService<TaskReminderWorker>();

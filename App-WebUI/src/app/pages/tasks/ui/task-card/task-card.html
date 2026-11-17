@@ -2,7 +2,7 @@
   @if (state.selecting()) {
     <button type="button" class="cc sq" [class.on]="picked()" [attr.aria-pressed]="picked()" [attr.aria-label]="i18n.t('tasks.select.one', { title: task().title })" (click)="state.pick(task())"><app-task-icon name="check" [size]="14" /></button>
   } @else {
-    <button type="button" class="cc" [class.on]="done()" [attr.aria-pressed]="done()" [attr.aria-label]="i18n.t(done() ? 'tasks.reopenOne' : 'tasks.completeOne', { title: task().title })" (click)="state.toggle(task())">
+    <button type="button" class="cc" [class.on]="done()" [disabled]="readOnly()" [attr.aria-pressed]="done()" [attr.aria-label]="i18n.t(done() ? 'tasks.reopenOne' : 'tasks.completeOne', { title: task().title })" (click)="state.toggle(task())">
       <app-task-icon name="check" [size]="15" />
     </button>
   }
@@ -18,7 +18,11 @@
         <span class="faint">{{ i18n.t('tasks.due.none') }}</span>
       }
       <span class="pill" [class.ok]="status() === 'completed'" [class.bad]="status() === 'overdue'" [class.brand]="status() === 'ongoing'">{{ i18n.t('tasks.status.' + status()) }}</span>
-      <span><span class="dot" [style.background]="category()?.color ?? '#94a3b8'"></span>{{ state.categoryName(category()) }}</span>
+      @if (share(); as s) {
+        <span><app-task-icon name="users" [size]="14" />{{ i18n.t('tasks.share.byName', { name: s.ownerName }) }}</span>
+      } @else {
+        <span><span class="dot" [style.background]="category()?.color ?? '#94a3b8'"></span>{{ state.categoryName(category()) }}</span>
+      }
       <span><app-task-icon name="flag" [size]="14" />{{ i18n.t('tasks.pri.' + task().priority) }}</span>
       @if (repeat()) {
         <span><app-task-icon name="repeat" [size]="14" />{{ repeat() }}</span>
@@ -40,6 +44,9 @@
     @if (task().attachments[0]; as first) {
       <button type="button" class="t-thumb-btn" [attr.aria-label]="i18n.t('tasks.photo.view')" (click)="photos()"><img class="t-thumb" [src]="state.photoUrl(first.id)" alt="" loading="lazy" width="44" height="44" /></button>
     }
+    @if (!share() && !state.selecting()) {
+      <button type="button" class="btn ghost icon sm" [attr.aria-label]="i18n.t('tasks.share.one', { title: task().title })" [title]="i18n.t('tasks.share.title')" (click)="openShare()"><app-task-icon name="share" [size]="18" /></button>
+    }
     @if (total() && !state.selecting()) {
       <button type="button" class="btn ghost icon sm expand" [attr.aria-expanded]="open()" [attr.aria-label]="i18n.t('tasks.checklist.show')" (click)="state.expand(task())"><app-task-icon name="chev" [size]="18" /></button>
     }
@@ -48,7 +55,7 @@
     <div class="inline-cl">
       @for (item of task().checklist; track item.id) {
         <div class="cl-item" [class.done]="item.isDone">
-          <button type="button" class="cc sm" [class.on]="item.isDone" [attr.aria-pressed]="item.isDone" [attr.aria-label]="item.text" (click)="state.toggleItem(task(), item.id)"><app-task-icon name="check" [size]="13" /></button>
+          <button type="button" class="cc sm" [class.on]="item.isDone" [disabled]="readOnly()" [attr.aria-pressed]="item.isDone" [attr.aria-label]="item.text" (click)="state.toggleItem(task(), item.id)"><app-task-icon name="check" [size]="13" /></button>
           <span class="tx">{{ item.text }}</span>
         </div>
       }

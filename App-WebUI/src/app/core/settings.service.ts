@@ -1,12 +1,15 @@
 import { FEATURES } from './features';
 import { ApiService } from './api.service';
+import { StaticTexts } from './static-texts';
 import { EMPTY_SETTINGS } from '../appSettings';
+import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../environments/environment';
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { AppSettings, ConnectionField, FeatureFlags, FeatureId, SettingsOverrides, SettingsSection } from './models/app-settings.model';
 
 const LOAD_TIMEOUT = environment.timings.settingsLoadMs;
 const SAVE_TIMEOUT = environment.timings.settingsSaveMs;
+const WAKE_TIMEOUT = environment.timings.apiWakeMs;
 
 /** Same rule as the API: 2 to 20 whole numbers, the first 0, each larger than the one before, at most 100000. */
 export const validStops = (v: unknown): v is number[] => Array.isArray(v) && v.length >= 2 && v.length <= 20 && v.every((n) => Number.isInteger(n)) && v[0] === 0 && v[v.length - 1] <= 100000 && v.every((n, i) => i === 0 || n > v[i - 1]);
@@ -21,10 +24,12 @@ const sameStops = (a: number[], b: number[]): boolean => a.length === b.length &
 
 export class SettingsService {
   private readonly api = inject(ApiService);
+  private readonly files = inject(StaticTexts);
   /** Options the logged-in user switched off for themselves (set by AuthService). They only hide: a site-wide switch that is off stays off. */
   private readonly hidden = signal<string[]>([]);
   readonly overrides = signal<SettingsOverrides>({});
   private readonly base = signal<AppSettings>(EMPTY_SETTINGS);
+  private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   readonly changed = computed(() => Object.keys(this.overrides()).length > 0);
   readonly settings = computed<AppSettings>(() => {
     const o = this.overrides();
@@ -58,13 +63,18 @@ export class SettingsService {
     return this.settings().features[id] && !this.hidden().includes(id);
   }
 
-  /** Fetch the settings from the API. Never throws: when the API cannot be reached the structural fallback stays in use. */
+  /**
+   * The page names built into the site (StaticTexts, made from the seed scripts at build time) at once, then the settings from the API. The prerender waits
+   * a short time for the API; the browser never waits: the API answers in the background with a long wait (a sleeping API and database take about a minute)
+   * and the page updates then. Never throws: until the API answers, the structural fallback stays in use.
+   */
   async load(): Promise<void> {
-    try {
-      this.base.set(this.merge(await this.api.get<Partial<AppSettings>>('/settings', LOAD_TIMEOUT)));
-    } catch (e) {
-      console.warn('Settings could not be loaded from the API; using the empty fallback.', e);
-    }
+    const names = await this.files.get<AppSettings['pageNames']>('page-names.json');
+    if (names)
+      this.base.update((b) => ({ ...b, pageNames: { ...names, ...b.pageNames } }));
+    if (!this.browser)
+      return this.fetch(LOAD_TIMEOUT);
+    void this.fetch(WAKE_TIMEOUT);
   }
 
   /** The options the logged-in user switched off for themselves; an empty list after a logout. */
@@ -145,6 +155,16 @@ export class SettingsService {
   // #endregion
 
   // #region Private Methods
+
+  /** The settings from the API; page names it leaves out keep the built-in ones. */
+  private async fetch(ms: number): Promise<void> {
+    try {
+      const data = await this.api.get<Partial<AppSettings>>('/settings', ms);
+      this.base.update((b) => ({ ...this.merge(data), pageNames: { ...b.pageNames, ...data.pageNames } }));
+    } catch (e) {
+      console.warn('Settings could not be loaded from the API; using the built-in page names and the empty fallback.', e);
+    }
+  }
 
   /** Fills anything the API left out from the fallback, so a partial answer cannot break a page. */
   private merge(data: Partial<AppSettings>): AppSettings {

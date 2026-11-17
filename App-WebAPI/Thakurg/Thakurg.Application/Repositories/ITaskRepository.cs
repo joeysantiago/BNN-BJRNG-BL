@@ -36,4 +36,8 @@ public interface ITaskRepository
     Task<TaskAttachment?> GetAttachmentAsync(int userId, int attachmentId, CancellationToken cancellationToken);
 
     Task<List<TaskItem>> GetTasksAsync(int userId, IReadOnlyCollection<int> taskIds, CancellationToken cancellationToken);
+
+    Task<(TaskItem Task, string Permission)?> GetSharedTaskAsync(int accountUserId, int taskId, CancellationToken cancellationToken);
+
+    Task<(TaskAttachment Attachment, string Permission)?> GetSharedAttachmentAsync(int accountUserId, int attachmentId, CancellationToken cancellationToken);
 }

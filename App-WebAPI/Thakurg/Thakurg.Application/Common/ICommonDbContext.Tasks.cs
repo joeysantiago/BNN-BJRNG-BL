@@ -3,12 +3,14 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Application.Common;
 
-// The tables of My Tasks (SqlScripts/CREATE/Tasks).
+// The tables of Tasks (SqlScripts/CREATE/Tasks).
 public partial interface ICommonDbContext
 {
     DbSet<TaskItem> TaskItems { get; }
 
     DbSet<TaskUser> TaskUsers { get; }
+
+    DbSet<TaskShare> TaskShares { get; }
 
     DbSet<TaskHistory> TaskHistory { get; }
 

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Thakurg.Application.Common;
 using Thakurg.Application.Repositories;
+using Thakurg.Contracts.Tasks;
 using Thakurg.Domain.Common;
 using Thakurg.Domain.Entities;
 
@@ -103,6 +104,24 @@ public class TaskRepository : ITaskRepository
         return WithDetails(_dbContext.TaskItems.WhereActive().Where(t => t.UserId == userId && taskIds.Contains(t.Id))).ToListAsync(cancellationToken);
     }
 
+    // A live task shared with the account (accepted) and the permission of that share; null when there is no such share.
+    public async Task<(TaskItem Task, string Permission)?> GetSharedTaskAsync(int accountUserId, int taskId, CancellationToken cancellationToken)
+    {
+        var permission = await AcceptedPermissionAsync(accountUserId, taskId, cancellationToken);
+        var task = permission is null ? null : await WithDetails(_dbContext.TaskItems.WhereActive().Where(t => t.Id == taskId)).FirstOrDefaultAsync(cancellationToken);
+
+        return task is null ? null : (task, permission!);
+    }
+
+    // A picture of a live task shared with the account (accepted) and the permission of that share.
+    public async Task<(TaskAttachment Attachment, string Permission)?> GetSharedAttachmentAsync(int accountUserId, int attachmentId, CancellationToken cancellationToken)
+    {
+        var attachment = await _dbContext.TaskAttachments.WhereActive().FirstOrDefaultAsync(a => a.Id == attachmentId && _dbContext.TaskItems.WhereActive().Any(t => t.Id == a.TaskId), cancellationToken);
+        var permission = attachment is null ? null : await AcceptedPermissionAsync(accountUserId, attachment.TaskId, cancellationToken);
+
+        return permission is null ? null : (attachment!, permission);
+    }
+
     #endregion
 
     #region Private Methods
@@ -110,6 +129,11 @@ public class TaskRepository : ITaskRepository
     private static IQueryable<TaskItem> WithDetails(IQueryable<TaskItem> query)
     {
         return query.Include(t => t.ChecklistItems.Where(c => c.IsActive && !c.IsSoftDeleted && !c.IsDeleted).OrderBy(c => c.SortOrder).ThenBy(c => c.Id)).Include(t => t.Attachments.Where(a => a.IsActive && !a.IsSoftDeleted && !a.IsDeleted).OrderBy(a => a.SortOrder).ThenBy(a => a.Id)).AsSplitQuery();
+    }
+
+    private Task<string?> AcceptedPermissionAsync(int accountUserId, int taskId, CancellationToken cancellationToken)
+    {
+        return _dbContext.TaskShares.AsNoTracking().WhereActive().Where(s => s.TaskId == taskId && s.UserId == accountUserId && s.Status == TaskShareStatuses.Accepted).Select(s => (string?)s.Permission).FirstOrDefaultAsync(cancellationToken);
     }
 
     #endregion

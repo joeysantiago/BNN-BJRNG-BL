@@ -10,6 +10,7 @@ import { FEATURE_PROFILE } from '../../feature-routes';
 import { LookupService } from '../../core/lookup.service';
 import { LookupItem } from '../../core/models/lookup.model';
 import { ProfileDetails } from '../../core/models/auth.model';
+import { SettingsService } from '../../core/settings.service';
 import { DetailField, ProfileForm, ProfileNotice } from './profile.model';
 import { formatDate, formatDateTimeWithZone } from '../../core/date-format';
 import { Component, Type, WritableSignal, afterNextRender, computed, effect, inject, signal } from '@angular/core';
@@ -27,7 +28,7 @@ const PERSONAL: DetailField[] = [
 /**
  * /profile: every logged-in user's account page, laid out side by side so it fits one screen on a desktop: the profile card (picture, name, role, member since,
  * last login, how they logged in, apps), name and language with the apps this account may open, the mobile number and address (country, state and city picked from
- * the master tables; the company details are SnapKhata's part, FEATURE_PROFILE), the password
+ * the master tables; the company details are Khataebook's part, FEATURE_PROFILE), the password
  * (not for a session that logged in with a one-time code), the parts the user's apps bring (FEATURE_PROFILE) and deleting the account. Prerendered as an empty shell; the guard asks for the login in the browser.
  */
 @Component({
@@ -47,6 +48,7 @@ export class Profile {
   private readonly seo = inject(SeoService);
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18nService);
+  private readonly cfg = inject(SettingsService);
   private readonly lookups = inject(LookupService);
   protected readonly cities = signal<LookupItem[]>([]);
   protected readonly states = signal<LookupItem[]>([]);
@@ -66,7 +68,7 @@ export class Profile {
   protected readonly byCode = computed(() => this.auth.user()?.loginMethod === 'otp');
   protected readonly lastLogin = computed(() => formatDateTimeWithZone(this.auth.user()?.lastLoginOn));
   /** The apps this account may open (core/apps.ts userApps); one whose page is not routed here is listed without a link. */
-  protected readonly apps = computed(() => userApps(this.auth.isAdmin(), this.auth.apps(), this.router.config));
+  protected readonly apps = computed(() => userApps(this.auth.isAdmin(), this.auth.apps(), this.router.config, (id) => this.cfg.on(id)));
 
   constructor() {
     effect(() => {

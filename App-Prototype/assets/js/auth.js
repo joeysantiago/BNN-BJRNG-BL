@@ -1,6 +1,6 @@
 /* Common login of the prototype, simulated in this browser (localStorage), with the same rules as the real API (App-WebAPI, /api/auth and /api/admin/users):
-   one e-mail + password account for the whole site, sign-up gives SnapKhata and SnapTracker, an administrator gives Creta, Nexon, YouTube and Atrium HR on /master,
-   administrators open every app, 5 wrong passwords lock the account for 15 minutes. Loaded by every page (SnapTracker too), so everything lives inside AUTH
+   one e-mail + password account for the whole site, sign-up gives Khataebook and Tracker, an administrator gives Creta, Nexon, YouTube and Atrium HR on /master,
+   administrators open every app, 5 wrong passwords lock the account for 15 minutes. Loaded by every page (Tracker too), so everything lives inside AUTH
    and no loose global name can clash with a page's own code. The screens are in auth-ui.js (thakurg.com pages) and in snaptracker.js (its gate). */
 'use strict';
 
@@ -84,7 +84,7 @@ const AUTH = (() => {
       'auth.login.btn': 'Log in',
       'auth.login.toSignup': 'New here? Create an account',
       'auth.signup.h1': 'Create your account',
-      'auth.signup.lead': 'SnapKhata and SnapTracker open right away. Creta, Nexon, YouTube and Atrium HR need an administrator to give you access.',
+      'auth.signup.lead': 'Khataebook and Tracker open right away. Creta, Nexon, YouTube and Atrium HR need an administrator to give you access.',
       'auth.signup.btn': 'Create account',
       'auth.signup.toLogin': 'Already have an account? Log in',
       'auth.signed.h1': 'You are logged in',
@@ -93,7 +93,7 @@ const AUTH = (() => {
       'auth.demo.h': 'Prototype: demo accounts',
       'auth.demo.lead': 'Accounts are kept in this browser only. Tap an account to fill the form.',
       'auth.demo.admin': 'Administrator',
-      'auth.demo.user': 'User (SnapKhata and SnapTracker)',
+      'auth.demo.user': 'User (Khataebook and Tracker)',
       'auth.demo.use': 'Use {email}',
       'auth.profile.h1': 'Your profile',
       'auth.profile.lead': 'Logged in as {email}.',
@@ -116,8 +116,8 @@ const AUTH = (() => {
       'auth.gate.signedAs': 'You are logged in as {email}.',
       'auth.gate.apps': 'See your apps',
       'auth.gate.switch': 'Log in as someone else',
-      'auth.app.khata': 'SnapKhata',
-      'auth.app.tracker': 'SnapTracker',
+      'auth.app.khata': 'Khataebook',
+      'auth.app.tracker': 'Tracker',
       'auth.app.creta': 'Creta audio',
       'auth.app.nexon': 'Nexon audio',
       'auth.app.youtube': 'YouTube',
@@ -125,7 +125,7 @@ const AUTH = (() => {
       'auth.app.master': 'Settings',
       'auth.app.profile': 'your profile',
       'auth.users.h': 'Users & access',
-      'auth.users.lead': 'Tick the apps each person may open, then save that person. SnapKhata and SnapTracker are given on sign-up. Administrators open every app and can change these settings.',
+      'auth.users.lead': 'Tick the apps each person may open, then save that person. Khataebook and Tracker are given on sign-up. Administrators open every app and can change these settings.',
       'auth.users.admin': 'Administrator',
       'auth.users.adminHelp': 'Opens every app and this page.',
       'auth.users.apps': 'Apps for {email}',
@@ -162,7 +162,7 @@ const AUTH = (() => {
       'auth.login.btn': 'लॉग इन',
       'auth.login.toSignup': 'नए हैं? खाता बनाएँ',
       'auth.signup.h1': 'अपना खाता बनाएँ',
-      'auth.signup.lead': 'स्नैपखाता और स्नैपट्रैकर तुरंत खुलते हैं। क्रेटा, नेक्सॉन, यूट्यूब और एट्रियम एचआर के लिए किसी एडमिन से पहुँच लेनी होगी।',
+      'auth.signup.lead': 'खाताईबुक और ट्रैकर तुरंत खुलते हैं। क्रेटा, नेक्सॉन, यूट्यूब और एट्रियम एचआर के लिए किसी एडमिन से पहुँच लेनी होगी।',
       'auth.signup.btn': 'खाता बनाएँ',
       'auth.signup.toLogin': 'पहले से खाता है? लॉग इन करें',
       'auth.signed.h1': 'आप लॉग इन हैं',
@@ -171,7 +171,7 @@ const AUTH = (() => {
       'auth.demo.h': 'प्रोटोटाइप: डेमो खाते',
       'auth.demo.lead': 'खाते सिर्फ़ इसी ब्राउज़र में रहते हैं। फ़ॉर्म भरने के लिए किसी खाते पर टैप करें।',
       'auth.demo.admin': 'एडमिन',
-      'auth.demo.user': 'उपयोगकर्ता (स्नैपखाता और स्नैपट्रैकर)',
+      'auth.demo.user': 'उपयोगकर्ता (खाताईबुक और ट्रैकर)',
       'auth.demo.use': '{email} इस्तेमाल करें',
       'auth.profile.h1': 'आपकी प्रोफ़ाइल',
       'auth.profile.lead': '{email} के रूप में लॉग इन।',
@@ -194,8 +194,8 @@ const AUTH = (() => {
       'auth.gate.signedAs': 'आप {email} के रूप में लॉग इन हैं।',
       'auth.gate.apps': 'अपने ऐप देखें',
       'auth.gate.switch': 'किसी और खाते से लॉग इन करें',
-      'auth.app.khata': 'स्नैपखाता',
-      'auth.app.tracker': 'स्नैपट्रैकर',
+      'auth.app.khata': 'खाताईबुक',
+      'auth.app.tracker': 'ट्रैकर',
       'auth.app.creta': 'क्रेटा ऑडियो',
       'auth.app.nexon': 'नेक्सॉन ऑडियो',
       'auth.app.youtube': 'यूट्यूब',
@@ -203,7 +203,7 @@ const AUTH = (() => {
       'auth.app.master': 'सेटिंग्स',
       'auth.app.profile': 'आपकी प्रोफ़ाइल',
       'auth.users.h': 'उपयोगकर्ता और पहुँच',
-      'auth.users.lead': 'हर व्यक्ति जो ऐप खोल सकता है उन पर टिक करें, फिर उस व्यक्ति को सहेजें। स्नैपखाता और स्नैपट्रैकर साइन अप पर मिलते हैं। एडमिन हर ऐप खोल सकते हैं और ये सेटिंग्स बदल सकते हैं।',
+      'auth.users.lead': 'हर व्यक्ति जो ऐप खोल सकता है उन पर टिक करें, फिर उस व्यक्ति को सहेजें। खाताईबुक और ट्रैकर साइन अप पर मिलते हैं। एडमिन हर ऐप खोल सकते हैं और ये सेटिंग्स बदल सकते हैं।',
       'auth.users.admin': 'एडमिन',
       'auth.users.adminHelp': 'हर ऐप और यह पेज खोल सकता है।',
       'auth.users.apps': '{email} के ऐप',
@@ -240,7 +240,7 @@ const AUTH = (() => {
       'auth.login.btn': 'تسجيل الدخول',
       'auth.login.toSignup': 'جديد هنا؟ أنشئ حسابًا',
       'auth.signup.h1': 'أنشئ حسابك',
-      'auth.signup.lead': 'يفتح سناب خاتا وسناب تراكر مباشرة. يحتاج كريتا ونيكسون ويوتيوب وأتريوم إلى أن يمنحك المسؤول الصلاحية.',
+      'auth.signup.lead': 'يفتح خاتا إي بوك وتراكر مباشرة. يحتاج كريتا ونيكسون ويوتيوب وأتريوم إلى أن يمنحك المسؤول الصلاحية.',
       'auth.signup.btn': 'إنشاء الحساب',
       'auth.signup.toLogin': 'لديك حساب بالفعل؟ سجّل الدخول',
       'auth.signed.h1': 'أنت مسجّل الدخول',
@@ -249,7 +249,7 @@ const AUTH = (() => {
       'auth.demo.h': 'نموذج أولي: حسابات تجريبية',
       'auth.demo.lead': 'تُحفظ الحسابات في هذا المتصفح فقط. اضغط على حساب لتعبئة النموذج.',
       'auth.demo.admin': 'مسؤول',
-      'auth.demo.user': 'مستخدم (سناب خاتا وسناب تراكر)',
+      'auth.demo.user': 'مستخدم (خاتا إي بوك وتراكر)',
       'auth.demo.use': 'استخدام {email}',
       'auth.profile.h1': 'ملفك الشخصي',
       'auth.profile.lead': 'تم تسجيل الدخول باسم {email}.',
@@ -272,8 +272,8 @@ const AUTH = (() => {
       'auth.gate.signedAs': 'أنت مسجّل الدخول باسم {email}.',
       'auth.gate.apps': 'عرض تطبيقاتك',
       'auth.gate.switch': 'تسجيل الدخول بحساب آخر',
-      'auth.app.khata': 'سناب خاتا',
-      'auth.app.tracker': 'سناب تراكر',
+      'auth.app.khata': 'خاتا إي بوك',
+      'auth.app.tracker': 'تراكر',
       'auth.app.creta': 'مشغل كريتا',
       'auth.app.nexon': 'مشغل نيكسون',
       'auth.app.youtube': 'يوتيوب',
@@ -281,7 +281,7 @@ const AUTH = (() => {
       'auth.app.master': 'الإعدادات',
       'auth.app.profile': 'ملفك الشخصي',
       'auth.users.h': 'المستخدمون والصلاحيات',
-      'auth.users.lead': 'حدّد التطبيقات التي يمكن لكل شخص فتحها، ثم احفظ ذلك الشخص. يُمنح سناب خاتا وسناب تراكر عند التسجيل. يفتح المسؤولون كل التطبيقات ويمكنهم تغيير هذه الإعدادات.',
+      'auth.users.lead': 'حدّد التطبيقات التي يمكن لكل شخص فتحها، ثم احفظ ذلك الشخص. يُمنح خاتا إي بوك وتراكر عند التسجيل. يفتح المسؤولون كل التطبيقات ويمكنهم تغيير هذه الإعدادات.',
       'auth.users.admin': 'مسؤول',
       'auth.users.adminHelp': 'يفتح كل التطبيقات وهذه الصفحة.',
       'auth.users.apps': 'تطبيقات {email}',
@@ -297,7 +297,7 @@ const AUTH = (() => {
     },
   };
 
-  // The thakurg.com pages read texts and messages from DICT and MESSAGES; SnapTracker has neither and reads them through AUTH.text().
+  // The thakurg.com pages read texts and messages from DICT and MESSAGES; Tracker has neither and reads them through AUTH.text().
   if (typeof DICT !== 'undefined')
     Object.keys(TEXT).forEach((lang) => Object.assign(DICT[lang], TEXT[lang]));
   if (typeof MESSAGES !== 'undefined')

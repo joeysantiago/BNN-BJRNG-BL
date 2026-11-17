@@ -1,14 +1,16 @@
 import { ApiService } from './api.service';
-import { DOCUMENT } from '@angular/common';
+import { StaticTexts } from './static-texts';
 import { LANGS, Lang, langInfo } from './site';
 import { PageId } from './models/app-settings.model';
 import { SettingsService } from './settings.service';
 import { environment } from '../../environments/environment';
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Dictionaries, Dictionary, TranslationKey } from './models/i18n.model';
+import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 
 const STORAGE_KEY = 'thakurg-lang';
-const LOAD_TIMEOUT = environment.timings.i18nLoadMs;
+const TEXTS_KEY = 'thakurg-texts-';
+const WAKE_TIMEOUT = environment.timings.apiWakeMs;
 
 @Injectable({ providedIn: 'root' })
 
@@ -17,9 +19,13 @@ export class I18nService {
   readonly lang = signal<Lang>('en');
   private readonly doc = inject(DOCUMENT);
   private readonly api = inject(ApiService);
+  private readonly files = inject(StaticTexts);
   private readonly cfg = inject(SettingsService);
   readonly dir = computed(() => this.info().dir);
   readonly info = computed(() => langInfo(this.lang()));
+  /** The built-in texts of each language, loaded once (or being loaded). */
+  private readonly builtIn = new Map<Lang, Promise<void>>();
+  private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly dicts = signal<Dictionaries>({ en: {}, hi: {}, ar: {} });
 
   // #region Public Methods
@@ -40,14 +46,25 @@ export class I18nService {
     return name?.[this.lang()] ?? name?.en ?? id;
   }
 
-  /** Fetch the texts of every language from the API (Translations master table). Never throws: a text that is missing shows its key. */
+  /**
+   * Puts the texts in place without waiting for the API, so a page never shows empty while a sleeping API and database wake (about a minute):
+   * the texts built into the site (StaticTexts, made from the seed scripts at build time) for English and the visitor's language, with the last texts this
+   * browser got from the API on top. The API's texts (Translations master table) are then fetched in the background with a long wait and replace them
+   * as soon as they arrive. The prerender uses the built-in texts of every language only. Never throws.
+   */
   async load(): Promise<void> {
-    const loaded = await Promise.all(LANGS.map((l) => this.fetch(l.code)));
-    this.dicts.set({ en: loaded[0], hi: loaded[1], ar: loaded[2] });
+    if (!this.browser) {
+      await Promise.all(LANGS.map((l) => this.ensure(l.code)));
+      return;
+    }
+    await Promise.all([...new Set<Lang>(['en', this.wanted()])].map((l) => this.ensure(l)));
+    for (const l of LANGS)
+      void this.refresh(l.code);
   }
 
   /** Switch language. `persist` stores the choice so it is remembered on the next visit. */
   set(lang: Lang, persist = true): void {
+    void this.ensure(lang);
     this.lang.set(lang);
     const info = langInfo(lang);
     const el = this.doc.documentElement;
@@ -75,12 +92,41 @@ export class I18nService {
 
   // #region Private Methods
 
-  private async fetch(lang: Lang): Promise<Dictionary> {
-    try {
-      return await this.api.get<Dictionary>(`/translations/${lang}`, LOAD_TIMEOUT);
-    } catch (e) {
-      console.warn(`Texts for "${lang}" could not be loaded from the API; keys will be shown instead.`, e);
+  /** The language the page opens in: /hi or /ar in the address, else the visitor's saved choice, else English. Browser only. */
+  private wanted(): Lang {
+    const route = location.hash.startsWith('#/') ? location.hash.slice(1) : location.pathname;
+    return (/^\/(hi|ar)(\/|$)/.exec(route)?.[1] as Lang | undefined) ?? this.stored() ?? 'en';
+  }
+
+  /** The texts of a language saved by the last successful API load in this browser, or none. */
+  private saved(lang: Lang): Dictionary {
+    if (!this.browser)
       return {};
+    try {
+      return JSON.parse(localStorage.getItem(TEXTS_KEY + lang) ?? '{}') as Dictionary;
+    } catch {
+      return {};
+    }
+  }
+
+  /** Loads the built-in texts of a language once. Texts that already came from the API stay on top. */
+  private ensure(lang: Lang): Promise<void> {
+    let loading = this.builtIn.get(lang);
+    if (!loading) {
+      loading = this.files.get<Dictionary>(`${lang}.json`).then((dict) => this.dicts.update((d) => ({ ...d, [lang]: { ...dict, ...this.saved(lang), ...d[lang] } })));
+      this.builtIn.set(lang, loading);
+    }
+    return loading;
+  }
+
+  /** The texts of a language from the API, with the long wait; the page updates as soon as they arrive and this browser keeps a copy. */
+  private async refresh(lang: Lang): Promise<void> {
+    try {
+      const dict = await this.api.get<Dictionary>(`/translations/${lang}`, WAKE_TIMEOUT);
+      this.dicts.update((d) => ({ ...d, [lang]: { ...d[lang], ...dict } }));
+      localStorage.setItem(TEXTS_KEY + lang, JSON.stringify(dict));
+    } catch (e) {
+      console.warn(`Texts for "${lang}" could not be loaded from the API; the built-in texts stay in use.`, e);
     }
   }
 

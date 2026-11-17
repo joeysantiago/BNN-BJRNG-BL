@@ -54,6 +54,20 @@ if (!/<h1[^>]*>/.test(login) || !login.includes('<link rel="canonical" href="htt
   console.error('Login page was not prerendered with its heading and canonical link.');
   process.exit(1);
 }
+// Every prerendered page must carry real text: a title and a heading that are not empty and not a bare text key (such as "seo.login.title"),
+// which is what a page shows when its texts were missing at build time (scripts/build-texts.mjs writes them before the build).
+const isKey = (s) => /^[a-z][\w-]*(\.[\w-]+)+$/.test(s.trim());
+const textOf = (html, tag) => (new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`).exec(html)?.[1] ?? '').replace(/<[^>]+>/g, '').replace(/<!--[\s\S]*?-->/g, '').trim();
+const blank = pages.filter((p) => {
+  const html = readFileSync(join(dist, p, 'index.html'), 'utf8');
+  const title = textOf(html, 'title');
+  const h1 = /<h1[^>]*>/.test(html) ? textOf(html, 'h1') : null;
+  return !title || isKey(title) || (h1 !== null && (!h1 || isKey(h1)));
+});
+if (blank.length) {
+  console.error('Prerendered without texts (empty or key-only title or heading): ' + blank.map((p) => '/' + p).join(', '));
+  process.exit(1);
+}
 console.log(`ok: ${pages.length} pages prerendered`);
 
 

@@ -5,6 +5,8 @@ public static class TaskHistoryActions
 {
     public const string Edited = "edited";
 
+    public const string Shared = "shared";
+
     public const string Created = "created";
 
     public const string Deleted = "deleted";

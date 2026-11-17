@@ -52,6 +52,10 @@
       <app-task-editor [editor]="ed" />
     }
 
+    @if (state.sharing(); as t) {
+      <app-task-share [task]="t" />
+    }
+
   } @else {
     <app-tasks-lock />
   }

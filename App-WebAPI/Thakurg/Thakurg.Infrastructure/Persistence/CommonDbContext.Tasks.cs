@@ -3,12 +3,14 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Persistence;
 
-// The tables of My Tasks (SqlScripts/CREATE/Tasks). A task owns its checklist lines and pictures (TaskId).
+// The tables of Tasks (SqlScripts/CREATE/Tasks). A task owns its checklist lines and pictures (TaskId).
 public partial class CommonDbContext
 {
     public DbSet<TaskItem> TaskItems => Set<TaskItem>();
 
     public DbSet<TaskUser> TaskUsers => Set<TaskUser>();
+
+    public DbSet<TaskShare> TaskShares => Set<TaskShare>();
 
     public DbSet<TaskHistory> TaskHistory => Set<TaskHistory>();
 
@@ -27,6 +29,7 @@ public partial class CommonDbContext
     partial void OnTasksModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<TaskUser>().ToTable("TaskUsers");
+        modelBuilder.Entity<TaskShare>().ToTable("TaskShares");
         modelBuilder.Entity<TaskHistory>().ToTable("TaskHistory");
         modelBuilder.Entity<TaskCategory>().ToTable("TaskCategories");
         modelBuilder.Entity<TaskAttachment>().ToTable("TaskAttachments");

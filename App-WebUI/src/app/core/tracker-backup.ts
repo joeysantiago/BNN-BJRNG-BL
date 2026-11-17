@@ -4,9 +4,12 @@ import { TrackerBackup, TrackerImportSms } from './models/tracker.model';
 /** How many messages one import call carries (Tracker:Limits:MaxImportBatch of the API). */
 export const TRACKER_IMPORT_BATCH = 200;
 
-/** A message of SMS Backup & Restore: <sms address="AD-HDFCBK" date="1730876400000" type="1" body="…" />. Quoted values may hold ">". */
-const SMS_TAG = /<sms\b((?:\s+[\w:.-]+\s*=\s*"[^"]*")*)\s*\/?>/g;
-const ATTRIBUTE = /([\w:.-]+)\s*=\s*"([^"]*)"/g;
+/**
+ * A message of SMS Backup & Restore: <sms address="AD-HDFCBK" date="1730876400000" type="1" body="…" />. Quoted values may hold ">". A value that holds a
+ * double quote is written in single quotes (body='Paid to "Shop"'), so both quotes are read.
+ */
+const SMS_TAG = /<sms\b((?:\s+[\w:.-]+\s*=\s*(?:"[^"]*"|'[^']*'))*)\s*\/?>/g;
+const ATTRIBUTE = /([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
 
 /** A bank or payment app header: AD-HDFCBK-S, VM-HDFCBK or a bare HDFCBK. */
 const SENDER = /^(?:[A-Z]{2}-)?([A-Z0-9]{6})(?:-[TSPG])?$/;
@@ -29,7 +32,7 @@ export function readSmsBackup(xml: string): TrackerBackup | null {
     total++;
     const a: Record<string, string> = {};
     for (const x of tag[1].matchAll(ATTRIBUTE))
-      a[x[1]] = x[2];
+      a[x[1]] = x[2] ?? x[3];
     const sender = decode(a['address'] ?? '').trim().toUpperCase();
     const code = SENDER.exec(sender)?.[1] ?? '';
     const body = decode(a['body'] ?? '').trim();

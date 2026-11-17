@@ -3,12 +3,13 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "prestart": "node scripts/build-texts.mjs",
     "start": "ng serve",
-    "build": "ng build && node scripts/postbuild.mjs",
-    "build:qa": "ng build --configuration qa && node scripts/postbuild.mjs",
-    "build:uat": "ng build --configuration uat && node scripts/postbuild.mjs",
-    "build:live": "ng build --configuration live && node scripts/postbuild.mjs",
-    "watch": "ng build --watch --configuration development",
+    "build": "node scripts/build-texts.mjs && ng build && node scripts/postbuild.mjs",
+    "build:qa": "node scripts/build-texts.mjs && ng build --configuration qa && node scripts/postbuild.mjs",
+    "build:uat": "node scripts/build-texts.mjs && ng build --configuration uat && node scripts/postbuild.mjs",
+    "build:live": "node scripts/build-texts.mjs && ng build --configuration live && node scripts/postbuild.mjs",
+    "watch": "node scripts/build-texts.mjs && ng build --watch --configuration development",
     "test": "ng test",
     "images": "node scripts/generate-images.mjs"
   },
