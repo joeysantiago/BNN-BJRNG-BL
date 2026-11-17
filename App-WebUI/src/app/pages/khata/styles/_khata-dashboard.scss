@@ -1,4 +1,4 @@
-/* SnapKhata dashboard and money-flow chart. Ported from App-Prototype/assets/css/khata.css; loaded by the screen that uses it. */
+/* Khataebook dashboard and money-flow chart. Ported from App-Prototype/assets/css/khata.css; loaded by the screen that uses it. */
 /* ---------- Dashboard ---------- */
 .khata .k-dash {
   display: grid;
@@ -29,7 +29,11 @@
   height: 220px;
   inset-inline-end: -60px;
   top: -80px;
-  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--k-brand-2) 45%, transparent), transparent 70%);
+  background: radial-gradient(
+    circle at 30% 30%,
+    color-mix(in srgb, var(--k-brand-2) 45%, transparent),
+    transparent 70%
+  );
   animation: k-float 9s ease-in-out infinite;
 }
 
@@ -38,7 +42,11 @@
   height: 160px;
   inset-inline-end: 90px;
   bottom: -90px;
-  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--k-brand) 40%, transparent), transparent 70%);
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--k-brand) 40%, transparent),
+    transparent 70%
+  );
   animation: k-float 11s ease-in-out infinite reverse;
 }
 
@@ -152,7 +160,9 @@
   font-size: 12.5px;
   font-weight: 700;
   text-align: center;
-  transition: transform 0.2s var(--k-ease), box-shadow 0.2s;
+  transition:
+    transform 0.2s var(--k-ease),
+    box-shadow 0.2s;
 }
 
 .khata .k-qa:hover {
@@ -433,7 +443,7 @@
   transform-origin: left;
 }
 
-.khata[dir=rtl] .k-hbars .fill {
+.khata[dir='rtl'] .k-hbars .fill {
   transform-origin: right;
 }
 

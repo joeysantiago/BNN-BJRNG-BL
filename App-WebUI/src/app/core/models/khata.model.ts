@@ -1,4 +1,4 @@
-/** SnapKhata API shapes (App-WebAPI Thakurg.Contracts/Khata). Amounts are whole smallest units (paise, fils…): `amountMinor`. */
+/** Khataebook API shapes (App-WebAPI Thakurg.Contracts/Khata). Amounts are whole smallest units (paise, fils…): `amountMinor`. */
 
 export type KhataEntryType = 1 | 2;
 
@@ -358,14 +358,14 @@ export interface KhataPinSaved {
   status: KhataPinStatus;
 }
 
-/** The reader's own SnapKhata settings. */
+/** The reader's own Khataebook settings. */
 export interface KhataSettings {
   notificationsEnabled: boolean;
 }
 
 export type KhataExportFormat = 'pdf' | 'xlsx' | 'csv';
 
-/** A menu of the SnapKhata top bar. */
+/** A menu of the Khataebook top bar. */
 export type KhataMenu = 'lang' | 'theme' | 'book';
 
 /** The result line under a form: the server's message, or its error. */

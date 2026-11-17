@@ -1,4 +1,4 @@
-/* SnapKhata: App shell, confirm sheet, photo viewer and toast. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+/* Khataebook: App shell, confirm sheet, photo viewer and toast. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
 'use strict';
 
 // #region App shell, confirm sheet, photo viewer and toast
@@ -98,7 +98,7 @@ function shell(inner) {
 
 CHANGE.kSwitch = (el) => go(el.value === 'books' ? '/khata/app/books' : `/khata/app/b/${el.value}`);
 
-/** The logged-in account (common login); SnapKhata has no login of its own any more. */
+/** The logged-in account (common login); Khataebook has no login of its own any more. */
 const kMe = () => AUTH.current() || { displayName: '', email: '' };
 
 /** Deleting (a book, a party, an entry, the demo data) asks "are you sure?" in a sheet over the screen. The PIN is gone: the login is enough, like the API. */

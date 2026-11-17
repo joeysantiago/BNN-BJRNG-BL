@@ -1,4 +1,4 @@
-/* SnapKhata public landing page (/khata). Ported from App-Prototype/assets/css/khata.css. */
+/* Khataebook public landing page (/khata). Ported from App-Prototype/assets/css/khata.css. */
 .khata.k-land {
   --kl-max: 1160px;
   overflow-x: hidden;
@@ -298,7 +298,9 @@
   gap: 12px;
   align-content: start;
   padding: 20px;
-  transition: transform 0.2s var(--k-ease), border-color 0.2s;
+  transition:
+    transform 0.2s var(--k-ease),
+    border-color 0.2s;
 }
 
 .khata.k-land .kl-feats .kl-card:hover {
@@ -470,4 +472,3 @@
     padding: 24px 20px;
   }
 }
-

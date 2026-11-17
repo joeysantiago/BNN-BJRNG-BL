@@ -1,4 +1,4 @@
-/* SnapKhata: Contact settings and profile. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+/* Khataebook: Contact settings and profile. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
 'use strict';
 
 // #region Contact settings and profile
@@ -59,7 +59,7 @@ ACT.kContactDelete = (el) => {
   });
 };
 
-/** SnapKhata's profile: the account comes from the common login (name, language and password are changed on /profile), plus appearance, demo data and log out. */
+/** Khataebook's profile: the account comes from the common login (name, language and password are changed on /profile), plus appearance, demo data and log out. */
 function profilePage() {
   const me = kMe();
   const html = `<div class="k-set k-stagger">
@@ -79,7 +79,7 @@ function profilePage() {
 
 CHANGE.kLang = (el) => setLang(el.value);
 
-/** Log out of the common login (every app); SnapKhata goes back to its public page. */
+/** Log out of the common login (every app); Khataebook goes back to its public page. */
 ACT.kLogout = () => {
   AUTH.logout();
   K.sheet = null;

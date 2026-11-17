@@ -6,7 +6,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Services;
 
-// SnapKhata keeps its own profile (KhataUsers) next to the common login. The first Khata request of a user creates it, with the Khata:NewUser values.
+// Khataebook keeps its own profile (KhataUsers) next to the common login. The first Khata request of a user creates it, with the Khata:NewUser values.
 public class KhataProfileService : IKhataProfileService
 {
     private readonly KhataOptions _options;

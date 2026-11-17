@@ -1,4 +1,4 @@
-/* SnapKhata app screens shared by every page: shell, page heads, avatars, lists, empty states, dialogs, settings. Ported from App-Prototype/assets/css/khata.css. */
+/* Khataebook app screens shared by every page: shell, page heads, avatars, lists, empty states, dialogs, settings. Ported from App-Prototype/assets/css/khata.css. */
 /* ---------- App shell ---------- */
 .khata .k-app {
   min-height: 100vh;
@@ -73,7 +73,7 @@
   cursor: pointer;
 }
 
-.khata[data-kt=dark] .k-bookpick-btn {
+.khata[data-kt='dark'] .k-bookpick-btn {
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -91,7 +91,7 @@
   transition: transform 0.2s var(--k-ease);
 }
 
-.khata .k-bookpick-btn[aria-expanded=true] > .k-ico {
+.khata .k-bookpick-btn[aria-expanded='true'] > .k-ico {
   transform: rotate(180deg);
 }
 
@@ -181,10 +181,12 @@
   text-decoration: none;
   font-size: 11px;
   font-weight: 700;
-  transition: color 0.2s, background-color 0.2s;
+  transition:
+    color 0.2s,
+    background-color 0.2s;
 }
 
-.khata .k-tab[aria-current=page] {
+.khata .k-tab[aria-current='page'] {
   color: var(--k-brand);
   background: var(--k-brand-soft);
 }
@@ -253,7 +255,10 @@
     color: var(--k-muted);
     text-decoration: none;
     font-weight: 700;
-    transition: background-color 0.2s, color 0.2s, transform 0.2s var(--k-ease);
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      transform 0.2s var(--k-ease);
   }
 
   .khata .k-nav:hover {
@@ -262,17 +267,17 @@
     transform: translateX(2px);
   }
 
-  .khata[dir=rtl] .k-nav:hover {
+  .khata[dir='rtl'] .k-nav:hover {
     transform: translateX(-2px);
   }
 
-  .khata .k-nav[aria-current=page] {
+  .khata .k-nav[aria-current='page'] {
     color: var(--k-text);
     background: var(--k-surface-solid);
     box-shadow: var(--k-shadow);
   }
 
-  .khata .k-nav[aria-current=page] .k-ico {
+  .khata .k-nav[aria-current='page'] .k-ico {
     color: var(--k-brand);
   }
 
@@ -331,7 +336,10 @@
   color: var(--k-text);
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .khata .k-who:hover {
@@ -339,7 +347,7 @@
   border-color: var(--k-brand);
 }
 
-.khata .k-who[aria-current=page] {
+.khata .k-who[aria-current='page'] {
   background: var(--k-surface-solid);
   border-color: var(--k-brand);
   box-shadow: var(--k-shadow);
@@ -397,8 +405,8 @@
   color: var(--k-text);
 }
 
-.khata[dir=rtl] .k-back .k-ico,
-.khata[dir=rtl] .k-row-link .chev {
+.khata[dir='rtl'] .k-back .k-ico,
+.khata[dir='rtl'] .k-row-link .chev {
   transform: scaleX(-1);
 }
 
@@ -425,18 +433,53 @@
   font-size: 22px;
 }
 
-.khata .k-av.a1 { --av: #4f6bed; }
-.khata .k-av.a2 { --av: #c2410c; }
-.khata .k-av.a3 { --av: #0f8a6b; }
-.khata .k-av.a4 { --av: #a21caf; }
-.khata .k-av.a5 { --av: #0369a1; }
-.khata .k-av.a6 { --av: #b45309; }
-.khata[data-kt=dark] .k-av.a1 { --av: #9fb0ff; }
-.khata[data-kt=dark] .k-av.a2 { --av: #ffab7a; }
-.khata[data-kt=dark] .k-av.a3 { --av: #6fe3c0; }
-.khata[data-kt=dark] .k-av.a4 { --av: #f0a2ff; }
-.khata[data-kt=dark] .k-av.a5 { --av: #8fd3ff; }
-.khata[data-kt=dark] .k-av.a6 { --av: #ffd27a; }
+.khata .k-av.a1 {
+  --av: #4f6bed;
+}
+
+.khata .k-av.a2 {
+  --av: #c2410c;
+}
+
+.khata .k-av.a3 {
+  --av: #0f8a6b;
+}
+
+.khata .k-av.a4 {
+  --av: #a21caf;
+}
+
+.khata .k-av.a5 {
+  --av: #0369a1;
+}
+
+.khata .k-av.a6 {
+  --av: #b45309;
+}
+
+.khata[data-kt='dark'] .k-av.a1 {
+  --av: #9fb0ff;
+}
+
+.khata[data-kt='dark'] .k-av.a2 {
+  --av: #ffab7a;
+}
+
+.khata[data-kt='dark'] .k-av.a3 {
+  --av: #6fe3c0;
+}
+
+.khata[data-kt='dark'] .k-av.a4 {
+  --av: #f0a2ff;
+}
+
+.khata[data-kt='dark'] .k-av.a5 {
+  --av: #8fd3ff;
+}
+
+.khata[data-kt='dark'] .k-av.a6 {
+  --av: #ffd27a;
+}
 
 /* ---------- Lists (parties, transactions) ---------- */
 .khata .k-list {
@@ -462,7 +505,10 @@
   text-align: start;
   font: inherit;
   cursor: pointer;
-  transition: transform 0.2s var(--k-ease), box-shadow 0.2s, border-color 0.2s;
+  transition:
+    transform 0.2s var(--k-ease),
+    box-shadow 0.2s,
+    border-color 0.2s;
 }
 
 .khata .k-row-link:hover {
@@ -580,14 +626,16 @@
   background: var(--k-surface-solid);
   color: var(--k-text);
   font: 600 15px var(--k-font);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
-.khata[dir=rtl] .k-search input {
+.khata[dir='rtl'] .k-search input {
   padding: 10px 44px 10px 14px;
 }
 
-.khata[data-kt=dark] .k-search input {
+.khata[data-kt='dark'] .k-search input {
   background: rgba(255, 255, 255, 0.05);
 }
 
@@ -623,7 +671,7 @@
   cursor: pointer;
 }
 
-.khata[data-kt=dark] .k-sort select {
+.khata[data-kt='dark'] .k-sort select {
   background: rgba(255, 255, 255, 0.05);
 }
 
@@ -695,7 +743,7 @@
   font: 600 14px var(--k-font);
 }
 
-.khata[data-kt=dark] .k-dates input {
+.khata[data-kt='dark'] .k-dates input {
   background: rgba(255, 255, 255, 0.05);
 }
 
@@ -852,7 +900,7 @@
   backdrop-filter: blur(8px);
 }
 
-.khata[dir=rtl] .k-viewer .nav .k-ico {
+.khata[dir='rtl'] .k-viewer .nav .k-ico {
   transform: scaleX(-1);
 }
 
@@ -963,14 +1011,16 @@
   font: 700 13.5px var(--k-font);
   cursor: pointer;
   text-align: start;
-  transition: border-color 0.2s, transform 0.2s var(--k-ease);
+  transition:
+    border-color 0.2s,
+    transform 0.2s var(--k-ease);
 }
 
 .khata .k-theme:hover {
   transform: translateY(-2px);
 }
 
-.khata .k-theme[aria-pressed=true] {
+.khata .k-theme[aria-pressed='true'] {
   border-color: var(--k-brand);
   box-shadow: var(--k-focus);
 }
@@ -1142,4 +1192,3 @@
     grid-template-columns: 1fr;
   }
 }
-

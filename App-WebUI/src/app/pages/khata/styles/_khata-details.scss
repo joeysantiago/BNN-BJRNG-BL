@@ -1,4 +1,4 @@
-/* SnapKhata entry details. Ported from App-Prototype/assets/css/khata.css; loaded by the screen that uses it. */
+/* Khataebook entry details. Ported from App-Prototype/assets/css/khata.css; loaded by the screen that uses it. */
 /* ---------- Transaction details ---------- */
 .khata .k-detail-amt {
   display: grid;
@@ -62,7 +62,7 @@
   padding: 0 0 18px 26px;
 }
 
-.khata[dir=rtl] .k-timeline li {
+.khata[dir='rtl'] .k-timeline li {
   padding: 0 26px 18px 0;
 }
 

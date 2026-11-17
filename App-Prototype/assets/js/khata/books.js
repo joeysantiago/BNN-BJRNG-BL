@@ -1,4 +1,4 @@
-/* SnapKhata: Books. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+/* Khataebook: Books. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
 'use strict';
 
 // #region Books

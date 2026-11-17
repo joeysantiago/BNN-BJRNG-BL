@@ -27,10 +27,13 @@
   font: inherit;
   text-align: start;
   cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background-color 0.2s;
 }
 
-.khata[data-kt=dark] .k-dp-trigger {
+.khata[data-kt='dark'] .k-dp-trigger {
   background: rgba(255, 255, 255, 0.05);
 }
 
@@ -45,7 +48,7 @@
   box-shadow: var(--k-focus);
 }
 
-.khata .k-dp-trigger[aria-invalid=true] {
+.khata .k-dp-trigger[aria-invalid='true'] {
   border-color: var(--k-give);
 }
 
@@ -152,7 +155,9 @@
   background: transparent;
   color: var(--k-text);
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
 }
 
 .khata .k-dp-nav {
@@ -235,7 +240,10 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  transition: background-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  transition:
+    background-color 0.15s,
+    box-shadow 0.15s,
+    transform 0.15s;
 }
 
 .khata .k-dp-day:hover:not(:disabled)::before {
@@ -327,7 +335,9 @@
   color: var(--k-text);
   font: 700 14px var(--k-font);
   cursor: pointer;
-  transition: background-color 0.15s, border-color 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
 }
 
 .khata .k-dp-pick:hover:not(:disabled) {
@@ -339,7 +349,7 @@
   color: var(--k-brand);
 }
 
-.khata .k-dp-pick[aria-pressed=true] {
+.khata .k-dp-pick[aria-pressed='true'] {
   color: var(--k-on-brand);
   background: var(--k-brand-grad);
   border-color: transparent;

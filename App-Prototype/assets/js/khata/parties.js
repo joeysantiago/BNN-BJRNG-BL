@@ -1,4 +1,4 @@
-/* SnapKhata: Parties. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+/* Khataebook: Parties. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
 'use strict';
 
 // #region Parties (customers and suppliers)

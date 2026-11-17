@@ -1,4 +1,4 @@
-/* SnapKhata: Add / edit entry with bill photos. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+/* Khataebook: Add / edit entry with bill photos. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
 'use strict';
 
 // #region Add / edit entry with bill photos

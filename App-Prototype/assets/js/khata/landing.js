@@ -1,10 +1,10 @@
-/* SnapKhata: Public page. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout.
-   The OTP login and PIN screens are gone: SnapKhata opens after the common login (assets/js/auth.js, /login). */
+/* Khataebook: Public page. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout.
+   The OTP login and PIN screens are gone: Khataebook opens after the common login (assets/js/auth.js, /login). */
 'use strict';
 
 // #region Public page
 
-/** Public landing page, in the SnapKhata app design (full screen, light / dark), like the SnapTracker home screen. Texts are the same keys as before. */
+/** Public landing page, in the Khataebook app design (full screen, light / dark), like the Tracker home screen. Texts are the same keys as before. */
 function landingPage() {
   const features = [['users', 'f1'], ['zap', 'f2'], ['book', 'f3'], ['lock', 'f4'], ['history', 'f5']];
   const langs = LANGS.map((l) => `<option value="${l.code}"${l.code === S.lang ? ' selected' : ''}>${l.native}</option>`).join('');

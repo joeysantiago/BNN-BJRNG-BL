@@ -4,7 +4,7 @@ import { KhataApiService } from './khata-api.service';
 import { KhataBook, KhataCurrency } from './models/khata.model';
 import { Injectable, computed, inject, signal } from '@angular/core';
 
-/** Books and money types shared by the SnapKhata screens, so the book switcher in the shell and the pages show the same list. */
+/** Books and money types shared by the Khataebook screens, so the book switcher in the shell and the pages show the same list. */
 @Injectable({ providedIn: 'root' })
 
 export class KhataStateService {

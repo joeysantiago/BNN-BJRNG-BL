@@ -5,7 +5,7 @@ import { Component, afterNextRender, inject, signal } from '@angular/core';
 import { KhataNotice, KhataPinStatus } from '../../../core/models/khata.model';
 
 /**
- * SnapKhata's own part of Settings > General (FEATURE_SETTINGS), for a user who may open SnapKhata. Whether SnapKhata sends notifications at all (each party's
+ * Khataebook's own part of Settings > General (FEATURE_SETTINGS), for a user who may open Khataebook. Whether Khataebook sends notifications at all (each party's
  * channels are on that party's settings), and "Change PIN" where this session is protected by the app lock (the PIN screen opens inside the app). Where bill
  * photos are kept is the site's file storage (Settings > Keys). Theme, language, mail and users are shared tabs.
  */

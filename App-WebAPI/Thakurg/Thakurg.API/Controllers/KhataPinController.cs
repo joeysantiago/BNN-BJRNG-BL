@@ -11,7 +11,7 @@ using Thakurg.Infrastructure.Security;
 
 namespace Thakurg.API.Controllers;
 
-// The app lock PIN of the installed SnapKhata app: its state, setting or changing it, locking the session when the app opens and checking the PIN.
+// The app lock PIN of the installed Khataebook app: its state, setting or changing it, locking the session when the app opens and checking the PIN.
 // These work while the session is locked (KhataLockFree), except keep: it passes the lock like any ledger call and so keeps an open app unlocked.
 [ApiController]
 [Route("api/khata/pin")]

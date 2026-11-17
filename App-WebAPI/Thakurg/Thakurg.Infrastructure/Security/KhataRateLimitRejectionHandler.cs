@@ -5,7 +5,7 @@ using Thakurg.Contracts.Khata;
 
 namespace Thakurg.Infrastructure.Security;
 
-// A refused SnapKhata request is written to the Khata audit log. The limiter runs before the Khata profile is looked up, so the entry has no Khata user.
+// A refused Khataebook request is written to the Khata audit log. The limiter runs before the Khata profile is looked up, so the entry has no Khata user.
 public class KhataRateLimitRejectionHandler : IRateLimitRejectionHandler
 {
     #region Public Methods

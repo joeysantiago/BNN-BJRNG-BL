@@ -5,7 +5,7 @@ const LINK_ID = 'khata-css';
 const HREF = 'khata.css';
 
 /**
- * Links the SnapKhata stylesheet (khata.css, built by angular.json with "inject": false) when a SnapKhata screen opens, so the rest of
+ * Links the Khataebook stylesheet (khata.css, built by angular.json with "inject": false) when a Khataebook screen opens, so the rest of
  * the site never downloads it. `ready` turns true once it has loaded; the screens stay hidden until then, so nothing shows unstyled.
  * When prerendering, the link goes into the page's HTML.
  */

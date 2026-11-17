@@ -1,4 +1,4 @@
-/* SnapKhata: small helpers used by the Angular screens in place of the prototype's inline styles. */
+/* Khataebook: small helpers used by the Angular screens in place of the prototype's inline styles. */
 .khata .k-pad-14 {
   padding: 14px;
 }
@@ -161,22 +161,89 @@
   display: block;
 }
 
-.khata .sk-title { width: 220px; height: 28px; max-width: 100%; }
-.khata .sk-lead { width: 160px; height: 14px; margin-top: 10px; }
-.khata .sk-eyebrow { width: 120px; height: 14px; }
-.khata .sk-big { width: 60%; height: 42px; margin-top: 12px; }
-.khata .sk-split { width: 100%; height: 64px; margin-top: 20px; border-radius: 18px; }
-.khata .sk-label { width: 60%; height: 12px; }
-.khata .sk-value { width: 80%; height: 22px; }
-.khata .sk-h2 { width: 40%; height: 16px; }
-.khata .sk-chart { width: 100%; height: 180px; margin-top: 16px; }
-.khata .sk-bar { width: 100%; height: 48px; border-radius: 16px; }
-.khata .sk-row { pointer-events: none; }
-.khata .sk-avatar { width: 42px; height: 42px; border-radius: 14px; flex: none; }
-.khata .sk-name { width: 55%; height: 14px; }
-.khata .sk-sub { width: 35%; height: 11px; margin-top: 8px; }
-.khata .sk-amount { width: 70px; height: 16px; }
+.khata .sk-title {
+  width: 220px;
+  height: 28px;
+  max-width: 100%;
+}
 
+.khata .sk-lead {
+  width: 160px;
+  height: 14px;
+  margin-top: 10px;
+}
+
+.khata .sk-eyebrow {
+  width: 120px;
+  height: 14px;
+}
+
+.khata .sk-big {
+  width: 60%;
+  height: 42px;
+  margin-top: 12px;
+}
+
+.khata .sk-split {
+  width: 100%;
+  height: 64px;
+  margin-top: 20px;
+  border-radius: 18px;
+}
+
+.khata .sk-label {
+  width: 60%;
+  height: 12px;
+}
+
+.khata .sk-value {
+  width: 80%;
+  height: 22px;
+}
+
+.khata .sk-h2 {
+  width: 40%;
+  height: 16px;
+}
+
+.khata .sk-chart {
+  width: 100%;
+  height: 180px;
+  margin-top: 16px;
+}
+
+.khata .sk-bar {
+  width: 100%;
+  height: 48px;
+  border-radius: 16px;
+}
+
+.khata .sk-row {
+  pointer-events: none;
+}
+
+.khata .sk-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  flex: none;
+}
+
+.khata .sk-name {
+  width: 55%;
+  height: 14px;
+}
+
+.khata .sk-sub {
+  width: 35%;
+  height: 11px;
+  margin-top: 8px;
+}
+
+.khata .sk-amount {
+  width: 70px;
+  height: 16px;
+}
 
 /* Public page: the sample ledger rows keep space between the name and the amount; on the narrowest phones the top bar shows only the logo mark. */
 .khata.k-land .kl-mock .rows div {
@@ -189,7 +256,7 @@
   }
 }
 
-/* The site's dropdown styles (styles.scss: option, ::picker(select)) read the skin's colours; inside SnapKhata they follow its own theme. */
+/* The site's dropdown styles (styles.scss: option, ::picker(select)) read the skin's colours; inside Khataebook they follow its own theme. */
 .khata {
   --bg: var(--k-surface-solid);
   --text: var(--k-text);
@@ -240,7 +307,7 @@
   background: var(--k-surface-3);
 }
 
-.khata .k-pop-opt[aria-pressed=true] {
+.khata .k-pop-opt[aria-pressed='true'] {
   color: var(--k-brand);
   background: var(--k-brand-soft);
 }
@@ -379,7 +446,6 @@
   backdrop-filter: none;
 }
 
-
 /* Export: one download icon; the file types (PDF red, Excel green, CSV in the brand colour) slide out beside it on hover, focus or tap. */
 .khata .k-xwrap {
   display: inline-flex;
@@ -395,7 +461,11 @@
   opacity: 0;
   visibility: hidden;
   padding-block: 4px;
-  transition: max-width 0.25s var(--k-ease), opacity 0.2s, margin 0.25s var(--k-ease), visibility 0s 0.25s;
+  transition:
+    max-width 0.25s var(--k-ease),
+    opacity 0.2s,
+    margin 0.25s var(--k-ease),
+    visibility 0s 0.25s;
 }
 
 .khata .k-xwrap.open .k-xgroup,
@@ -405,7 +475,11 @@
   visibility: visible;
   margin-inline-start: 6px;
   padding-inline: 2px;
-  transition: max-width 0.25s var(--k-ease), opacity 0.2s, margin 0.25s var(--k-ease), visibility 0s;
+  transition:
+    max-width 0.25s var(--k-ease),
+    opacity 0.2s,
+    margin 0.25s var(--k-ease),
+    visibility 0s;
 }
 
 @media (hover: hover) {
@@ -415,7 +489,11 @@
     visibility: visible;
     margin-inline-start: 6px;
     padding-inline: 2px;
-    transition: max-width 0.25s var(--k-ease), opacity 0.2s, margin 0.25s var(--k-ease), visibility 0s;
+    transition:
+      max-width 0.25s var(--k-ease),
+      opacity 0.2s,
+      margin 0.25s var(--k-ease),
+      visibility 0s;
   }
 }
 
@@ -560,7 +638,9 @@
   border-radius: 16px;
   border: 1px solid var(--k-line);
   background: var(--k-surface);
-  transition: opacity 0.2s, border-color 0.2s;
+  transition:
+    opacity 0.2s,
+    border-color 0.2s;
 }
 
 .khata .k-user.is-archived {

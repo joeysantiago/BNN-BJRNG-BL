@@ -1,5 +1,5 @@
-/* SnapKhata (landing page and the redesigned app). Moved from thakurg.html as it was. */
-/* SnapKhata landing page (/khata): full screen in the app design system, light and dark, like the SnapTracker home screen. */
+/* Khataebook (landing page and the redesigned app). Moved from thakurg.html as it was. */
+/* Khataebook landing page (/khata): full screen in the app design system, light and dark, like the Tracker home screen. */
 .sc-kland {
   display: block;
 }
@@ -508,8 +508,8 @@
   }
 }
 
-/* SnapKhata app (redesign) */
-/* SnapKhata app design system: every colour is a token on .khata, Light and Dark are two sets of the same tokens. */
+/* Khataebook app (redesign) */
+/* Khataebook app design system: every colour is a token on .khata, Light and Dark are two sets of the same tokens. */
 .khata {
   --k-font: 'Manrope Variable', 'Noto Sans Devanagari Variable', 'Noto Sans Arabic Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --k-r-sm: 10px;

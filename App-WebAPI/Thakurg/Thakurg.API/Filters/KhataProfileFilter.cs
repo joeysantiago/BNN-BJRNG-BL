@@ -6,7 +6,7 @@ using Thakurg.Contracts.Auth;
 
 namespace Thakurg.API.Filters;
 
-// SnapKhata works with its own user Ids (KhataUsers). Before a Khata action runs, the logged-in account is mapped to its Khata profile
+// Khataebook works with its own user Ids (KhataUsers). Before a Khata action runs, the logged-in account is mapped to its Khata profile
 // (created on first use) and the Khata user Id is kept in HttpContext.Items for KhataHttpExtensions.KhataCaller().
 // Then the app lock: a session the installed app protects must be unlocked with the PIN, except for actions marked KhataLockFree.
 public class KhataProfileFilter : IAsyncActionFilter

@@ -1,7 +1,7 @@
-/* SnapKhata: SnapKhata state. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+/* Khataebook: Khataebook state. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
 'use strict';
 
-// #region SnapKhata state (the login is the common one in auth.js; the ledger and its photos stay in this browser)
+// #region Khataebook state (the login is the common one in auth.js; the ledger and its photos stay in this browser)
 
 const GAVE = 1;
 const GOT = 2;

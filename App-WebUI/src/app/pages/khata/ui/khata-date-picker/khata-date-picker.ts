@@ -13,7 +13,7 @@ const QUICK: KhataDateQuick[] = [{ key: 'khata.dp.today', days: 0 }, { key: 'kha
 let nextId = 0;
 
 /**
- * SnapKhata date picker, in place of the browser's date input. One day (`[(value)]`) or a range (`mode="range"`, `[from]`, `[to]`, `(rangeChange)`).
+ * Khataebook date picker, in place of the browser's date input. One day (`[(value)]`) or a range (`mode="range"`, `[from]`, `[to]`, `(rangeChange)`).
  * The button shows DD-MM-YYYY (App-Document/date-format.md) with a hint such as "Yesterday"; the calendar opens below it, or as a bottom sheet on a phone.
  * It has one-tap days or ranges, month and year views, weekday and month names in the reader's language, and full keyboard use
  * (arrows, Page Up / Down, Home / End, Enter, Escape; the arrows follow the reading direction in Arabic).

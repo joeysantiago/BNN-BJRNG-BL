@@ -1,4 +1,4 @@
-/* SnapKhata: All entries of a book. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+/* Khataebook: All entries of a book. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
 'use strict';
 
 // #region All entries of a book

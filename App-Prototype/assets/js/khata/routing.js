@@ -1,4 +1,4 @@
-/* SnapKhata: Routing and guards. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+/* Khataebook: Routing and guards. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
 'use strict';
 
 // #region Routing and guards

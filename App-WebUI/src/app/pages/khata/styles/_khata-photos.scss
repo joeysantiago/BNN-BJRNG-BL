@@ -1,4 +1,4 @@
-/* SnapKhata bill photo thumbnails and drop area. Ported from App-Prototype/assets/css/khata.css; loaded by the screen that uses it. */
+/* Khataebook bill photo thumbnails and drop area. Ported from App-Prototype/assets/css/khata.css; loaded by the screen that uses it. */
 /* ---------- Photos ---------- */
 .khata .k-drop {
   display: grid;
@@ -9,7 +9,9 @@
   border: 2px dashed var(--k-line-strong);
   background: var(--k-surface-2);
   text-align: center;
-  transition: border-color 0.2s, background-color 0.2s;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
 }
 
 .khata .k-drop.over {
@@ -72,7 +74,9 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.3s var(--k-ease), opacity 0.3s;
+  transition:
+    transform 0.3s var(--k-ease),
+    opacity 0.3s;
 }
 
 .khata .k-thumb img:not([src]),

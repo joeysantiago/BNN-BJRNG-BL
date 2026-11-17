@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Configurations;
 
-// Values a new SnapKhata user starts with (Khata:NewUser in appsettings.json).
+// Values a new Khataebook user starts with (Khata:NewUser in appsettings.json).
 public class KhataNewUserOptions
 {
     public TimeOnly DailySummaryTime { get; set; }
