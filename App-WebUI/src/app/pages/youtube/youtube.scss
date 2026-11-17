@@ -18,6 +18,7 @@ h1 {
   font-weight: 600;
   text-align: center;
 }
+
 .lead {
   text-align: center;
   color: var(--muted);
@@ -30,6 +31,7 @@ h1 {
   gap: 20px;
   align-items: center;
 }
+
 .art {
   display: grid;
   place-items: center;
@@ -38,11 +40,13 @@ h1 {
   overflow: hidden;
   color: var(--inset-muted);
 }
+
 .art img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .label {
   font-size: 12px;
   font-weight: 800;
@@ -50,15 +54,18 @@ h1 {
   text-transform: uppercase;
   color: var(--accent-ink);
 }
+
 .title {
   margin: 4px 0 2px;
   font-size: clamp(1.15rem, 3.4vw, 1.6rem);
   overflow-wrap: anywhere;
 }
+
 .artist {
   margin: 0;
   color: var(--muted);
 }
+
 .err {
   margin: 12px 0 0;
   color: var(--danger);
@@ -74,6 +81,7 @@ input[type='range'] {
   background: transparent;
   cursor: pointer;
 }
+
 input[type='range']::-webkit-slider-runnable-track {
   height: 10px;
   border-radius: 999px;
@@ -81,6 +89,7 @@ input[type='range']::-webkit-slider-runnable-track {
   box-shadow: var(--inset-shadow);
   border: var(--inset-border);
 }
+
 input[type='range']::-moz-range-track {
   height: 10px;
   border-radius: 999px;
@@ -88,6 +97,7 @@ input[type='range']::-moz-range-track {
   box-shadow: var(--inset-shadow);
   border: var(--inset-border);
 }
+
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 24px;
@@ -98,6 +108,7 @@ input[type='range']::-webkit-slider-thumb {
   border: var(--pri-border);
   box-shadow: var(--pri-shadow);
 }
+
 input[type='range']::-moz-range-thumb {
   width: 22px;
   height: 22px;
@@ -114,6 +125,7 @@ input[type='range']::-moz-range-thumb {
   gap: 12px;
   margin-block: 22px 8px;
 }
+
 .t {
   font: 700 14px var(--font-mono);
   color: var(--muted);
@@ -127,15 +139,18 @@ input[type='range']::-moz-range-thumb {
   gap: clamp(8px, 2.5vw, 18px);
   margin-block: 12px;
 }
+
 .btn.big {
   width: 68px;
   height: 68px;
   border-radius: 50%;
   padding: 0;
 }
+
 .rep {
   position: relative;
 }
+
 .one {
   position: absolute;
   inset-block-end: 4px;
@@ -155,10 +170,12 @@ input[type='range']::-moz-range-thumb {
   padding: 24px;
   text-align: center;
 }
+
 .empty-h {
   font-weight: 800;
   font-size: 1.15rem;
 }
+
 .empty p:last-child {
   margin: 0;
   color: var(--inset-muted);
@@ -169,6 +186,7 @@ input[type='range']::-moz-range-thumb {
   font-family: var(--font-display);
   font-size: 1.4rem;
 }
+
 .list ol,
 .list ul {
   list-style: none;
@@ -177,6 +195,7 @@ input[type='range']::-moz-range-thumb {
   display: grid;
   gap: 10px;
 }
+
 .row {
   display: flex;
   align-items: center;
@@ -194,35 +213,43 @@ input[type='range']::-moz-range-thumb {
   cursor: pointer;
   text-shadow: var(--card-text-shadow);
 }
+
 .row:hover {
   box-shadow: var(--btn-hover-shadow);
 }
+
 .row.on {
   box-shadow: var(--btn-active-shadow);
 }
+
 .n {
   flex: none;
   min-width: 2ch;
   font: 800 14px var(--font-mono);
   opacity: 0.75;
 }
+
 .tt {
   display: grid;
   min-width: 0;
   flex: 1;
 }
+
 .tt b {
   overflow-wrap: anywhere;
 }
+
 .tt small {
   opacity: 0.8;
 }
+
 .eq {
   display: inline-flex;
   align-items: flex-end;
   gap: 3px;
   height: 18px;
 }
+
 .eq i {
   display: block;
   width: 4px;
@@ -232,12 +259,15 @@ input[type='range']::-moz-range-thumb {
   transform-origin: bottom;
   animation: eq 0.9s ease-in-out infinite;
 }
+
 .eq i:nth-child(2) {
   animation-delay: 0.2s;
 }
+
 .eq i:nth-child(3) {
   animation-delay: 0.4s;
 }
+
 @keyframes eq {
   0%,
   100% {
@@ -255,23 +285,28 @@ input[type='range']::-moz-range-thumb {
   gap: 10px;
   margin-bottom: 14px;
 }
+
 .list-head h2 {
   flex: 1;
   margin: 0;
 }
+
 .item {
   display: flex;
   align-items: center;
   gap: 10px;
 }
+
 .item .row {
   flex: 1;
   min-width: 0;
   width: auto;
 }
+
 .del {
   flex: none;
 }
+
 .note {
   margin: 20px 0 0;
   font-size: 13px;
@@ -284,6 +319,7 @@ input[type='range']::-moz-range-thumb {
   gap: 10px;
   flex-wrap: wrap;
 }
+
 .find input {
   flex: 1 1 220px;
   min-height: 48px;
@@ -292,9 +328,11 @@ input[type='range']::-moz-range-thumb {
   color: inherit;
   font: 500 16px var(--font-body);
 }
+
 .find .btn {
   min-height: 48px;
 }
+
 /* Space between the search box and whatever panel follows it (empty state, key box, player). */
 .player > .find {
   margin-bottom: 24px;
@@ -311,9 +349,11 @@ input[type='range']::-moz-range-thumb {
   background: #000;
   box-shadow: var(--inset-shadow);
 }
+
 .video.on {
   display: block;
 }
+
 /* Video off: stays in the page so audio keeps playing, but takes no space. */
 .video.off {
   position: absolute;
@@ -323,6 +363,7 @@ input[type='range']::-moz-range-thumb {
   clip-path: inset(50%);
   pointer-events: none;
 }
+
 .tip {
   display: flex;
   flex-wrap: wrap;
@@ -332,13 +373,16 @@ input[type='range']::-moz-range-thumb {
   padding: 12px 14px;
   font-size: 14px;
 }
+
 .tip span {
   flex: 1 1 220px;
 }
+
 .pl-save,
 .pl-new {
   margin-top: 14px;
 }
+
 .pl-target {
   display: flex;
   flex-wrap: wrap;
@@ -347,6 +391,7 @@ input[type='range']::-moz-range-thumb {
   margin: 14px 0;
   font-weight: 700;
 }
+
 .pl summary {
   display: flex;
   align-items: center;
@@ -360,16 +405,20 @@ input[type='range']::-moz-range-thumb {
   box-shadow: var(--btn-shadow);
   cursor: pointer;
 }
+
 .pl summary b {
   flex: 1;
   overflow-wrap: anywhere;
 }
+
 .pl-edit {
   margin: 12px 0;
 }
+
 .pl ol {
   margin: 0 0 8px;
 }
+
 .vopts {
   display: flex;
   flex-wrap: wrap;
@@ -378,12 +427,14 @@ input[type='range']::-moz-range-thumb {
   gap: 8px;
   margin: 16px auto 0;
 }
+
 .vopts .btn {
   min-height: 44px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
+
 .video:fullscreen {
   position: relative;
   width: 100%;
@@ -391,6 +442,7 @@ input[type='range']::-moz-range-thumb {
   aspect-ratio: auto;
   border-radius: 0;
 }
+
 /* Pause and exit over the video in full screen (the YouTube player shows no controls of its own). */
 .fs-bar {
   position: absolute;
@@ -399,6 +451,7 @@ input[type='range']::-moz-range-thumb {
   display: flex;
   gap: 10px;
 }
+
 .fs-bar .btn {
   min-width: 48px;
   min-height: 48px;
@@ -406,6 +459,7 @@ input[type='range']::-moz-range-thumb {
   background: rgb(0 0 0 / 55%);
   border-color: rgb(255 255 255 / 35%);
 }
+
 .host,
 .host :is(iframe, div) {
   width: 100%;
