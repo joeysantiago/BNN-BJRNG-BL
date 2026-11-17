@@ -2,7 +2,7 @@ using Thakurg.Contracts.Tracker;
 
 namespace Thakurg.API.Extensions;
 
-// Who calls a SnapTracker endpoint. The TrackerUsers id is put in HttpContext.Items by TrackerProfileFilter; the account comes from the token of the common login.
+// Who calls a Tracker endpoint. The TrackerUsers id is put in HttpContext.Items by TrackerProfileFilter; the account comes from the token of the common login.
 public static class TrackerHttpExtensions
 {
     public const string ItemKey = "TrackerUserId";

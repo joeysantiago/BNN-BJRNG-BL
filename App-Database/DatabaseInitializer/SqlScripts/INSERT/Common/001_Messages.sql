@@ -1113,9 +1113,9 @@ BEGIN
             "ar": "تم إلغاء الوصول إلى الرسائل. لن تتم قراءة أي شيء بعد الآن."
         }'),
         ('TRACKER_SETTINGS_SAVED', N'{
-            "en": "SnapTracker settings saved.",
-            "hi": "SnapTracker सेटिंग्स सहेजी गईं।",
-            "ar": "تم حفظ إعدادات SnapTracker."
+            "en": "Tracker settings saved.",
+            "hi": "Tracker सेटिंग्स सहेजी गईं।",
+            "ar": "تم حفظ إعدادات Tracker."
         }'),
         ('TRACKER_ALERTS_READ', N'{
             "en": "All alerts marked as read.",
@@ -1128,9 +1128,9 @@ BEGIN
             "ar": "تم حذف نصوص الرسائل الأصلية. تبقى معاملاتك."
         }'),
         ('TRACKER_DATA_DELETED', N'{
-            "en": "All your SnapTracker data was deleted.",
-            "hi": "आपका सारा SnapTracker डेटा हटा दिया गया।",
-            "ar": "تم حذف كل بياناتك في SnapTracker."
+            "en": "All your Tracker data was deleted.",
+            "hi": "आपका सारा Tracker डेटा हटा दिया गया।",
+            "ar": "تم حذف كل بياناتك في Tracker."
         }')
 END
 GO

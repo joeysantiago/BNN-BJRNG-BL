@@ -1,4 +1,4 @@
-/* SnapTracker prototype styles (light / dark tokens follow the shared mode). */
+/* Tracker prototype styles (light / dark tokens follow the shared mode). */
 :root{
   --bg:#f5f6fb;--bg-2:#eceffa;--surface:#ffffff;--surface-2:#f7f8fc;--line:#e3e6ef;--line-2:#d3d8e6;
   --text:#0e1222;--muted:#59607a;--faint:#7c839c;

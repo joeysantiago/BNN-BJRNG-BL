@@ -5,8 +5,8 @@ import { Component, computed, effect, inject, input, output, signal } from '@ang
 
 /**
  * "My details": the names banks write for the user ("Kunal Kumar") and their mobile numbers, so money between their own accounts is a self transfer and
- * not spending or income (PUT /tracker/details; every transaction is worked out again). Shown once when SnapTracker opens (the shell) and kept in the
- * Profile page's SnapTracker part. The name starts as the account's name; several names or mobiles are separated by commas.
+ * not spending or income (PUT /tracker/details; every transaction is worked out again). Shown once when Tracker opens (the shell) and kept in the
+ * Profile page's Tracker part. The name starts as the account's name; several names or mobiles are separated by commas.
  */
 @Component({
   selector: 'app-tracker-details',

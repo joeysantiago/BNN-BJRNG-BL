@@ -1,7 +1,7 @@
 import { TrackerAlertType, TrackerCategory, TrackerFilter, TrackerMethod } from './models/tracker.model';
 
 /**
- * SnapTracker's fixed lists, the same as the prototype (App-Prototype/assets/js/snaptracker.js). In the API branches they are the seed rows of
+ * Tracker's fixed lists, the same as the prototype (App-Prototype/assets/js/snaptracker.js). In the API branches they are the seed rows of
  * INSERT/Tracker (TrackerCategories, TrackerSenders); names show through translation keys (tracker.cat.<code>, tracker.method.<code>).
  */
 export const TRACKER_CATEGORIES: readonly TrackerCategory[] = [
@@ -24,7 +24,7 @@ export const TRACKER_CATEGORIES: readonly TrackerCategory[] = [
   { code: 'other', emoji: '🧾', color: '#9ca3af' },
 ];
 
-/** Registered SMS headers (DLT) of banks and payment apps that SnapTracker reads. Everything else is ignored. */
+/** Registered SMS headers (DLT) of banks and payment apps that Tracker reads. Everything else is ignored. */
 export const TRACKER_SENDERS: Readonly<Record<string, string>> = {
   HDFCBK: 'HDFC Bank', HDFCBN: 'HDFC Bank', ICICIB: 'ICICI Bank', ICICIT: 'ICICI Bank', SBIINB: 'State Bank of India', SBIUPI: 'SBI UPI', CBSSBI: 'State Bank of India', ATMSBI: 'State Bank of India',
   AXISBK: 'Axis Bank', KOTAKB: 'Kotak Mahindra Bank', YESBNK: 'Yes Bank', IDFCFB: 'IDFC First Bank', INDUSB: 'IndusInd Bank', PNBSMS: 'Punjab National Bank',

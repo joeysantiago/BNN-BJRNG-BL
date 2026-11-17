@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Configurations;
 
-// The settings a new SnapTracker profile starts with (Tracker:NewUser).
+// The settings a new Tracker profile starts with (Tracker:NewUser).
 public class TrackerNewUserOptions
 {
     public bool PushEnabled { get; set; }

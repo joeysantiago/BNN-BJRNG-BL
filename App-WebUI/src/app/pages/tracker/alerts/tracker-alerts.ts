@@ -6,7 +6,7 @@ import { TrackerAlert } from '../../../core/models/tracker.model';
 import { TrackerStateService } from '../../../core/tracker-state.service';
 import { Component, ViewEncapsulation, computed, inject } from '@angular/core';
 
-/** Alerts (/tracker/app/alerts, the bell): what SnapTracker told you, newest first. Which alerts you get is set in Settings > General > SnapTracker. */
+/** Alerts (/tracker/app/alerts, the bell): what Tracker told you, newest first. Which alerts you get is set in Settings > General > Tracker. */
 @Component({
   selector: 'app-tracker-alerts',
   imports: [RouterLink, TrackerIcon],

@@ -4,7 +4,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Application.Services;
 
-// What each SnapTracker transaction counts towards (TrackerFlows): worked out again for all of a user's SMS transactions after every change, with the
+// What each Tracker transaction counts towards (TrackerFlows): worked out again for all of a user's SMS transactions after every change, with the
 // pairs (self transfers, a card bill and the card's "payment received"), cards, loans and the user's own rules; plus "Mark as…", the user's own names and
 // mobiles, and the names of their accounts, cards and loans.
 public interface ITrackerFlowService

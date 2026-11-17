@@ -3,7 +3,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Persistence;
 
-// The tables of SnapTracker (SqlScripts/CREATE/Tracker). A transaction owns its original SMS text (TransactionId).
+// The tables of Tracker (SqlScripts/CREATE/Tracker). A transaction owns its original SMS text (TransactionId).
 public partial class CommonDbContext
 {
     public DbSet<TrackerUser> TrackerUsers => Set<TrackerUser>();

@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { TrackerForm } from '../tracker-form/tracker-form';
 import { TrackerIcon } from '../tracker-icon/tracker-icon';
 import { I18nService } from '../../../../core/i18n.service';
+import { WakeService } from '../../../../core/wake.service';
 import { trackerCategory } from '../../../../core/tracker-meta';
 import { TrackerStateService } from '../../../../core/tracker-state.service';
 import { TRACKER_IMPORT_BATCH, readSmsBackup } from '../../../../core/tracker-backup';
@@ -10,7 +11,7 @@ import { TrackerImportResult, TrackerSmsResult, TrackerStep, TrackerTxnRequest }
 /**
  * The Add sheet (the + button): paste a bank or UPI SMS, type a transaction in, or import an SMS backup. A pasted SMS goes through the same reader as the Android app will
  * (POST /tracker/sms), and the sheet shows what happened at each step, so it is clear why a message was saved, caught as a duplicate or ignored.
- * Until the Android app exists, pasting (and, on Android, sharing an SMS to the installed app) is how SMS reach SnapTracker.
+ * Until the Android app exists, pasting (and, on Android, sharing an SMS to the installed app) is how SMS reach Tracker.
  * An import reads an SMS Backup & Restore file on the device and sends only its bank and UPI messages, in batches, each with the date it came.
  */
 @Component({
@@ -25,6 +26,7 @@ export class TrackerAdd {
   protected readonly body = signal('');
   protected readonly note = signal('');
   protected readonly sender = signal('');
+  private readonly wake = inject(WakeService);
   protected readonly i18n = inject(I18nService);
   protected readonly state = inject(TrackerStateService);
   protected readonly result = signal<TrackerSmsResult | null>(null);
@@ -102,6 +104,8 @@ export class TrackerAdd {
     this.found.set(null);
     this.imported.set(null);
     this.state.busy.set(true);
+    // Wake a sleeping API and database while the file is read.
+    void this.wake.wake();
     try {
       const backup = readSmsBackup(await file.text());
       if (!backup) {

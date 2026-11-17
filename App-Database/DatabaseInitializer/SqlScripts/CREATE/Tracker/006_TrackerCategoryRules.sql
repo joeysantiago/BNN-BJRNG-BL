@@ -1,4 +1,4 @@
--- What the user taught SnapTracker: every later transaction of this merchant (MerchantKey, lower case) goes to this category (CategoryCode) and/or counts
+-- What the user taught Tracker: every later transaction of this merchant (MerchantKey, lower case) goes to this category (CategoryCode) and/or counts
 -- towards this flow (FlowCode, for example a family member's transfers as money borrowed).
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'TrackerCategoryRules')
 BEGIN

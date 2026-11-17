@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Tracker;
 
-// The SnapTracker settings of a user (Settings > General > SnapTracker). Alerts maps each alert type to on or off.
+// The Tracker settings of a user (Settings > General > Tracker). Alerts maps each alert type to on or off.
 public class TrackerSettingsDto
 {
     public bool Push { get; set; }

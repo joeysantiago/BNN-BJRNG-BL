@@ -5,8 +5,8 @@ import { appGuard } from '../../core/auth.guards';
 const toSettings = () => inject(Router).createUrlTree(['/master'], { queryParams: { tab: 'general', app: 'tracker' } });
 
 /**
- * SnapTracker: the public page /tracker (prerendered, in the sitemap) and the app /tracker/app, open to users with access to the app (administrators open every app).
- * SnapTracker has no settings or profile page of its own: Settings > General (its section) and /profile are shared by every app; the prototype's addresses lead there.
+ * Tracker: the public page /tracker (prerendered, in the sitemap) and the app /tracker/app, open to users with access to the app (administrators open every app).
+ * Tracker has no settings or profile page of its own: Settings > General (its section) and /profile are shared by every app; the prototype's addresses lead there.
  */
 export const TRACKER_ROUTES: Routes = [
   { path: 'tracker', loadComponent: () => import('./landing/tracker-landing').then((m) => m.TrackerLanding) },

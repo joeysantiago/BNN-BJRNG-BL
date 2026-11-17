@@ -2,7 +2,7 @@ using Thakurg.Domain.Common;
 
 namespace Thakurg.Domain.Entities;
 
-// A SnapTracker transaction (TrackerTransactions). AmountMinor is in paise; SmsText is the original SMS, deleted separately on request. FlowCode is what it
+// A Tracker transaction (TrackerTransactions). AmountMinor is in paise; SmsText is the original SMS, deleted separately on request. FlowCode is what it
 // counts towards (TrackerFlows); FlowEdited when the user chose it. PairId links the two sides of one movement (a self transfer, a card bill and the card's
 // "payment received"). AccountId is the bank account or card, LoanId the loan of an EMI (both TrackerAccounts).
 public class TrackerTransaction : BaseEntity

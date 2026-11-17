@@ -6,8 +6,8 @@ import { TrackerStateService } from '../../../core/tracker-state.service';
 import { Component, afterNextRender, computed, inject, signal } from '@angular/core';
 
 /**
- * SnapTracker's part of the Profile page (FEATURE_PROFILE): "My details" (the names and mobiles that make a transfer between your own accounts a self transfer)
- * and your data in SnapTracker. Download it all (JSON), delete the original SMS texts but keep the transactions, or delete everything SnapTracker keeps for you. Each delete asks again before it runs. The account, its login and the other apps stay.
+ * Tracker's part of the Profile page (FEATURE_PROFILE): "My details" (the names and mobiles that make a transfer between your own accounts a self transfer)
+ * and your data in Tracker. Download it all (JSON), delete the original SMS texts but keep the transactions, or delete everything Tracker keeps for you. Each delete asks again before it runs. The account, its login and the other apps stay.
  */
 @Component({
   selector: 'app-tracker-profile-panel',
@@ -32,7 +32,7 @@ export class TrackerProfilePanel {
 
   // #region Public Methods
 
-  /** Saves everything SnapTracker keeps for this account as a JSON file. */
+  /** Saves everything Tracker keeps for this account as a JSON file. */
   async download(): Promise<void> {
     await this.work(async () => {
       const data = await this.api.exportData();

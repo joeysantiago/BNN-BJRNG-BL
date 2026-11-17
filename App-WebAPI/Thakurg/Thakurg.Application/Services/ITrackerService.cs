@@ -3,7 +3,7 @@ using Thakurg.Contracts.Wrappers;
 
 namespace Thakurg.Application.Services;
 
-// SnapTracker's state of a user (everything the app shows), its settings, SMS reading on the phone, the alerts and the user's data (export, delete).
+// Tracker's state of a user (everything the app shows), its settings, SMS reading on the phone, the alerts and the user's data (export, delete).
 public interface ITrackerService
 {
     Task<TrackerDataDto> GetStateAsync(TrackerCallerDto caller, CancellationToken cancellationToken);

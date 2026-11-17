@@ -2,7 +2,7 @@ using DatabaseInitializer.SqlScripts;
 
 namespace DatabaseInitializer.Seeding;
 
-// SnapTracker: the tables in SqlScripts/CREATE/Tracker (its Apps, PageNames, Features, Messages and Translations rows stay in Common's INSERT files).
+// Tracker: the tables in SqlScripts/CREATE/Tracker (its Apps, PageNames, Features, Messages and Translations rows stay in Common's INSERT files).
 public sealed class TrackerDatabaseSeeder : IDatabaseSeeder
 {
     public string Database => "Tracker";

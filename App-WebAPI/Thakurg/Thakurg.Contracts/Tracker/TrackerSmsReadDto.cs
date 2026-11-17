@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Tracker;
 
-// The answer of POST api/tracker/sms: what happened to the message, and the SnapTracker data after it.
+// The answer of POST api/tracker/sms: what happened to the message, and the Tracker data after it.
 public class TrackerSmsReadDto
 {
     public TrackerDataDto State { get; set; } = new();

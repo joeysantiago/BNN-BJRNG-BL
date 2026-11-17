@@ -43,7 +43,7 @@ public class TrackerRepository : ITrackerRepository
         return _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    // Removes everything of one user in SnapTracker for good (transactions, SMS texts, accounts, alerts, rules, the profile) in one transaction. The access to the app
+    // Removes everything of one user in Tracker for good (transactions, SMS texts, accounts, alerts, rules, the profile) in one transaction. The access to the app
     // stays; the next call makes a new profile with the starting settings.
     public async Task DeleteAllAsync(int userId, CancellationToken cancellationToken)
     {
@@ -153,9 +153,13 @@ public class TrackerRepository : ITrackerRepository
 
     public Task<List<TrackerTransaction>> GetDuplicateCandidatesAsync(int userId, string? reference, string bodyHash, long amountMinor, DateTime from, DateTime to, CancellationToken cancellationToken)
     {
+        // Three narrow lookups, each on its own index (same text, same reference, same amount in the time window), instead of one OR that scans the table for every message.
+        var ids = _dbContext.TrackerSmsTexts.Where(s => s.BodyHash == bodyHash).Select(s => s.TransactionId)
+            .Union(_dbContext.TrackerTransactions.Where(t => t.TrackerUserId == userId && t.OccurredOn >= from && t.OccurredOn <= to && t.AmountMinor == amountMinor).Select(t => t.Id))
+            .Union(_dbContext.TrackerTransactions.Where(t => reference != null && t.TrackerUserId == userId && t.Reference == reference).Select(t => t.Id));
+
         return _dbContext.TrackerTransactions.WhereActive().Include(t => t.SmsText)
-            .Where(t => t.TrackerUserId == userId && t.Status != TrackerStatuses.Duplicate)
-            .Where(t => (reference != null && t.Reference == reference) || (t.SmsText != null && t.SmsText.BodyHash == bodyHash) || (t.AmountMinor == amountMinor && t.OccurredOn >= from && t.OccurredOn <= to))
+            .Where(t => t.TrackerUserId == userId && t.Status != TrackerStatuses.Duplicate && ids.Contains(t.Id))
             .OrderBy(t => t.Id).ToListAsync(cancellationToken);
     }
 

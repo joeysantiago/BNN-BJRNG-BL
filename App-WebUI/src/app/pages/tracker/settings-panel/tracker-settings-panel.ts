@@ -9,9 +9,9 @@ import { Component, afterNextRender, computed, inject, signal } from '@angular/c
 import { TrackerAlertType, TrackerNotice, TrackerSettings } from '../../../core/models/tracker.model';
 
 /**
- * SnapTracker's part of Settings > General (FEATURE_SETTINGS), for a user who may open SnapTracker: what happens to a new SMS transaction (review
+ * Tracker's part of Settings > General (FEATURE_SETTINGS), for a user who may open Tracker: what happens to a new SMS transaction (review
  * everything, smart, approve all, and how sure "smart" must be) and which alerts arrive. Each change saves at once (PUT /tracker/settings).
- * The link to SnapKhata (post confirmed transactions to a Khata book) comes in phase 3 of the plan.
+ * The link to Khataebook (post confirmed transactions to a Khata book) comes in phase 3 of the plan.
  */
 @Component({
   selector: 'app-tracker-settings-panel',

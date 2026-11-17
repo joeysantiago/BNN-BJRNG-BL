@@ -1,13 +1,15 @@
 import { ApiService } from './api.service';
 import { I18nService } from './i18n.service';
 import { Injectable, inject } from '@angular/core';
+import { environment } from '../../environments/environment';
 import { TrackerData, TrackerFlow, TrackerImportResult, TrackerImportSms, TrackerOwner, TrackerSettings, TrackerSmsResult, TrackerTxnRequest } from './models/tracker.model';
 
-const TIMEOUT = 30000;
+/** A sleeping API and database take about a minute to wake, and an import batch writes many rows, so Tracker waits as long as the wake call. */
+const TIMEOUT = environment.timings.apiWakeMs;
 
 /**
- * SnapTracker's endpoints (api/tracker/...). Every call carries the login (ApiService) and the language, so the server's messages come translated.
- * A change answers with the server's message and the whole SnapTracker data, so the screens show it at once.
+ * Tracker's endpoints (api/tracker/...). Every call carries the login (ApiService) and the language, so the server's messages come translated.
+ * A change answers with the server's message and the whole Tracker data, so the screens show it at once.
  */
 @Injectable({ providedIn: 'root' })
 

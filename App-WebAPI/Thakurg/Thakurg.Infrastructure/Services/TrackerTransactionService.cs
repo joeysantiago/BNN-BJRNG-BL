@@ -16,7 +16,7 @@ using Thakurg.Infrastructure.Common;
 
 namespace Thakurg.Infrastructure.Services;
 
-// SnapTracker's transactions. A pasted or shared SMS goes through the same steps as the Android app will send it: sender list, OTP and promotion filters
+// Tracker's transactions. A pasted or shared SMS goes through the same steps as the Android app will send it: sender list, OTP and promotion filters
 // (the "phone" steps), then failed payments, parsing, category, duplicate check (same text, same reference, or the same amount, direction and merchant
 // within Tracker:Limits:DuplicateMinutes) and approval by the user's mode. The answer lists every step, so the app can show why a message was kept or not.
 // An SMS backup comes in batches: each message keeps the date it was received, one imported before is only counted, and an import makes no alerts.

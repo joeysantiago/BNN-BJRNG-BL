@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Configurations;
 
-// The limits of SnapTracker (Tracker:Limits): field lengths, the duplicate window, the alerts kept and the auto-approve range. PairHours: how far apart
+// The limits of Tracker (Tracker:Limits): field lengths, the duplicate window, the alerts kept and the auto-approve range. PairHours: how far apart
 // the two sides of a self transfer may be; CardBillDays: a card bill paid and the card's "payment received"; EmiTolerancePercent: how close a debit must be
 // to a loan's EMI; UnnamedSelfMinor: a credit naming nobody from this amount (paise) up is the user's own money; OwnEntries and OwnNameLength: the names
 // and mobiles the user may give.

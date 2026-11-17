@@ -5,7 +5,7 @@ import { TrackerStateService } from '../../../../core/tracker-state.service';
 import { Component, ViewEncapsulation, computed, inject } from '@angular/core';
 
 /**
- * The period of SnapTracker's numbers (TrackerStateService.period), at the top of the dashboard and the Cards page: Month | Year, and the period with back and
+ * The period of Tracker's numbers (TrackerStateService.period), at the top of the dashboard and the Cards page: Month | Year, and the period with back and
  * next (nothing after the current month or year). Choosing Month in the current year goes to the current month.
  */
 @Component({

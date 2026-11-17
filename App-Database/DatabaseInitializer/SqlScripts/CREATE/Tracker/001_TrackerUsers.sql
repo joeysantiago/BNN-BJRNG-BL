@@ -1,4 +1,4 @@
--- The SnapTracker profile of a common account: what happens to a new SMS transaction, which alerts it gets, SMS reading on the phone, and how many
+-- The Tracker profile of a common account: what happens to a new SMS transaction, which alerts it gets, SMS reading on the phone, and how many
 -- messages were ignored before anything was read (OTPs, promotions, failed payments, others). Starting values come from Tracker:NewUser (appsettings.json).
 -- AlertTypes lists the alert types that are on, separated by commas (newTx,categorized,verify,duplicate,revoked,paused,sync). OwnNames and OwnMobiles
 -- (comma-separated) are how the user appears in an SMS ("Kunal Kumar", "9540000677"): money to or from them is a self transfer. FilteredNotice counts

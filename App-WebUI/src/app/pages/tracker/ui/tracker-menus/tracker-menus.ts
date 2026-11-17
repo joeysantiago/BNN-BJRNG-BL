@@ -2,7 +2,7 @@ import { SiteTools } from '../../../../shared/site-tools';
 import { Component, ViewEncapsulation } from '@angular/core';
 
 /**
- * The Install, Theme and Language buttons of the SnapTracker top bar: the site's own SiteTools, so they look and work the same as in SnapKhata, My Tasks
+ * The Install, Theme and Language buttons of the Tracker top bar: the site's own SiteTools, so they look and work the same as in Khataebook, Tasks
  * and on the speed test page. Its styles also carry the five skins of the app and the dropdown look, global under .st.
  */
 @Component({

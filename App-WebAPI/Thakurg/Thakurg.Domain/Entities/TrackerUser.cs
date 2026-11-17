@@ -2,7 +2,7 @@ using Thakurg.Domain.Common;
 
 namespace Thakurg.Domain.Entities;
 
-// The SnapTracker profile of one common account (Users): approval, alerts, SMS reading on the phone, the counts of ignored messages, and who the user is
+// The Tracker profile of one common account (Users): approval, alerts, SMS reading on the phone, the counts of ignored messages, and who the user is
 // in an SMS (OwnNames, OwnMobiles: comma-separated) so money between the user's own accounts is a self transfer.
 public class TrackerUser : BaseEntity
 {

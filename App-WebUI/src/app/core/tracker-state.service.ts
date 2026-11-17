@@ -11,7 +11,7 @@ const SPENDING: readonly TrackerFlow[] = ['spend', 'cardSpend', 'emi'];
 const REFUNDS: readonly TrackerFlow[] = ['refund', 'cardRefund'];
 
 /**
- * What SnapTracker shows: the data of GET /tracker/state, the open filter, search, transaction and Add sheet, the toasts, and every number the
+ * What Tracker shows: the data of GET /tracker/state, the open filter, search, transaction and Add sheet, the toasts, and every number the
  * dashboard draws (worked out here from the transactions, as the prototype did). Every list is a computed signal, so a change shows everywhere at once.
  * The numbers are of the chosen period (a month or a year, the current month at first) and follow each transaction's flow: spending is what was
  * bought (bank and card spends and EMIs, less refunds); money out of the bank adds the card bills paid; self transfers and the card's payments count nowhere.

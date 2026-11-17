@@ -1,4 +1,4 @@
--- The bank accounts, credit cards and loans of a SnapTracker user, found in the SMS. AccountType is bank, card or loan; Last4 the last digits the bank shows;
+-- The bank accounts, credit cards and loans of a Tracker user, found in the SMS. AccountType is bank, card or loan; Last4 the last digits the bank shows;
 -- Provider the bank's name. A card keeps its latest statement (StatementTotalMinor in paise, StatementDueOn); a loan its EMI (EmiMinor in paise), by which
 -- EMI debits are linked to it. Label is the user's own name for it. Transactions point here (AccountId, LoanId), so this table comes before them.
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'TrackerAccounts')

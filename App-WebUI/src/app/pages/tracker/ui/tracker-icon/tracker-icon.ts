@@ -2,7 +2,7 @@ import { Component, computed, input } from '@angular/core';
 import { TrackerIconName } from '../../../../core/models/tracker.model';
 import { TRACKER_FLIP_ICONS, TRACKER_ICONS } from '../../../../core/tracker-icons';
 
-/** A SnapTracker line icon, placed on an <svg>: `<svg stIco="plus" [size]="18"></svg>`, drawn like SnapKhata's. Decorative: the text next to it names the action. */
+/** A Tracker line icon, placed on an <svg>: `<svg stIco="plus" [size]="18"></svg>`, drawn like Khataebook's. Decorative: the text next to it names the action. */
 @Component({
   selector: 'svg[stIco]',
   templateUrl: './tracker-icon.html',

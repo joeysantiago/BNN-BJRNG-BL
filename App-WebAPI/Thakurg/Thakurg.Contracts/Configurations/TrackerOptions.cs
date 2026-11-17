@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Configurations;
 
-// SnapTracker (Tracker in appsettings.json): the starting settings of a new user, the limits, the categories, the SMS senders it reads and the merchant
+// Tracker (Tracker in appsettings.json): the starting settings of a new user, the limits, the categories, the SMS senders it reads and the merchant
 // dictionary of the reader. A missing section fails at startup.
 public class TrackerOptions
 {

@@ -12,7 +12,7 @@ using Thakurg.Infrastructure.Services;
 
 namespace Thakurg.Infrastructure;
 
-// SnapTracker. Its settings (Tracker in appsettings.json) must all be there and valid, or the API does not start.
+// Tracker. Its settings (Tracker in appsettings.json) must all be there and valid, or the API does not start.
 public static partial class DependencyInjection
 {
     #region Private Methods
