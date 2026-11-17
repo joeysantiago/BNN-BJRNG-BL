@@ -6,7 +6,7 @@ export const environment = {
     authCallMs: 120000,
     tabHelloMs: 300,
     renewBeforeMs: 60000,
-    i18nLoadMs: 5000,
+    apiWakeMs: 120000,
     settingsLoadMs: 5000,
     settingsSaveMs: 15000,
     musicLoadMs: 120000,

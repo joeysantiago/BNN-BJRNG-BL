@@ -12,7 +12,7 @@ const INSTALLABLE: readonly string[] = ['khata', 'creta', 'nexon', 'youtube'];
 const MANIFEST_MS = 8000;
 
 /**
- * Makes every app (Speed test, Creta, Nexon, YouTube, SnapKhata) installable as its own app on a phone or computer. Routes live in the hash, so
+ * Makes every app (Speed test, Creta, Nexon, YouTube, Khataebook) installable as its own app on a phone or computer. Routes live in the hash, so
  * every screen shares the path "/"; an installed app therefore runs at its own path /apps/<code>/ (the scope and start address of its manifest, a
  * copy of the app shell written by scripts/postbuild.mjs). Different scopes and manifest ids keep each install apart, and one never replaces another.
  * - In an app's own window (/apps/<code>/) the page keeps that app's manifest whatever screen is open.

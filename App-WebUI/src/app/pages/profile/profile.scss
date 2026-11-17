@@ -3,20 +3,24 @@
   gap: 20px;
   padding-block: 20px 0;
 }
+
 h1 {
   font-family: var(--font-display);
   font-size: clamp(1.7rem, 5vw, 2.4rem);
   font-weight: 600;
 }
+
 h2 {
   margin: 0 0 14px;
   font-size: 1.1rem;
 }
+
 .lead,
 .note,
 .hint {
   color: var(--muted);
 }
+
 .lead {
   direction: ltr;
   unicode-bidi: plaintext;
@@ -29,6 +33,7 @@ h2 {
   gap: 20px;
   align-items: start;
 }
+
 @media (min-width: 760px) {
   .layout {
     grid-template-columns: minmax(240px, 300px) 1fr;
@@ -37,6 +42,7 @@ h2 {
     grid-column: 2;
   }
 }
+
 @media (min-width: 1100px) {
   .layout {
     grid-template-columns: minmax(260px, 300px) 1fr 1fr;
@@ -45,6 +51,7 @@ h2 {
     grid-column: auto;
   }
 }
+
 .col {
   display: grid;
   gap: 20px;
@@ -58,12 +65,14 @@ h2 {
   gap: 6px;
   text-align: center;
 }
+
 .photo {
   display: grid;
   justify-items: center;
   gap: 10px;
   margin-block-end: 6px;
 }
+
 .photo-acts,
 .id-acts {
   display: flex;
@@ -71,34 +80,41 @@ h2 {
   gap: 8px;
   justify-content: center;
 }
+
 .photo-acts .btn {
   min-height: 36px;
   cursor: pointer;
 }
+
 .photo-acts label.btn:focus-within {
   outline: 2px solid var(--accent, currentColor);
   outline-offset: 2px;
 }
+
 .is-busy {
   opacity: 0.6;
   pointer-events: none;
 }
+
 .btn.ghost {
   background: transparent;
   box-shadow: none;
 }
+
 .name {
   margin: 4px 0 0;
   font-family: var(--font-display);
   font-size: 1.4rem;
   overflow-wrap: anywhere;
 }
+
 .mail {
   margin: 0;
   color: var(--muted);
   direction: ltr;
   overflow-wrap: anywhere;
 }
+
 .badge {
   padding: 3px 12px;
   border-radius: 999px;
@@ -108,12 +124,14 @@ h2 {
   font-size: 13px;
   font-weight: 700;
 }
+
 .facts {
   display: grid;
   width: 100%;
   margin: 12px 0 6px;
   text-align: start;
 }
+
 .facts div {
   display: flex;
   gap: 12px;
@@ -122,12 +140,15 @@ h2 {
   border-block-end: 1px solid var(--line, rgba(128, 128, 128, 0.25));
   font-size: 14px;
 }
+
 .facts div:last-child {
   border-block-end: 0;
 }
+
 .facts dt {
   color: var(--muted);
 }
+
 .facts dd {
   margin: 0;
   font-weight: 600;
@@ -138,12 +159,14 @@ h2 {
   display: grid;
   gap: 14px;
 }
+
 .field {
   display: grid;
   gap: 6px;
   font-weight: 700;
   font-size: 14px;
 }
+
 .field input,
 .field select {
   width: 100%;
@@ -157,13 +180,16 @@ h2 {
   font: 500 16px var(--font-body);
   box-sizing: border-box;
 }
+
 .field input:disabled,
 .field select:disabled {
   opacity: 0.6;
 }
+
 .hint {
   font-weight: 500;
 }
+
 .check {
   display: inline-flex;
   gap: 10px;
@@ -171,11 +197,13 @@ h2 {
   min-height: 44px;
   cursor: pointer;
 }
+
 .check input {
   width: 20px;
   height: 20px;
   accent-color: var(--accent, currentColor);
 }
+
 /* The Save button sits at the end of the row (right, or left in Arabic), the server's answer before it. */
 .bar {
   display: flex;
@@ -185,13 +213,16 @@ h2 {
   align-items: center;
   justify-content: flex-start;
 }
+
 .status {
   margin: 0;
   font-weight: 600;
 }
+
 .status.bad {
   color: var(--danger);
 }
+
 .apps {
   display: flex;
   flex-wrap: wrap;
@@ -200,6 +231,7 @@ h2 {
   padding: 0;
   list-style: none;
 }
+
 .chip {
   display: inline-flex;
   align-items: center;
@@ -212,9 +244,11 @@ h2 {
   font-weight: 600;
   text-decoration: none;
 }
+
 a.chip:hover {
   color: var(--accent-ink, var(--text));
 }
+
 .inert {
   cursor: default;
   opacity: 0.75;
@@ -225,6 +259,7 @@ a.chip:hover {
 .layout > :not(.card):not(.col) {
   grid-column: 1 / -1;
 }
+
 .group {
   display: grid;
   gap: 10px;
@@ -233,23 +268,28 @@ a.chip:hover {
   padding: 0;
   border: 0;
 }
+
 .group legend {
   padding: 0 0 6px;
   font-weight: 700;
 }
+
 .two {
   display: grid;
   gap: 12px;
 }
+
 @media (min-width: 600px) {
   .two {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
 .btn.danger {
   border-color: var(--bad, #c0392b);
   color: var(--bad, #c0392b);
 }
+
 .btn.danger.sure {
   background: var(--bad, #c0392b);
   color: #fff;

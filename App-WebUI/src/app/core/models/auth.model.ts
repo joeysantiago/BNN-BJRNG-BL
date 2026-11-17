@@ -85,7 +85,7 @@ export interface OtpRequestResult {
   expiresInSeconds: number;
 }
 
-/** The account's mobile number, address and company, shown on the SnapKhata profile (and on its PDFs). */
+/** The account's mobile number, address and company, shown on the Khataebook profile (and on its PDFs). */
 export interface ProfileDetails {
   city: string | null;
   state: string | null;

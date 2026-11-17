@@ -20,8 +20,8 @@ Matrix ──┬── Features/App/Creta ───────┐
 | `Features/App/Creta` | Shared + Creta audio player (the music code, Creta only) | `/creta` |
 | `Features/App/Nexon` | Shared + Nexon audio player (the music code, Nexon only) | `/nexon` |
 | `Features/App/Youtube` | Shared + YouTube player | `/youtube` |
-| `Features/App/Khata` | Shared + SnapKhata (landing page and ledger app) | `/khata/app` |
-| `Features/App/snapTracker` | Shared + SnapTracker (prototype only; it has no WebUI, API or database code yet) | `/profile` |
+| `Features/App/Khata` | Shared + Khataebook (landing page and ledger app) | `/khata/app` |
+| `Features/App/snapTracker` | Shared + Tracker (prototype only; it has no WebUI, API or database code yet) | `/profile` |
 | `Features/App/speedtest` | Shared + Speed test | Speed test |
 | `banni-linux` | Everything: all features, Atrium HR (only here), the common login | Speed test |
 
@@ -90,4 +90,4 @@ into `banni-linux` touches them only if the branch changed them; then keep `bann
 
 ## Known gaps
 - **Advertisements:** no advertisement code exists in any layer, so no branch has it.
-- **SnapTracker:** only the prototype exists; its branch has no WebUI page, API or tables of its own yet (the app code `tracker` exists for access).
+- **Tracker:** only the prototype exists; its branch has no WebUI page, API or tables of its own yet (the app code `tracker` exists for access).

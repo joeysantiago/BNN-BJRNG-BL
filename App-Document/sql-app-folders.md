@@ -12,7 +12,7 @@ Rule:
   | `Music` | The Creta/Nexon audio players: `MusicPlayers`, `MusicTracks` |
   | `SnapKhata` | The `/khata` ledger: every `Khata*` table |
 - **Folder names** are PascalCase, one word per app, matching the seeder's `Database` value.
-- **Numbering restarts at `001` in every folder**, in dependency order (parents first). An INSERT file has the **same number** as the CREATE file of the table it seeds (`CREATE\SnapKhata\002_KhataCurrencies.sql` → `INSERT\SnapKhata\002_KhataCurrencies.sql`). An INSERT folder may skip numbers, because not every table has seed data.
+- **Numbering restarts at `001` in every folder**, in dependency order (parents first). An INSERT file has the **same number** as the CREATE file of the table it seeds (`CREATE\Khataebook\002_KhataCurrencies.sql` → `INSERT\Khataebook\002_KhataCurrencies.sql`). An INSERT folder may skip numbers, because not every table has seed data.
 - A table belongs to exactly **one** app folder. An app's scripts may reference `Common` tables (`Common` always runs first), but never another app's tables. Two apps that need each other's tables belong in one folder.
 - **Rows an app needs in a `Common` table** (its `Messages` codes, `Features` switches, `PageNames`, `Translations` row) are added to the **existing `Common` INSERT file** of that table, inside its `VALUES` list. One seed file per table (`sql-seed-data.md`), no extra guarded batch (`sql-fresh-database.md`). The music rows in `Features` already work this way.
 - **Every app folder has its own seeder** in `App-Database\DatabaseInitializer\Seeding\`:
@@ -33,7 +33,7 @@ Rule:
 
 Example:
 
-Wrong:  `SqlScripts\CREATE\Common\010_KhataUsers.sql`, so SnapKhata tables are mixed into the site-wide folder and numbered after `009_Translations.sql`.
-Right:  `SqlScripts\CREATE\SnapKhata\001_KhataUsers.sql`, run by `SnapKhataDatabaseSeeder` and only after "Create the SnapKhata app database objects?" is answered `y`.
+Wrong:  `SqlScripts\CREATE\Common\010_KhataUsers.sql`, so Khataebook tables are mixed into the site-wide folder and numbered after `009_Translations.sql`.
+Right:  `SqlScripts\CREATE\Khataebook\001_KhataUsers.sql`, run by `SnapKhataDatabaseSeeder` and only after "Create the Khataebook app database objects?" is answered `y`.
 
 Reference: App-Database\DatabaseInitializer\Seeding\SnapKhataDatabaseSeeder.cs, App-Database\DatabaseInitializer\Seeding\DatabaseSeedingOrchestrator.cs

@@ -1,6 +1,7 @@
 import { SeoService } from '../../core/seo.service';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
+import { WakeService } from '../../core/wake.service';
 import { ToastService } from '../../core/toast.service';
 import { ChoiceGroup } from '../../shared/choice-group';
 import { SettingsService } from '../../core/settings.service';
@@ -27,7 +28,7 @@ const safeNext = (value: string | null): string | null => (value && value.starts
 /**
  * /login and /signup: the common login of every app. The server's messages (wrong password, e-mail taken, locked, too many tries) are shown as they are.
  * After success the visitor goes back to `next` (the page that asked for the login) or to the profile.
- * For SnapKhata and SnapTracker (next=/khata…, /tracker… or ?app=) the login can also be a one-time code sent by e-mail or SMS: the same account
+ * For Khataebook and Tracker (next=/khata…, /tracker… or ?app=) the login can also be a one-time code sent by e-mail or SMS: the same account
  * and session, limited by the server to those apps.
  */
 @Component({
@@ -46,6 +47,7 @@ export class AuthPage implements OnDestroy {
   private readonly router = inject(Router);
   private readonly seo = inject(SeoService);
   private readonly auth = inject(AuthService);
+  private readonly wake = inject(WakeService);
   protected readonly destination = signal('');
   private readonly toast = inject(ToastService);
   protected readonly i18n = inject(I18nService);
@@ -80,7 +82,9 @@ export class AuthPage implements OnDestroy {
     });
 
     // Already logged in (this tab, another tab or the refresh cookie): no need to log in again.
+    // The login page wakes a sleeping API and database too, in case they went back to sleep since the site opened.
     afterNextRender(() => {
+      void this.wake.wake();
       void this.skipWhenLoggedIn();
       if (this.mode === 'login')
         void this.loadQuickLogins();
@@ -134,6 +138,7 @@ export class AuthPage implements OnDestroy {
     ev.preventDefault();
     if (this.busy())
       return;
+    void this.wake.wake();
     const data = new FormData(ev.target as HTMLFormElement);
     const text = (name: string): string => String(data.get(name) ?? '').trim();
     if (this.mode === 'login') {

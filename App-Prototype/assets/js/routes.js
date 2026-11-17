@@ -5,7 +5,7 @@
 /** Old addresses that the real site redirects. */
 const ROUTE_REDIRECTS = {
   '/hr': '/HR', '/Nexon': '/nexon', '/Creta': '/creta', '/audio': '/creta', '/config': '/master', '/speedtest': '/',
-  // The SnapKhata OTP login and PIN screens are gone: SnapKhata uses the common login.
+  // The Khataebook OTP login and PIN screens are gone: Khataebook uses the common login.
   '/khata/login': '/login', '/khata/set-pin': '/khata/app', '/khata/unlock': '/khata/app',
 };
 
@@ -19,7 +19,7 @@ const ROUTE_GROUPS = [
 /**
  * id: page id (also window.PAGE_ID of its file), file: the page in pages/, match: addresses it owns,
  * home: where the sidebar item goes (a function of the language for the speed test), links: extra sidebar links shown under the item,
- * outer/inner: for pages with their own address space (SnapTracker), how its addresses map into the dashboard's.
+ * outer/inner: for pages with their own address space (Tracker), how its addresses map into the dashboard's.
  */
 const ROUTES = [
   {
@@ -68,7 +68,7 @@ const routeById = (id) => ROUTES.find((r) => r.id === id);
 
 const routeHome = (r, lang) => (typeof r.home === 'function' ? r.home(lang) : r.home);
 
-/** The address inside the page file for a dashboard address (only SnapTracker differs). */
+/** The address inside the page file for a dashboard address (only Tracker differs). */
 const routeInner = (r, path) => (r.inner ? r.inner(path) : path);
 
 /** The page file and hash for a dashboard address; `base` is '' from inside pages/ and 'pages/' from index.html. */

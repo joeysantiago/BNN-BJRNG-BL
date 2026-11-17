@@ -242,10 +242,10 @@ window.addEventListener('blur', () => {
   }
 });
 
-// The page in the frame tells us where it is (its own links, Back, redirects such as the SnapKhata login).
+// The page in the frame tells us where it is (its own links, Back, redirects such as the Khataebook login).
 BRIDGE.on('location', (d) => {
   DASH.path = d.path;
-  DASH.title = String(d.title || '').replace(/\s·\s(thakurg\.com prototype|SnapTracker)$/, '');
+  DASH.title = String(d.title || '').replace(/\s·\s(thakurg\.com prototype|Tracker)$/, '');
   DASH.file = routeFor(d.path).file;
   document.documentElement.classList.remove('loading');
   history.replaceState(null, '', '#' + d.path);

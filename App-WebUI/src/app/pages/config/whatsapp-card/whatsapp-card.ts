@@ -5,7 +5,7 @@ import { Component, afterNextRender, inject, signal } from '@angular/core';
 
 /**
  * Settings > General > WhatsApp (super admin, password login; the API checks the same): the Meta WhatsApp Cloud API account every app sends
- * WhatsApp messages with (My Tasks reminders, SnapKhata notifications). The access token is sent only when typed; the API stores it encrypted and never returns it.
+ * WhatsApp messages with (Tasks reminders, Khataebook notifications). The access token is sent only when typed; the API stores it encrypted and never returns it.
  */
 @Component({
   selector: 'app-whatsapp-card',

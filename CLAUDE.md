@@ -137,6 +137,24 @@ interface ApiResponse<T> {
 }
 ```
 
+## 11. Readable SCSS (WebUI)
+- Every `.scss` under `App-WebUI/src` is formatted with Prettier and the project's `.prettierrc`: selector on its own line, **one declaration per line**, 2-space indent, long value lists one item per line, `[dir='rtl']` quoted.
+- One blank line between top-level rules, none inside a rule; comments stay above their rule. Never a whole rule (or two declarations) on one line.
+- Pure formatting: selectors, order, values and nesting stay as they are; the compiled CSS must not change.
+- Run `npm run format:scss` (or `npm run format:scss -- <file>`) in `App-WebUI` after editing SCSS; it refuses any file whose compiled CSS would change. `npm run format:scss -- --check` must pass before finishing.
+- Details: `App-Document/scss-readable-format.md`.
+
+```scss
+.mt .tc {
+  position: relative;
+  display: grid;
+}
+
+.mt .tc.sel {
+  outline: 2px solid var(--k-brand);
+}
+```
+
 ---
 
 ## Pre-finish checklist
@@ -148,3 +166,4 @@ interface ApiResponse<T> {
 6. SEO/indexing rules in §8 met on mobile and web (prerendered, metadata, sitemap, JSON-LD, hreflang).
 7. WebAPI C# follows §9 (usings, declaration and method order, layering, constructor limit); SQL scripts follow the table and seed rules, sit in their app's folder, use INT Ids, and have no ALTER/migration scripts before production.
 8. Build / type-check passes (`ng build` for UI, build the API and database projects).
+9. SCSS readable (§11): `npm run format:scss -- --check` passes in `App-WebUI`.

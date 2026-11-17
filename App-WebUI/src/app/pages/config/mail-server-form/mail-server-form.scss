@@ -3,6 +3,7 @@
 :host {
   display: grid;
 }
+
 .field-row input:not([type='checkbox']),
 .field-row select {
   width: min(100%, 320px);

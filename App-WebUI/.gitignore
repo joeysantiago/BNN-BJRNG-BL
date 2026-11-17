@@ -42,3 +42,6 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Texts written from the database seed scripts by scripts/build-texts.mjs before every build
+/public/i18n

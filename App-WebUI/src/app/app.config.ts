@@ -1,5 +1,6 @@
 import { routes } from './app.routes';
 import { I18nService } from './core/i18n.service';
+import { WakeService } from './core/wake.service';
 import { SettingsService } from './core/settings.service';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideClientHydration } from '@angular/platform-browser';
@@ -35,8 +36,13 @@ const locationStrategy = () => {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    // The settings and every language's texts come from the API (master tables). Wait for them so the first render, prerendered or not, already has them.
-    provideAppInitializer(() => Promise.all([inject(SettingsService).load(), inject(I18nService).load()])),
+    // The texts and page names built into the site are in place before the first render, so no page is ever empty; the API's texts and settings follow in the
+    // background. In the browser the sleeping API and database are woken at once, so they are awake when the visitor needs them.
+    provideAppInitializer(() => {
+      if (isPlatformBrowser(inject(PLATFORM_ID)))
+        void inject(WakeService).wake();
+      return Promise.all([inject(SettingsService).load(), inject(I18nService).load()]);
+    }),
     provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' })),
     { provide: LocationStrategy, useFactory: locationStrategy },
     provideTrailingSlashUrls(),

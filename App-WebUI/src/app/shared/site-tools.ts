@@ -12,8 +12,8 @@ import { Component, ElementRef, computed, inject, signal, viewChild } from '@ang
 const SPEED_PATHS = new Set(['/', '/hi', '/ar']);
 
 /**
- * The Apps, Install, Theme and Language buttons of a top bar, with their menus, as on the speed test page. The site header, the My Tasks and SnapTracker
- * top bars and both SnapKhata top bars use this one component, so the buttons look and work the same on every page of every branch. Its own class names
+ * The Apps, Install, Theme and Language buttons of a top bar, with their menus, as on the speed test page. The site header, the Tasks and Tracker
+ * top bars and both Khataebook top bars use this one component, so the buttons look and work the same on every page of every branch. Its own class names
  * keep the apps' .btn and .card styles off it. The Apps menu switches straight to another app of the account, so nobody has to go through the profile.
  */
 @Component({
@@ -35,7 +35,7 @@ export class SiteTools {
   protected readonly menu = signal<'apps' | 'lang' | 'theme' | null>(null);
   private readonly ios = viewChild.required<ElementRef<HTMLDialogElement>>('ios');
   /** The apps of the Apps menu (core/apps.ts userApps, only those routed here); none while logged out. */
-  protected readonly apps = computed(() => (!this.auth.user() ? [] : userApps(this.auth.isAdmin(), this.auth.apps(), this.router.config).filter((a) => a.path)));
+  protected readonly apps = computed(() => (!this.auth.user() ? [] : userApps(this.auth.isAdmin(), this.auth.apps(), this.router.config, (id) => this.cfg.on(id)).filter((a) => a.path)));
 
   // #region Public Methods
 
@@ -53,7 +53,7 @@ export class SiteTools {
       this.menu.set(null);
   }
 
-  /** The app whose screen is open: its path starts with the same first part as the address (/khata/app/... is SnapKhata). */
+  /** The app whose screen is open: its path starts with the same first part as the address (/khata/app/... is Khataebook). */
   isCurrent(path: string | null): boolean {
     return !!path && this.path(this.router.url).split('/')[1] === path.split('/')[1];
   }

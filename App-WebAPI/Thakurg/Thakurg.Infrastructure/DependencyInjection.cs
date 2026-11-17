@@ -67,6 +67,7 @@ public static partial class DependencyInjection
         services.AddScoped<IMailSettingRepository, MailSettingRepository>();
         services.AddScoped<IWhatsAppSettingRepository, WhatsAppSettingRepository>();
         services.AddScoped<ITranslationRepository, TranslationRepository>();
+        services.AddScoped<IHealthRepository, HealthRepository>();
 
         services.AddScoped<IOtpService, OtpService>();
         services.AddScoped<IOtpSenders, OtpSenders>();
@@ -90,6 +91,7 @@ public static partial class DependencyInjection
         services.AddScoped<IWhatsAppSettingService, WhatsAppSettingService>();
         services.AddScoped<IStorageSettingService, StorageSettingService>();
         services.AddScoped<ITranslationService, TranslationService>();
+        services.AddScoped<IHealthService, HealthService>();
         services.AddScoped<IRolePermissionService, RolePermissionService>();
 
         AddSmsSender(services, configuration);

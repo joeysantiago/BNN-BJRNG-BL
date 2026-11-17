@@ -10,6 +10,7 @@
   -webkit-backdrop-filter: var(--header-filter);
   backdrop-filter: var(--header-filter);
 }
+
 /* Links and copyright centred together on one line. */
 .foot-in {
   display: flex;
@@ -19,11 +20,13 @@
   justify-content: center;
   text-align: center;
 }
+
 .links {
   display: flex;
   flex-wrap: wrap;
   gap: 0 2px;
 }
+
 .links a {
   display: inline-flex;
   align-items: center;
@@ -32,6 +35,7 @@
   color: var(--text);
   font-weight: 600;
 }
+
 p {
   margin: 0;
   color: var(--muted);
