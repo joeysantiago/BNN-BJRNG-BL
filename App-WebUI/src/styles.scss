@@ -6,8 +6,12 @@
    ========================================================= */
 
 :root {
-  --font-body: 'Manrope Variable', 'Noto Sans Devanagari Variable', 'Noto Sans Arabic Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-display: 'Fraunces Variable', 'Noto Sans Devanagari Variable', 'Noto Sans Arabic Variable', 'Iowan Old Style', 'Palatino Linotype', serif;
+  --font-body:
+    'Manrope Variable', 'Noto Sans Devanagari Variable', 'Noto Sans Arabic Variable', 'Segoe UI',
+    system-ui, -apple-system, sans-serif;
+  --font-display:
+    'Fraunces Variable', 'Noto Sans Devanagari Variable', 'Noto Sans Arabic Variable',
+    'Iowan Old Style', 'Palatino Linotype', serif;
   --font-mono: 'Consolas', 'SF Mono', ui-monospace, monospace;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --radius-pill: 999px;
@@ -158,7 +162,8 @@
   --btn-hover-shadow:
     9px 9px 20px rgba(137, 104, 190, 0.36), -8px -8px 18px rgba(255, 255, 255, 0.95),
     inset -3px -3px 7px rgba(137, 104, 190, 0.14), inset 3px 3px 7px rgba(255, 255, 255, 0.9);
-  --btn-active-shadow: inset 5px 5px 11px rgba(137, 104, 190, 0.34), inset -5px -5px 11px rgba(255, 255, 255, 0.9);
+  --btn-active-shadow:
+    inset 5px 5px 11px rgba(137, 104, 190, 0.34), inset -5px -5px 11px rgba(255, 255, 255, 0.9);
   --btn-radius: 24px;
   --pri-bg: linear-gradient(145deg, #8c6bff, #5d3aea);
   --pri-color: #ffffff;
@@ -170,7 +175,8 @@
     inset -4px -4px 9px rgba(60, 30, 170, 0.35), inset 4px 4px 9px rgba(190, 170, 255, 0.55);
   --inset-bg: #efe3fb;
   --inset-border: 0 solid transparent;
-  --inset-shadow: inset 6px 6px 13px rgba(137, 104, 190, 0.3), inset -6px -6px 13px rgba(255, 255, 255, 0.95);
+  --inset-shadow:
+    inset 6px 6px 13px rgba(137, 104, 190, 0.3), inset -6px -6px 13px rgba(255, 255, 255, 0.95);
   --inset-radius: 26px;
   --inset-text: #2f2347;
   --inset-muted: #5a4d73;
@@ -202,7 +208,8 @@
   --card-bg: linear-gradient(180deg, #f6f7f9 0%, #d9dce1 100%);
   --card-border: 1px solid #8b9099;
   --card-shadow:
-    0 1px 0 #ffffff inset, 0 -2px 0 rgba(0, 0, 0, 0.14) inset, 0 12px 24px rgba(0, 0, 0, 0.32), 0 2px 3px rgba(0, 0, 0, 0.3);
+    0 1px 0 #ffffff inset, 0 -2px 0 rgba(0, 0, 0, 0.14) inset, 0 12px 24px rgba(0, 0, 0, 0.32),
+    0 2px 3px rgba(0, 0, 0, 0.3);
   --card-filter: none;
   --card-radius: 16px;
   --btn-bg: linear-gradient(180deg, #ffffff 0%, #e4e6ea 48%, #c9ccd2 52%, #dde0e5 100%);
@@ -349,14 +356,18 @@
   --btn-hover-shadow:
     9px 9px 20px rgba(0, 0, 0, 0.45), -6px -6px 14px rgba(120, 90, 190, 0.18),
     inset -3px -3px 7px rgba(0, 0, 0, 0.22), inset 3px 3px 7px rgba(150, 120, 230, 0.14);
-  --btn-active-shadow: inset 5px 5px 11px rgba(0, 0, 0, 0.45), inset -5px -5px 11px rgba(150, 120, 230, 0.12);
+  --btn-active-shadow:
+    inset 5px 5px 11px rgba(0, 0, 0, 0.45), inset -5px -5px 11px rgba(150, 120, 230, 0.12);
   --pri-bg: linear-gradient(145deg, #b39dff, #7c5cf5);
   --pri-color: #160f28;
-  --pri-shadow: 8px 8px 18px rgba(0, 0, 0, 0.45), -5px -5px 12px rgba(120, 90, 190, 0.16), inset 4px 4px 9px rgba(220, 210, 255, 0.4);
+  --pri-shadow:
+    8px 8px 18px rgba(0, 0, 0, 0.45), -5px -5px 12px rgba(120, 90, 190, 0.16),
+    inset 4px 4px 9px rgba(220, 210, 255, 0.4);
   --gauge-a: #c3b0ff;
   --gauge-b: #7c5cf5;
   --inset-bg: #221a3a;
-  --inset-shadow: inset 6px 6px 13px rgba(0, 0, 0, 0.45), inset -6px -6px 13px rgba(150, 120, 230, 0.1);
+  --inset-shadow:
+    inset 6px 6px 13px rgba(0, 0, 0, 0.45), inset -6px -6px 13px rgba(150, 120, 230, 0.1);
   --inset-text: #f1eaff;
   --inset-muted: #c5b8e2;
   --track: #3a2f5c;
@@ -383,7 +394,8 @@
   --card-bg: linear-gradient(180deg, #474d56 0%, #30343b 100%);
   --card-border: 1px solid #16191d;
   --card-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 -2px 0 rgba(0, 0, 0, 0.35) inset, 0 12px 24px rgba(0, 0, 0, 0.55), 0 2px 3px rgba(0, 0, 0, 0.5);
+    0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 -2px 0 rgba(0, 0, 0, 0.35) inset,
+    0 12px 24px rgba(0, 0, 0, 0.55), 0 2px 3px rgba(0, 0, 0, 0.5);
   --btn-bg: linear-gradient(180deg, #5a616b 0%, #434951 48%, #363b42 52%, #40464e 100%);
   --btn-color: #eef1f5;
   --btn-border: 1px solid #111418;
@@ -561,6 +573,7 @@ p {
   text-decoration: none;
   transform: translateY(-200%);
 }
+
 .skip:focus {
   transform: none;
 }
@@ -613,21 +626,25 @@ p {
     filter 0.25s var(--ease);
   -webkit-tap-highlight-color: transparent;
 }
+
 .btn:hover {
   box-shadow: var(--btn-hover-shadow);
   transform: translateY(-1px);
 }
+
 .btn:active,
 .btn[aria-pressed='true'],
 .btn.is-on {
   box-shadow: var(--btn-active-shadow);
   transform: translateY(0);
 }
+
 .btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   transform: none;
 }
+
 .btn.pri {
   background: var(--pri-bg);
   color: var(--pri-color);
@@ -635,27 +652,33 @@ p {
   box-shadow: var(--pri-shadow);
   text-shadow: none;
 }
+
 .btn.pri:hover {
   filter: brightness(1.06);
 }
+
 .btn.pri:active {
   filter: brightness(0.95);
   transform: translateY(1px);
 }
+
 .btn.sm {
   min-height: 40px;
   padding: 8px 14px;
   font-size: 14px;
 }
+
 .btn.lg {
   min-height: 56px;
   padding: 14px 34px;
   font-size: 17px;
 }
+
 .btn.icon {
   padding: 8px;
   min-width: 44px;
 }
+
 .btn svg {
   flex: none;
 }
@@ -664,22 +687,27 @@ p {
 .prose {
   line-height: 1.75;
 }
+
 .prose h2 {
   margin-top: 1.8em;
   font-family: var(--font-display);
   font-size: clamp(1.3rem, 3.2vw, 1.7rem);
 }
+
 .prose h2:first-child {
   margin-top: 0;
 }
+
 .prose ul,
 .prose ol {
   padding-inline-start: 1.4em;
   margin: 0 0 1em;
 }
+
 .prose li {
   margin-bottom: 0.4em;
 }
+
 .prose p,
 .prose li {
   color: var(--text);
@@ -703,6 +731,7 @@ option {
   background: var(--bg);
   color: var(--text);
 }
+
 @supports (appearance: base-select) {
   /* The chosen value stays on one line beside the arrow; a long one is cut, never wrapped over the box edge. */
   select {
@@ -758,6 +787,7 @@ option {
   background: var(--bg);
   color: var(--text);
 }
+
 @supports (appearance: base-select) {
   /* The chosen value stays on one line beside the arrow; a long one is cut, never wrapped over the box edge. */
   select {
@@ -813,6 +843,7 @@ option {
   background: var(--bg);
   color: var(--text);
 }
+
 @supports (appearance: base-select) {
   /* The chosen value stays on one line beside the arrow; a long one is cut, never wrapped over the box edge. */
   select {

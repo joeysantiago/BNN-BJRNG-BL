@@ -14,6 +14,7 @@
   gap: 4px;
   justify-items: start;
 }
+
 .head::before {
   content: '';
   width: 28px;
@@ -22,18 +23,21 @@
   border-radius: 2px;
   background: var(--accent, currentColor);
 }
+
 h1 {
   margin: 0;
   font-family: var(--font-display);
   font-size: clamp(1.6rem, 4.5vw, 2.2rem);
   font-weight: 600;
 }
+
 .lead,
 .note,
 .help {
   margin: 0;
   color: var(--muted);
 }
+
 .help {
   margin-block-end: 6px;
   font-size: 14px;
@@ -44,6 +48,7 @@ h1 {
   padding: 0;
   overflow: hidden;
 }
+
 /* The tabs stay on one row and scroll sideways instead of wrapping into a block of rows. */
 .tabs {
   display: flex;
@@ -59,18 +64,26 @@ h1 {
   scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
 }
+
 /* Phones: tighter tabs, no scrollbar, and faded edges to show there is more to swipe to. */
 @media (max-width: 640px) {
   .tabs {
     gap: 0 2px;
     padding-inline: 4px;
     scrollbar-width: none;
-    mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 24px), transparent 100%);
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 12px,
+      #000 calc(100% - 24px),
+      transparent 100%
+    );
   }
   .tabs::-webkit-scrollbar {
     display: none;
   }
 }
+
 .tab {
   position: relative;
   display: inline-flex;
@@ -88,19 +101,24 @@ h1 {
   font-weight: 600;
   cursor: pointer;
 }
+
 .tab .tab-ico {
   flex: none;
   opacity: 0.85;
 }
+
 .tab[aria-selected='true'] .tab-ico {
   opacity: 1;
 }
+
 .tab:hover {
   color: var(--text);
 }
+
 .tab[aria-selected='true'] {
   color: var(--accent-ink, var(--text));
 }
+
 .tab[aria-selected='true']::after {
   content: '';
   position: absolute;
@@ -110,11 +128,13 @@ h1 {
   border-radius: 2px;
   background: var(--accent, currentColor);
 }
+
 .tab:focus-visible {
   outline: 2px solid var(--accent, currentColor);
   outline-offset: -4px;
   border-radius: 8px;
 }
+
 .panel {
   display: grid;
   padding: 8px clamp(14px, 3vw, 24px) 24px;
@@ -126,20 +146,24 @@ h1 {
   gap: 4px;
   padding-block: 18px;
 }
+
 .sec + .sec {
   border-block-start: 1px solid var(--line, rgba(128, 128, 128, 0.25));
 }
+
 .sec-h {
   margin: 0;
   font-size: 1.02rem;
   font-weight: 700;
 }
+
 .bare {
   margin: 0;
   padding: 0;
   border: 0;
   min-width: 0;
 }
+
 .bare:disabled {
   opacity: 0.75;
 }
@@ -150,6 +174,7 @@ h1 {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
   column-gap: 32px;
 }
+
 .opt,
 .field-row {
   display: flex;
@@ -161,36 +186,45 @@ h1 {
   border-block-end: 1px solid var(--line, rgba(128, 128, 128, 0.18));
   cursor: pointer;
 }
+
 .field-row {
   cursor: default;
 }
+
 /* A row whose control is a choice group: the options take the room they need and move below the label on narrow screens. */
 .pick-row {
   flex-wrap: wrap;
 }
+
 .pick-row app-choice-group {
   flex: 1 1 280px;
   max-width: 520px;
 }
+
 .lead-opt {
   margin-block-end: 4px;
 }
+
 .txt {
   display: grid;
   gap: 2px;
   min-width: 0;
 }
+
 .txt b {
   font-weight: 600;
 }
+
 .txt small {
   color: var(--muted);
   font-size: 13px;
 }
+
 .txt small.bad,
 .status.bad {
   color: var(--bad, #c0392b);
 }
+
 .diff .txt b::after {
   content: ' •';
   color: var(--accent, currentColor);
@@ -210,6 +244,7 @@ h1 {
   cursor: pointer;
   transition: background 0.15s ease;
 }
+
 .switch::before {
   content: '';
   position: absolute;
@@ -219,23 +254,30 @@ h1 {
   height: 18px;
   border-radius: 50%;
   background: var(--muted, #999);
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
 }
+
 .switch:checked {
   background: var(--accent, #c9a24a);
   box-shadow: none;
 }
+
 .switch:checked::before {
   background: var(--accent-contrast, #1a1020);
   transform: translateX(20px);
 }
+
 :host-context([dir='rtl']) .switch:checked::before {
   transform: translateX(-20px);
 }
+
 .switch:focus-visible {
   outline: 2px solid var(--accent, currentColor);
   outline-offset: 3px;
 }
+
 .switch:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -260,11 +302,13 @@ textarea {
   font: inherit;
   box-sizing: border-box;
 }
+
 .field-row > input:not(.switch),
 .field-row > select {
   width: min(100%, 280px);
   flex: none;
 }
+
 textarea {
   width: 100%;
   margin-block-start: 8px;
@@ -285,13 +329,16 @@ textarea {
   justify-content: flex-start;
   margin-block-start: 16px;
 }
+
 .status {
   margin: 0;
   font-weight: 600;
 }
+
 .status:empty {
   display: none;
 }
+
 .acts {
   display: flex;
   flex-direction: row-reverse;
@@ -313,6 +360,7 @@ textarea {
   border-radius: 12px;
   background: var(--inset-bg, rgba(128, 128, 128, 0.12));
 }
+
 @media (min-width: 900px) {
   .topbar {
     position: sticky;
@@ -328,9 +376,11 @@ textarea {
   padding: 0;
   list-style: none;
 }
+
 .item {
   border-block-end: 1px solid var(--line, rgba(128, 128, 128, 0.18));
 }
+
 .row {
   display: flex;
   flex-wrap: wrap;
@@ -339,23 +389,28 @@ textarea {
   min-height: 56px;
   padding-block: 8px;
 }
+
 .row .txt {
   flex: 1 1 200px;
 }
+
 .mono {
   direction: ltr;
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-size: 12.5px;
 }
+
 .mail {
   direction: ltr;
   overflow-wrap: anywhere;
 }
+
 .tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
+
 .tag {
   padding: 2px 10px;
   border-radius: 999px;
@@ -365,14 +420,17 @@ textarea {
   font-weight: 700;
   white-space: nowrap;
 }
+
 .tag.on {
   color: var(--accent-ink, var(--text));
 }
+
 .icons {
   display: flex;
   gap: 2px;
   margin-inline-start: auto;
 }
+
 .icon-btn {
   display: inline-grid;
   place-items: center;
@@ -384,23 +442,29 @@ textarea {
   color: var(--accent-ink, var(--text));
   cursor: pointer;
 }
+
 .icon-btn:hover {
   background: var(--inset-bg, rgba(128, 128, 128, 0.15));
 }
+
 .icon-btn:focus-visible {
   outline: 2px solid var(--accent, currentColor);
 }
+
 .icon-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
 .icon-btn.danger {
   color: var(--bad, #e05a5a);
 }
+
 .icon-btn.sure {
   background: var(--bad, #e05a5a);
   color: #fff;
 }
+
 .icon-btn svg {
   width: 18px;
   height: 18px;
@@ -415,12 +479,14 @@ textarea {
   border-radius: 12px;
   background: var(--inset-bg, rgba(128, 128, 128, 0.1));
 }
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
   gap: 12px;
   align-items: start;
 }
+
 /* Label above its box. Boxes keep one height and normal-weight text, so fields with and without a hint line up. */
 .stack {
   display: grid;
@@ -429,6 +495,7 @@ textarea {
   font-size: 13px;
   font-weight: 700;
 }
+
 .stack > input,
 .stack > select {
   width: 100%;
@@ -437,10 +504,12 @@ textarea {
   font-weight: 500;
   font-size: 15px;
 }
+
 .stack small {
   font-weight: 500;
   color: var(--muted);
 }
+
 .chk {
   display: inline-flex;
   gap: 8px;
@@ -448,11 +517,13 @@ textarea {
   min-height: 44px;
   cursor: pointer;
 }
+
 .chk input {
   width: 18px;
   height: 18px;
   accent-color: var(--accent, currentColor);
 }
+
 .apps {
   display: flex;
   flex-wrap: wrap;
@@ -467,15 +538,18 @@ textarea {
   align-items: flex-end;
   margin-block-start: 16px;
 }
+
 .addrow > input,
 .addrow > select {
   flex: 1 1 180px;
   min-width: 0;
 }
+
 .addrow > .btn {
   flex: none;
   min-height: 42px;
 }
+
 .btn .plus {
   margin-inline-end: 6px;
   font-weight: 700;

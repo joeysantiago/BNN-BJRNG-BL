@@ -3,9 +3,11 @@
 :host {
   display: grid;
 }
+
 .field-row select {
   width: min(100%, 240px);
 }
+
 .acts {
   display: flex;
   flex-wrap: wrap;

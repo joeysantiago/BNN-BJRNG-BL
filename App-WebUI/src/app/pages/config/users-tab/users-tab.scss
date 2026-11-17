@@ -3,16 +3,20 @@
 :host {
   display: grid;
 }
+
 .txt b small {
   margin-inline-start: 6px;
   font-weight: 500;
 }
+
 .row-note {
   padding-block-end: 10px;
 }
+
 .add .apps {
   margin-block-start: 4px;
 }
+
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -20,20 +24,25 @@
   align-items: center;
   padding-block: 8px;
 }
+
 .search {
   flex: 1 1 200px;
 }
+
 .search input {
   width: 100%;
   min-height: 44px;
 }
+
 .item.off .txt {
   opacity: 0.65;
 }
+
 .tag.warn {
   background: rgba(183, 121, 31, 0.14);
   color: var(--warn, #b7791f);
 }
+
 .btn.sure {
   border-color: var(--bad, #c0392b);
   color: var(--bad, #c0392b);

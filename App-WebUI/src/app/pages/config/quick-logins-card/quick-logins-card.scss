@@ -3,6 +3,7 @@
 :host {
   display: grid;
 }
+
 .users {
   display: grid;
   gap: 8px;
@@ -10,6 +11,7 @@
   padding: 0;
   list-style: none;
 }
+
 .user {
   display: flex;
   flex-wrap: wrap;
@@ -21,11 +23,13 @@
   border: 1px solid var(--line, rgba(128, 128, 128, 0.3));
   border-radius: 12px;
 }
+
 .email {
   min-width: 0;
   overflow-wrap: anywhere;
   font-weight: 600;
 }
+
 .foot input {
   width: min(100%, 320px);
 }

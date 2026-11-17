@@ -3,9 +3,11 @@
 :host {
   display: grid;
 }
+
 .own {
   margin-block-start: 14px;
 }
+
 .own-h {
   padding: 0;
   margin-block-end: 2px;
@@ -15,6 +17,7 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+
 .note-line {
   margin-block-start: 8px;
 }

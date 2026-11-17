@@ -1,7 +1,9 @@
 /* Khataebook design tokens (light and dark). Ported from App-Prototype/assets/css/khata.css. */
 /* Khataebook app design system: every colour is a token on .khata, Light and Dark are two sets of the same tokens. */
 .khata {
-  --k-font: 'Manrope Variable', 'Noto Sans Devanagari Variable', 'Noto Sans Arabic Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --k-font:
+    'Manrope Variable', 'Noto Sans Devanagari Variable', 'Noto Sans Arabic Variable', 'Segoe UI',
+    system-ui, -apple-system, sans-serif;
   --k-r-sm: 10px;
   --k-r: 16px;
   --k-r-lg: 24px;
@@ -11,7 +13,10 @@
   --k-tabs: 68px;
   color-scheme: light;
   --k-bg: #eef1f7;
-  --k-bg-image: radial-gradient(700px 480px at 6% -4%, rgba(247, 200, 226, 0.55), transparent 62%), radial-gradient(640px 460px at 102% 6%, rgba(255, 221, 186, 0.55), transparent 60%), radial-gradient(900px 640px at 60% 112%, rgba(190, 210, 255, 0.6), transparent 62%);
+  --k-bg-image:
+    radial-gradient(700px 480px at 6% -4%, rgba(247, 200, 226, 0.55), transparent 62%),
+    radial-gradient(640px 460px at 102% 6%, rgba(255, 221, 186, 0.55), transparent 60%),
+    radial-gradient(900px 640px at 60% 112%, rgba(190, 210, 255, 0.6), transparent 62%);
   --k-surface: rgba(255, 255, 255, 0.78);
   --k-surface-solid: #ffffff;
   --k-surface-2: #f4f6fb;
@@ -41,9 +46,15 @@
   --k-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 28px rgba(31, 45, 90, 0.08);
   --k-shadow-lg: 0 2px 6px rgba(16, 24, 40, 0.06), 0 24px 56px rgba(31, 45, 90, 0.16);
   --k-neu: 6px 6px 14px rgba(163, 177, 198, 0.45), -6px -6px 14px rgba(255, 255, 255, 0.9);
-  --k-neu-in: inset 3px 3px 7px rgba(163, 177, 198, 0.45), inset -3px -3px 7px rgba(255, 255, 255, 0.9);
+  --k-neu-in:
+    inset 3px 3px 7px rgba(163, 177, 198, 0.45), inset -3px -3px 7px rgba(255, 255, 255, 0.9);
   --k-focus: 0 0 0 4px rgba(47, 91, 234, 0.22);
-  --k-skeleton: linear-gradient(90deg, rgba(15, 23, 42, 0.06) 0%, rgba(15, 23, 42, 0.12) 50%, rgba(15, 23, 42, 0.06) 100%);
+  --k-skeleton: linear-gradient(
+    90deg,
+    rgba(15, 23, 42, 0.06) 0%,
+    rgba(15, 23, 42, 0.12) 50%,
+    rgba(15, 23, 42, 0.06) 100%
+  );
   --k-overlay: rgba(15, 23, 42, 0.45);
   position: relative;
   min-height: 100vh;
@@ -56,10 +67,13 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.khata[data-kt=dark] {
+.khata[data-kt='dark'] {
   color-scheme: dark;
   --k-bg: #0e0b19;
-  --k-bg-image: radial-gradient(620px 460px at 0% 0%, rgba(176, 52, 150, 0.32), transparent 64%), radial-gradient(560px 460px at 100% 4%, rgba(255, 128, 64, 0.22), transparent 62%), radial-gradient(900px 640px at 55% 115%, rgba(78, 60, 200, 0.34), transparent 62%);
+  --k-bg-image:
+    radial-gradient(620px 460px at 0% 0%, rgba(176, 52, 150, 0.32), transparent 64%),
+    radial-gradient(560px 460px at 100% 4%, rgba(255, 128, 64, 0.22), transparent 62%),
+    radial-gradient(900px 640px at 55% 115%, rgba(78, 60, 200, 0.34), transparent 62%);
   --k-surface: rgba(255, 255, 255, 0.06);
   --k-surface-solid: #1a1628;
   --k-surface-2: rgba(255, 255, 255, 0.045);
@@ -91,14 +105,24 @@
   --k-neu: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 8px 22px rgba(0, 0, 0, 0.35);
   --k-neu-in: inset 0 2px 8px rgba(0, 0, 0, 0.4);
   --k-focus: 0 0 0 4px rgba(255, 138, 76, 0.28);
-  --k-skeleton: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.11) 50%, rgba(255, 255, 255, 0.05) 100%);
+  --k-skeleton: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.11) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
   --k-overlay: rgba(4, 2, 10, 0.66);
 }
 
 /* Theme switch: the attribute changes on the live page, so these transitions run. */
 .khata.k-theming,
 .khata.k-theming * {
-  transition: background-color 0.4s var(--k-ease), color 0.4s var(--k-ease), border-color 0.4s var(--k-ease), box-shadow 0.4s var(--k-ease), fill 0.4s var(--k-ease) !important;
+  transition:
+    background-color 0.4s var(--k-ease),
+    color 0.4s var(--k-ease),
+    border-color 0.4s var(--k-ease),
+    box-shadow 0.4s var(--k-ease),
+    fill 0.4s var(--k-ease) !important;
 }
 
 .khata *,
@@ -131,7 +155,7 @@
 }
 
 /* Arrows that point along the reading direction turn round in Arabic. */
-.khata[dir=rtl] .k-flip {
+.khata[dir='rtl'] .k-flip {
   transform: scaleX(-1);
 }
 

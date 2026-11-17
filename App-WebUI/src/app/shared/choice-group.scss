@@ -4,6 +4,7 @@
   display: block;
   min-width: 0;
 }
+
 .choice {
   display: flex;
   flex-wrap: wrap;
@@ -15,19 +16,23 @@
   background: var(--inset-bg, rgba(128, 128, 128, 0.12));
   box-shadow: var(--inset-shadow, none);
 }
+
 .choice:disabled {
   opacity: 0.6;
 }
+
 label {
   display: flex;
   flex: 1 1 auto;
   max-width: 100%;
 }
+
 input {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
+
 label > span {
   display: flex;
   flex: 1;
@@ -46,24 +51,32 @@ label > span {
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
-  transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+  transition:
+    background 0.25s,
+    color 0.25s,
+    box-shadow 0.25s;
 }
+
 .choice:disabled label > span {
   cursor: default;
 }
+
 label:hover input:not(:checked) + span {
   color: var(--inset-text, var(--text));
 }
+
 input:checked + span {
   background: var(--pri-bg, var(--accent));
   color: var(--pri-color, var(--on-accent));
   border: var(--pri-border, 1px solid transparent);
   box-shadow: var(--pri-shadow, none);
 }
+
 input:focus-visible + span {
   outline: 2px solid var(--accent, currentColor);
   outline-offset: 2px;
 }
+
 svg {
   flex: none;
 }

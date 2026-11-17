@@ -11,7 +11,8 @@
     "build:live": "node scripts/build-texts.mjs && ng build --configuration live && node scripts/postbuild.mjs",
     "watch": "node scripts/build-texts.mjs && ng build --watch --configuration development",
     "test": "ng test",
-    "images": "node scripts/generate-images.mjs"
+    "images": "node scripts/generate-images.mjs",
+    "format:scss": "node scripts/format-scss.mjs"
   },
   "private": true,
   "packageManager": "npm@11.4.2",
