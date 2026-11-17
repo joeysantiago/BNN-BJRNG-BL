@@ -18,6 +18,7 @@ h1 {
   font-weight: 600;
   text-align: center;
 }
+
 .lead {
   text-align: center;
   color: var(--muted);
@@ -30,6 +31,7 @@ h1 {
   gap: 20px;
   align-items: center;
 }
+
 .art {
   display: grid;
   place-items: center;
@@ -38,11 +40,13 @@ h1 {
   overflow: hidden;
   color: var(--inset-muted);
 }
+
 .art img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .label {
   font-size: 12px;
   font-weight: 800;
@@ -50,15 +54,18 @@ h1 {
   text-transform: uppercase;
   color: var(--accent-ink);
 }
+
 .title {
   margin: 4px 0 2px;
   font-size: clamp(1.15rem, 3.4vw, 1.6rem);
   overflow-wrap: anywhere;
 }
+
 .artist {
   margin: 0;
   color: var(--muted);
 }
+
 .err {
   margin: 8px 0 0;
   color: var(--danger);
@@ -74,6 +81,7 @@ input[type='range'] {
   background: transparent;
   cursor: pointer;
 }
+
 input[type='range']::-webkit-slider-runnable-track {
   height: 10px;
   border-radius: 999px;
@@ -81,6 +89,7 @@ input[type='range']::-webkit-slider-runnable-track {
   box-shadow: var(--inset-shadow);
   border: var(--inset-border);
 }
+
 input[type='range']::-moz-range-track {
   height: 10px;
   border-radius: 999px;
@@ -88,6 +97,7 @@ input[type='range']::-moz-range-track {
   box-shadow: var(--inset-shadow);
   border: var(--inset-border);
 }
+
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 24px;
@@ -98,6 +108,7 @@ input[type='range']::-webkit-slider-thumb {
   border: var(--pri-border);
   box-shadow: var(--pri-shadow);
 }
+
 input[type='range']::-moz-range-thumb {
   width: 22px;
   height: 22px;
@@ -114,6 +125,7 @@ input[type='range']::-moz-range-thumb {
   gap: 12px;
   margin-block: 22px 8px;
 }
+
 .t {
   font: 700 14px var(--font-mono);
   color: var(--muted);
@@ -127,15 +139,18 @@ input[type='range']::-moz-range-thumb {
   gap: clamp(8px, 2.5vw, 18px);
   margin-block: 12px;
 }
+
 .btn.big {
   width: 68px;
   height: 68px;
   border-radius: 50%;
   padding: 0;
 }
+
 .rep {
   position: relative;
 }
+
 .one {
   position: absolute;
   inset-block-end: 4px;
@@ -155,10 +170,12 @@ input[type='range']::-moz-range-thumb {
   padding: 24px;
   text-align: center;
 }
+
 .empty-h {
   font-weight: 800;
   font-size: 1.15rem;
 }
+
 .empty p:last-child {
   margin: 0;
   color: var(--inset-muted);
@@ -169,6 +186,7 @@ input[type='range']::-moz-range-thumb {
   font-family: var(--font-display);
   font-size: 1.4rem;
 }
+
 .list ol {
   list-style: none;
   margin: 0;
@@ -176,6 +194,7 @@ input[type='range']::-moz-range-thumb {
   display: grid;
   gap: 10px;
 }
+
 .row {
   display: flex;
   align-items: center;
@@ -193,35 +212,43 @@ input[type='range']::-moz-range-thumb {
   cursor: pointer;
   text-shadow: var(--card-text-shadow);
 }
+
 .row:hover {
   box-shadow: var(--btn-hover-shadow);
 }
+
 .row.on {
   box-shadow: var(--btn-active-shadow);
 }
+
 .n {
   flex: none;
   min-width: 2ch;
   font: 800 14px var(--font-mono);
   opacity: 0.75;
 }
+
 .tt {
   display: grid;
   min-width: 0;
   flex: 1;
 }
+
 .tt b {
   overflow-wrap: anywhere;
 }
+
 .tt small {
   opacity: 0.8;
 }
+
 .eq {
   display: inline-flex;
   align-items: flex-end;
   gap: 3px;
   height: 18px;
 }
+
 .eq i {
   display: block;
   width: 4px;
@@ -231,12 +258,15 @@ input[type='range']::-moz-range-thumb {
   transform-origin: bottom;
   animation: eq 0.9s ease-in-out infinite;
 }
+
 .eq i:nth-child(2) {
   animation-delay: 0.2s;
 }
+
 .eq i:nth-child(3) {
   animation-delay: 0.4s;
 }
+
 @keyframes eq {
   0%,
   100% {
@@ -254,45 +284,54 @@ input[type='range']::-moz-range-thumb {
   gap: 10px;
   margin-bottom: 14px;
 }
+
 .list-head h2 {
   flex: 1;
   margin: 0;
 }
+
 .list-head .sync {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   min-height: 44px;
 }
+
 .item {
   display: flex;
   align-items: center;
   gap: 10px;
 }
+
 .item .row {
   flex: 1;
   min-width: 0;
   width: auto;
 }
+
 .del {
   flex: none;
 }
+
 .setup {
   display: grid;
   gap: 12px;
   padding: 16px;
   margin-bottom: 14px;
 }
+
 .setup p {
   margin: 0;
   color: var(--inset-muted);
 }
+
 .setup label {
   display: grid;
   gap: 4px;
   font-weight: 700;
   font-size: 14px;
 }
+
 .setup input {
   padding: 10px 12px;
   border-radius: 12px;
@@ -301,18 +340,22 @@ input[type='range']::-moz-range-thumb {
   color: inherit;
   font: 500 14px var(--font-mono);
 }
+
 .setup-actions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
+
 .status {
   margin: 0 0 14px;
   font-weight: 700;
 }
+
 .status.bad {
   color: var(--danger);
 }
+
 .note {
   margin: 0;
   color: var(--muted);
