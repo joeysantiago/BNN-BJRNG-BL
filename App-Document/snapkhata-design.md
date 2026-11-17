@@ -1,15 +1,15 @@
-# SnapKhata — design and research (`/khata`)
+# Khataebook — design and research (`/khata`)
 
-SnapKhata is a digital udhar khata (credit ledger), similar to OkCredit, built into thakurg.com at `/khata`.
+Khataebook is a digital udhar khata (credit ledger), similar to OkCredit, built into thakurg.com at `/khata`.
 This document covers the features, research findings, recommended architecture, data model, API, screens and build phases.
 
 Status: **proposal, local development only.** Everything runs on the developer machine: Angular dev server, the local `Thakurg.API` and SQL Server LocalDB. Hosting is out of scope for now.
 
 > **File storage as built (replaces the storage parts of this proposal).**
-> - SnapKhata keeps bill photos and contact photos in the **site's shared file store**, like every other app (see `file-storage.md`). There is one switch for the whole site, in Settings > General > File storage: local files or Azure Blob storage. Files are read only from the chosen store.
+> - Khataebook keeps bill photos and contact photos in the **site's shared file store**, like every other app (see `file-storage.md`). There is one switch for the whole site, in Settings > General > File storage: local files or Azure Blob storage. Files are read only from the chosen store.
 > - **Paths:** `khata/{userId}/{bookId}/{file}`. Locally that is `App-Data/khata/…`. In Azure it is container `app-data`, under the environment folder, for example `app-data/QA/khata/…` or `app-data/thakurg/khata/…`. `KhataStoredFiles.FileId` holds `{userId}/{bookId}/{file}`.
 > - **Code:** `IKhataFileStore` / `KhataFileStore`, on top of the shared `IFileStore`. The folder comes from `Khata:Folder` (`khata`).
-> - **Removed:** SnapKhata's own storage setting (the `KhataStorageSettings` table, `api/khata/storage`, its encrypted connection string, `Khata:Storage` and `Khata:LocalFiles`) and the `KhataStoredFiles.Provider` column.
+> - **Removed:** Khataebook's own storage setting (the `KhataStorageSettings` table, `api/khata/storage`, its encrypted connection string, `Khata:Storage` and `Khata:LocalFiles`) and the `KhataStoredFiles.Provider` column.
 > - **Not built:** the per-user Google Drive storage, the Skip step, the shared-ledger copies and the file moves described in §3.1, §3.2, §5.3, §5.6 and §5.8. Those sections remain a proposal.
 
 ---
@@ -32,14 +32,14 @@ Status: **proposal, local development only.** Everything runs on the developer m
 | 8 | Research a better way to implement it | §3 |
 | 9 | After the first login, the user **creates an app PIN**. Every time the app is opened, it asks for that PIN | §3.7, §5.9 |
 | 10 | **Editing or deleting an existing transaction requires the PIN** | §3.7, §5.9 |
-| 11 | SnapKhata is an **installable app** (home screen / desktop icon, opens in its own window) | §3.8, §5.10 |
+| 11 | Khataebook is an **installable app** (home screen / desktop icon, opens in its own window) | §3.8, §5.10 |
 | 12 | A contact must **accept** a shared ledger before they see it or get copies | §3.9, §5.11 |
 | 13 | One user can keep **multiple books** (e.g. "Kirana shop", "Home") | §3.10, §5.12 |
 | 14 | Each book has a **money type (currency)**, chosen from a list, and users can **add their own** | §3.11 |
 | 15 | **Rate limiting** wherever it is needed | §3.12 |
-| 16 | Transactions (and all SnapKhata data) are saved in **SQL Server, in the same `thakurg-meta` database, in their own new tables** | §6 |
+| 16 | Transactions (and all Khataebook data) are saved in **SQL Server, in the same `thakurg-meta` database, in their own new tables** | §6 |
 | 17 | Further suggestions | §3.13 |
-| 18 | **Import from OkCredit**: move existing customers, suppliers and transactions from OkCredit into SnapKhata | §3.15 |
+| 18 | **Import from OkCredit**: move existing customers, suppliers and transactions from OkCredit into Khataebook | §3.15 |
 
 ---
 
@@ -53,7 +53,7 @@ From OkCredit's public pages and store listing:
 - Reminders by SMS and WhatsApp, either manual or automatic on a due date. Reminders contain a UPI payment link.
 - 11 Indian languages, GST billing, stock management and loans.
 
-**In scope for the SnapKhata MVP:** the ledger, contacts, entries with photos, per-user Google Drive storage, the shared ledger with the allow/block switch, per-contact notifications, OTP login, and en/hi/ar.
+**In scope for the Khataebook MVP:** the ledger, contacts, entries with photos, per-user Google Drive storage, the shared ledger with the allow/block switch, per-contact notifications, OTP login, and en/hi/ar.
 **Later:** due-date reminders, UPI link, PDF statement.
 **Out of scope:** GST billing, stock and loans.
 
@@ -70,7 +70,7 @@ From OkCredit's public pages and store listing:
 - **Whose Drive is used in a shared ledger (decision Q2: copy JSON and photos):**
   - Each ledger has one **home**, the **owner's** storage. If Ramesh (a contact) adds an entry with a photo in John's ledger, the API uploads it to **John's** Drive with John's token.
   - A **full copy** (`ledger.json` + photos) is also written to the **contact's own storage** (Ramesh's Drive, or his `App-Data` folder if he skipped Drive), under `SnapKhata/shared/…` (§5.6). Each side therefore keeps its own complete backup.
-  - Copies are made only for a contact who has logged in, so their contact row is linked to a SnapKhata user. Copies follow every change: new entries, edits, and soft deletes (marked `"deleted": true`; photos are kept).
+  - Copies are made only for a contact who has logged in, so their contact row is linked to a Khataebook user. Copies follow every change: new entries, edits, and soft deletes (marked `"deleted": true`; photos are kept).
   - If the owner removes the contact, syncing stops. The copies already in the contact's storage stay there, because they are the contact's records.
   - The contact settings screen tells the owner: "A copy of this ledger, including photos, is saved to Ramesh's own storage."
   - Viewing in the app always goes through the API (permission-checked) and reads from the home copy, never through a Drive link.
@@ -96,12 +96,12 @@ From OkCredit's public pages and store listing:
 - Drive suits this well: photos are small (compressed to ~200 KB), uploaded rarely and viewed rarely.
 - **Skip option, saved locally in `App-Data` (decision Q1):**
   - The connect screen strongly recommends Drive and explains why: "Your bills stay safe in your own Google account even if this server is reset." A **Skip for now** button is also shown.
-  - A user who skips gets `StorageProvider = Local`, and their files go to **`App-Data/khata/`**, inside the existing `App-Data` runtime folder at the repo root (the same folder the music players use; SnapKhata keeps to its own `khata` subfolder). It uses the same folder layout as Drive (§5.6).
+  - A user who skips gets `StorageProvider = Local`, and their files go to **`App-Data/khata/`**, inside the existing `App-Data` runtime folder at the repo root (the same folder the music players use; Khataebook keeps to its own `khata` subfolder). It uses the same folder layout as Drive (§5.6).
   - `App-Data` is already **git-ignored** (`/App-Data/` in `.gitignore`), which matters because it holds private bills.
   - While a user is on local storage, a small banner reminds them to connect Drive.
   - When they later connect Drive, their local files are **moved** into the new Drive, using the same migration job as changing Google account (§5.8).
 - **One storage interface:** `IFileStore`, with `GoogleDriveFileStore` and `LocalFileStore`. The API picks the implementation from the target user's `StorageProvider`, so the upload, copy, move and JSON code doesn't care where files go.
-  *As built:* `IFileStore` is the site's shared file store. Its local version keeps files in `App-Data` and its Azure Blob version uses the `app-data` container, and one site-wide switch in Settings > General picks between them, not a per-user choice. SnapKhata uses it through `IKhataFileStore` (see the note at the top and `file-storage.md`).
+  *As built:* `IFileStore` is the site's shared file store. Its local version keeps files in `App-Data` and its Azure Blob version uses the `app-data` container, and one site-wide switch in Settings > General picks between them, not a per-user choice. Khataebook uses it through `IKhataFileStore` (see the note at the top and `file-storage.md`).
 
 ### 3.3 OTP login: email first; SMS in India needs DLT
 - **SMS in India:** TRAI's DLT rules apply to all business SMS, OTP included. Before any SMS is delivered you must register the entity (about ₹5,900), a sender ID and each template. Expect 2–4 weeks the first time. After that, gateways such as MSG91 cost about ₹0.15–0.20 per OTP. *(Vendor figures; check the current rate card.)*
@@ -165,16 +165,16 @@ From OkCredit's public pages and store listing:
 - **Later:** **fingerprint or face unlock** through WebAuthn (passkeys), as a faster alternative to typing the PIN on devices that support it. The PIN stays as the fallback.
 
 ### 3.8 Installable app (requirement 11)
-- SnapKhata becomes an installable **PWA (Progressive Web App)**. It works on Android (Chrome/Edge), Windows/macOS/Linux (Chrome/Edge) and iPhone/iPad (Safari, "Add to Home Screen"), and it opens in **its own window** without the browser bar. This needs no app store and no separate codebase.
-- The site already has a manifest (`public/manifest.webmanifest`, "Internet Speed Test", scope `/`) and the Angular service worker (`ngsw-config.json`). SnapKhata gets **its own, separate manifest**, so it installs as its own app with its own name and icon, next to the Speed Test app:
-  - `public/khata/manifest.webmanifest`: `"id": "/khata/app"`, `"start_url": "/khata/app?source=pwa"`, `"scope": "/khata/"`, `"display": "standalone"`, name "SnapKhata", own theme colours, and icons 192/512 plus a maskable 512 in `public/khata/icons/`.
+- Khataebook becomes an installable **PWA (Progressive Web App)**. It works on Android (Chrome/Edge), Windows/macOS/Linux (Chrome/Edge) and iPhone/iPad (Safari, "Add to Home Screen"), and it opens in **its own window** without the browser bar. This needs no app store and no separate codebase.
+- The site already has a manifest (`public/manifest.webmanifest`, "Internet Speed Test", scope `/`) and the Angular service worker (`ngsw-config.json`). Khataebook gets **its own, separate manifest**, so it installs as its own app with its own name and icon, next to the Speed Test app:
+  - `public/khata/manifest.webmanifest`: `"id": "/khata/app"`, `"start_url": "/khata/app?source=pwa"`, `"scope": "/khata/"`, `"display": "standalone"`, name "Khataebook", own theme colours, and icons 192/512 plus a maskable 512 in `public/khata/icons/`.
   - `"shortcuts"`: "Add entry" (`/khata/app?action=add`) and "Contacts" (`/khata/app`). Long-pressing the icon shows them.
   - `"screenshots"` (one narrow and one wide), so Chrome shows the richer install dialog.
-- **Making `/khata` pages use the SnapKhata manifest:**
+- **Making `/khata` pages use the Khataebook manifest:**
   - The prerendered `/khata` and `/khata/login` HTML get `<link rel="manifest" href="/khata/manifest.webmanifest">`, swapped in by `scripts/postbuild.mjs`.
   - The client-rendered `/khata/app/**` pages swap the `<link rel="manifest">` at runtime from the khata shell component. Chrome picks the change up.
 - **Install button:**
-  - Chrome/Edge/Android: listen for `beforeinstallprompt` and show an **"Install SnapKhata"** button on `/khata`, after login and in Profile.
+  - Chrome/Edge/Android: listen for `beforeinstallprompt` and show an **"Install Khataebook"** button on `/khata`, after login and in Profile.
   - iPhone/iPad: no install prompt exists, so show a short "Tap Share → Add to Home Screen" guide.
   - When the app already runs installed (`display-mode: standalone`), hide the button.
 - **Private data stays out of the service worker cache.** `ngsw-config.json` has no `dataGroups` today. Keep it that way for `/api/khata/**`, because cached ledger data would be readable without the PIN. The app shell (HTML/JS/CSS/icons) is cached, so the installed app opens fast and shows the PIN screen even offline. Ledger data loads only after unlock.
@@ -196,7 +196,7 @@ From OkCredit's public pages and store listing:
 - **After accepting:** the shared view and the JSON + photo copies start (§3.1). The first sync copies the full history.
 - **Decline:** the invitation disappears. Ramesh can still accept later from "Shared with me → Declined".
 - **Leave:** Ramesh can stop sharing at any time. Copies already in his storage stay (they are his records), and new syncing stops.
-- **What John sees** on the contact screen: "Not on SnapKhata", "Invited", "Accepted" or "Declined".
+- **What John sees** on the contact screen: "Not on Khataebook", "Invited", "Accepted" or "Declined".
 - Notifications that John sends to Ramesh's **mobile or email** (§5.7) are a separate setting. They follow John's per-contact switches and don't need the acceptance. All of them are still off by default.
 - This consent step also suits India's DPDP Act 2023.
 
@@ -244,7 +244,7 @@ The API already has rate limiting: `AddThakurgRateLimiting` in `Thakurg.Infrastr
 - **`stream`:** 30 a minute per IP.
 - When a limit is hit, the API returns 429 with `Retry-After` and the `TooManyRequests` message.
 
-SnapKhata reuses this setup and adds **two layers**:
+Khataebook reuses this setup and adds **two layers**:
 
 1. **Request limits** (ASP.NET Core rate-limiter middleware, `[EnableRateLimiting("khata-…")]`) stop floods early, before any database work.
    - Requests without a login are keyed by **IP**.
@@ -301,7 +301,7 @@ SnapKhata reuses this setup and adds **two layers**:
 | S2 | **Edit conflict check:** `KhataTransactions` and `KhataContacts` get a `RowVersion` column. Edits send the version they started from, and if someone else changed the row meanwhile, the API returns 409 "This entry was changed by Ramesh — reload". | Two people can edit a shared ledger at the same time. |
 | S3 | **Balance in the same SQL transaction:** saving, editing or deleting an entry updates `KhataContacts.BalanceMinor` inside the same SQL transaction. A nightly check recalculates the balances and logs any difference. | The cached balance can never drift from the entries. |
 | S4 | **Audit log (`KhataAuditLog`):** logins, PIN set/change/reset, permission and notification switches, share accept/decline/leave, book/contact deletes, Drive connect/disconnect/move, exports and rate-limit rejections. | Shows who did what in a shared ledger, and helps with support and disputes. |
-| S5 | **Feature switch in `/master`:** a `page.khata` row in `Common/003_Features.sql` and `khata` rows in `Common/004_PageNames.sql`, so SnapKhata can be turned off like the other pages. Off → `/khata` shows the existing "disabled" page and the API returns 404. | Uses the site's existing settings system. |
+| S5 | **Feature switch in `/master`:** a `page.khata` row in `Common/003_Features.sql` and `khata` rows in `Common/004_PageNames.sql`, so Khataebook can be turned off like the other pages. Off → `/khata` shows the existing "disabled" page and the API returns 404. | Uses the site's existing settings system. |
 | S6 | **Check uploads on the server:** check the file signature (magic bytes: JPEG/PNG/WebP/HEIC only), not just the extension or content type. Enforce the size limits, and remove EXIF/location if the browser didn't. | A renamed `.exe` or a huge file can't get into the user's Drive. |
 | S7 | **No private data in logs:** mask mobile numbers and emails (`+91 98•••••210`, `ra•••@gmail.com`). Never log OTPs (except in the console in Development), PINs, tokens or amounts with names. | Logs are often shared when debugging. |
 | S8 | **Time zone:** store every timestamp in UTC and `EntryDate` as the user's local date. `KhataUsers.TimeZone` defaults to `Asia/Kolkata`. | "Today" and day totals stay correct for Indian and Gulf users. |
@@ -327,7 +327,7 @@ SnapKhata reuses this setup and adds **two layers**:
 - A **"Send reminder"** button on a contact's ledger, for contacts with a mobile number.
 - It opens `https://wa.me/<mobile without +>?text=<message>`: the WhatsApp app on a phone, or WhatsApp Web/Desktop on a computer. The user taps Send themselves, so there's no API, no cost and no DLT.
 - **The message** comes from an i18n template, in the **owner's** language:
-  > "Namaste Ramesh, your balance with John Traders (Kirana shop) is ₹1,250 as of 30-10-2026. Last: 28-10-2026 gave ₹1,500 (Rice 25kg). Pay by UPI: john@okhdfc. — sent from SnapKhata"
+  > "Namaste Ramesh, your balance with John Traders (Kirana shop) is ₹1,250 as of 30-10-2026. Last: 28-10-2026 gave ₹1,500 (Rice 25kg). Pay by UPI: john@okhdfc. — sent from Khataebook"
 - **QR code:** WhatsApp doesn't reliably make `upi://` links clickable, so the message shows the **UPI ID as text**. Where the browser supports the **Web Share API with files** (Android Chrome and the installed app), a second button, **"Share with QR"**, shares the QR image and the message together.
 - Each send is recorded in `KhataReminders` (who, when, channel), so the ledger shows "Reminder sent 30-10-2026".
 - Rate limit: `khata-reminder`, 30 per hour per user.
@@ -362,7 +362,7 @@ SnapKhata reuses this setup and adds **two layers**:
   - totals for gave and got,
   - the closing balance,
   - the UPI ID + QR for INR books, and
-  - "Generated on DD-MM-YYYY by SnapKhata".
+  - "Generated on DD-MM-YYYY by Khataebook".
 
   It is in the owner's language, and Arabic is right to left with an Arabic font.
 - **CSV:** UTF-8 with BOM, so Excel shows ₹, Hindi and Arabic correctly. Columns: Date, Type, Amount, Note, Added by, Running balance.
@@ -447,7 +447,7 @@ SnapKhata reuses this setup and adds **two layers**:
    > Balance check: 46 of 48 customers match OkCredit's closing balance.
    > ⚠ 2 differ (see list) · 3 rows skipped (unreadable date)."
 
-   - The **balance check** compares SnapKhata's calculated balance with the **Balance column** of the file, where there is one. Any mismatch is listed per customer, so nothing is silently wrong.
+   - The **balance check** compares Khataebook's calculated balance with the **Balance column** of the file, where there is one. Any mismatch is listed per customer, so nothing is silently wrong.
    - Rows can be fixed or excluded on this screen.
 7. **Import:**
    - a background job (`KhataImportJobs`) with a progress bar;
@@ -470,7 +470,7 @@ SnapKhata reuses this setup and adds **two layers**:
 
 **What is not migrated, and the user is told before importing:**
 - bill **photos**;
-- OkCredit's shared/linked status with customers (customers get a fresh SnapKhata invitation if they use SnapKhata);
+- OkCredit's shared/linked status with customers (customers get a fresh Khataebook invitation if they use Khataebook);
 - reminders and due dates (due dates can be set again, P2); and
 - OkCredit's GST, stock and loan data.
 
@@ -522,7 +522,7 @@ The existing `run-all-apis.ps1` / `run-bro.bat` start the API and UI. The `Datab
 
 | URL | Page | Access |
 |---|---|---|
-| `/khata` | SnapKhata landing: what it is, features, FAQ, "Login" button. Redirects to `/khata/app` if already logged in | Public, prerendered, in sitemap (CLAUDE.md §8) |
+| `/khata` | Khataebook landing: what it is, features, FAQ, "Login" button. Redirects to `/khata/app` if already logged in | Public, prerendered, in sitemap (CLAUDE.md §8) |
 | `/khata/login` | Continue with Google, or choose email or mobile → enter OTP | Public, `noindex` |
 | `/khata/set-pin` | Create the app PIN (enter twice) | Logged in, no PIN yet, `noindex` |
 | `/khata/unlock` | Enter PIN to open the app; "Forgot PIN?" | Logged in + PIN set, `noindex` |
@@ -574,7 +574,7 @@ The existing `run-all-apis.ps1` / `run-bro.bat` start the API and UI. The `Datab
 3. GET /api/khata/google/callback?code&state   (one callback for Login and ConnectDrive purposes)
       → exchange code; read id_token: sub, email, email_verified, name
       → find user: by KhataUsers.GoogleSubject → else by verified Email → else create a new user
-      → if drive.file was granted: save KhataGoogleConnections (storage = GoogleDrive, create SnapKhata folder)
+      → if drive.file was granted: save KhataGoogleConnections (storage = GoogleDrive, create Khataebook folder)
          else: user goes to /khata/connect-drive (Connect or Skip)
       → create session, set refresh cookie → 302 to http://localhost:4200/khata/app (or next)
 4. UI loads, calls /api/khata/auth/refresh → gets access token (pin: false) → set-pin or unlock (§5.9)
@@ -601,16 +601,16 @@ The existing `run-all-apis.ps1` / `run-bro.bat` start the API and UI. The `Datab
                                   check state, exchange code (+ verifier) for tokens
                                   read Google profile (sub, email) from the id_token
                                   encrypt + save refresh token in KhataGoogleConnections
-                                  create Drive folder "SnapKhata" in THIS user's Drive
+                                  create Drive folder "Khataebook" in THIS user's Drive
                           ◄─── 302 to http://localhost:4200/khata/connect-drive?result=ok&next=…
  show "Connected as ramesh@gmail.com" → continue to next
 ```
 
 Auth URL parameters: `client_id`, `redirect_uri`, `response_type=code`, `scope=openid email https://www.googleapis.com/auth/drive.file`, `access_type=offline`, `prompt=consent select_account`, `include_granted_scopes=true`, `code_challenge` (S256), `state`, and `login_hint=<user's email>` when known.
 
-- **`state` ties the callback to the SnapKhata user.** It is a random value stored with the `UserId`, so the callback needs no cookie or JWT. It is single use and expires after 10 minutes.
+- **`state` ties the callback to the Khataebook user.** It is a random value stored with the `UserId`, so the callback needs no cookie or JWT. It is single use and expires after 10 minutes.
 - If the user unticks the Drive permission on the consent screen, the callback sees that the `drive.file` scope is missing and shows "Drive permission is needed to save bill photos" with a retry button.
-- **One SnapKhata user ↔ one storage at a time.** "Change Google account" in Profile runs the same flow, and then **moves** every file to the new Drive (§5.8).
+- **One Khataebook user ↔ one storage at a time.** "Change Google account" in Profile runs the same flow, and then **moves** every file to the new Drive (§5.8).
 - **Skip** (`POST /api/khata/storage/skip`) sets `StorageProvider = Local`. Files go to `App-Data` until the user connects Drive, and then they are moved (§5.8).
 - **Disconnect:** `DELETE /api/khata/google` first asks "Move your files to this computer (App-Data)?". It moves them with the same job, then revokes the token at `https://oauth2.googleapis.com/revoke` and sets `StorageProvider = Local`.
 
@@ -714,7 +714,7 @@ This job runs in three cases:
      download from old → upload to new → verify (size + MD5; Drive returns md5Checksum)
      → update FileId/FolderId/ConnectionId in SQL → mark row Moved
 4. Rewrite every ledger.json in the new storage
-5. Only when ALL files are verified: delete the files and the SnapKhata folder from the old storage
+5. Only when ALL files are verified: delete the files and the Khataebook folder from the old storage
 6. Revoke the old Google token; Status = Completed
 ```
 
@@ -760,12 +760,12 @@ FORGOT PIN
 
 ```
 /khata (landing) or /khata/app
-  Chrome/Edge/Android: beforeinstallprompt fired → keep the event → show [ Install SnapKhata ]
+  Chrome/Edge/Android: beforeinstallprompt fired → keep the event → show [ Install Khataebook ]
      tap → event.prompt() → user accepts → appinstalled → hide button
   iPhone/iPad Safari: show "Share ⬆ → Add to Home Screen" guide (once, dismissable)
   Already installed (matchMedia('(display-mode: standalone)')) → no button
 
-Installed app icon "SnapKhata" → opens /khata/app?source=pwa in its own window
+Installed app icon "Khataebook" → opens /khata/app?source=pwa in its own window
   → service worker serves the cached app shell → refresh session → /khata/unlock (PIN)
 ```
 
@@ -798,14 +798,14 @@ Delete book → PIN sheet → DELETE /api/khata/books/{id} + X-Khata-Pin-Proof �
 ## 6. Data model (SQL Server, same database, new tables; requirement 16)
 
 **Where the data lives:**
-- SnapKhata uses the **same SQL Server database the site already uses**: `thakurg-meta` on `(localdb)\MSSQLLocalDB`, through the existing `ConnectionStrings:MSSQLServer`. There is no new database and no new connection string.
-- All SnapKhata data goes in **new tables with the `Khata` prefix** (schema `dbo`), next to the existing `Messages`, `AppSettings`, `Features`, `MusicTracks` and `Translations` tables.
+- Khataebook uses the **same SQL Server database the site already uses**: `thakurg-meta` on `(localdb)\MSSQLLocalDB`, through the existing `ConnectionStrings:MSSQLServer`. There is no new database and no new connection string.
+- All Khataebook data goes in **new tables with the `Khata` prefix** (schema `dbo`), next to the existing `Messages`, `AppSettings`, `Features`, `MusicTracks` and `Translations` tables.
 - **Transactions are saved in SQL Server first**, in `KhataTransactions`. The save returns only after the SQL commit. Google Drive / `App-Data` receive only the photos and the `ledger.json` backup, afterwards and in the background. If Drive is down, nothing is lost.
 - **EF Core:** the new entities are added to the existing `DbContext`. Repositories only, per CLAUDE.md §9. Each change is one SQL transaction: entry + history + balance + stored-file rows + idempotency key + audit row together.
 
 Every table also has the standard columns from CLAUDE.md §9: `IsActive`, `IsSoftDeleted`, `IsDeleted`, `CreatedBy`, `CreatedOn`, `ModifiedBy`, `ModifiedOn`. CREATE scripts use the aligned grid (`sql-table-format.md`) and run through `DatabaseInitializer`.
 
-**Script files** live in SnapKhata's own folder, `App-Database/DatabaseInitializer/SqlScripts/CREATE/SnapKhata/` (`App-Document/sql-app-folders.md`). They are numbered from `001` in dependency order, and run by `SnapKhataDatabaseSeeder` only after "Create the SnapKhata app database objects?" is answered `y` (or `--Apps=SnapKhata` / `--Apps=All`):
+**Script files** live in Khataebook's own folder, `App-Database/DatabaseInitializer/SqlScripts/CREATE/SnapKhata/` (`App-Document/sql-app-folders.md`). They are numbered from `001` in dependency order, and run by `SnapKhataDatabaseSeeder` only after "Create the Khataebook app database objects?" is answered `y` (or `--Apps=SnapKhata` / `--Apps=All`):
 
 ```
 001_KhataUsers.sql                011_KhataNotificationPrefs.sql
@@ -840,7 +840,7 @@ Every table also has the standard columns from CLAUDE.md §9: `IsActive`, `IsSof
 
 **Seed (INSERT) scripts:**
 - `INSERT/SnapKhata/002_KhataCurrencies.sql`: the built-in money types. It has the same number as its CREATE script.
-- SnapKhata's rows in the **Common** tables go into Common's existing files (`sql-app-folders.md`):
+- Khataebook's rows in the **Common** tables go into Common's existing files (`sql-app-folders.md`):
   - `INSERT/Common/001_Messages.sql`: all `Khata*` message codes in en/hi/ar
   - `003_Features.sql` and `004_PageNames.sql`: the feature switch, S5
   - `007_Translations.sql`: the `khata` page row
@@ -1146,7 +1146,7 @@ Following CLAUDE.md:
 "Khata": {
   "UiBaseUrl": "http://localhost:4200",
   "Jwt": { "Issuer": "thakurg-local", "AccessMinutes": 15, "RefreshDays": 30 },
-  "Google": { "RedirectUri": "https://localhost:7001/api/khata/google/callback", "RootFolderName": "SnapKhata" },
+  "Google": { "RedirectUri": "https://localhost:7001/api/khata/google/callback", "RootFolderName": "Khataebook" },
   "Folder": "khata",
   "Otp": { "Sender": "Dev", "ExpiryMinutes": 5, "MaxAttempts": 5 },
   "Pin": { "MinLength": 4, "MaxLength": 6, "LockAfterMinutes": 5, "MaxTries": 5, "LockoutMinutes": 15, "ResetAfterTries": 10, "ProofSeconds": 120 },
@@ -1212,12 +1212,12 @@ dotnet user-secrets set "Khata:WebPush:VapidPrivateKey" "<generated>"
 - **Edit and delete** ask for the PIN when Save or Delete is pressed, not when the form opens, so the 2-minute proof is always fresh.
 - **Texts:** a `khata` row in `INSERT/Common/007_Translations.sql` with 138 keys in en/hi/ar. Every key the code uses has a text, and every text is used. Arabic flips the layout (logical CSS properties).
 - **Wiring:**
-  - `page.khata` in `/master` switches off `/khata` and every SnapKhata screen (`features.ts`)
+  - `page.khata` in `/master` switches off `/khata` and every Khataebook screen (`features.ts`)
   - `PageId` / `FeatureId` include `khata`
   - `/khata` is prerendered (`app.routes.server.ts`, `scripts/postbuild.mjs`) and listed in the sitemap
 - **Look:** the app styles are one section of `src/styles.scss` under `.khata`: green and red amounts, light and dark, every button at least 44 px.
 - **Fixed on the way (existing app code):** `app.ts` read `location.pathname`, which with hash routing is always `/`. So any reload with Hindi or Arabic chosen jumped to the speed-test home (also on `/#/creta` etc.). It now reads the route from the hash.
-- **Share image:** `/khata` uses `og/default.png` until a SnapKhata card is added to `scripts/generate-images.mjs` (that script redraws every image).
+- **Share image:** `/khata` uses `og/default.png` until a Khataebook card is added to `scripts/generate-images.mjs` (that script redraws every image).
 - **Tested:**
   - the prerendered `/khata` HTML (without JS: title, description, canonical, one `h1`, JSON-LD, FAQ, no raw keys)
   - 23 browser checks in headless Chrome against a temporary database: login with OTP, set PIN twice, first book (My Khata, INR), contact, "You gave ₹1,500.00", edit to ₹2,000.00 through the PIN sheet ("Edited"), delete through the PIN sheet ("Deleted", balance settled), Lock → PIN → same ledger, reload → PIN asked again → same ledger, Arabic right to left, 320 px without sideways scroll, every control at least 44 px, no JavaScript errors
@@ -1228,7 +1228,7 @@ dotnet user-secrets set "Khata:WebPush:VapidPrivateKey" "<generated>"
 ┌────────────────────────────────┐
 │ ☰ thakurg.com        EN ▾      │
 ├────────────────────────────────┤
-│  <h1> SnapKhata — free digital │
+│  <h1> Khataebook — free digital │
 │       udhar khata              │
 │  Track who owes you. Add bills │
 │  with photos, saved in YOUR    │
@@ -1242,7 +1242,7 @@ dotnet user-secrets set "Khata:WebPush:VapidPrivateKey" "<generated>"
 │  ✓ Alerts by app, SMS, email   │
 │  ✓ PIN lock, install as an app │
 │                                │
-│  [ ⬇ Install SnapKhata ]       │  ← Chrome/Edge; iPhone shows guide
+│  [ ⬇ Install Khataebook ]       │  ← Chrome/Edge; iPhone shows guide
 │                                │
 │  FAQ ▸ Is it free? ▸ Can you   │
 │        see my Drive? (No)      │
@@ -1269,7 +1269,7 @@ dotnet user-secrets set "Khata:WebPush:VapidPrivateKey" "<generated>"
 ┌────────────────────────────────┐
 │  🔒 Create your app PIN         │
 │  You'll enter it every time    │
-│  you open SnapKhata and before │
+│  you open Khataebook and before │
 │  editing an entry.             │
 │                                │
 │  PIN        ● ● ● ○ ○ ○        │  ← 4–6 digits
@@ -1288,7 +1288,7 @@ dotnet user-secrets set "Khata:WebPush:VapidPrivateKey" "<generated>"
 **B3. `/khata/unlock`** (every app open, and after 5 minutes in the background)
 ```
 ┌────────────────────────────────┐
-│        SnapKhata               │
+│        Khataebook               │
 │   Hi John 👋 Enter your PIN     │
 │        ● ● ○ ○                 │
 │  ┌───┬───┬───┐                 │
@@ -1308,13 +1308,13 @@ dotnet user-secrets set "Khata:WebPush:VapidPrivateKey" "<generated>"
 │  Save your bills in your own   │
 │  Google Drive                  │
 │                                │
-│  📁 SnapKhata keeps bill photos │
+│  📁 Khataebook keeps bill photos │
 │  and a backup of your khata in │
-│  a "SnapKhata" folder in YOUR  │
+│  a "Khataebook" folder in YOUR  │
 │  Google Drive.                 │
 │                                │
 │  🔒 We can only see files       │
-│  SnapKhata creates — never the │
+│  Khataebook creates — never the │
 │  rest of your Drive.           │
 │                                │
 │  [ G  Connect Google Drive ]   │  → Google account chooser
@@ -1322,7 +1322,7 @@ dotnet user-secrets set "Khata:WebPush:VapidPrivateKey" "<generated>"
 │                                │
 │  Skip for now                  │  ← text button
 │  ⚠ If you skip, bills are kept │
-│  only on this SnapKhata server │
+│  only on this Khataebook server │
 │  (App-Data). You can connect   │
 │  Drive later from Profile.     │
 │                                │
@@ -1380,7 +1380,7 @@ dotnet user-secrets set "Khata:WebPush:VapidPrivateKey" "<generated>"
 **E. `/khata/app` contacts**
 ```
 ┌────────────────────────────────┐
-│ SnapKhata  [Kirana shop ₹ ▾] 👤│  ← book switcher
+│ Khataebook  [Kirana shop ₹ ▾] 👤│  ← book switcher
 │   ▸ Kirana shop   ₹ INR        │
 │   ▸ Home          ₹ INR        │
 │   ▸ Dubai trade   د.إ AED      │
@@ -1504,7 +1504,7 @@ Step 3 — Check before import          Step 4 — Done
 │ Type    ( Customer ▾ )         │
 │ ── Permissions ──              │
 │ Ramesh can add entries   [ ○ ] │  ← off by default
-│ Sharing: ✓ Accepted            │  ← Not on SnapKhata / Invited / Accepted / Declined / Left
+│ Sharing: ✓ Accepted            │  ← Not on Khataebook / Invited / Accepted / Declined / Left
 │ ℹ A copy of this ledger with   │  ← only when Accepted
 │   photos is saved to Ramesh's  │
 │   own storage.                 │
@@ -1543,7 +1543,7 @@ Step 3 — Check before import          Step 4 — Done
 │ ── Security ──                 │
 │ [ Change PIN ]   [ Lock now ]  │
 │ ── App ──                      │
-│ [ ⬇ Install SnapKhata ]        │  ← hidden when already installed
+│ [ ⬇ Install Khataebook ]        │  ← hidden when already installed
 │ ── Devices ──                  │
 │ Chrome · Android  (this one)   │
 │ [ Log out ]  [ Log out all ]   │
@@ -1587,7 +1587,7 @@ Upload checks (S6) and time zone (S8) are part of phases 1–2. Tests (S9) are w
 - Leave the app in the background for more than 5 minutes, and it is locked on return.
 - Editing an entry asks for the PIN. Sending `PUT /api/khata/transactions/{id}` without `X-Khata-Pin-Proof`, or reusing an old proof, returns 403.
 - 5 wrong PINs → locked for 15 minutes. 10 → logged out, and a new PIN must be set.
-- In a production build on `localhost`, the "Install SnapKhata" button installs the app. The installed icon opens `/khata/app` in its own window and shows the unlock screen. The Speed Test app installs separately.
+- In a production build on `localhost`, the "Install Khataebook" button installs the app. The installed icon opens `/khata/app` in its own window and shows the unlock screen. The Speed Test app installs separately.
 - In DevTools → Application → Cache Storage, no `/api/khata` responses are cached.
 
 **Test cases for books, money types and invitations:**
@@ -1599,11 +1599,11 @@ Upload checks (S6) and time zone (S8) are part of phases 1–2. Tests (S9) are w
 
 ## 10. Local setup checklist
 1. Google Cloud Console → new project → enable **Google Drive API**.
-2. OAuth consent screen: External, app name "SnapKhata (local)", scopes `openid`, `email` and `drive.file`, and add the test users' Gmail addresses.
+2. OAuth consent screen: External, app name "Khataebook (local)", scopes `openid`, `email` and `drive.file`, and add the test users' Gmail addresses.
 3. Credentials → OAuth client ID → *Web application*. Redirect URI: `https://localhost:7001/api/khata/google/callback`.
 4. `dotnet user-secrets` for the client ID/secret, JWT secret, OTP secret and VAPID key (§7).
 5. Run the new SQL scripts with `DatabaseInitializer` against `(localdb)\MSSQLLocalDB`.
-6. Nothing to set up for local files: SnapKhata writes to `App-Data/khata/` (created on first use), and `App-Data/` is already in `.gitignore`.
+6. Nothing to set up for local files: Khataebook writes to `App-Data/khata/` (created on first use), and `App-Data/` is already in `.gitignore`.
 7. Start the API (`https://localhost:7001`) and UI (`http://localhost:4200`). OTP codes appear in the API console.
 
 ## 11. Decisions (answered by the owner, 30-10-2026)

@@ -17,7 +17,7 @@ Reuse one of these before adding a new bundle, and add every new bundle to this 
 
 | Bundle | Properties |
 |---|---|
-| `IKhataCommonServices` (SnapKhata ledger services) | `Audit`, `Messages`, `Idempotency`, `Notifications` |
+| `IKhataCommonServices` (Khataebook ledger services) | `Audit`, `Messages`, `Idempotency`, `Notifications` |
 | `IAuthSessionServices` (`AuthService`) | `Tokens` (`IAuthTokenService`), `Cache` (`IAuthSessionCache`) |
 | `ITrackerSmsServices` (`TrackerTransactionService`) | `Reader` (`ITrackerSmsReader`), `Protector` (`ITrackerSecretProtector`), `Flows` (`ITrackerFlowService`) |
 

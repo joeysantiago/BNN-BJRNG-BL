@@ -1,8 +1,8 @@
-# SnapTracker: screen mockups
+# Tracker: screen mockups
 
 These are mockups of the screens in [`snaptracker-plan.md`](snaptracker-plan.md). Phones come first (360 px wide is shown; every screen also works at 320 px), then the desktop layout.
 
-- **Same look as the other apps:** the frame, skins, icons and top-bar menus match SnapKhata and My Tasks.
+- **Same look as the other apps:** the frame, skins, icons and top-bar menus match Khataebook and Tasks.
 - **Shared menus:** `⊕ ◐ 🌐` in the top bar stands for the shared **install / theme / language** menus (`<app-site-tools />`). They are the same component, so they look and behave identically in every app.
 - **Text and colours:** every text comes from the `tracker` translation keys (en, hi, ar). Colours come from the active skin (Agni shown).
 
@@ -12,7 +12,7 @@ These are mockups of the screens in [`snaptracker-plan.md`](snaptracker-plan.md)
 
 ```
 ┌──────────────────────────────────────┐
-│ [✦] SnapTracker      🔔3  ⊕  ◐  🌐  │  ← top bar: logo, alerts bell, shared menus
+│ [✦] Tracker      🔔3  ⊕  ◐  🌐  │  ← top bar: logo, alerts bell, shared menus
 │ ● Tracking enabled ›                 │  ← status pill (opens Privacy)
 ├──────────────────────────────────────┤
 │                                      │
@@ -25,14 +25,14 @@ These are mockups of the screens in [`snaptracker-plan.md`](snaptracker-plan.md)
 ```
 - The badge on **Activity** shows the number of transactions waiting for review.
 - **Alerts** opens from the bell, and **How it works** from Privacy.
-- **Settings** is Settings › General › SnapTracker, reached from the rail, from Profile, or from the ⚙ link inside the Alerts panel.
+- **Settings** is Settings › General › Tracker, reached from the rail, from Profile, or from the ⚙ link inside the Alerts panel.
 
 ## 2. Frame: desktop (≥ 1024 px)
 
 ```
 ┌───────────────┬──────────────────────────────────────────────────────────┐
-│ [✦] SnapTracker│ Dashboard                          🔔3   ⊕   ◐   🌐       │
-│ by SnapKhata  ├──────────────────────────────────────────────────────────┤
+│ [✦] Tracker│ Dashboard                          🔔3   ⊕   ◐   🌐       │
+│ by Khataebook  ├──────────────────────────────────────────────────────────┤
 │               │                                                          │
 │  ⌂ Dashboard  │                                                          │
 │  ≡ Activity 2 │                     (page content)                       │
@@ -43,7 +43,7 @@ These are mockups of the screens in [`snaptracker-plan.md`](snaptracker-plan.md)
 │               │                                                          │
 │ ┌───────────┐ │                                                          │
 │ │Linked to  │ │  ← only when the Khata link is on (Q2)                   │
-│ │SnapKhata: │ │                                                          │
+│ │Khataebook: │ │                                                          │
 │ │Personal   │ │                                                          │
 │ └───────────┘ │                                                          │
 │ (◯) Super     │  ← avatar → /profile                                     │
@@ -60,7 +60,7 @@ These are mockups of the screens in [`snaptracker-plan.md`](snaptracker-plan.md)
  Your money, tracked automatically          [⟳ Sync]  [＋ Add]
 
 ┌─ Turn on automatic SMS tracking ─────────────────────────┐   ← only while not enabled
-│ ✉  SnapTracker reads only bank and UPI alerts.           │
+│ ✉  Tracker reads only bank and UPI alerts.           │
 │    OTPs and personal messages are never read.            │
 │                                   [🛡 Turn on tracking]   │
 └──────────────────────────────────────────────────────────┘
@@ -127,7 +127,7 @@ These are mockups of the screens in [`snaptracker-plan.md`](snaptracker-plan.md)
 │ 🍜 Zomato                                             │
 │ [Food & Dining] [Needs verification]                  │
 │ −₹450  (Debit · expense)                              │
-│ ⚠ SnapTracker is 72% sure about this one.             │
+│ ⚠ Tracker is 72% sure about this one.             │
 │   Check the details and confirm, or edit.             │
 │ ✦ DESCRIPTION · GENERATED                             │
 │   You spent ₹450 on food at Zomato.                   │
@@ -175,7 +175,7 @@ These are mockups of the screens in [`snaptracker-plan.md`](snaptracker-plan.md)
 
 ```
  Permissions & privacy
- You control what SnapTracker reads
+ You control what Tracker reads
 
 ┌ SMS tracking ─────────────────────────────────────────────┐
 │ Status  ● Tracking enabled · since 01-11-2026 09:12        │
@@ -211,17 +211,17 @@ These are mockups of the screens in [`snaptracker-plan.md`](snaptracker-plan.md)
 
 ---
 
-## 9. Settings › General › SnapTracker (shared Settings page)
+## 9. Settings › General › Tracker (shared Settings page)
 
 ```
-┌ SnapTracker ─────────────────────────────────────────────┐
-│ App name (super admin)  EN [SnapTracker] HI [...] AR [...] │
+┌ Tracker ─────────────────────────────────────────────┐
+│ App name (super admin)  EN [Tracker] HI [...] AR [...] │
 │                                                    [Save]   │
 │ Automatic approval                                          │
 │ [ Review everything | Smart (recommended) | Approve all ]   │   ← ChoiceGroup (selected = filled)
 │ Auto-approve at [ 85 ] % confidence or more                 │
 │                                                             │
-│ SnapKhata link                       (only if Khata is here) │
+│ Khataebook link                       (only if Khata is here) │
 │ Post confirmed transactions to Khata          [ ●── ]        │
 │ Default Khata book                    [ Personal      ▾ ]    │
 │                                                             │
@@ -238,14 +238,14 @@ These are mockups of the screens in [`snaptracker-plan.md`](snaptracker-plan.md)
 └────────────────────────────────────────────────────────────┘
 ```
 
-## 10. Profile › SnapTracker part (shared Profile page)
+## 10. Profile › Tracker part (shared Profile page)
 
 ```
-┌ SnapTracker ─────────────────────────────────────────────┐
+┌ Tracker ─────────────────────────────────────────────┐
 │ 38 transactions keep their original SMS text.             │
 │ [⬇ Download my data (JSON)]                                │
 │ [Delete original SMS texts, keep transactions]             │
-│ [🗑 Delete all SnapTracker data]      ← confirm dialog      │
+│ [🗑 Delete all Tracker data]      ← confirm dialog      │
 │                                                           │
 │ Connected phones (phase 4)                                │
 │ Pixel 7 · last seen today 09:12            [Disconnect]   │
@@ -258,12 +258,12 @@ These are mockups of the screens in [`snaptracker-plan.md`](snaptracker-plan.md)
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│ [✦] SnapTracker                         ⊕  ◐  🌐  [Log in]│
+│ [✦] Tracker                         ⊕  ◐  🌐  [Log in]│
 ├──────────────────────────────────────────────────────────┤
 │  Every bank SMS becomes a tidy transaction. Automatically.│  ← the page's one <h1>
-│  SnapTracker reads only bank and UPI alerts, works out     │
+│  Tracker reads only bank and UPI alerts, works out     │
 │  what you paid for, and files it in your Khata.            │
-│  [ Open SnapTracker ]   [ Create a free account ]          │
+│  [ Open Tracker ]   [ Create a free account ]          │
 │                                                            │
 │  ┌ AD-HDFCBK · now ───────────────┐   ✦ →   ┌ 🍜 Zomato ─┐ │
 │  │ Sent Rs.450.00 … zomato@…      │         │ −₹450      │ │

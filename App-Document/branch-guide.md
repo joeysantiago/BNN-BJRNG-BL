@@ -23,10 +23,10 @@ A short guide to the branches and their folders. Read it at the start of any wor
 | Middle | `Features/App/Creta` | Shared + Creta audio player (music code, Creta player only) | `/creta` |
 | Middle | `Features/App/Nexon` | Shared + Nexon audio player (music code, Nexon player only) | `/nexon` |
 | Middle | `Features/App/Youtube` | Shared + YouTube player | `/youtube` |
-| Middle | `Features/App/Khata` | Shared + SnapKhata (landing page and ledger app, OTP, mail, SMS/WhatsApp, export) | `/khata/app` |
-| Middle | `Features/App/snapTracker` | Shared + SnapTracker (prototype only so far) | `/profile` |
+| Middle | `Features/App/Khata` | Shared + Khataebook (landing page and ledger app, OTP, mail, SMS/WhatsApp, export) | `/khata/app` |
+| Middle | `Features/App/snapTracker` | Shared + Tracker (prototype only so far) | `/profile` |
 | Middle | `Features/App/speedtest` | Shared + Speed test | Speed test |
-| Middle | `Features/App/Planner` | Shared + My Tasks (app code `tasks`: tasks, checklists, calendar, App Lock) | `/tasks/app` |
+| Middle | `Features/App/Planner` | Shared + Tasks (app code `tasks`: tasks, checklists, calendar, App Lock) | `/tasks/app` |
 | Final | `banni-linux` | Everything: all features, Atrium HR (only here), the common login; deployed | Speed test |
 
 **Not part of the flow:**
@@ -93,7 +93,7 @@ not permission to run it.
 These files differ on purpose. `Matrix` lists no apps in them, each feature branch lists only its own app, and `banni-linux` lists all apps:
 
 - `App-WebUI/src/app/feature-routes.ts`: the feature routes, `FEATURE_APPS`, and `FEATURE_SETTINGS` / `FEATURE_PROFILE` (each app's panels of the central Settings > General and Profile pages)
-- `App-WebUI/angular.json`: the SnapKhata style bundle, only where Khata is
+- `App-WebUI/angular.json`: the Khataebook style bundle, only where Khata is
 - `App-WebAPI/Thakurg/Thakurg.API/appsettings.json`: `AppManifests:Apps`
 - `App-Prototype/assets/js/routes.js`
 - `App-WebUI/src/app/pages/creta/music.routes.ts`, `music.pages.json`, `SqlScripts/INSERT/Music/001_MusicPlayers.sql`

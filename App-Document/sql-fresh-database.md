@@ -22,4 +22,4 @@ Right:  add `('page.khata', 1, 39)` to the existing `VALUES` list in `Common/003
 Wrong:  `ALTER TABLE KhataBooks ADD CONSTRAINT FK_KhataBooks_KhataUsers_OwnerUserId FOREIGN KEY (OwnerUserId) REFERENCES KhataUsers (Id);` after `CREATE TABLE KhataBooks`.
 Right:  `CONSTRAINT FK_KhataBooks_KhataUsers_OwnerUserId FOREIGN KEY (OwnerUserId) REFERENCES KhataUsers (Id)` inside `CREATE TABLE KhataBooks`, after the primary key.
 
-Reference: App-Database\DatabaseInitializer\SqlScripts\CREATE\SnapKhata\003_KhataBooks.sql
+Reference: App-Database\DatabaseInitializer\SqlScripts\CREATE\Khataebook\003_KhataBooks.sql

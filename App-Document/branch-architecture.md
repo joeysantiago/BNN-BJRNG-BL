@@ -21,10 +21,10 @@ Matrix ──┬── Features/App/Creta ───────┐
 | `Features/App/Creta` | Shared + Creta audio player (the music code, Creta only) | `/creta` |
 | `Features/App/Nexon` | Shared + Nexon audio player (the music code, Nexon only) | `/nexon` |
 | `Features/App/Youtube` | Shared + YouTube player | `/youtube` |
-| `Features/App/Khata` | Shared + SnapKhata (landing page and ledger app) | `/khata/app` |
-| `Features/App/snapTracker` | Shared + SnapTracker (prototype only; it has no WebUI, API or database code yet) | `/profile` |
+| `Features/App/Khata` | Shared + Khataebook (landing page and ledger app) | `/khata/app` |
+| `Features/App/snapTracker` | Shared + Tracker (prototype only; it has no WebUI, API or database code yet) | `/profile` |
 | `Features/App/speedtest` | Shared + Speed test | Speed test |
-| `Features/App/Planner` | Shared + My Tasks (app code `tasks`: tasks, checklists, calendar, App Lock) | `/tasks/app` |
+| `Features/App/Planner` | Shared + Tasks (app code `tasks`: tasks, checklists, calendar, App Lock) | `/tasks/app` |
 | `banni-linux` | Everything: all features, Atrium HR (only here), the common login | Speed test |
 
 ## Where to make a change
@@ -65,7 +65,7 @@ C# drops a call to a partial method that has no implementation, so a branch with
 - `App-WebUI/src/app/feature-routes.ts`: the feature routes and pages, and `FEATURE_APPS` (the apps the branch holds; the Settings page and the
   header show only their settings, panels and access boxes); a branch without the speed test sends `/` to its own app.
 - `App-Prototype/assets/js/routes.js`: the prototype pages; a branch without the speed test sends `/` to its own app.
-- `App-WebUI/angular.json`: the SnapKhata style bundle (`pages/khata/styles/khata.scss`) is listed only on a branch that holds Khata.
+- `App-WebUI/angular.json`: the Khataebook style bundle (`pages/khata/styles/khata.scss`) is listed only on a branch that holds Khata.
 - `App-WebAPI/Thakurg/Thakurg.API/appsettings.json`: `AppManifests:Apps`, the apps that install on their own (`khata`, `creta`, `nexon`, `youtube`, `tasks`),
   each with its own manifest id, start address, scope and icons (`public/icons/<app>-*`). `Matrix` keeps the section with an empty `Apps`.
 - The `apps` list of the feature's `*.pages.json` (`speedtest`, `creta` or `nexon`, `youtube`, `khata`): `scripts/postbuild.mjs` writes each app's
@@ -94,7 +94,7 @@ into `banni-linux` touches them only if the branch changed them; then keep `bann
 - **A change made on both a feature branch and `banni-linux`** (the same fix typed twice) is what conflicts. Make a change once, on the
   branch it belongs to, and let the merge bring it to `banni-linux`.
 - **A feature file** must be listed under its feature in `feature-branches.json`; a file that is not listed counts as shared.
-- **The per-branch files** (`feature-routes.ts`, `appsettings.json` with the branch's own `AppManifests:Apps`, `angular.json` (the SnapKhata
+- **The per-branch files** (`feature-routes.ts`, `appsettings.json` with the branch's own `AppManifests:Apps`, `angular.json` (the Khataebook
   style bundle only where Khata is), the music routes, pages and players, the prototype `routes.js`) keep `banni-linux`'s full version:
   `.gitattributes` (only on `banni-linux`) marks them `merge=ours`. Run `git config merge.ours.driver true` once in the clone. Git only uses
   that rule when both sides changed the file, so after a merge check that none of these files lost another app.
@@ -106,4 +106,4 @@ into `banni-linux` touches them only if the branch changed them; then keep `bann
 
 ## Known gaps
 - **Advertisements:** no advertisement code exists in any layer, so no branch has it.
-- **SnapTracker:** only the prototype exists; its branch has no WebUI page, API or tables of its own yet (the app code `tracker` exists for access).
+- **Tracker:** only the prototype exists; its branch has no WebUI page, API or tables of its own yet (the app code `tracker` exists for access).
