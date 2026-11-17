@@ -12,7 +12,7 @@ const INSTALLED_QUERY = '(display-mode: standalone)';
 const INSTALLED_SOURCE = 'source=khata-pwa';
 
 /**
- * The app lock of the installed SnapKhata app (a 4-digit PIN). The server enforces it: when the installed app opens it locks its login
+ * The app lock of the installed Khataebook app (a 4-digit PIN). The server enforces it: when the installed app opens it locks its login
  * session there (POST pin/lock), and while that session is locked every ledger call is refused (423) until the PIN is entered. The server
  * also locks it after Khata:Pin:LockAfterMinutes without a call, so the open app keeps it alive while it is on screen. After the first
  * login the user creates the PIN; a password or code login in this run counts as unlocked. A browser tab that shares a locked session

@@ -7,7 +7,7 @@ import { Component, ElementRef, ViewEncapsulation, computed, inject, input, mode
 let nextId = 0;
 
 /**
- * The date picker of My Tasks, the same as SnapKhata's: a button showing the date (DD-MM-YYYY and Today / Tomorrow / the weekday), opening a card
+ * The date picker of Tasks, the same as Khataebook's: a button showing the date (DD-MM-YYYY and Today / Tomorrow / the weekday), opening a card
  * (a bottom sheet on phones) with quick choices, a month grid, and month and year views. The value is YYYY-MM-DD; empty means no due date.
  * Keyboard: arrows move by a day or week, Page Up / Down by a month (Shift: a year), Home / End to the week's ends, Escape closes.
  */

@@ -4,7 +4,7 @@ using Thakurg.Application.Services;
 
 namespace Thakurg.API.Filters;
 
-// Runs before every SnapTracker endpoint: finds (or makes) the SnapTracker profile of the caller, so every query is limited to that user's rows.
+// Runs before every Tracker endpoint: finds (or makes) the Tracker profile of the caller, so every query is limited to that user's rows.
 public class TrackerProfileFilter : IAsyncActionFilter
 {
     private readonly ITrackerProfileService _profileService;

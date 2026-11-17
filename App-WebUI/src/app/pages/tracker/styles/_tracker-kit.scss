@@ -1,4 +1,4 @@
-// Segmented choices, switches, setting rows, pills, notes, the empty state, toasts, the popover and the confirm box, copied from My Tasks.
+// Segmented choices, switches, setting rows, pills, notes, the empty state, toasts, the popover and the confirm box, copied from Tasks.
 // Global under .st (ViewEncapsulation.None).
 .st .seg { display: inline-flex; padding: 4px; gap: 4px; border-radius: 14px; background: var(--k-surface-3); border: 1px solid var(--k-line); flex-wrap: wrap; }
 .st .seg button { min-height: 36px; padding: 6px 14px; border: 0; border-radius: 10px; background: transparent; color: var(--k-muted); font: 700 13.5px var(--k-font); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }

@@ -1,7 +1,7 @@
 {
   "id": "/tasks-app",
-  "name": "My Tasks",
-  "short_name": "My Tasks",
+  "name": "Tasks",
+  "short_name": "Tasks",
   "lang": "en",
   "dir": "ltr",
   "start_url": "/apps/tasks/?source=tasks-pwa#/tasks/app",

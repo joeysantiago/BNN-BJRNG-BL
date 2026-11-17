@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Messages;
 
-// My Tasks. Each code is a row of Common/001_Messages.sql (en, hi, ar).
+// Tasks. Each code is a row of Common/001_Messages.sql (en, hi, ar).
 public static partial class MessageCodes
 {
     public const string TasksAdded = "TASKS_ADDED";

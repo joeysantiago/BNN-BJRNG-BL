@@ -19,7 +19,7 @@ import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router
 import { Component, OnDestroy, ViewEncapsulation, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 
 /**
- * The frame of the SnapTracker app, the same as My Tasks and SnapKhata: a rail on wide screens, a top bar (tracking status, alerts bell, and the site's own
+ * The frame of the Tracker app, the same as Tasks and Khataebook: a rail on wide screens, a top bar (tracking status, alerts bell, and the site's own
  * Install, Theme and Language menus) and bottom tabs with the Add button on phones, plus the transaction drawer, the Add sheet and the toasts.
  * The name of the app comes from the page names (code "tracker"), so a new name shows here and in the browser tab. The site header and footer are hidden on these screens (app.ts).
  * Until the user has given their names and mobiles ("My details"), it asks for them once ("Later" asks again on the next visit).
@@ -61,7 +61,7 @@ export class TrackerShell implements OnDestroy {
   constructor() {
     effect(() => this.title.setTitle(`${this.crumb()} · ${this.appName()}`));
     // In the Android app the phone's bank SMS are sent once the data is in (TrackerPhoneService).
-    // The installed SnapTracker app (/apps/tracker/) keeps its own manifest; on the plain site the page shows SnapTracker's until it is left.
+    // The installed Tracker app (/apps/tracker/) keeps its own manifest; on the plain site the page shows Tracker's until it is left.
     afterNextRender(() => {
       this.pwa.enter('tracker');
       void this.state.load().then(() => this.phone.start());

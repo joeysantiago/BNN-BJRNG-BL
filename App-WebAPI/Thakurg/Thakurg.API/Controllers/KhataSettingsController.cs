@@ -11,7 +11,7 @@ using Thakurg.Infrastructure.Security;
 
 namespace Thakurg.API.Controllers;
 
-// The user's own SnapKhata settings and the per-party message choices.
+// The user's own Khataebook settings and the per-party message choices.
 [ApiController]
 [Route("api/khata")]
 [Authorize(Policy = AuthPolicies.Khata)]

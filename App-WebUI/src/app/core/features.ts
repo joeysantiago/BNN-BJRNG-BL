@@ -23,9 +23,9 @@ export const FEATURES: FeatureInfo[] = [
   { id: 'page.about', group: 'pages', label: 'About', help: '/about' },
   { id: 'page.privacy', group: 'pages', label: 'Privacy', help: '/privacy' },
   { id: 'page.terms', group: 'pages', label: 'Terms', help: '/terms' },
-  { id: 'page.khata', group: 'pages', label: 'SnapKhata', help: '/khata and the whole SnapKhata app' },
-  { id: 'page.tasks', group: 'pages', label: 'My Tasks', help: '/tasks and the whole My Tasks app' },
-  { id: 'page.tracker', group: 'pages', label: 'SnapTracker', help: '/tracker and the whole SnapTracker app' },
+  { id: 'page.khata', group: 'pages', label: 'Khataebook', help: '/khata and the whole Khataebook app' },
+  { id: 'page.tasks', group: 'pages', label: 'Tasks', help: '/tasks and the whole Tasks app' },
+  { id: 'page.tracker', group: 'pages', label: 'Tracker', help: '/tracker and the whole Tracker app' },
 
   { id: 'speed.clock', group: 'speed', label: 'Clock and elapsed time', help: 'The two chips under the gauge.' },
   { id: 'speed.progress', group: 'speed', label: 'Progress bar', help: 'Whole-test progress.' },
@@ -101,7 +101,7 @@ export function appFeatures(app: string): FeatureInfo[] {
   return FEATURES.filter((f) => FEATURE_OWNERS[f.id]?.includes(app) || FEATURE_OWNERS[f.group]?.includes(app));
 }
 
-/** The switch that controls the page at this address, or null for pages that cannot be switched off (config, errors). Every SnapKhata screen follows page.khata, every My Tasks screen page.tasks, every SnapTracker screen page.tracker. */
+/** The switch that controls the page at this address, or null for pages that cannot be switched off (config, errors). Every Khataebook screen follows page.khata, every Tasks screen page.tasks, every Tracker screen page.tracker. */
 export function pageFeature(url: string): FeatureId | null {
   const path = url.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
   return PAGE_FEATURES[path] ?? (path.startsWith('/khata/') ? 'page.khata' : path.startsWith('/tasks/') ? 'page.tasks' : path.startsWith('/tracker/') ? 'page.tracker' : null);

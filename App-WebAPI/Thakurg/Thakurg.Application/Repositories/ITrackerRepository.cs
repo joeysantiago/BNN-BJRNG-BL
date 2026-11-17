@@ -2,7 +2,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Application.Repositories;
 
-// SnapTracker's rows of one user: the profile, the transactions with their SMS texts, the alerts and the category rules. Every query is limited to the user.
+// Tracker's rows of one user: the profile, the transactions with their SMS texts, the alerts and the category rules. Every query is limited to the user.
 public interface ITrackerRepository
 {
     void AddAlert(TrackerAlert alert);

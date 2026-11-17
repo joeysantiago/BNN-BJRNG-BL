@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Tasks;
 
-// A user who gets WhatsApp reminders of My Tasks: switched on, with a mobile number in the profile and access to the app.
+// A user who gets WhatsApp reminders of Tasks: switched on, with a mobile number in the profile and access to the app.
 public class TaskReminderRecipientDto
 {
     public int UserId { get; set; }

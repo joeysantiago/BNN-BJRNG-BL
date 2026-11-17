@@ -3,7 +3,7 @@ using Thakurg.Contracts.Wrappers;
 
 namespace Thakurg.Application.Services;
 
-// SnapTracker's transactions: reading a pasted or shared SMS or a batch of an SMS backup (sender list, OTP and promotion filters, parsing, category, duplicate check, approval),
+// Tracker's transactions: reading a pasted or shared SMS or a batch of an SMS backup (sender list, OTP and promotion filters, parsing, category, duplicate check, approval),
 // adding and editing by hand, confirm / ignore / restore / not a duplicate, the category (optionally remembered for the merchant) and delete.
 public interface ITrackerTransactionService
 {

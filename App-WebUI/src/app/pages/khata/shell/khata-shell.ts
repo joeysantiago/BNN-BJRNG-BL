@@ -21,9 +21,9 @@ const SWIPE_PX = 50;
 const CHROME = { dark: '#0e0b19', light: '#eef1f7' };
 
 /**
- * SnapKhata app frame (/khata/app/...), mobile first: a top bar and a bottom tab bar with a big "new entry" button on phones,
+ * Khataebook app frame (/khata/app/...), mobile first: a top bar and a bottom tab bar with a big "new entry" button on phones,
  * a side rail on wide screens. It also hosts the "are you sure?" sheet, the photo viewer and the toast, and carries the
- * SnapKhata design system (styles/*.scss), so its styles are not scoped to this component. While the installed app is locked
+ * Khataebook design system (styles/*.scss), so its styles are not scoped to this component. While the installed app is locked
  * (KhataLockService) it shows the PIN screen instead of the pages.
  */
 @Component({
@@ -96,7 +96,7 @@ export class KhataShell implements OnDestroy {
       if (!this.lock.open())
         untracked(() => this.closeAll());
     });
-    // The browser's address-bar colour follows the SnapKhata theme.
+    // The browser's address-bar colour follows the Khataebook theme.
     effect(() => this.doc.querySelector('meta[name=theme-color]')?.setAttribute('content', CHROME[this.theme.brightness()]));
     // The sheet and the viewer are native modal dialogs: focus stays inside and Escape closes them.
     effect(() => this.toggle(this.sheet()?.nativeElement, !!this.ui.sheet()));

@@ -1,6 +1,6 @@
 import { KhataIconName, KhataIconShape } from './models/khata.model';
 
-/** SnapKhata line icons (24 x 24, drawn with the current text colour), as shapes so they render the same when prerendered. */
+/** Khataebook line icons (24 x 24, drawn with the current text colour), as shapes so they render the same when prerendered. */
 export const KHATA_ICONS: Record<KhataIconName, KhataIconShape[]> = {
   home: [{ tag: 'path', d: 'm3 10 9-7 9 7v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z' }],
   users: [{ tag: 'path', d: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2' }, { tag: 'circle', cx: 9, cy: 7, r: 4 }, { tag: 'path', d: 'M22 21v-2a4 4 0 0 0-3-3.87' }, { tag: 'path', d: 'M16 3.13a4 4 0 0 1 0 7.75' }],

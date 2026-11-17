@@ -7,7 +7,7 @@ import { TasksStateService } from '../../../../core/tasks-state.service';
 import { Component, ViewEncapsulation, computed, effect, inject, signal, untracked } from '@angular/core';
 
 /**
- * The App Lock screen of My Tasks (the same keypad as SnapKhata): unlock with the PIN, or the PIN flows of Settings: turn the lock on (new PIN, confirm),
+ * The App Lock screen of Tasks (the same keypad as Khataebook): unlock with the PIN, or the PIN flows of Settings: turn the lock on (new PIN, confirm),
  * change it (current PIN unless the login is fresh, new, confirm) or turn it off (current PIN). Digits can also be typed on a keyboard.
  */
 @Component({

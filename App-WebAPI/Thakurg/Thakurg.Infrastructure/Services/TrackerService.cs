@@ -11,7 +11,7 @@ using Thakurg.Infrastructure.Common;
 
 namespace Thakurg.Infrastructure.Services;
 
-// SnapTracker's state of a user (transactions, alerts, tracking, ignored counts, settings), its settings, SMS reading on the phone, the alerts and the
+// Tracker's state of a user (transactions, alerts, tracking, ignored counts, settings), its settings, SMS reading on the phone, the alerts and the
 // user's data. Every change answers with a message (Messages table) and the whole state, so the app shows it at once.
 public class TrackerService : ITrackerService
 {
@@ -33,7 +33,7 @@ public class TrackerService : ITrackerService
 
     #region Public Methods
 
-    // Everything SnapTracker keeps for the user, with the SMS texts decrypted (the user's own data).
+    // Everything Tracker keeps for the user, with the SMS texts decrypted (the user's own data).
     public Task<TrackerDataDto> ExportAsync(TrackerCallerDto caller, CancellationToken cancellationToken)
     {
         return GetStateAsync(caller, cancellationToken);

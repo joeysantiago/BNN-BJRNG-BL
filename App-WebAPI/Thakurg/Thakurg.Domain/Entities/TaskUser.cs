@@ -2,7 +2,7 @@ using Thakurg.Domain.Common;
 
 namespace Thakurg.Domain.Entities;
 
-// The My Tasks profile of one common account (Users): the app's own App Lock PIN and preferences. SnapKhata keeps its own, separate row.
+// The Tasks profile of one common account (Users): the app's own App Lock PIN and preferences. Khataebook keeps its own, separate row.
 public class TaskUser : BaseEntity
 {
     public int Id { get; set; }

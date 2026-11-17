@@ -1,7 +1,7 @@
-/* SnapKhata: SnapKhata redesign texts. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+/* Khataebook: Khataebook redesign texts. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
 'use strict';
 
-// #region SnapKhata redesign texts (new keys for the redesigned app screens, in en / hi / ar like the Translations rows)
+// #region Khataebook redesign texts (new keys for the redesigned app screens, in en / hi / ar like the Translations rows)
 
 const KHATA_TEXT = {
   en: {
@@ -179,7 +179,7 @@ const KHATA_TEXT = {
     'khata.p.signedIn': 'Logged in with your thakurg.com account',
     'khata.p.appearance': 'Appearance',
     'khata.p.appearanceLead': 'System follows your device setting. Your choice is remembered.',
-    'khata.p.languageHint': 'Used on every SnapKhata screen.',
+    'khata.p.languageHint': 'Used on every Khataebook screen.',
     'khata.p.data': 'Data and session',
     'khata.p.reset': 'Reset demo data',
     'khata.p.resetHint': 'Deletes the books, entries and photos stored in this browser and adds the demo khata again.',
@@ -367,7 +367,7 @@ const KHATA_TEXT = {
     'khata.p.signedIn': 'आपके thakurg.com खाते से लॉग इन',
     'khata.p.appearance': 'दिखावट',
     'khata.p.appearanceLead': 'सिस्टम आपके डिवाइस की सेटिंग मानता है। आपकी पसंद याद रखी जाती है।',
-    'khata.p.languageHint': 'SnapKhata की हर स्क्रीन पर लागू।',
+    'khata.p.languageHint': 'Khataebook की हर स्क्रीन पर लागू।',
     'khata.p.data': 'डेटा और सेशन',
     'khata.p.reset': 'डेमो डेटा रीसेट करें',
     'khata.p.resetHint': 'इस ब्राउज़र में रखे खाते, एंट्रियाँ और फ़ोटो हटाकर डेमो खाता फिर से जोड़ता है।',
@@ -555,7 +555,7 @@ const KHATA_TEXT = {
     'khata.p.signedIn': 'تم تسجيل الدخول بحسابك في thakurg.com',
     'khata.p.appearance': 'المظهر',
     'khata.p.appearanceLead': 'خيار النظام يتبع إعداد جهازك. يتم تذكّر اختيارك.',
-    'khata.p.languageHint': 'تُستخدم في كل شاشات SnapKhata.',
+    'khata.p.languageHint': 'تُستخدم في كل شاشات Khataebook.',
     'khata.p.data': 'البيانات والجلسة',
     'khata.p.reset': 'إعادة ضبط البيانات التجريبية',
     'khata.p.resetHint': 'يحذف الدفاتر والقيود والصور المحفوظة في هذا المتصفح ويضيف الدفتر التجريبي من جديد.',

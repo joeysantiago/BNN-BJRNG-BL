@@ -1,4 +1,4 @@
-/* SnapKhata: Ledger. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+/* Khataebook: Ledger. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
 'use strict';
 
 // #region Ledger (one party's entries)

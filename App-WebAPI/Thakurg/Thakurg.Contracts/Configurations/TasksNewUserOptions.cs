@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Configurations;
 
-// Tasks:NewUser: the settings and categories a user starts with the first time they open My Tasks. DefaultCategoryCode names one of Categories.
+// Tasks:NewUser: the settings and categories a user starts with the first time they open Tasks. DefaultCategoryCode names one of Categories.
 public class TasksNewUserOptions
 {
     public int DefaultPriority { get; set; }

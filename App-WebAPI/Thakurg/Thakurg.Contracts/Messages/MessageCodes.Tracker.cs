@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Messages;
 
-// SnapTracker. Each code is a row of Common/001_Messages.sql (en, hi, ar).
+// Tracker. Each code is a row of Common/001_Messages.sql (en, hi, ar).
 public static partial class MessageCodes
 {
     public const string TrackerAdded = "TRACKER_ADDED";

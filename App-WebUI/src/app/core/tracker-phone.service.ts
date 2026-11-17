@@ -7,10 +7,10 @@ import { NativeSms, SmsTrackerPlugin } from './models/native-app.model';
 import { TrackerImportSms, TrackerTrackingAction } from './models/tracker.model';
 
 /**
- * SnapTracker in the Android app (thakurg-Apps/thakurg-android, plugin SmsTracker). Turning tracking on shows the app's notice and then Android's SMS
+ * Tracker in the Android app (thakurg-Apps/thakurg-android, plugin SmsTracker). Turning tracking on shows the app's notice and then Android's SMS
  * permission popup, and only when the user allows it is tracking turned on in the account too. While tracking is on, the bank SMS the phone caught go
  * through POST /tracker/sms/import, which skips any it already has: the whole inbox the first time (every past bank SMS of the phone), then what is new,
- * when SnapTracker opens, when the app comes back to the front, and at once when a new bank SMS arrives. "Read all SMS again" sends the whole inbox once more
+ * when Tracker opens, when the app comes back to the front, and at once when a new bank SMS arrives. "Read all SMS again" sends the whole inbox once more
  * (nothing is counted twice). In a browser there is no plugin, and tracking changes only the account.
  */
 @Injectable({ providedIn: 'root' })
@@ -27,7 +27,7 @@ export class TrackerPhoneService {
 
   // #region Public Methods
 
-  /** Starts sending the phone's bank SMS, once per page load, after SnapTracker loaded its data. */
+  /** Starts sending the phone's bank SMS, once per page load, after Tracker loaded its data. */
   start(): void {
     if (!this.sms || this.started)
       return;

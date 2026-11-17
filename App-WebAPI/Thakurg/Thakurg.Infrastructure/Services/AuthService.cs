@@ -206,7 +206,7 @@ public class AuthService : IAuthService
     }
 
     // Self sign-up (after SignupService checked its one-time code): the account gets the sign-up role (Roles.IsDefault, the Standard User) and the apps marked AutoGrant
-    // (Khata, SnapTracker); the others wait for an administrator. A sign-up never gets another role.
+    // (Khata, Tracker); the others wait for an administrator. A sign-up never gets another role.
     public async Task<SignInDto> RegisterAsync(RegisterRequestDto request, AuthCallerDto caller, CancellationToken cancellationToken)
     {
         var email = await RequireNewAccountAsync(request.Email, cancellationToken);

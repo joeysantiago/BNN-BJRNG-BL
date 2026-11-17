@@ -1,7 +1,7 @@
 {
   "id": "/tracker-app",
-  "name": "SnapTracker",
-  "short_name": "SnapTracker",
+  "name": "Tracker",
+  "short_name": "Tracker",
   "lang": "en",
   "dir": "ltr",
   "start_url": "/apps/tracker/?source=pwa#/tracker/app",

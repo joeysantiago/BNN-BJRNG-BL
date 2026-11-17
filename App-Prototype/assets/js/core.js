@@ -115,7 +115,7 @@ const on = (feature) => S.settings.features[feature] !== false;
 
 // #region Router
 
-// dashboard: the SnapKhata landing page (/khata) now has its own top bar and footer, like the app screens.
+// dashboard: the Khataebook landing page (/khata) now has its own top bar and footer, like the app screens.
 const BARE = /^\/(HR|khata(\/app)?)(\/|$)/;
 const PAGE_FEATURE = [
   [/^\/(hi|ar)?$/, 'page.speed'],
@@ -443,7 +443,7 @@ CHANGE.siteLang = (el) => {
 const DEMO_LINKS = [
   ['Speed test', '/'], ['Speed test (Hindi)', '/hi'], ['Speed test (Arabic)', '/ar'], ['YouTube', '/youtube'],
   ['Creta audio', '/creta'], ['Creta: add songs', '/creta-add'], ['Nexon audio', '/nexon'], ['Nexon: add songs', '/nexon-add'],
-  ['Atrium HR', '/HR'], ['SnapKhata (public page)', '/khata'], ['SnapKhata app', '/khata/app'], ['Log in', '/login'],
+  ['Atrium HR', '/HR'], ['Khataebook (public page)', '/khata'], ['Khataebook app', '/khata/app'], ['Log in', '/login'],
   ['Sign up', '/signup'], ['Profile', '/profile'], ['Settings (/master)', '/master'], ['About', '/about'], ['Privacy', '/privacy'], ['Terms', '/terms'],
   ['Page not found', '/404'], ['Something went wrong', '/error'], ['You are offline', '/offline'],
 ];

@@ -1,8 +1,8 @@
 import { TrackerIconName, TrackerIconShape } from './models/tracker.model';
 
 /**
- * SnapTracker line icons (24 x 24, drawn with the current text colour), as shapes so they render the same when prerendered. The icons both apps have use
- * SnapKhata's drawings unchanged (khata-icons.ts), so SnapTracker looks the same; info, sms, copies, pause, play, layers, down, up, tag, spark and filter are its own, in the same style.
+ * Tracker line icons (24 x 24, drawn with the current text colour), as shapes so they render the same when prerendered. The icons both apps have use
+ * Khataebook's drawings unchanged (khata-icons.ts), so Tracker looks the same; info, sms, copies, pause, play, layers, down, up, tag, spark and filter are its own, in the same style.
  */
 export const TRACKER_ICONS: Record<TrackerIconName, TrackerIconShape[]> = {
   home: [{ tag: 'path', d: 'm3 10 9-7 9 7v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z' }],

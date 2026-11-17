@@ -9,7 +9,7 @@ using Thakurg.Contracts.Wrappers;
 
 namespace Thakurg.API.Controllers;
 
-// The task categories of the caller (My Tasks).
+// The task categories of the caller (Tasks).
 [ApiController]
 [Route("api/tasks/categories")]
 [Authorize(Policy = AuthPolicies.Tasks)]

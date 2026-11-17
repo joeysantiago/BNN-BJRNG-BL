@@ -1,4 +1,4 @@
-/* SnapKhata: Photos. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+/* Khataebook: Photos. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
 'use strict';
 
 // #region Photos (IndexedDB in this browser; the real app keeps them in the owner's Drive or App-Data)

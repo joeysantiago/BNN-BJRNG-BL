@@ -7,7 +7,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Services;
 
-// The SnapTracker profile of an account: found, or made on the first call with the starting settings of Tracker:NewUser (SMS reading off until the user turns it on).
+// The Tracker profile of an account: found, or made on the first call with the starting settings of Tracker:NewUser (SMS reading off until the user turns it on).
 public class TrackerProfileService : ITrackerProfileService
 {
     private readonly TrackerOptions _options;

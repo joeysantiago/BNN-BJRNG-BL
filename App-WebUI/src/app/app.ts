@@ -28,7 +28,7 @@ export class App {
   private readonly cfg = inject(SettingsService);
   private readonly back = inject(NativeBackService);
 
-  /** The Atrium HR app, SnapKhata (its public page /khata and the app /khata/app), the My Tasks app (/tasks/app) and the SnapTracker app (/tracker/app) bring their own navigation, so the site header and footer are hidden there. */
+  /** The Atrium HR app, Khataebook (its public page /khata and the app /khata/app), the Tasks app (/tasks/app) and the Tracker app (/tracker/app) bring their own navigation, so the site header and footer are hidden there. */
   protected readonly bare = computed(() => /^\/(HR|khata|tasks\/app|tracker\/app)(\/|$|[?#])/.test(this.url()));
   private readonly url = toSignal(
     this.router.events.pipe(

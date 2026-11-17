@@ -9,8 +9,8 @@ import { Component, ViewEncapsulation, computed, inject } from '@angular/core';
 
 /**
  * SMS reading and privacy, a part of the How page (/tracker/app/how#privacy; the old /tracker/app/privacy leads there): SMS reading on, paused or off,
- * why SnapTracker asks for it, what it reads (the past bank SMS of the phone too) and never reads, how a message is filtered, how many messages were
- * ignored, and the banks it knows. Downloading and deleting the data are on the Profile page (SnapTracker's part).
+ * why Tracker asks for it, what it reads (the past bank SMS of the phone too) and never reads, how a message is filtered, how many messages were
+ * ignored, and the banks it knows. Downloading and deleting the data are on the Profile page (Tracker's part).
  */
 @Component({
   selector: 'app-tracker-privacy',
@@ -31,7 +31,7 @@ export class TrackerPrivacy {
 
   // #region Public Methods
 
-  /** Sends every bank SMS of the phone again; the ones already in SnapTracker are skipped. */
+  /** Sends every bank SMS of the phone again; the ones already in Tracker are skipped. */
   readAll(): void {
     void this.phone.readAll();
   }

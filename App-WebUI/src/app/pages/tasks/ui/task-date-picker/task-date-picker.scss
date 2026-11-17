@@ -1,4 +1,4 @@
-// The date picker of My Tasks, ported from SnapKhata's (a card under the button; a bottom sheet on phones). Global under .mt.
+// The date picker of Tasks, ported from Khataebook's (a card under the button; a bottom sheet on phones). Global under .mt.
 .mt .dp { position: relative; display: block; min-width: 0; }
 .mt .dp.is-open { z-index: 35; }
 .mt .dp-trigger { width: 100%; min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 7px 12px 7px 8px; border-radius: 14px; border: 1.5px solid var(--k-line-strong); background: var(--k-surface-solid); color: var(--k-text); font: inherit; text-align: start; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s; }

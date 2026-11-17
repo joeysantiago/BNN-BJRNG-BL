@@ -9,7 +9,7 @@ using Thakurg.Contracts.Wrappers;
 
 namespace Thakurg.API.Controllers;
 
-// The pictures of tasks (My Tasks). Only the owner of the task can add, open or remove them; the app loads them with its token (fetch), never by a public URL.
+// The pictures of tasks (Tasks). Only the owner of the task can add, open or remove them; the app loads them with its token (fetch), never by a public URL.
 [ApiController]
 [Route("api/tasks")]
 [Authorize(Policy = AuthPolicies.Tasks)]

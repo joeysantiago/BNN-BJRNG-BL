@@ -11,7 +11,7 @@ using Thakurg.Infrastructure.Security;
 
 namespace Thakurg.API.Controllers;
 
-// The My Tasks settings of the caller, and the name of the app (super admins only; the service checks it).
+// The Tasks settings of the caller, and the name of the app (super admins only; the service checks it).
 [ApiController]
 [Route("api/tasks/settings")]
 [Authorize(Policy = AuthPolicies.Tasks)]

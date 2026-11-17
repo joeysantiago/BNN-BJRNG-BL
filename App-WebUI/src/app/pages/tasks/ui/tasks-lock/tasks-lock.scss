@@ -1,6 +1,6 @@
-// The App Lock screen. The design system of My Tasks (the same as SnapKhata's): every colour is a token on .mt, Light and Dark are two sets of the same tokens.
+// The App Lock screen. The design system of Tasks (the same as Khataebook's): every colour is a token on .mt, Light and Dark are two sets of the same tokens.
 // Global under .mt (ViewEncapsulation.None), so the shell, its screens and its dialogs share one look.
-/* ---------- Lock (same as SnapKhata's PIN screen) ---------- */
+/* ---------- Lock (same as Khataebook's PIN screen) ---------- */
 .mt .lock { position: fixed; inset: 0; z-index: 100; display: grid; justify-items: center; align-content: center; gap: 14px; padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); text-align: center; background-color: var(--k-bg); background-image: var(--k-bg-image); overflow-y: auto; }
 .mt .lock h1 { font-size: 1.4rem; font-weight: 800; }
 .mt .lock p { max-width: 320px; color: var(--k-muted); }

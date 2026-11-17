@@ -1,5 +1,5 @@
-/* SnapTracker prototype. One file, no server: the "server" parts (parsing, duplicate check) run in this page so the flow can be clicked through.
-   Sign-in is the site's common login (auth.js): SnapTracker opens for an account with the tracker app and uses its e-mail as the SnapTracker account.
+/* Tracker prototype. One file, no server: the "server" parts (parsing, duplicate check) run in this page so the flow can be clicked through.
+   Sign-in is the site's common login (auth.js): Tracker opens for an account with the tracker app and uses its e-mail as the Tracker account.
    Data lives in this browser's localStorage under "snaptracker:". The Android device panel stands in for the companion app's SMS receiver. */
 'use strict';
 
@@ -117,7 +117,7 @@ const CATS = {
   other: { name: 'Others', emoji: '🧾', color: '#9ca3af' },
 };
 
-/** Registered SMS headers (DLT) of banks and payment apps that SnapTracker listens to. Everything else is ignored on the phone. */
+/** Registered SMS headers (DLT) of banks and payment apps that Tracker listens to. Everything else is ignored on the phone. */
 const BANKS = {
   HDFCBK: 'HDFC Bank', ICICIB: 'ICICI Bank', SBIINB: 'State Bank of India', SBIUPI: 'SBI UPI', CBSSBI: 'State Bank of India', ATMSBI: 'State Bank of India',
   AXISBK: 'Axis Bank', KOTAKB: 'Kotak Mahindra Bank', YESBNK: 'Yes Bank', IDFCFB: 'IDFC First Bank', INDUSB: 'IndusInd Bank', PNBSMS: 'Punjab National Bank',
@@ -145,7 +145,7 @@ const METHODS = ['UPI', 'Debit card', 'Credit card', 'Card', 'NEFT', 'IMPS', 'RT
 const NOTE_TYPES = {
   newTx: { label: 'New transaction detected', help: 'Each time an SMS becomes a transaction.', icon: '⚡' },
   categorized: { label: 'Automatically categorised', help: 'When a transaction is auto-approved with a category.', icon: '🏷️' },
-  verify: { label: 'Needs verification', help: 'When SnapTracker is not sure and wants you to check.', icon: '🔎' },
+  verify: { label: 'Needs verification', help: 'When Tracker is not sure and wants you to check.', icon: '🔎' },
   duplicate: { label: 'Duplicate message detected', help: 'When the same payment arrives twice (bank + UPI app).', icon: '🧬' },
   revoked: { label: 'Tracking permission revoked', help: 'When SMS access is turned off on the phone.', icon: '⛔' },
   paused: { label: 'Tracking paused or resumed', help: 'When you pause or resume SMS tracking.', icon: '⏸️' },
@@ -436,7 +436,7 @@ function processSms(D, sms, o = {}) {
   st('phone', 'Sender allow-list', true, `${s.name} · ${s.kindLabel}`);
   if (isOtp(body)) {
     st('phone', 'OTP filter', false, 'Contains a one-time password.');
-    return skip('otp', 'OTP message. Dropped on the phone without being stored or uploaded. SnapTracker never reads OTPs.');
+    return skip('otp', 'OTP message. Dropped on the phone without being stored or uploaded. Tracker never reads OTPs.');
   }
   st('phone', 'OTP filter', true, 'No one-time password.');
   if (s.kind === 'P' || (PROMO_RE.test(body) && !TXN_RE.test(body))) {
@@ -598,8 +598,8 @@ function guard(p) {
   return p.startsWith('/app') ? null : '/app';
 }
 
-/** Common login (auth.js): SnapTracker opens only for a logged-in account with the tracker app, and uses that account's e-mail as its own account.
-    There is no SnapTracker sign-in, one-time code, app password or lock any more; signing out of SnapTracker signs out of thakurg.com. */
+/** Common login (auth.js): Tracker opens only for a logged-in account with the tracker app, and uses that account's e-mail as its own account.
+    There is no Tracker sign-in, one-time code, app password or lock any more; signing out of Tracker signs out of thakurg.com. */
 function commonLogin() {
   const why = AUTH.blocked('/tracker/app');
   const me = AUTH.current();
@@ -617,7 +617,7 @@ function commonLogin() {
   return null;
 }
 
-/** The "log in" / "no access" screen, in the SnapTracker sign-in frame. Its buttons hand the address to the common login page. */
+/** The "log in" / "no access" screen, in the Tracker sign-in frame. Its buttons hand the address to the common login page. */
 function gateHtml(why) {
   const lang = PREFS.get().lang;
   const tx = (key, params) => esc(AUTH.text(key, params, lang));
@@ -637,7 +637,7 @@ function route() {
   S.route = readRoute();
   const why = commonLogin();
   if (why) {
-    document.title = AUTH.text(why === 'login' ? 'auth.gate.login.h1' : 'auth.gate.denied.h1', { name: 'SnapTracker' }) + ' · SnapTracker';
+    document.title = AUTH.text(why === 'login' ? 'auth.gate.login.h1' : 'auth.gate.denied.h1', { name: 'Tracker' }) + ' · Tracker';
     document.getElementById('app').innerHTML = gateHtml(why);
     BRIDGE.report(location.hash.slice(1) || '/');
     return;
@@ -661,7 +661,7 @@ const VIEWS = {
 function render(scrollTop) {
   const p = S.route.path;
   const v = (VIEWS[p] || dashView)();
-  document.title = v.title + ' · SnapTracker';
+  document.title = v.title + ' · Tracker';
   const inApp = p.startsWith('/app');
   const app = document.getElementById('app');
   const keep = document.activeElement && document.activeElement.id;
@@ -684,12 +684,12 @@ function shellHtml(v) {
   const nav = [['/app', 'home', 'Dashboard'], ['/app/transactions', 'list', 'Transactions', pending], ['/app/privacy', 'shield', 'Privacy'], ['/app/notifications', 'bell', 'Alerts'], ['/app/settings', 'gear', 'Settings']];
   const cur = (path) => (p === path ? ' aria-current="page"' : '');
   return `<div class="shell">
-  <aside class="side" aria-label="SnapTracker">
+  <aside class="side" aria-label="Tracker">
     ${logoHtml()}
     <nav class="nav" aria-label="Main">${nav.map(([path, icon, label, n]) => `<a href="#${path}"${cur(path)}>${ic(icon)}${label}${n ? `<span class="badge" aria-label="${n} pending">${n}</span>` : ''}</a>`).join('')}
       <a href="#/app/how"${cur('/app/how')}>${ic('layers')}How it works</a></nav>
     <div class="side-foot">
-      <div class="side-card"><b>Linked to SnapKhata</b><br><span class="muted">Confirmed entries post to the <b>${esc(D.settings.khata.book)}</b> book.</span></div>
+      <div class="side-card"><b>Linked to Khataebook</b><br><span class="muted">Confirmed entries post to the <b>${esc(D.settings.khata.book)}</b> book.</span></div>
     </div>
   </aside>
   <div class="main">
@@ -712,7 +712,7 @@ function shellHtml(v) {
 </div>`;
 }
 
-const logoHtml = () => `<a class="logo" href="#/app"><span class="logo-mark">${ic('spark')}</span><span>SnapTracker<small>by SnapKhata</small></span></a>`;
+const logoHtml = () => `<a class="logo" href="#/app"><span class="logo-mark">${ic('spark')}</span><span>Tracker<small>by Khataebook</small></span></a>`;
 
 function trackState() {
   if (S.ui.syncing)
@@ -733,14 +733,14 @@ function authFrame(inner) {
   return `<div class="auth">
   <section class="auth-art" aria-hidden="true">
     <div style="position:relative;z-index:1">
-      <span class="logo" style="color:#fff"><span class="logo-mark" style="background:rgba(255,255,255,.2)">${ic('spark')}</span>SnapTracker</span>
+      <span class="logo" style="color:#fff"><span class="logo-mark" style="background:rgba(255,255,255,.2)">${ic('spark')}</span>Tracker</span>
       <h2 style="margin-top:40px">Every bank SMS becomes a tidy transaction. Automatically.</h2>
-      <p>SnapTracker reads only bank and UPI alerts on your Android phone, works out what you paid for, and files it in your Khata.</p>
+      <p>Tracker reads only bank and UPI alerts on your Android phone, works out what you paid for, and files it in your Khata.</p>
       <ul><li>${ic('shield')}OTPs and personal messages never leave the phone</li><li>${ic('spark')}Plain-language descriptions and categories</li><li>${ic('copies')}Duplicate alerts caught for you</li></ul>
     </div>
     <div class="art-demo">
       <div class="art-sms"><b>AD-HDFCBK · now</b>Sent Rs.450.00 from HDFC Bank A/C *4821 to zomato@hdfcbank. Ref 4301…</div>
-      <div class="art-arrow">${ic('spark')} SnapTracker</div>
+      <div class="art-arrow">${ic('spark')} Tracker</div>
       <div class="art-txn"><span class="av">🍜</span><div style="flex:1"><b>Zomato</b><div style="font-size:13px;color:#5b6178">You spent ₹450 on food at Zomato.</div></div><b style="color:#c92f52">−₹450</b></div>
     </div>
   </section>
@@ -901,7 +901,7 @@ function dashView() {
     <section class="card span-2" aria-labelledby="h-monthly"><div class="card-head"><div><h2 id="h-monthly">Monthly analytics</h2><p>Last 6 months, confirmed and pending</p></div>
       <div class="legend"><span><i style="background:var(--chart-a)"></i>Spent</span><span><i style="background:var(--chart-b)"></i>Income</span></div></div>${barChart(monthRows(D, 6))}</section>
     <section class="card span-2" aria-labelledby="h-cat"><div class="card-head"><div><h2 id="h-cat">Where it went</h2><p>Spending by category, this month</p></div></div>${donut(D, mStart)}</section>
-    <section class="card span-2" aria-labelledby="h-queue"><div class="card-head"><div><h2 id="h-queue">Needs your check</h2><p>SnapTracker wasn't sure about these</p></div>${pending.length ? `<a class="btn sm" href="#/app/transactions?f=pending">See all ${pending.length}</a>` : ''}</div>
+    <section class="card span-2" aria-labelledby="h-queue"><div class="card-head"><div><h2 id="h-queue">Needs your check</h2><p>Tracker wasn't sure about these</p></div>${pending.length ? `<a class="btn sm" href="#/app/transactions?f=pending">See all ${pending.length}</a>` : ''}</div>
       ${pending.length ? pending.slice(0, 4).map((t) => `<div class="queue-item"><span class="av" style="background:${CATS[t.category].color}22">${CATS[t.category].emoji}</span><div class="tx-main" data-act="openTx" data-id="${t.id}" role="button" tabindex="0"><div class="tx-title"><span>${esc(t.merchant || (t.type === 'credit' ? 'Money received' : 'Unknown merchant'))}</span></div><div class="tx-desc">${esc(t.description)}</div></div><b class="num ${t.type}">${t.type === 'debit' ? '−' : '+'}${money(t.amount)}</b>
         <button class="btn sm icon ok" data-act="confirm" data-id="${t.id}" aria-label="Confirm ${esc(t.merchant || 'transaction')}">${ic('check')}</button><button class="btn sm icon" data-act="ignore" data-id="${t.id}" aria-label="Ignore ${esc(t.merchant || 'transaction')}">${ic('x')}</button></div>`).join('') : '<p class="empty">Nothing to review. 🎉</p>'}</section>
     <section class="card span-2" aria-labelledby="h-recent"><div class="card-head"><div><h2 id="h-recent">Recently detected</h2><p>Newest SMS first</p></div><a class="btn sm" href="#/app/transactions?f=sms">View all</a></div>
@@ -914,7 +914,7 @@ function statusCard() {
   const st = S.data.tracking.state;
   if (st === 'paused')
     return `<section class="card status-card" style="margin-bottom:14px" aria-labelledby="sc-h"><span class="s-ic" style="background:var(--warn-bg);color:var(--warn)">${ic('pause')}</span><div class="s-body"><h2 id="sc-h">Tracking is paused</h2><p class="muted">New bank SMS are not read until you resume. Nothing is queued while paused.</p></div><button class="btn pri" data-act="resume">${ic('play')}Resume tracking</button></section>`;
-  return `<section class="card status-card" style="margin-bottom:14px" aria-labelledby="sc-h"><span class="s-ic">${ic('sms')}</span><div class="s-body"><h2 id="sc-h">Turn on automatic SMS tracking</h2><p class="muted">SnapTracker needs permission to read incoming bank and UPI alerts on your Android phone. OTPs and personal messages are never read.</p></div><button class="btn pri" data-act="enableTracking">${ic('shield')}Turn on tracking</button></section>`;
+  return `<section class="card status-card" style="margin-bottom:14px" aria-labelledby="sc-h"><span class="s-ic">${ic('sms')}</span><div class="s-body"><h2 id="sc-h">Turn on automatic SMS tracking</h2><p class="muted">Tracker needs permission to read incoming bank and UPI alerts on your Android phone. OTPs and personal messages are never read.</p></div><button class="btn pri" data-act="enableTracking">${ic('shield')}Turn on tracking</button></section>`;
 }
 
 // #endregion
@@ -959,7 +959,7 @@ function txnsView() {
       g.net += t.type === 'debit' ? -t.amount : t.amount;
   });
   const html = `<div class="page">
-    <div class="page-head"><div><p class="eyebrow">SnapTracker</p><h1>Detected transactions</h1></div>
+    <div class="page-head"><div><p class="eyebrow">Tracker</p><h1>Detected transactions</h1></div>
       <div class="row"><label class="search"><span class="sr">Search transactions</span>${ic('search')}<input class="input" id="tx-search" type="search" placeholder="Search merchant, amount, SMS…" value="${esc(S.ui.search)}"></label><button class="btn pri" data-act="addManual">${ic('plus')}Add</button></div></div>
     <div class="filters" role="group" aria-label="Filter transactions">${FILTERS.map(([k, label, ff]) => `<button aria-pressed="${k === f}" data-act="filter" data-f="${k}">${label} <small>${D.txns.filter(ff).length}</small></button>`).join('')}</div>
     ${list.length ? `<div class="card list-card"><ul class="tl">${groups.map((g) => `<li><div class="tl-day"><span>${g.k}</span><span class="num">${g.net >= 0 ? '+' : '−'}${money(Math.abs(Math.round(g.net)))}</span></div><ul class="tl">${g.items.map(txRow).join('')}</ul></li>`).join('')}</ul></div>`
@@ -989,7 +989,7 @@ function drawerHtml() {
   const confColor = t.confidence >= 85 ? 'var(--credit)' : t.confidence >= 65 ? 'var(--warn)' : 'var(--debit)';
   let banner = '';
   if (t.status === 'pending')
-    banner = `<div class="alert warn">${ic('alert')}<span>${t.typeGuessed ? 'SnapTracker could not tell whether money came in or went out.' : `SnapTracker is ${t.confidence}% sure about this one.`} Check the details and confirm, or edit.</span></div>`;
+    banner = `<div class="alert warn">${ic('alert')}<span>${t.typeGuessed ? 'Tracker could not tell whether money came in or went out.' : `Tracker is ${t.confidence}% sure about this one.`} Check the details and confirm, or edit.</span></div>`;
   if (t.status === 'duplicate')
     banner = `<div class="alert info">${ic('copies')}<span>${esc(t.dupWhy)} ${dupOf ? `It matches <button class="link" style="min-height:0;padding:0" data-act="openTx" data-id="${dupOf.id}">${esc(dupOf.merchant || 'this transaction')} on ${fmtDate(dupOf.at)}</button>.` : ''} It is not counted in your totals.</span></div>`;
   if (t.status === 'ignored')
@@ -1016,11 +1016,11 @@ function drawerHtml() {
         <div><dt>Payment method</dt><dd>${esc(t.method)}</dd></div>
         <div><dt>Account</dt><dd>${esc(t.account || '—')}</dd></div>
         <div><dt>Reference</dt><dd>${esc(t.ref || '—')}</dd></div>
-        <div><dt>Source</dt><dd>${t.source === 'sms' ? `Automatically detected through SnapTracker · ${esc(t.sms.senderName)}` : 'Added manually'}</dd></div>
+        <div><dt>Source</dt><dd>${t.source === 'sms' ? `Automatically detected through Tracker · ${esc(t.sms.senderName)}` : 'Added manually'}</dd></div>
         <div><dt>Khata</dt><dd>${t.khata ? `📒 ${esc(t.khata.book)} · ${t.khata.no}<br><small class="muted">${t.khata.kind}</small>` : t.status === 'pending' ? 'Posts when confirmed' : '—'}</dd></div>
         ${t.source === 'sms' ? `<div style="grid-column:1/-1"><dt>Detection confidence · ${t.confidence}%</dt><dd><div class="conf"><i style="width:${t.confidence}%;background:${confColor}"></i></div></dd></div>` : ''}
       </dl>
-      ${t.sms ? `<div class="sms-head"><span>Original SMS · ${esc(t.sms.sender)}</span><span>${fmtDT(t.sms.receivedAt)}</span></div><div class="sms">${highlight(t.sms)}</div><p class="hint" style="margin-top:6px">Highlighted: the parts SnapTracker read. You can delete original texts any time in Privacy.</p>` : t.source === 'sms' ? '<p class="hint" style="margin-top:14px">Original SMS text deleted at your request.</p>' : ''}
+      ${t.sms ? `<div class="sms-head"><span>Original SMS · ${esc(t.sms.sender)}</span><span>${fmtDT(t.sms.receivedAt)}</span></div><div class="sms">${highlight(t.sms)}</div><p class="hint" style="margin-top:6px">Highlighted: the parts Tracker read. You can delete original texts any time in Privacy.</p>` : t.source === 'sms' ? '<p class="hint" style="margin-top:14px">Original SMS text deleted at your request.</p>' : ''}
     </div>
     <div class="drawer-foot">${actions.join('')}</div>
   </aside>`;
@@ -1037,15 +1037,15 @@ function modalHtml() {
     body = `<h2 id="m-title">${esc(m.title)}</h2><p class="muted">${esc(m.body)}</p>
       <div class="modal-actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn ${m.danger ? 'danger solid' : 'pri'}" data-act="${m.act}" data-id="${m.id ?? ''}">${esc(m.ok)}</button></div>`;
   else if (m.kind === 'disclosure')
-    body = `<h2 id="m-title">SnapTracker reads bank SMS</h2>
-      <p class="muted" style="margin-bottom:12px">To create transactions automatically, SnapTracker needs the Android SMS permission. Here is exactly what happens:</p>
-      <ul class="ticks yes" style="margin-bottom:12px"><li>${ic('checkC')}Only messages from banks and payment apps on our list are looked at.</li><li>${ic('checkC')}For those, the text, sender and time are sent over HTTPS to your SnapTracker account to create a transaction.</li><li>${ic('checkC')}You can pause, revoke or delete everything at any time.</li></ul>
+    body = `<h2 id="m-title">Tracker reads bank SMS</h2>
+      <p class="muted" style="margin-bottom:12px">To create transactions automatically, Tracker needs the Android SMS permission. Here is exactly what happens:</p>
+      <ul class="ticks yes" style="margin-bottom:12px"><li>${ic('checkC')}Only messages from banks and payment apps on our list are looked at.</li><li>${ic('checkC')}For those, the text, sender and time are sent over HTTPS to your Tracker account to create a transaction.</li><li>${ic('checkC')}You can pause, revoke or delete everything at any time.</li></ul>
       <ul class="ticks no" style="margin-bottom:14px"><li>${ic('xC')}OTPs, personal chats and promotions are dropped on the phone and never uploaded.</li><li>${ic('xC')}No contacts, call logs or other phone data are collected.</li><li>${ic('xC')}Your inbox history is not uploaded in bulk.</li></ul>
-      <label class="row" style="gap:10px;align-items:flex-start;min-height:44px"><input type="checkbox" id="consent" style="width:20px;height:20px;margin-top:2px;accent-color:var(--brand)"> <span>I understand and want SnapTracker to read bank and UPI SMS on this phone.</span></label>
+      <label class="row" style="gap:10px;align-items:flex-start;min-height:44px"><input type="checkbox" id="consent" style="width:20px;height:20px;margin-top:2px;accent-color:var(--brand)"> <span>I understand and want Tracker to read bank and UPI SMS on this phone.</span></label>
       <div class="modal-actions"><button class="btn" data-act="closeModal">Not now</button><button class="btn pri" data-act="consentNext">Continue</button></div>`;
   else if (m.kind === 'android')
     return `<div class="scrim"></div><div class="modal"><div class="modal-box android" role="dialog" aria-modal="true" aria-labelledby="m-title" style="width:min(340px,100%)">
-      <div class="a-ic">${ic('sms')}</div><h2 id="m-title">Allow <b>SnapTracker</b> to send and view SMS messages?</h2>
+      <div class="a-ic">${ic('sms')}</div><h2 id="m-title">Allow <b>Tracker</b> to send and view SMS messages?</h2>
       <div class="a-btns"><button class="allow" data-act="permAllow">Allow</button><button data-act="permDeny">Don't allow</button></div>
       <p style="font-size:11px;margin-top:12px;opacity:.6">Prototype of the Android system dialog (RECEIVE_SMS)</p></div></div>`;
   else if (m.kind === 'category') {
@@ -1092,7 +1092,7 @@ function privacyView() {
   const f = D.filtered;
   const withText = D.txns.filter((t) => t.sms).length;
   const html = `<div class="page">
-  <div class="page-head"><div><p class="eyebrow">Permissions & privacy</p><h1>You control what SnapTracker reads</h1></div></div>
+  <div class="page-head"><div><p class="eyebrow">Permissions & privacy</p><h1>You control what Tracker reads</h1></div></div>
   <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
     <section class="card" aria-labelledby="pv-track">
       <div class="set-row"><div class="lbl"><b id="pv-track">SMS tracking</b><small>Reads new bank and UPI alerts on this phone</small></div><label class="sw"><input type="checkbox" data-change="trackSwitch" ${st === 'enabled' ? 'checked' : ''} aria-labelledby="pv-track"><span></span></label></div>
@@ -1103,7 +1103,7 @@ function privacyView() {
       </div>
     </section>
     <section class="card" aria-labelledby="pv-why"><h2 id="pv-why" style="margin-bottom:8px">Why SMS access?</h2>
-      <p class="muted">Banks and UPI apps send an SMS for every payment. Reading those alerts is the only way to record your spending without you typing it in. A website cannot read SMS, so this works through the SnapTracker Android app, and only after you turn it on here.</p></section>
+      <p class="muted">Banks and UPI apps send an SMS for every payment. Reading those alerts is the only way to record your spending without you typing it in. A website cannot read SMS, so this works through the Tracker Android app, and only after you turn it on here.</p></section>
     <section class="card" aria-labelledby="pv-what"><h2 id="pv-what" style="margin-bottom:12px">What is processed and stored</h2>
       <ul class="ticks yes"><li>${ic('checkC')}Sender name, time and text of bank / payment-app alerts</li><li>${ic('checkC')}Amount, direction, merchant, account's last 4 digits, reference</li><li>${ic('checkC')}The transaction created from it, linked to your account only</li></ul></section>
     <section class="card" aria-labelledby="pv-never"><h2 id="pv-never" style="margin-bottom:12px">Never collected</h2>
@@ -1114,7 +1114,7 @@ function privacyView() {
       <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">${[['OTPs', f.otp], ['Promotions', f.promo], ['Failed payments', f.failed], ['Other / unknown', f.other]].map(([l, n]) => `<div style="background:var(--surface-2);border-radius:12px;padding:10px 12px"><div class="muted" style="font-size:13px">${l}</div><b class="num" style="font-size:20px">${n}</b></div>`).join('')}</div></section>
     <section class="card" aria-labelledby="pv-senders"><h2 id="pv-senders" style="margin-bottom:12px">Supported senders</h2><div class="senders">${[...new Set(Object.values(BANKS))].map((b) => `<span class="chip">${esc(b)}</span>`).join('')}</div></section>
     <section class="card" aria-labelledby="pv-data"><h2 id="pv-data" style="margin-bottom:6px">Your data</h2><p class="muted" style="margin-bottom:12px">${withText} transactions keep their original SMS text.</p>
-      <div class="stack"><button class="btn" data-act="exportData">${ic('down')}Download my data (JSON)</button><button class="btn" data-act="askDeleteTexts" ${withText ? '' : 'disabled'}>Delete original SMS texts, keep transactions</button><button class="btn danger" data-act="askDeleteAll">${ic('trash')}Delete all SnapTracker data</button></div></section>
+      <div class="stack"><button class="btn" data-act="exportData">${ic('down')}Download my data (JSON)</button><button class="btn" data-act="askDeleteTexts" ${withText ? '' : 'disabled'}>Delete original SMS texts, keep transactions</button><button class="btn danger" data-act="askDeleteAll">${ic('trash')}Delete all Tracker data</button></div></section>
   </div></div>`;
   return { title: 'Privacy', html };
 }
@@ -1125,7 +1125,7 @@ function notifyView() {
   <div class="page-head"><div><p class="eyebrow">Notifications</p><h1>Alerts you want to get</h1></div><button class="btn" data-act="readAll" ${D.notes.some((n) => !n.read) ? '' : 'disabled'}>Mark all read</button></div>
   <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
     <section class="card" aria-labelledby="nt-pref"><h2 id="nt-pref" style="margin-bottom:6px">Preferences</h2>
-      <div class="set-row"><label for="n-push"><b>Push notifications on the phone</b><small>Off: alerts only appear inside SnapTracker</small></label><span class="sw"><input type="checkbox" id="n-push" data-change="pushPref" ${D.settings.push ? 'checked' : ''}><span></span></span></div>
+      <div class="set-row"><label for="n-push"><b>Push notifications on the phone</b><small>Off: alerts only appear inside Tracker</small></label><span class="sw"><input type="checkbox" id="n-push" data-change="pushPref" ${D.settings.push ? 'checked' : ''}><span></span></span></div>
       ${Object.entries(NOTE_TYPES).map(([k, n]) => `<div class="set-row"><label for="n-${k}"><b>${n.icon} ${n.label}</b><small>${n.help}</small></label><span class="sw"><input type="checkbox" id="n-${k}" data-change="notePref" data-k="${k}" ${D.settings.notify[k] ? 'checked' : ''}><span></span></span></div>`).join('')}
     </section>
     <section class="card" aria-labelledby="nt-list" style="padding:0;overflow:hidden"><div class="pop-head" style="position:static"><h2 id="nt-list">Recent</h2><span class="muted" style="font-size:13px">${D.notes.length}</span></div>${notesList(30)}</section>
@@ -1148,15 +1148,15 @@ function settingsView() {
   const D = S.data, set = D.settings;
   const log = store.get('audit:' + S.user, []);
   const html = `<div class="page">
-  <div class="page-head"><div><p class="eyebrow">Settings</p><h1>SnapTracker settings</h1></div></div>
+  <div class="page-head"><div><p class="eyebrow">Settings</p><h1>Tracker settings</h1></div></div>
   <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
     <section class="card" aria-labelledby="st-appr"><h2 id="st-appr" style="margin-bottom:6px">Automatic approval</h2><p class="muted" style="margin-bottom:12px;font-size:14px">What happens when a new SMS becomes a transaction.</p>
       <div class="radio-cards">
-        ${[['review', 'Review everything', 'Every detected transaction waits for you to confirm.'], ['smart', 'Smart (recommended)', 'Auto-approve when SnapTracker is sure; ask you about the rest.'], ['auto', 'Approve all', 'Everything is approved straight away. You can still edit later.']].map(([k, l, h]) => `<label><input type="radio" name="approval" value="${k}" data-change="approval" ${set.approval === k ? 'checked' : ''}><span><b>${l}</b><small>${h}</small></span></label>`).join('')}
+        ${[['review', 'Review everything', 'Every detected transaction waits for you to confirm.'], ['smart', 'Smart (recommended)', 'Auto-approve when Tracker is sure; ask you about the rest.'], ['auto', 'Approve all', 'Everything is approved straight away. You can still edit later.']].map(([k, l, h]) => `<label><input type="radio" name="approval" value="${k}" data-change="approval" ${set.approval === k ? 'checked' : ''}><span><b>${l}</b><small>${h}</small></span></label>`).join('')}
       </div>
       ${set.approval === 'smart' ? `<label class="field" style="margin-top:14px"><span>Auto-approve at <b id="thr-v">${set.threshold}</b>% confidence or more</span><input type="range" min="70" max="98" step="1" value="${set.threshold}" data-change="threshold" id="thr"></label>` : ''}
     </section>
-    <section class="card" aria-labelledby="st-khata"><h2 id="st-khata" style="margin-bottom:6px">SnapKhata link</h2>
+    <section class="card" aria-labelledby="st-khata"><h2 id="st-khata" style="margin-bottom:6px">Khataebook link</h2>
       <div class="set-row"><label for="k-auto"><b>Post confirmed transactions to Khata</b><small>Debits become "You paid", credits "You got". One entry per transaction, never twice.</small></label><span class="sw"><input type="checkbox" id="k-auto" data-change="khataAuto" ${set.khata.autoPost ? 'checked' : ''}><span></span></span></div>
       <label class="field" style="margin-top:8px"><span>Default Khata book</span><select class="input" data-change="khataBook">${BOOKS.map((b) => `<option${b === set.khata.book ? ' selected' : ''}>${b}</option>`).join('')}</select></label>
       <p class="hint">${D.txns.filter((t) => t.khata).length} transactions are in Khata.</p>
@@ -1167,7 +1167,7 @@ function settingsView() {
     </section>
     <section class="card" aria-labelledby="st-look"><h2 id="st-look" style="margin-bottom:12px">Appearance</h2>
       <div class="seg" style="grid-template-columns:repeat(3,1fr)" role="radiogroup" aria-label="Theme">${['system', 'light', 'dark'].map((th) => `<button role="radio" aria-checked="${set.theme === th}" aria-selected="${set.theme === th}" data-act="setTheme" data-t="${th}">${th[0].toUpperCase() + th.slice(1)}</button>`).join('')}</div>
-      <a class="btn wide" href="#/app/how">${ic('layers')}How SnapTracker works</a>
+      <a class="btn wide" href="#/app/how">${ic('layers')}How Tracker works</a>
     </section>
     <section class="card" aria-labelledby="st-audit"><h2 id="st-audit" style="margin-bottom:8px">Activity</h2>
       <ul class="audit">${log.slice(0, 12).map((a) => `<li><span><b>${esc(a.event)}</b>${a.detail ? `<br><small class="muted">${esc(a.detail)}</small>` : ''}</span><small class="faint" style="white-space:nowrap">${fmtDT(a.at)}</small></li>`).join('') || '<li class="muted">Nothing yet.</li>'}</ul></section>
@@ -1179,7 +1179,7 @@ function settingsView() {
 
 function howView() {
   const html = `<div class="page">
-  <div class="page-head"><div><p class="eyebrow">Architecture</p><h1>How SnapTracker works</h1></div></div>
+  <div class="page-head"><div><p class="eyebrow">Architecture</p><h1>How Tracker works</h1></div></div>
   <div class="alert info" style="margin-bottom:14px">${ic('info')}<span>A web page cannot read SMS. Detection runs in a small Android companion app (or the Android build of the app); the Angular site shows the dashboard, and the .NET API does the parsing and storage.</span></div>
   <div class="arch">
     <section class="card"><h3>📱 Android app</h3><ul>
@@ -1191,7 +1191,7 @@ function howView() {
     <section class="card"><h3>🛡️ API (.NET, Thakurg)</h3><ul>
       <li><code>POST /api/tracker/sms</code>: signed with session token + timestamp + nonce, rejected if replayed or older than 5 minutes.</li>
       <li>Parser → categoriser → describer → duplicate check (reference, same text, amount ± 10 min).</li>
-      <li>Sign-in: the thakurg.com account (common login); SnapTracker needs the tracker app.</li>
+      <li>Sign-in: the thakurg.com account (common login); Tracker needs the tracker app.</li>
       <li>SMS text encrypted at rest; never written to logs.</li>
       <li>Controller → Service → Repository, messages from the Messages table.</li></ul></section>
     <section class="card"><h3>📒 Data and Khata</h3><ul>
@@ -1201,7 +1201,7 @@ function howView() {
       <li>Every query filtered by the signed-in user.</li></ul></section>
   </div>
   <section class="card" style="margin-top:14px" aria-labelledby="hw-flow"><h2 id="hw-flow" style="margin-bottom:12px">From SMS to transaction</h2>
-    <ol class="flow"><li><div><b>SMS arrives</b><small>Android delivers it to the SnapTracker receiver, only while tracking is on.</small></div></li><li><div><b>Filtered on the phone</b><small>Unknown senders, OTPs and promotions stop here.</small></div></li><li><div><b>Uploaded over HTTPS</b><small>Only the matching message, never the inbox.</small></div></li><li><div><b>Understood</b><small>Amount, debit/credit, merchant, method, account, date, reference. Category and a plain-language description.</small></div></li><li><div><b>Checked</b><small>Duplicates are caught; unsure ones wait for you; sure ones are auto-approved (your choice in Settings).</small></div></li><li><div><b>Filed</b><small>Shows on the dashboard and posts to your Khata book once confirmed.</small></div></li></ol></section>
+    <ol class="flow"><li><div><b>SMS arrives</b><small>Android delivers it to the Tracker receiver, only while tracking is on.</small></div></li><li><div><b>Filtered on the phone</b><small>Unknown senders, OTPs and promotions stop here.</small></div></li><li><div><b>Uploaded over HTTPS</b><small>Only the matching message, never the inbox.</small></div></li><li><div><b>Understood</b><small>Amount, debit/credit, merchant, method, account, date, reference. Category and a plain-language description.</small></div></li><li><div><b>Checked</b><small>Duplicates are caught; unsure ones wait for you; sure ones are auto-approved (your choice in Settings).</small></div></li><li><div><b>Filed</b><small>Shows on the dashboard and posts to your Khata book once confirmed.</small></div></li></ol></section>
   <p class="hint" style="margin-top:14px">Try it: open <button class="link" data-act="openDevice" style="padding:0;min-height:0">the simulated device</button> and send the sample messages.</p>
   </div>`;
   return { title: 'How it works', html };
@@ -1219,12 +1219,12 @@ function deviceHtml() {
   <aside class="device" role="dialog" aria-modal="true" aria-labelledby="dv-title">
     <div class="drawer-head"><h2 id="dv-title">Android device <span class="chip b">SIMULATED</span></h2><button class="btn ghost icon" data-act="closeDevice" aria-label="Close">${ic('x')}</button></div>
     <div class="drawer-body">
-      <p class="hint">Stands in for the SnapTracker Android app's SMS receiver so the flow can be tried in a browser. Real detection needs the Android app.</p>
+      <p class="hint">Stands in for the Tracker Android app's SMS receiver so the flow can be tried in a browser. Real detection needs the Android app.</p>
       <div class="phone"><div class="phone-screen">
-        <div class="p-bar"><span>${fmtTime(Date.now())}</span><span>${st === 'enabled' ? '● SnapTracker on' : st === 'paused' ? '❚❚ paused' : '⊘ no SMS permission'}</span></div>
+        <div class="p-bar"><span>${fmtTime(Date.now())}</span><span>${st === 'enabled' ? '● Tracker on' : st === 'paused' ? '❚❚ paused' : '⊘ no SMS permission'}</span></div>
         ${S.ui.devNotes.length ? S.ui.devNotes.slice(0, 3).map((n) => `<div class="p-note"><b>${n.icon} ${esc(n.app)} · now</b>${esc(n.text)}</div>`).join('') : '<div class="p-empty">No notifications</div>'}
       </div></div>
-      ${st !== 'enabled' ? `<div class="alert warn" style="margin:0">${ic('alert')}<span>${st === 'paused' ? 'Tracking is paused, so the receiver ignores new SMS.' : 'SMS permission is not granted, so Android does not deliver SMS to SnapTracker.'} <button class="link" style="padding:0;min-height:0" data-act="${st === 'paused' ? 'resume' : 'enableTracking'}">${st === 'paused' ? 'Resume' : 'Turn on'}</button></span></div>` : ''}
+      ${st !== 'enabled' ? `<div class="alert warn" style="margin:0">${ic('alert')}<span>${st === 'paused' ? 'Tracking is paused, so the receiver ignores new SMS.' : 'SMS permission is not granted, so Android does not deliver SMS to Tracker.'} <button class="link" style="padding:0;min-height:0" data-act="${st === 'paused' ? 'resume' : 'enableTracking'}">${st === 'paused' ? 'Resume' : 'Turn on'}</button></span></div>` : ''}
       ${r ? `<section aria-labelledby="dv-res"><h3 id="dv-res" style="font-size:15px;margin-bottom:8px">What happened</h3>
         <div class="outcome ${r.outcome}" role="status">${r.outcome === 'created' ? `✅ Created: ${esc(r.txn.merchant || 'transaction')} ${r.txn.type === 'debit' ? '−' : '+'}${money(r.txn.amount)} · ${STATUS[r.txn.status][1]}` : r.outcome === 'duplicate' ? '🧬 Caught as a duplicate. Not counted twice.' : r.outcome === 'blocked' ? '⏸️ ' + esc(r.reason) : '🚫 ' + esc(r.reason)}
           ${r.txn ? ` <button class="link" style="padding:0;min-height:0" data-act="openTx" data-id="${r.txn.id}">Open</button>` : ''}</div>
@@ -1244,7 +1244,7 @@ function deliver(sender, body) {
   const D = S.data;
   const st = D.tracking.state;
   if (st !== 'enabled') {
-    S.ui.devResult = { outcome: 'blocked', reason: st === 'paused' ? 'Tracking is paused. The message was not read.' : 'No SMS permission. Android never handed the message to SnapTracker.', steps: [] };
+    S.ui.devResult = { outcome: 'blocked', reason: st === 'paused' ? 'Tracking is paused. The message was not read.' : 'No SMS permission. Android never handed the message to Tracker.', steps: [] };
     return render();
   }
   S.ui.syncing = true;
@@ -1263,10 +1263,10 @@ function deliver(sender, body) {
         if (t.status === 'auto')
           notify('categorized', `Categorised as ${CATS[t.category].name}`, `${t.merchant || 'Transaction'} ${a} was auto-approved${t.khata ? ' and added to Khata' : ''}.`, t.id);
         else
-          notify('verify', 'Please check a transaction', `${t.merchant || 'A transaction'} ${a}: SnapTracker is ${t.confidence}% sure.`, t.id);
+          notify('verify', 'Please check a transaction', `${t.merchant || 'A transaction'} ${a}: Tracker is ${t.confidence}% sure.`, t.id);
       }
       if (D.settings.push)
-        S.ui.devNotes.unshift({ icon: '⚡', app: 'SnapTracker', text: t.status === 'duplicate' ? `Duplicate ignored: ${a}` : `${a} · ${t.description}` });
+        S.ui.devNotes.unshift({ icon: '⚡', app: 'Tracker', text: t.status === 'duplicate' ? `Duplicate ignored: ${a}` : `${a} · ${t.description}` });
     }
     S.ui.devNotes.unshift({ icon: '💬', app: 'Messages · ' + sender, text: body.length > 90 ? body.slice(0, 90) + '…' : body });
     S.ui.devNotes = S.ui.devNotes.slice(0, 6);
@@ -1323,7 +1323,7 @@ function applyTheme() {
 
 function logout() {
   audit(S.user, 'Signed out');
-  AUTH.logout(); // common login: signing out of SnapTracker signs out of thakurg.com
+  AUTH.logout(); // common login: signing out of Tracker signs out of thakurg.com
   S.user = null;
   S.data = null;
   S.ui = { ...S.ui, drawer: null, modal: null, device: false, devResult: null, devNotes: [], notes: false };
@@ -1522,7 +1522,7 @@ const A = {
   permDeny() {
     S.ui.modal = null;
     audit(S.user, 'SMS permission denied');
-    toast('⛔', 'Permission not granted', 'SnapTracker cannot detect transactions without it. You can still add them manually.');
+    toast('⛔', 'Permission not granted', 'Tracker cannot detect transactions without it. You can still add them manually.');
     render();
   },
   pause() {
@@ -1537,12 +1537,12 @@ const A = {
     D.tracking.state = 'enabled';
     D.tracking.since = Date.now();
     audit(S.user, 'SMS tracking resumed');
-    notify('paused', 'Tracking resumed', 'SnapTracker is reading bank alerts again.');
+    notify('paused', 'Tracking resumed', 'Tracker is reading bank alerts again.');
     saveData();
     render();
   },
   askRevoke() {
-    S.ui.modal = { kind: 'confirm', title: 'Revoke SMS access?', body: 'SnapTracker stops reading SMS and the Android permission is removed. Your existing transactions stay.', ok: 'Revoke access', danger: true, act: 'revoke' };
+    S.ui.modal = { kind: 'confirm', title: 'Revoke SMS access?', body: 'Tracker stops reading SMS and the Android permission is removed. Your existing transactions stay.', ok: 'Revoke access', danger: true, act: 'revoke' };
     render();
   },
   revoke() {
@@ -1550,7 +1550,7 @@ const A = {
     D.tracking = { state: 'permission', consent: false, since: null };
     S.ui.modal = null;
     audit(S.user, 'SMS access revoked');
-    notify('revoked', 'Tracking permission revoked', 'SnapTracker no longer reads SMS on this phone.');
+    notify('revoked', 'Tracking permission revoked', 'Tracker no longer reads SMS on this phone.');
     saveData();
     render();
   },
@@ -1576,7 +1576,7 @@ const A = {
     render();
   },
   askDeleteAll() {
-    S.ui.modal = { kind: 'confirm', title: 'Delete all SnapTracker data?', body: 'All detected transactions, SMS texts, notifications and their Khata entries are deleted, and tracking is turned off. Your SnapKhata books stay. This cannot be undone.', ok: 'Delete everything', danger: true, act: 'deleteAll' };
+    S.ui.modal = { kind: 'confirm', title: 'Delete all Tracker data?', body: 'All detected transactions, SMS texts, notifications and their Khata entries are deleted, and tracking is turned off. Your Khataebook books stay. This cannot be undone.', ok: 'Delete everything', danger: true, act: 'deleteAll' };
     render();
   },
   deleteAll() {
@@ -1587,14 +1587,14 @@ const A = {
     S.ui.modal = null;
     S.ui.devResult = null;
     S.ui.devNotes = [];
-    audit(S.user, 'All SnapTracker data deleted');
+    audit(S.user, 'All Tracker data deleted');
     saveData();
-    toast('🗑️', 'All SnapTracker data deleted', '');
+    toast('🗑️', 'All Tracker data deleted', '');
     go('/app', true);
     render();
   },
   askReset() {
-    S.ui.modal = { kind: 'confirm', title: 'Reset the prototype?', body: 'Clears every SnapTracker account, transaction and setting saved by this prototype in this browser. Your thakurg.com login stays.', ok: 'Reset', danger: true, act: 'reset' };
+    S.ui.modal = { kind: 'confirm', title: 'Reset the prototype?', body: 'Clears every Tracker account, transaction and setting saved by this prototype in this browser. Your thakurg.com login stays.', ok: 'Reset', danger: true, act: 'reset' };
     render();
   },
   reset() {
@@ -1656,7 +1656,7 @@ const A = {
     render();
   },
   askDelete(el) {
-    S.ui.modal = { kind: 'confirm', title: 'Delete this transaction?', body: 'It is removed from SnapTracker and from your Khata book, together with its SMS text.', ok: 'Delete', danger: true, act: 'doDelete', id: +el.dataset.id };
+    S.ui.modal = { kind: 'confirm', title: 'Delete this transaction?', body: 'It is removed from Tracker and from your Khata book, together with its SMS text.', ok: 'Delete', danger: true, act: 'doDelete', id: +el.dataset.id };
     render();
   },
   doDelete(el) {
@@ -1842,7 +1842,7 @@ function boot() {
     }
   });
   window.addEventListener('hashchange', route);
-  // dashboard: the sidebar asks for another SnapTracker screen; the theme changed in the dashboard or another page.
+  // dashboard: the sidebar asks for another Tracker screen; the theme changed in the dashboard or another page.
   BRIDGE.on('goto', (d) => go(d.path));
   // Logged in or out on another page or tab.
   AUTH.onChange(route);

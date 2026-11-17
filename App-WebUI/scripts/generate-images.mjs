@@ -226,7 +226,7 @@ head.writeUInt32LE(22, 18);
 writeFileSync(join(root, 'public', 'favicon.ico'), Buffer.concat([head, png]));
 console.log('icons and favicon.ico');
 
-/* ---------- SnapKhata app icons (public/khata.webmanifest) ---------- */
+/* ---------- Khataebook app icons (public/khata.webmanifest) ---------- */
 // The tile has a fixed pixel size: headless Chrome keeps a minimum window width, so a full-page tile would be cut off.
 const khataGlyph = (size) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6z"/><path d="M6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2"/><path d="M9.5 9.5h6M9.5 13.5h4"/></svg>`;
 const khataIcon = (size, { radius, glyphScale }) =>
@@ -240,9 +240,9 @@ shot(khataIcon(192, { radius: 44, glyphScale: 0.58 }), join(outIcons, 'khata-192
 shot(khataIcon(512, { radius: 118, glyphScale: 0.58 }), join(outIcons, 'khata-512.png'), 512, 512, true);
 shot(khataIcon(512, { radius: 0, glyphScale: 0.44 }), join(outIcons, 'khata-maskable-512.png'), 512, 512);
 shot(khataIcon(180, { radius: 0, glyphScale: 0.54 }), join(outIcons, 'khata-apple-touch-icon.png'), 180, 180);
-console.log('SnapKhata icons');
+console.log('Khataebook icons');
 
-/* ---------- SnapTracker app icons (public/apps/tracker/manifest.webmanifest) ---------- */
+/* ---------- Tracker app icons (public/apps/tracker/manifest.webmanifest) ---------- */
 // The app's logo: the "spark" drawing of tracker-icons.ts on the brand gradient of the tracker's default skin.
 const trackerGlyph = (size) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/></svg>`;
 const trackerIcon = (size, { radius, glyphScale }) =>
@@ -256,5 +256,5 @@ shot(trackerIcon(192, { radius: 44, glyphScale: 0.58 }), join(outIcons, 'tracker
 shot(trackerIcon(512, { radius: 118, glyphScale: 0.58 }), join(outIcons, 'tracker-512.png'), 512, 512, true);
 shot(trackerIcon(512, { radius: 0, glyphScale: 0.44 }), join(outIcons, 'tracker-maskable-512.png'), 512, 512);
 shot(trackerIcon(180, { radius: 0, glyphScale: 0.54 }), join(outIcons, 'tracker-apple-touch-icon.png'), 180, 180);
-console.log('SnapTracker icons');
+console.log('Tracker icons');
 rmSync(work, { recursive: true, force: true });

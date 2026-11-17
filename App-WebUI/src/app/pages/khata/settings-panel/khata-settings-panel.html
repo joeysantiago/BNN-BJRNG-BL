@@ -21,7 +21,7 @@
       <h3 id="kp-lock" class="sec-h">{{ i18n.t('khata.lock.title') }}</h3>
       <div class="field-row">
         <span class="txt"><small>{{ i18n.t('khata.lock.hint', { n: p.length }) }}</small></span>
-        <!-- The PIN screen belongs to the SnapKhata app, so the button opens it there. -->
+        <!-- The PIN screen belongs to the Khataebook app, so the button opens it there. -->
         <a class="btn sm" routerLink="/khata/app" [queryParams]="{ pin: 'change' }">{{ i18n.t('khata.lock.change') }}</a>
       </div>
     </section>

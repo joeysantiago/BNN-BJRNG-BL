@@ -5,7 +5,7 @@ import { I18nService } from '../../../core/i18n.service';
 import { Component, computed, effect, inject } from '@angular/core';
 
 /**
- * The public page of SnapTracker (/tracker): what the app does with a bank SMS, its privacy promises, how it works and a FAQ. Prerendered with its title,
+ * The public page of Tracker (/tracker): what the app does with a bank SMS, its privacy promises, how it works and a FAQ. Prerendered with its title,
  * description, canonical, share image and JSON-LD (WebApplication and FAQPage), in English, Hindi and Arabic.
  */
 @Component({

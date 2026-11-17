@@ -1,4 +1,4 @@
-// The period of SnapTracker's numbers (dashboard and Cards page). Global under .st (ViewEncapsulation.None).
+// The period of Tracker's numbers (dashboard and Cards page). Global under .st (ViewEncapsulation.None).
 .st .period { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; padding: 10px 12px; }
 .st .period .seg { display: inline-flex; padding: 3px; border-radius: 12px; background: var(--k-surface-3); }
 .st .period .seg button { min-height: 44px; padding: 0 16px; border: 0; border-radius: 10px; background: none; color: var(--k-muted); font: 700 14px var(--k-font); cursor: pointer; }

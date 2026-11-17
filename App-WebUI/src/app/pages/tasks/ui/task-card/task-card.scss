@@ -1,4 +1,4 @@
-// A task card. The design system of My Tasks (the same as SnapKhata's): every colour is a token on .mt, Light and Dark are two sets of the same tokens.
+// A task card. The design system of Tasks (the same as Khataebook's): every colour is a token on .mt, Light and Dark are two sets of the same tokens.
 // Global under .mt (ViewEncapsulation.None), so the shell, its screens and its dialogs share one look.
 .mt .tc { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 14px 14px 14px 16px; border-radius: 20px; overflow: hidden; transition: transform 0.2s var(--k-ease), border-color 0.2s, opacity 0.3s; }
 .mt .tc::before { content: ''; position: absolute; inset-block: 12px; inset-inline-start: 0; width: 4px; border-radius: 0 4px 4px 0; background: var(--p, transparent); }

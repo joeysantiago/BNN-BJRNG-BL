@@ -10,7 +10,7 @@ const PORTS: Record<MailSecurity, number> = { starttls: 587, ssl: 465, none: 25 
 
 /**
  * One mail profile of the site (GET/PUT /admin/mail/{purpose}, super admin with a password login; the API checks the same): the server, its login and the
- * sender. Used for the site's own server ("default", Settings > Keys) and by each app for its own profiles (SnapKhata: "otp", "notification").
+ * sender. Used for the site's own server ("default", Settings > Keys) and by each app for its own profiles (Khataebook: "otp", "notification").
  * The password is sent only when typed; the API stores it encrypted and never returns it.
  */
 @Component({

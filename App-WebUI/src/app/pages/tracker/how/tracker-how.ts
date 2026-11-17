@@ -4,7 +4,7 @@ import { TrackerPrivacy } from '../privacy/tracker-privacy';
 import { TrackerStateService } from '../../../core/tracker-state.service';
 
 /**
- * How SnapTracker works (/tracker/app/how): the parts (Android app, server, this app) and the way from an SMS to a transaction, in plain words; then SMS reading
+ * How Tracker works (/tracker/app/how): the parts (Android app, server, this app) and the way from an SMS to a transaction, in plain words; then SMS reading
  * and privacy (#privacy): turning reading on, pausing or turning it off, what is read and never read, and the ignored counts.
  */
 @Component({

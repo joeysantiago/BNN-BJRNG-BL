@@ -2,7 +2,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Application.Repositories;
 
-// The My Tasks profile of an account, its App Lock sessions, and the name of the app (the "tasks" rows of PageNames).
+// The Tasks profile of an account, its App Lock sessions, and the name of the app (the "tasks" rows of PageNames).
 public interface ITaskUserRepository
 {
     Task SaveChangesAsync(CancellationToken cancellationToken);

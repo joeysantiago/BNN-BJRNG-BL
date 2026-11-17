@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#2f5bea" />
 <meta name="color-scheme" content="light dark" />
-<meta name="description" content="thakurg.com prototype: My Tasks - personal tasks, checklists, date-wise organisation, marketing visits, attachments, reminders and app lock." />
-<title>My Tasks · thakurg.com prototype</title>
+<meta name="description" content="thakurg.com prototype: Tasks - personal tasks, checklists, date-wise organisation, marketing visits, attachments, reminders and app lock." />
+<title>Tasks · thakurg.com prototype</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Crect width=%2224%22 height=%2224%22 rx=%226%22 fill=%22%232f5bea%22/%3E%3Cpath d=%22M7 12.5l3 3 7-7%22 fill=%22none%22 stroke=%22white%22 stroke-width=%222.4%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="../assets/css/fonts.css" />
 <style>
-/* My Tasks prototype. Same design system as SnapKhata: every colour is a token on .mt, Light and Dark are two sets of the same tokens. */
+/* Tasks prototype. Same design system as Khataebook: every colour is a token on .mt, Light and Dark are two sets of the same tokens. */
 html, body { margin: 0; }
 .mt {
   --k-font: 'Manrope Variable', 'Noto Sans Devanagari Variable', 'Noto Sans Arabic Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -171,7 +171,7 @@ html, body { margin: 0; }
 .mt .note { padding: 10px 14px; border-radius: 14px; background: var(--k-brand-soft); color: var(--k-text); font-size: 13.5px; display: flex; gap: 10px; align-items: flex-start; }
 .mt .note .ico { color: var(--k-brand); margin-top: 1px; }
 
-/* ---------- App shell (same as SnapKhata) ---------- */
+/* ---------- App shell (same as Khataebook) ---------- */
 .mt .app { min-height: 100vh; min-height: 100dvh; }
 .mt .rail { display: none; }
 .mt .top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 10px 16px; padding-top: max(10px, env(safe-area-inset-top)); background: color-mix(in srgb, var(--k-bg) 72%, transparent); -webkit-backdrop-filter: blur(16px) saturate(150%); backdrop-filter: blur(16px) saturate(150%); border-bottom: 1px solid var(--k-line); }
@@ -425,7 +425,7 @@ html, body { margin: 0; }
 .mt .homescreen i { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; color: #fff; font-style: normal; font-weight: 800; }
 .mt .homescreen .me i { outline: 3px solid var(--k-brand); outline-offset: 2px; }
 
-/* ---------- Lock (same as SnapKhata's PIN screen) ---------- */
+/* ---------- Lock (same as Khataebook's PIN screen) ---------- */
 .mt .lock { position: fixed; inset: 0; z-index: 100; display: grid; justify-items: center; align-content: center; gap: 14px; padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); text-align: center; background-color: var(--k-bg); background-image: var(--k-bg-image); overflow-y: auto; }
 .mt .lock h1 { font-size: 1.4rem; font-weight: 800; }
 .mt .lock p { max-width: 320px; color: var(--k-muted); }
@@ -461,14 +461,14 @@ html, body { margin: 0; }
 <script>
 'use strict';
 /*
-  My Tasks prototype (single file). Everything a real build would get from the API is simulated in one "database" kept in
+  Tasks prototype (single file). Everything a real build would get from the API is simulated in one "database" kept in
   localStorage (mytasks-proto-db):
     Apps          the app row (Code 'tasks', Name, ShortName). The name shown everywhere comes from here, Super Admin edits it.
     Users         the common accounts (shared with every app) and their per-app access: tasks and khata are separate flags.
     TaskSettings  per user: App Lock (PIN, lock after), notifications, preferences. Khata's lock is a separate record.
     Categories    per user; Marketing is a system category that cannot be deleted.
     Tasks         per user (owner), with checklist items, photos, history, soft delete.
-  Theme follows the prototype's shared mode (thakurg-proto-mode), like SnapKhata.
+  Theme follows the prototype's shared mode (thakurg-proto-mode), like Khataebook.
 */
 const STORE = 'mytasks-proto-db';
 const MODE_KEY = 'thakurg-proto-mode';
@@ -571,8 +571,8 @@ function nid() { db.seq = (db.seq || 1000) + 1; return db.seq; }
 function seed() {
   const d = { v: 3, seq: 1000 };
   d.apps = [
-    { code: 'tasks', name: 'My Tasks', shortName: 'My Tasks', startUrl: '/tasks/', scope: '/tasks/', themeColor: '#2f5bea', modifiedBy: null, modifiedOn: null },
-    { code: 'khata', name: 'SnapKhata', shortName: 'Khata', startUrl: '/khata/app/', scope: '/khata/', themeColor: '#2f5bea' },
+    { code: 'tasks', name: 'Tasks', shortName: 'Tasks', startUrl: '/tasks/', scope: '/tasks/', themeColor: '#2f5bea', modifiedBy: null, modifiedOn: null },
+    { code: 'khata', name: 'Khataebook', shortName: 'Khata', startUrl: '/khata/app/', scope: '/khata/', themeColor: '#2f5bea' },
   ];
   d.users = [
     { id: 1, name: 'Kunal Kumar', email: 'admin@demo.local', role: 'superadmin', access: { tasks: true, khata: true } },
@@ -779,7 +779,7 @@ function dynamicPeriods() {
   return { months: [...months].sort(), years: [...years].sort() };
 }
 
-/* ---------- Theme (shared prototype mode, like SnapKhata) ---------- */
+/* ---------- Theme (shared prototype mode, like Khataebook) ---------- */
 const darkQ = matchMedia('(prefers-color-scheme: dark)');
 function mode() { try { const m = localStorage.getItem(MODE_KEY); return ['light', 'dark', 'system'].includes(m) ? m : 'system'; } catch (e) { return 'system'; } }
 function applyTheme() {
@@ -1036,7 +1036,7 @@ function calendarView() {
   </section>`;
 }
 
-/* ---------- Settings (tabs, like SnapKhata's Settings) ---------- */
+/* ---------- Settings (tabs, like Khataebook's Settings) ---------- */
 function settingsView() {
   const tabs = [['general', 'gear', 'General'], ['lock', 'lock', 'App Lock'], ['notifications', 'bell', 'Notifications'], ['categories', 'tag', 'Categories'], ['install', 'phone', 'Install app']];
   if (isAdmin()) tabs.push(['access', 'users', 'Users & access']);
@@ -1044,7 +1044,7 @@ function settingsView() {
   if (!tabs.some((t) => t[0] === ui.stab)) ui.stab = 'general';
   const body = { general: setGeneral, lock: setLock, notifications: setNotify, categories: setCats, install: setInstall, access: setAccess, data: setData }[ui.stab]();
   return `<section class="page" aria-labelledby="h-set">
-    <div class="head"><div><h1 id="h-set">Settings</h1><p>${esc(app().name)} settings. They apply to this app only and never change SnapKhata or the other apps.</p></div></div>
+    <div class="head"><div><h1 id="h-set">Settings</h1><p>${esc(app().name)} settings. They apply to this app only and never change Khataebook or the other apps.</p></div></div>
     <div class="stabs" role="tablist" aria-label="Settings">${tabs.map(([id, ic, l]) => `<button type="button" role="tab" class="stab" aria-selected="${ui.stab === id}" data-act="stab" data-v="${id}">${icon(ic, 17)}${l}</button>`).join('')}</div>
     ${body}
   </section>`;
@@ -1058,11 +1058,11 @@ function setGeneral() {
       <label class="field"><span>Name</span><input class="in" name="name" maxlength="40" required value="${esc(a.name)}" ${isAdmin() ? '' : 'disabled'} /></label>
       <label class="field"><span>Short name (home-screen label, up to 12 characters)</span><input class="in" name="shortName" maxlength="12" required value="${esc(a.shortName)}" ${isAdmin() ? '' : 'disabled'} /></label>
       ${a.modifiedOn ? `<p class="muted" style="font-size:13px">Last changed ${fmtDT(a.modifiedOn)} by ${esc(db.users.find((u) => u.id === a.modifiedBy)?.name || '-')}</p>` : ''}
-      ${isAdmin() ? `<div class="row"><button class="btn pri">Save name</button><button type="button" class="btn ghost" data-act="reset-name">Reset to "My Tasks"</button></div>` : ''}
+      ${isAdmin() ? `<div class="row"><button class="btn pri">Save name</button><button type="button" class="btn ghost" data-act="reset-name">Reset to "Tasks"</button></div>` : ''}
     </form>
     <div class="card pad" style="display:grid;gap:4px">
       <h2>Appearance and defaults</h2>
-      <div class="set-row"><div class="txt"><b>Theme</b><small>Same Light / Dark choice as SnapKhata</small></div>
+      <div class="set-row"><div class="txt"><b>Theme</b><small>Same Light / Dark choice as Khataebook</small></div>
         <div class="seg" role="group" aria-label="Theme">${[['light', 'sun', 'Light'], ['dark', 'moon', 'Dark'], ['system', 'monitor', 'System']].map(([v, ic, l]) => `<button type="button" data-act="mode" data-v="${v}" aria-pressed="${m === v}">${icon(ic, 15)}${l}</button>`).join('')}</div></div>
       <div class="set-row"><div class="txt"><b>Week starts on</b><small>Used by Current week, Next week and the calendar</small></div>
         <div class="seg" role="group" aria-label="Week starts on"><button type="button" data-act="pref" data-k="weekStart" data-v="mon" aria-pressed="${p.weekStart === 'mon'}">Monday</button><button type="button" data-act="pref" data-k="weekStart" data-v="sun" aria-pressed="${p.weekStart === 'sun'}">Sunday</button></div></div>
@@ -1079,17 +1079,17 @@ function setLock() {
   const l = prefs().lock; const kl = db.khataLock[db.session.userId];
   return `<div class="sgrid two">
     <div class="card pad" style="display:grid;gap:4px">
-      <h2>App Lock</h2><p class="sub">A 4-digit PIN, as in SnapKhata. The installed app asks for it when it opens and after it has been in the background.</p>
+      <h2>App Lock</h2><p class="sub">A 4-digit PIN, as in Khataebook. The installed app asks for it when it opens and after it has been in the background.</p>
       <div class="set-row"><div class="txt"><b>Lock ${esc(app().name)} with a PIN</b><small>${l.enabled ? 'On' : 'Off'}</small></div><label class="switch"><input type="checkbox" data-act="lock-toggle" ${l.enabled ? 'checked' : ''} aria-label="App Lock" /><i></i></label></div>
       <div class="set-row"><div class="txt"><b>Lock after</b><small>Time in the background before the PIN is asked again</small></div>
         <select class="in" style="width:auto" data-act="lock-after" ${l.enabled ? '' : 'disabled'}>${[[0, 'Immediately'], [1, '1 minute'], [5, '5 minutes'], [15, '15 minutes'], [30, '30 minutes']].map(([v, t]) => `<option value="${v}" ${l.after === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
       <div class="row" style="margin-top:10px"><button type="button" class="btn" data-act="lock-change" ${l.enabled ? '' : 'disabled'}>${icon('key', 18)} Change PIN</button><button type="button" class="btn" data-act="lock-now" ${l.enabled ? '' : 'disabled'}>${icon('lock', 18)} Lock now</button></div>
     </div>
     <div class="card pad" style="display:grid;gap:12px">
-      <h2>Independent from SnapKhata</h2>
+      <h2>Independent from Khataebook</h2>
       <p class="sub">Each app keeps its own lock. Turning one on or off, or changing its PIN, never changes the other.</p>
       <div class="set-row"><div class="txt"><b>${esc(app().name)} lock</b><small>This setting (TaskSettings)</small></div><span class="pill ${l.enabled ? 'ok' : ''}">${l.enabled ? 'On' : 'Off'}</span></div>
-      <div class="set-row"><div class="txt"><b>SnapKhata lock</b><small>Kept in SnapKhata's own settings</small></div><span class="pill ${kl?.enabled ? 'ok' : ''}">${kl?.enabled ? 'On' : 'Off'}</span></div>
+      <div class="set-row"><div class="txt"><b>Khataebook lock</b><small>Kept in Khataebook's own settings</small></div><span class="pill ${kl?.enabled ? 'ok' : ''}">${kl?.enabled ? 'On' : 'Off'}</span></div>
       <div class="note">${icon('shield', 18)}<span>In the real app the server locks the session: while locked, every task and attachment call is refused (423) until the PIN is entered, so hiding the screen is not the only protection.</span></div>
     </div>
   </div>`;
@@ -1157,11 +1157,11 @@ function accessToggle(u, appCode, ic, label) {
 }
 function setAccess() {
   return `<div class="card pad" style="display:grid;gap:14px">
-    <div><h2>Users & access</h2><p class="sub">One common account per person (same login and profile everywhere). Access to each app is a separate permission: giving ${esc(app().name)} never gives SnapKhata, and the other way round.</p></div>
+    <div><h2>Users & access</h2><p class="sub">One common account per person (same login and profile everywhere). Access to each app is a separate permission: giving ${esc(app().name)} never gives Khataebook, and the other way round.</p></div>
     <div class="users">${db.users.map((u) => `<div class="urow"><span class="avatar">${esc(initials(u.name))}</span><div style="min-width:0"><b>${esc(u.name)}</b> ${u.role === 'superadmin' ? '<span class="pill brand">Super Admin</span>' : ''}<br /><small class="muted">${esc(u.email)}</small></div>
       <div class="perms">
         ${accessToggle(u, 'tasks', 'tasks', app().name)}
-        ${accessToggle(u, 'khata', 'shield', 'SnapKhata')}
+        ${accessToggle(u, 'khata', 'shield', 'Khataebook')}
       </div></div>`).join('')}</div>
     <div class="note">${icon('info', 18)}<span>Try it: switch to Aman (Khata only) on the Profile page to see the "no access" screen. Every user only ever sees their own tasks and photos.</span></div>
   </div>`;
@@ -1179,7 +1179,7 @@ function setData() {
 function profileView() {
   const u = me(); const a = app();
   return `<section class="page" aria-labelledby="h-prof">
-    <div class="head"><div><h1 id="h-prof">Profile</h1><p>Your common thakurg.com account, the same one SnapKhata uses.</p></div></div>
+    <div class="head"><div><h1 id="h-prof">Profile</h1><p>Your common thakurg.com account, the same one Khataebook uses.</p></div></div>
     <div class="sgrid two">
       <form class="card pad" data-form="profile" style="display:grid;gap:14px">
         <div class="row"><span class="avatar lg">${esc(initials(u.name))}</span><div><h2>${esc(u.name)}</h2><p class="muted">${esc(u.email)} · ${u.role === 'superadmin' ? 'Super Admin' : 'User'}</p></div></div>
@@ -1190,9 +1190,9 @@ function profileView() {
       <div class="card pad" style="display:grid;gap:12px">
         <h2>Your apps</h2><p class="sub">Each app is granted separately by a Super Admin.</p>
         <div class="set-row"><div class="txt"><b>${esc(a.name)}</b><small>Your tasks: ${myTasks().length}</small></div><span class="pill ${hasAccess(u) ? 'ok' : 'bad'}">${hasAccess(u) ? 'Access' : 'No access'}</span></div>
-        <div class="set-row"><div class="txt"><b>SnapKhata</b><small>Separate permission</small></div><span class="pill ${u.role === 'superadmin' || u.access.khata ? 'ok' : 'bad'}">${u.role === 'superadmin' || u.access.khata ? 'Access' : 'No access'}</span></div>
+        <div class="set-row"><div class="txt"><b>Khataebook</b><small>Separate permission</small></div><span class="pill ${u.role === 'superadmin' || u.access.khata ? 'ok' : 'bad'}">${u.role === 'superadmin' || u.access.khata ? 'Access' : 'No access'}</span></div>
         <h2 style="margin-top:8px">Prototype: switch user</h2>
-        <select class="in" data-act="switch-user">${db.users.map((x) => `<option value="${x.id}" ${x.id === u.id ? 'selected' : ''}>${esc(x.name)} (${x.role === 'superadmin' ? 'Super Admin' : x.access.tasks ? 'My Tasks' : 'Khata only'})</option>`).join('')}</select>
+        <select class="in" data-act="switch-user">${db.users.map((x) => `<option value="${x.id}" ${x.id === u.id ? 'selected' : ''}>${esc(x.name)} (${x.role === 'superadmin' ? 'Super Admin' : x.access.tasks ? 'Tasks' : 'Khata only'})</option>`).join('')}</select>
       </div>
     </div>
   </section>`;
@@ -1203,7 +1203,7 @@ function loginView() {
 }
 function noAccessView() {
   return `<div class="lock" style="position:static;min-height:100dvh"><span class="lock-mark">${icon('lock', 30)}</span><h1>No access to ${esc(app().name)}</h1>
-    <p>${esc(me().name)}, your account does not have ${esc(app().name)}. A Super Admin can grant it in Settings → Users & access. Having SnapKhata does not include it.</p>
+    <p>${esc(me().name)}, your account does not have ${esc(app().name)}. A Super Admin can grant it in Settings → Users & access. Having Khataebook does not include it.</p>
     <div class="row" style="justify-content:center"><select class="in" style="width:auto" data-act="switch-user">${db.users.map((x) => `<option value="${x.id}" ${x.id === me().id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select><button type="button" class="btn" data-act="logout">${icon('logout', 18)} Log out</button></div></div>`;
 }
 
@@ -1390,7 +1390,7 @@ function renderLightbox() {
     <div class="lb-f"><button type="button" class="btn icon" data-act="lb-move" data-v="-1" aria-label="Previous" ${lb.ix === 0 ? 'disabled' : ''}>${icon('left')}</button>${lb.fromEditor ? `<button type="button" class="btn" data-act="lb-del">${icon('trash', 18)} Remove</button>` : ''}<button type="button" class="btn icon" data-act="lb-move" data-v="1" aria-label="Next" ${lb.ix === lb.photos.length - 1 ? 'disabled' : ''}>${icon('right')}</button></div></div>`;
 }
 
-/* ---------- App Lock (PIN pad, like SnapKhata) ---------- */
+/* ---------- App Lock (PIN pad, like Khataebook) ---------- */
 const hashPin = (pin) => { let h = 5381; for (const c of 'mytasks:' + db.session.userId + ':' + pin) h = ((h << 5) + h + c.charCodeAt(0)) | 0; return String(h); }; // prototype only; the API keeps a real hash
 let lk = null; // { mode: 'unlock' | 'new' | 'confirm' | 'current', buf, first, err, tries, until, then }
 function unlockedNow() { try { return sessionStorage.getItem(UNLOCK_KEY) === String(db.session.userId); } catch (e) { return false; } }
@@ -1401,7 +1401,7 @@ function renderLock() {
   $('#root').setAttribute('aria-hidden', 'true');
   const a = app();
   const titles = { unlock: `${a.name} is locked`, new: 'Create a 4-digit PIN', confirm: 'Enter the PIN again', current: 'Enter your current PIN' };
-  const subs = { unlock: 'Enter your PIN to open your tasks.', new: `Only for ${a.name}. SnapKhata keeps its own lock.`, confirm: 'To make sure it is right.', current: 'Before you choose a new one.' };
+  const subs = { unlock: 'Enter your PIN to open your tasks.', new: `Only for ${a.name}. Khataebook keeps its own lock.`, confirm: 'To make sure it is right.', current: 'Before you choose a new one.' };
   const wait = lk.until > Date.now();
   $('#lock').innerHTML = `<div class="lock" role="dialog" aria-modal="true" aria-labelledby="lk-h">
     <span class="lock-mark">${icon('lock', 30)}</span><h1 id="lk-h">${titles[lk.mode]}</h1><p>${subs[lk.mode]}</p>
@@ -1499,7 +1499,7 @@ document.addEventListener('click', (e) => {
     case 'stab': go('settings/' + el.dataset.v); break;
     case 'mode': setMode(el.dataset.v); break;
     case 'pref': prefs()[el.dataset.k] = el.dataset.v; save(); render(); break;
-    case 'reset-name': if (!isAdmin()) break; Object.assign(app(), { name: 'My Tasks', shortName: 'My Tasks', modifiedBy: me().id, modifiedOn: new Date().toISOString() }); save(); render(); toast('App name reset'); break;
+    case 'reset-name': if (!isAdmin()) break; Object.assign(app(), { name: 'Tasks', shortName: 'Tasks', modifiedBy: me().id, modifiedOn: new Date().toISOString() }); save(); render(); toast('App name reset'); break;
     case 'lock-change': startLock('current', 'change'); break;
     case 'notify-perm': Notification.requestPermission().then(() => render()); break;
     case 'notify-test': notifyTest(); break;
@@ -1550,7 +1550,7 @@ function addDraftItem() {
   rerenderCl(); $('#ed-new-item').focus();
 }
 function forgotPin() {
-  // Like SnapKhata: log out, log in again with the password, then choose a new PIN.
+  // Like Khataebook: log out, log in again with the password, then choose a new PIN.
   const l = prefs().lock; l.pin = null; l.enabled = false; save(); lk = null; renderLock();
   db.session.userId = null; save(); render();
   toast('Log in again, then set a new PIN in Settings → App Lock.');
@@ -1569,7 +1569,7 @@ document.addEventListener('change', (e) => {
     case 'notify': prefs().notify[el.dataset.k] = el.checked; save(); render(); break;
     case 'notify-select': prefs().notify[el.dataset.k] = el.value; save(); toast('Saved'); break;
     case 'access': { if (!isAdmin()) break; const u = db.users.find((x) => x.id === Number(el.dataset.id)); u.access[el.dataset.app] = el.checked; save();
-      toast(`${u.name}: ${el.dataset.app === 'tasks' ? app().name : 'SnapKhata'} ${el.checked ? 'granted' : 'removed'}`); render(); break; }
+      toast(`${u.name}: ${el.dataset.app === 'tasks' ? app().name : 'Khataebook'} ${el.checked ? 'granted' : 'removed'}`); render(); break; }
     case 'cat-rename': { const c = cats().find((x) => x.id === el.dataset.id); const v = el.value.trim(); if (c && v && !c.system) { c.name = v; save(); toast('Saved'); } else el.value = c.name; break; }
     case 'switch-user': db.session.userId = Number(el.value); markUnlocked(false); save(); ui.tab = null; ui.cat = 'all'; ui.scope = 'all'; go('tasks'); lockOnStart(); break;
   }

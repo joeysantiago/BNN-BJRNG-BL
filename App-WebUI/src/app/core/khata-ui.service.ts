@@ -5,7 +5,7 @@ import { KhataConfirm, KhataToast, KhataViewer, KhataViewerItem } from './models
 const TOAST_MS = 2800;
 
 /**
- * The parts of SnapKhata that sit above every screen and live in the shell: the "are you sure?" sheet, the short toast after a save,
+ * The parts of Khataebook that sit above every screen and live in the shell: the "are you sure?" sheet, the short toast after a save,
  * and the full-screen photo viewer. Bill photos need the login token, so they are fetched once and kept as blob URLs here.
  */
 @Injectable({ providedIn: 'root' })

@@ -4,7 +4,7 @@ import { Component, ViewEncapsulation, inject } from '@angular/core';
 import { TrackerStateService } from '../../../../core/tracker-state.service';
 
 /**
- * SnapTracker's toasts. Its styles carry the shared controls (switches, segments, notes, toasts, confirm box) and SnapTracker's own parts (rows, chips,
+ * Tracker's toasts. Its styles carry the shared controls (switches, segments, notes, toasts, confirm box) and Tracker's own parts (rows, chips,
  * drawer, Add sheet, steps, alerts), global under .st; it is always on screen in the app, so every screen and dialog shares them.
  */
 @Component({

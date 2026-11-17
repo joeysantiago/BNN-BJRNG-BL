@@ -32,7 +32,7 @@ export interface NativeInbox {
   messages: NativeSms[];
 }
 
-/** The SnapTracker plugin of the Android app (SmsTrackerPlugin.java). */
+/** The Tracker plugin of the Android app (SmsTrackerPlugin.java). */
 export interface SmsTrackerPlugin {
   pause(): Promise<NativeSmsStatus>;
   enable(): Promise<NativeSmsStatus>;

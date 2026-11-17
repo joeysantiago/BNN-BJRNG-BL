@@ -1,4 +1,4 @@
-// The language and theme menus of the top bar, the four style token sets, and the dropdown look (as in SnapKhata). Global under .mt.
+// The language and theme menus of the top bar, the four style token sets, and the dropdown look (as in Khataebook). Global under .mt.
 .mt .menus { display: contents; }
 .mt .menu { position: relative; }
 .mt .pop-menu { position: absolute; z-index: 40; top: calc(100% + 8px); inset-inline-end: 0; display: grid; gap: 4px; min-width: 200px; padding: 6px; border-radius: 16px; background: var(--k-surface-solid); border: 1px solid var(--k-line-strong); box-shadow: var(--k-shadow-lg); isolation: isolate; animation: mt-pop 0.18s var(--k-ease); }
@@ -16,13 +16,13 @@
 .mt .skin-swatch.agni { background: linear-gradient(135deg, #e07a35, #d16014); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 2px 6px rgba(209, 96, 20, 0.45); }
 .mt .skin-swatch.neu { background: #e0e5ec; box-shadow: 3px 3px 6px #a3b1c6, -3px -3px 6px #ffffff; }
 
-/* Dropdowns as in SnapKhata: native selects, 48px tall, and the open list follows the style (the site's ::picker(select) rules read these variables). */
+/* Dropdowns as in Khataebook: native selects, 48px tall, and the open list follows the style (the site's ::picker(select) rules read these variables). */
 .mt { --bg: var(--k-surface-solid); --text: var(--k-text); --line: var(--k-line-strong); --muted: var(--k-muted); --accent: var(--k-brand); --accent-ink: var(--k-brand); }
 .mt select.in, .mt .field select { min-height: 48px; border: 1.5px solid var(--k-line-strong); font-weight: 500; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
 .mt select.in:hover { border-color: color-mix(in srgb, var(--k-brand) 40%, var(--k-line-strong)); }
 .mt select.in option { color: var(--k-text); background: var(--k-surface-solid); }
 
-/* The four styles of the site and SnapKhata: Glass (the tokens in tasks-shell.scss), Clay, Skeu and Neu, each light and dark. data-ks on .mt is the style, data-kt the brightness. */
+/* The four styles of the site and Khataebook: Glass (the tokens in tasks-shell.scss), Clay, Skeu and Neu, each light and dark. data-ks on .mt is the style, data-kt the brightness. */
 
 /* ---------- Agni (the default): warm saffron page, cream cards, fiery #D16014 buttons ---------- */
 .mt[data-ks=agni]:not([data-kt=dark]) {

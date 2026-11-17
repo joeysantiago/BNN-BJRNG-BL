@@ -34,7 +34,7 @@ export class SiteHeader {
   // The navigation holds only speed test links, so a branch without the speed test has none.
   protected readonly hasNav = featureBuilt('site.nav', FEATURE_APPS);
   protected readonly userOpen = signal(false);
-  /** An app lock (SnapKhata or My Tasks) is asking for the PIN: Profile and Settings are hidden until it is entered. */
+  /** An app lock (Khataebook or Tasks) is asking for the PIN: Profile and Settings are hidden until it is entered. */
   protected readonly locked = computed(() => this.khataLock.blocked() || this.tasksLock.blocked());
 
   private readonly url = toSignal(

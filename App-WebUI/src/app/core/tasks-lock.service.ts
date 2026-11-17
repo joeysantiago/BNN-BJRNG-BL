@@ -8,7 +8,7 @@ import { Injectable, PLATFORM_ID, computed, effect, inject, signal, untracked } 
 const SHELL = '/tasks/app';
 
 /**
- * The App Lock of My Tasks, the same mechanism as SnapKhata's but its own PIN and state (turning one on or off never changes the other).
+ * The App Lock of Tasks, the same mechanism as Khataebook's but its own PIN and state (turning one on or off never changes the other).
  * When a PIN is set, the server refuses every task call of a login session until the PIN is entered; this service shows the lock screen at every
  * start of the app, after the app was in the background for the user's "lock after" time, and whenever the server answers 423. While the app is open and
  * visible it keeps the session open (keep) every half of that time. While locked the shared pages outside the shell (/profile, /master) are closed:
@@ -56,7 +56,7 @@ export class TasksLockService {
     this.mode.set('open');
   }
 
-  /** Every start of the app is locked when a PIN is set (as in SnapKhata), so a reload or a new tab never skips the PIN. */
+  /** Every start of the app is locked when a PIN is set (as in Khataebook), so a reload or a new tab never skips the PIN. */
   async start(): Promise<void> {
     if (!this.browser)
       return;

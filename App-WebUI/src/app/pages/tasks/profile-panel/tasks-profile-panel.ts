@@ -6,7 +6,7 @@ import { TasksStateService } from '../../../core/tasks-state.service';
 import { TasksPanelNotice } from '../settings-panel/tasks-settings-panel.model';
 
 /**
- * My Tasks' part of the Profile page (FEATURE_PROFILE), for a user who may open My Tasks: deleting their My Tasks data (tasks, pictures and settings in this app) and
+ * Tasks' part of the Profile page (FEATURE_PROFILE), for a user who may open Tasks: deleting their Tasks data (tasks, pictures and settings in this app) and
  * their access to it. The common account, its login and the other apps stay; an administrator keeps access by role and starts again with an empty app.
  * The first press asks again; the second deletes.
  */

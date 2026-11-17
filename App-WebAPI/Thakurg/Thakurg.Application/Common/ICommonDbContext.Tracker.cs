@@ -3,7 +3,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Application.Common;
 
-// The tables of SnapTracker (SqlScripts/CREATE/Tracker).
+// The tables of Tracker (SqlScripts/CREATE/Tracker).
 public partial interface ICommonDbContext
 {
     DbSet<TrackerUser> TrackerUsers { get; }

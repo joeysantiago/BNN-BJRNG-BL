@@ -6,8 +6,8 @@ const toLogin = () => inject(Router).createUrlTree(['/login'], { queryParams: { 
 const toSettings = () => inject(Router).createUrlTree(['/master'], { queryParams: { tab: 'general', app: 'khata' } });
 
 /**
- * SnapKhata: /khata is the public page; the app itself (/khata/app) needs the common login and access to the khata app.
- * SnapKhata has no settings or profile page of its own: Settings > General (its section) and /profile are shared by every app; the old addresses lead there.
+ * Khataebook: /khata is the public page; the app itself (/khata/app) needs the common login and access to the khata app.
+ * Khataebook has no settings or profile page of its own: Settings > General (its section) and /profile are shared by every app; the old addresses lead there.
  * Inside a book (b/:bookId): the dashboard, parties, all entries, a party's ledger and settings, an entry's details, and the add / edit entry form.
  */
 export const KHATA_ROUTES: Routes = [

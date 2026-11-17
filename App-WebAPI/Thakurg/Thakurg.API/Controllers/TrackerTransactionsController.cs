@@ -9,8 +9,8 @@ using Thakurg.Contracts.Wrappers;
 
 namespace Thakurg.API.Controllers;
 
-// SnapTracker's transactions of the caller: read a pasted or shared SMS or a batch of an SMS backup, add or edit one by hand, confirm / ignore / restore / not a duplicate, change the
-// category (optionally for every later transaction of the merchant), mark what it counts towards ("Mark as…") and delete. Every answer carries the whole SnapTracker state.
+// Tracker's transactions of the caller: read a pasted or shared SMS or a batch of an SMS backup, add or edit one by hand, confirm / ignore / restore / not a duplicate, change the
+// category (optionally for every later transaction of the merchant), mark what it counts towards ("Mark as…") and delete. Every answer carries the whole Tracker state.
 [ApiController]
 [Route("api/tracker")]
 [Authorize(Policy = AuthPolicies.Tracker)]

@@ -4,7 +4,7 @@ using Thakurg.Contracts.Khata;
 
 namespace Thakurg.API.Extensions;
 
-// HTTP plumbing for SnapKhata controllers: who is calling, as the Khata profile set by KhataProfileFilter plus the session and headers.
+// HTTP plumbing for Khataebook controllers: who is calling, as the Khata profile set by KhataProfileFilter plus the session and headers.
 public static class KhataHttpExtensions
 {
     #region Public Methods

@@ -15,7 +15,7 @@ const COMPANY: DetailField[] = [
 ];
 
 /**
- * SnapKhata's part of the Profile page (FEATURE_PROFILE), for a user who may open SnapKhata: the company shown on the PDFs they export. It is saved with the rest of
+ * Khataebook's part of the Profile page (FEATURE_PROFILE), for a user who may open Khataebook: the company shown on the PDFs they export. It is saved with the rest of
  * the profile details (GET/PUT /auth/me/details); the mobile number and address there stay as they are.
  */
 @Component({

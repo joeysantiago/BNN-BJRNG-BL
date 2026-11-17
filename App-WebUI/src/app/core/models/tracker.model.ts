@@ -125,7 +125,7 @@ export interface TrackerAlert {
   args: Record<string, string | number>;
 }
 
-/** The user's SnapTracker settings (Settings > General > SnapTracker). */
+/** The user's Tracker settings (Settings > General > Tracker). */
 export interface TrackerSettings {
   push: boolean;
   threshold: number;
@@ -247,7 +247,7 @@ export interface TrackerNavItem {
   query?: Record<string, string>;
 }
 
-/** The names of the line icons (tracker-icons.ts), the same drawings as SnapKhata's plus a few of SnapTracker's own. */
+/** The names of the line icons (tracker-icons.ts), the same drawings as Khataebook's plus a few of Tracker's own. */
 export type TrackerIconName = 'home' | 'list' | 'user' | 'plus' | 'search' | 'x' | 'check' | 'alert' | 'bell' | 'settings' | 'shield' | 'trash' | 'edit' | 'download' | 'zap' | 'trend' | 'wallet' | 'chev' | 'info' | 'sms' | 'copies' | 'pause' | 'play' | 'layers' | 'down' | 'up' | 'tag' | 'spark' | 'filter';
 
 /** One shape of a line icon; only the attributes of its tag are set. */

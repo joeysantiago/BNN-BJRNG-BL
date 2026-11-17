@@ -1,4 +1,4 @@
-/* SnapKhata: small helpers used by the Angular screens in place of the prototype's inline styles. */
+/* Khataebook: small helpers used by the Angular screens in place of the prototype's inline styles. */
 .khata .k-pad-14 {
   padding: 14px;
 }
@@ -189,7 +189,7 @@
   }
 }
 
-/* The site's dropdown styles (styles.scss: option, ::picker(select)) read the skin's colours; inside SnapKhata they follow its own theme. */
+/* The site's dropdown styles (styles.scss: option, ::picker(select)) read the skin's colours; inside Khataebook they follow its own theme. */
 .khata {
   --bg: var(--k-surface-solid);
   --text: var(--k-text);

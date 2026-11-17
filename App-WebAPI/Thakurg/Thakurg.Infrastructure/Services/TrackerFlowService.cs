@@ -12,7 +12,7 @@ using Thakurg.Infrastructure.Common;
 
 namespace Thakurg.Infrastructure.Services;
 
-// What each SnapTracker transaction counts towards (TrackerFlows). ReflowAsync works it out again for all of a user's transactions after every change, so an
+// What each Tracker transaction counts towards (TrackerFlows). ReflowAsync works it out again for all of a user's transactions after every change, so an
 // SMS that arrives later can still pair with an earlier one: the reader's flow of each SMS (TrackerSmsReader.Flow), the user's own rules, then
 // - accounts and cards: every account number seen; one seen on a card becomes a card, and a plain "Spent … Card 6124" on it is a card purchase;
 // - loans: a debit within Tracker:Limits:EmiTolerancePercent of a loan's EMI (from its reminders, or one the user marked) is that EMI;

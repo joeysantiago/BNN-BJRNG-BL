@@ -1,4 +1,4 @@
-// Permissions and privacy of SnapTracker: the read / never-read lists, the filter steps, the ignored counts and the banks. Global under .st (ViewEncapsulation.None).
+// Permissions and privacy of Tracker: the read / never-read lists, the filter steps, the ignored counts and the banks. Global under .st (ViewEncapsulation.None).
 .st .ticks { display: grid; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
 .st .ticks li { display: flex; gap: 10px; align-items: flex-start; }
 .st .ticks li.ok .ico { color: var(--k-get); }

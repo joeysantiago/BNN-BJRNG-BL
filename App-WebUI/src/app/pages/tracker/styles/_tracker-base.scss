@@ -1,4 +1,4 @@
-// Tokens, base, buttons, forms and the app frame of SnapTracker, copied from My Tasks (the same design system as SnapKhata): every colour is a token on .st,
+// Tokens, base, buttons, forms and the app frame of Tracker, copied from Tasks (the same design system as Khataebook): every colour is a token on .st,
 // Light and Dark are two sets of the same tokens. Global under .st (ViewEncapsulation.None), so the shell, its screens and its dialogs share one look.
 .st {
   --k-font: 'Manrope Variable', 'Noto Sans Devanagari Variable', 'Noto Sans Arabic Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -134,7 +134,7 @@
 .st textarea.in { min-height: 84px; resize: vertical; }
 .st .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .st .grid2 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); }
-/* ---------- App shell (same as SnapKhata) ---------- */
+/* ---------- App shell (same as Khataebook) ---------- */
 .st .app { min-height: 100vh; min-height: 100dvh; }
 .st .rail { display: none; }
 .st .top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 10px 16px; padding-top: max(10px, env(safe-area-inset-top)); background: color-mix(in srgb, var(--k-bg) 72%, transparent); -webkit-backdrop-filter: blur(16px) saturate(150%); backdrop-filter: blur(16px) saturate(150%); border-bottom: 1px solid var(--k-line); }

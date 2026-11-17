@@ -1,4 +1,4 @@
-// Tokens, base, buttons, forms, the app frame, toasts, bell, picture viewer. The design system of My Tasks (the same as SnapKhata's): every colour is a token on .mt, Light and Dark are two sets of the same tokens.// Global under .mt (ViewEncapsulation.None), so the shell, its screens and its dialogs share one look.
+// Tokens, base, buttons, forms, the app frame, toasts, bell, picture viewer. The design system of Tasks (the same as Khataebook's): every colour is a token on .mt, Light and Dark are two sets of the same tokens.// Global under .mt (ViewEncapsulation.None), so the shell, its screens and its dialogs share one look.
 .mt {
   --k-font: 'Manrope Variable', 'Noto Sans Devanagari Variable', 'Noto Sans Arabic Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --k-r-sm: 10px;
@@ -133,7 +133,7 @@
 .mt textarea.in { min-height: 84px; resize: vertical; }
 .mt .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .mt .grid2 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); }
-/* ---------- App shell (same as SnapKhata) ---------- */
+/* ---------- App shell (same as Khataebook) ---------- */
 .mt .app { min-height: 100vh; min-height: 100dvh; }
 .mt .rail { display: none; }
 .mt .top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 10px 16px; padding-top: max(10px, env(safe-area-inset-top)); background: color-mix(in srgb, var(--k-bg) 72%, transparent); -webkit-backdrop-filter: blur(16px) saturate(150%); backdrop-filter: blur(16px) saturate(150%); border-bottom: 1px solid var(--k-line); }

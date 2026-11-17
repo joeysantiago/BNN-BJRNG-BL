@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Tracker;
 
-// The answer of POST api/tracker/sms/import: the counts of the batch, and the SnapTracker data after it.
+// The answer of POST api/tracker/sms/import: the counts of the batch, and the Tracker data after it.
 public class TrackerImportReadDto
 {
     public TrackerDataDto State { get; set; } = new();

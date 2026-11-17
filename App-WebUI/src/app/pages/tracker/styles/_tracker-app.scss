@@ -1,4 +1,4 @@
-// SnapTracker's own parts on top of the shared design system: the tracking status, the transaction rows and chips, the details drawer, the Add sheet,
+// Tracker's own parts on top of the shared design system: the tracking status, the transaction rows and chips, the details drawer, the Add sheet,
 // the reading steps, alerts and the How-it-works cards. Every colour is a token, so all five skins (light and dark) follow. Global under .st.
 .st .eyebrow { margin: 0; color: var(--k-muted); font-size: 13px; font-weight: 700; }
 .st .row.between { justify-content: space-between; align-items: center; }

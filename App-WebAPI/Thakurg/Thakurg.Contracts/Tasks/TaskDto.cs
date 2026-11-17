@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Tasks;
 
-// One task as the My Tasks app reads it, with its checklist and attachments. Status (pending, ongoing, overdue, completed) and the date groups are worked out by the app from the local date of the user.
+// One task as the Tasks app reads it, with its checklist and attachments. Status (pending, ongoing, overdue, completed) and the date groups are worked out by the app from the local date of the user.
 public class TaskDto
 {
     public int Id { get; set; }

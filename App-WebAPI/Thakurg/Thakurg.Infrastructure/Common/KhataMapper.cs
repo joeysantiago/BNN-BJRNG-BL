@@ -4,7 +4,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Common;
 
-// Entity to DTO mapping for the SnapKhata ledger services, plus the sign of an amount: "gave" raises the balance (you will get), "got" lowers it.
+// Entity to DTO mapping for the Khataebook ledger services, plus the sign of an amount: "gave" raises the balance (you will get), "got" lowers it.
 public static class KhataMapper
 {
     #region Public Methods

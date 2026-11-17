@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Tracker;
 
-// Where a SnapTracker transaction came from: a bank or UPI SMS, or typed in by hand.
+// Where a Tracker transaction came from: a bank or UPI SMS, or typed in by hand.
 public static class TrackerSources
 {
     public const string Sms = "sms";

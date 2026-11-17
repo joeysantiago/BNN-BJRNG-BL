@@ -8,7 +8,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Services;
 
-// The user's own SnapKhata settings (KhataUsers): whether their parties get messages about entries. Where photos are kept is the site's file storage (Settings > Keys).
+// The user's own Khataebook settings (KhataUsers): whether their parties get messages about entries. Where photos are kept is the site's file storage (Settings > Keys).
 public class KhataSettingsService : IKhataSettingsService
 {
     private readonly IMessageService _messageService;

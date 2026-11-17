@@ -4,7 +4,7 @@ import { SeoService } from '../../../core/seo.service';
 import { I18nService } from '../../../core/i18n.service';
 import { Component, computed, effect, inject } from '@angular/core';
 
-/** The public page of My Tasks (/tasks): what the app does, how it installs, and a FAQ. Prerendered with its title, description, canonical, share image and JSON-LD. */
+/** The public page of Tasks (/tasks): what the app does, how it installs, and a FAQ. Prerendered with its title, description, canonical, share image and JSON-LD. */
 @Component({
   selector: 'app-tasks-landing',
   imports: [RouterLink],

@@ -5,7 +5,7 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Common;
 
-// SnapTracker rows as the app sees them. Amounts go from paise to rupees; every date is UTC (the database keeps UTC without the kind), so the app reads it right.
+// Tracker rows as the app sees them. Amounts go from paise to rupees; every date is UTC (the database keeps UTC without the kind), so the app reads it right.
 public static class TrackerMapper
 {
     #region Public Methods

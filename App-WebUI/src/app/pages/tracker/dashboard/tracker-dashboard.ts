@@ -9,7 +9,7 @@ import { TrackerStateService } from '../../../core/tracker-state.service';
 import { Component, ViewEncapsulation, computed, inject } from '@angular/core';
 
 /**
- * The SnapTracker dashboard (/tracker/app) of the chosen period (a month or a year, chosen at the top): its spending with a daily (or monthly) line, income,
+ * The Tracker dashboard (/tracker/app) of the chosen period (a month or a year, chosen at the top): its spending with a daily (or monthly) line, income,
  * money out of the bank and what is left, card spends and EMIs, spending and income by month, where the money went, what needs your check, and the newest
  * detected transactions. Every number comes from TrackerStateService.
  */

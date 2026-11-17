@@ -11,7 +11,7 @@ const IDEMPOTENCY = 'X-Idempotency-Key';
 const LOCKED = 423;
 
 /**
- * SnapKhata ledger endpoints. They use the common login (ApiService adds the Bearer token and refreshes it after a 401).
+ * Khataebook ledger endpoints. They use the common login (ApiService adds the Bearer token and refreshes it after a 401).
  * Creates send an idempotency key made when the form opened, so a double tap or a retry never saves twice. A 423 answer (app lock locked)
  * is reported through `pinRequired`.
  */
@@ -202,7 +202,7 @@ export class KhataApiService {
 
   // #region Private Methods
 
-  /** Every SnapKhata request sends this device's id and the chosen language for the server's messages. */
+  /** Every Khataebook request sends this device's id and the chosen language for the server's messages. */
   private headers(): Record<string, string> {
     return { 'X-Khata-Device': this.auth.deviceId(), 'Accept-Language': this.i18n.lang() };
   }

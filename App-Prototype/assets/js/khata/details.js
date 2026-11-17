@@ -1,4 +1,4 @@
-/* SnapKhata: Transaction details. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
+/* Khataebook: Transaction details. Moved from thakurg.html as it was; see App-Prototype/README.md for the page layout. */
 'use strict';
 
 // #region Transaction details

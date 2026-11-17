@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Tracker;
 
-// The status of a SnapTracker transaction. Ignored and duplicate transactions are not counted in any total.
+// The status of a Tracker transaction. Ignored and duplicate transactions are not counted in any total.
 public static class TrackerStatuses
 {
     public const string Auto = "auto";

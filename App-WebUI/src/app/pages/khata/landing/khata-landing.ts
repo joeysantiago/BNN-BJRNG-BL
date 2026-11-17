@@ -18,8 +18,8 @@ const FAQ = ['q1', 'q2', 'q3', 'q4'];
 const SAMPLE_CURRENCY: KhataCurrency = { id: 0, code: 'INR', name: 'Indian rupee', isIso: true, symbol: '₹', decimals: 0, isCustom: false };
 
 /**
- * /khata: the public, prerendered SnapKhata page for visitors and search engines, full screen in the SnapKhata design (light and dark).
- * The app itself is behind login at /khata/app. While this page is open, "Install app" installs SnapKhata on the phone.
+ * /khata: the public, prerendered Khataebook page for visitors and search engines, full screen in the Khataebook design (light and dark).
+ * The app itself is behind login at /khata/app. While this page is open, "Install app" installs Khataebook on the phone.
  */
 @Component({
   selector: 'app-khata-landing',

@@ -9,8 +9,8 @@ using Thakurg.Contracts.Wrappers;
 
 namespace Thakurg.API.Controllers;
 
-// SnapTracker of the caller: everything the app shows, the settings (Settings > General > SnapTracker), SMS reading on the phone, the alerts and the
-// user's data (Profile > SnapTracker: download, delete the SMS texts, delete everything), the user's own names and mobiles ("My details") and the names
+// Tracker of the caller: everything the app shows, the settings (Settings > General > Tracker), SMS reading on the phone, the alerts and the
+// user's data (Profile > Tracker: download, delete the SMS texts, delete everything), the user's own names and mobiles ("My details") and the names
 // of their accounts, cards and loans.
 [ApiController]
 [Route("api/tracker")]

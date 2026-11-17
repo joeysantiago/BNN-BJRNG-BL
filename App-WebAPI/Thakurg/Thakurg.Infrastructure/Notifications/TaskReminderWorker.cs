@@ -7,7 +7,7 @@ using Thakurg.Contracts.Configurations;
 
 namespace Thakurg.Infrastructure.Notifications;
 
-// Every Tasks:Reminders:IntervalSeconds, sends the WhatsApp reminders of My Tasks that are due (ITaskReminderService), in its own scope.
+// Every Tasks:Reminders:IntervalSeconds, sends the WhatsApp reminders of Tasks that are due (ITaskReminderService), in its own scope.
 public class TaskReminderWorker : BackgroundService
 {
     private readonly IServiceScopeFactory _scopes;

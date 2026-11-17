@@ -5,7 +5,7 @@ using Thakurg.Application.Services;
 
 namespace Thakurg.API.Filters;
 
-// Runs before every My Tasks endpoint: finds (or makes) the My Tasks profile of the caller, then checks the App Lock on the server, so hiding the screen is never the only protection.
+// Runs before every Tasks endpoint: finds (or makes) the Tasks profile of the caller, then checks the App Lock on the server, so hiding the screen is never the only protection.
 public class TasksProfileFilter : IAsyncActionFilter
 {
     private readonly ITaskPinService _pinService;

@@ -1,6 +1,6 @@
 namespace Thakurg.Contracts.Tracker;
 
-// The kinds of SnapTracker alert a user can switch on or off (tracker.alert.<type> in the UI).
+// The kinds of Tracker alert a user can switch on or off (tracker.alert.<type> in the UI).
 public static class TrackerAlertTypes
 {
     public const string Sync = "sync";
