@@ -20,6 +20,7 @@ h1 {
   max-width: 20ch;
   margin-inline: auto;
 }
+
 h1 em {
   font-style: italic;
   color: var(--accent-ink);
@@ -41,6 +42,7 @@ h1 em {
   margin: 0 auto 8px;
   container-type: inline-size;
 }
+
 /* A soft glow in the middle of the ring. It pulses while a test is running. 50cqi = the ring centre. */
 .dial::before {
   content: '';
@@ -52,25 +54,33 @@ h1 em {
   aspect-ratio: 1;
   translate: -50% -50%;
   border-radius: 50%;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--gauge-a) 28%, transparent), transparent 75%);
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--gauge-a) 28%, transparent),
+    transparent 75%
+  );
   opacity: 0.5;
   pointer-events: none;
 }
+
 .dial.live::before {
   animation: glow 1.8s ease-in-out infinite;
 }
+
 @keyframes glow {
   50% {
     opacity: 1;
     transform: scale(1.1);
   }
 }
+
 .dial svg {
   position: relative;
   display: block;
   width: 100%;
   height: auto;
 }
+
 .g-inner {
   fill: none;
   stroke: var(--muted);
@@ -79,6 +89,7 @@ h1 em {
   stroke-linecap: round;
   opacity: 0.45;
 }
+
 .g-seg line {
   stroke: var(--track);
   stroke-width: 4.2;
@@ -87,14 +98,17 @@ h1 em {
     stroke 0.25s,
     stroke-width 0.25s;
 }
+
 .g-seg line.on {
   stroke: color-mix(in srgb, var(--gauge-b) calc(var(--k) * 100%), var(--gauge-a));
   filter: drop-shadow(0 0 3px color-mix(in srgb, var(--gauge-a) 60%, transparent));
 }
+
 .g-seg line.head {
   stroke-width: 6.5;
   filter: drop-shadow(0 0 6px var(--gauge-b)) drop-shadow(0 0 12px var(--gauge-a));
 }
+
 .g-label {
   font: 700 10px var(--font-body);
   fill: var(--muted);
@@ -103,14 +117,17 @@ h1 em {
     fill 0.25s,
     opacity 0.25s;
 }
+
 .g-label.on {
   fill: var(--text);
   opacity: 1;
 }
+
 .g-peak {
   fill: var(--text);
   transition: opacity 0.2s;
 }
+
 .read {
   position: absolute;
   inset-inline: 0;
@@ -120,12 +137,14 @@ h1 em {
   justify-items: center;
   line-height: 1;
 }
+
 .val {
   font: 800 16cqi var(--font-body);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
   color: var(--text);
 }
+
 .unit {
   margin-block-start: 2.2cqi;
   font: 700 4.4cqi var(--font-body);
@@ -139,18 +158,22 @@ h1 em {
 .page {
   padding-block: 16px 0;
 }
+
 .hero {
   padding-block: clamp(16px, 2.5vw, 28px);
 }
+
 h1 {
   max-width: none;
   margin-block-end: 0.3em;
   font-size: clamp(1.5rem, 3.4vw, 2.1rem);
 }
+
 .lead {
   margin-block-end: 12px;
   font-size: clamp(0.95rem, 1.6vw, 1.05rem);
 }
+
 @media (min-width: 960px) {
   .hero-grid {
     display: grid;
@@ -192,6 +215,7 @@ h1 {
   color: var(--muted);
   font-weight: 600;
 }
+
 .status.bad {
   color: var(--danger);
 }
@@ -204,6 +228,7 @@ h1 {
   justify-content: center;
   margin-block-start: 16px;
 }
+
 .chip {
   display: inline-flex;
   gap: 8px;
@@ -212,16 +237,19 @@ h1 {
   padding: 6px 14px;
   border-radius: var(--radius-pill);
 }
+
 .chip .k {
   color: var(--inset-muted);
   font-size: 13px;
   font-weight: 700;
 }
+
 .chip .v {
   min-width: 5.2ch;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
+
 .prog {
   width: min(420px, 100%);
   height: 8px;
@@ -230,6 +258,7 @@ h1 {
   border-radius: var(--radius-pill);
   background: var(--track);
 }
+
 .prog i {
   display: block;
   height: 100%;
@@ -250,6 +279,7 @@ h1 {
   padding: 12px 16px;
   text-align: start;
 }
+
 .loaded .k {
   color: var(--inset-muted);
   font-size: 13px;
@@ -257,21 +287,25 @@ h1 {
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+
 .loaded b {
   font: 800 1.5rem var(--inset-font);
   font-variant-numeric: tabular-nums;
 }
+
 .loaded small {
   margin-inline-start: 4px;
   color: var(--inset-muted);
   font-size: 0.85rem;
 }
+
 .loaded .hint {
   flex-basis: 100%;
   color: var(--inset-muted);
   font-size: 14px;
   text-align: center;
 }
+
 .loaded.bad b {
   color: var(--danger);
 }
@@ -288,6 +322,7 @@ h1 {
 .go {
   min-width: min(260px, 100%);
 }
+
 .go.stop {
   filter: saturate(0.7);
 }
@@ -300,16 +335,19 @@ h1 {
   margin: 28px auto 0;
   max-width: 560px;
 }
+
 .cell {
   padding: 14px 12px;
   text-align: start;
   transition: transform 0.3s var(--ease);
 }
+
 .cell.on {
   transform: translateY(-2px);
   outline: 2px solid var(--gauge-a);
   outline-offset: 2px;
 }
+
 .cell dt {
   font-size: 13px;
   font-weight: 700;
@@ -317,18 +355,21 @@ h1 {
   text-transform: uppercase;
   color: var(--inset-muted);
 }
+
 .cell dd {
   margin: 4px 0 0;
   font: 800 1.8rem/1.1 var(--inset-font);
   font-variant-numeric: tabular-nums;
   color: var(--inset-text);
 }
+
 .cell dd small {
   margin-inline-start: 5px;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--inset-muted);
 }
+
 @media (min-width: 700px) {
   .res {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -344,6 +385,7 @@ h1 {
   gap: 12px;
   margin-top: 24px;
 }
+
 .share-panel {
   display: flex;
   flex-wrap: wrap;
@@ -354,9 +396,11 @@ h1 {
   padding: 14px;
   max-width: 560px;
 }
+
 .share-panel .btn {
   color: var(--btn-color);
 }
+
 .share-h {
   font-weight: 700;
   color: var(--inset-text);
@@ -378,11 +422,13 @@ h1 {
   gap: 12px;
   margin-bottom: 14px;
 }
+
 .hist-head h2 {
   margin: 0;
   font-family: var(--font-display);
   font-size: 1.4rem;
 }
+
 .hist-list {
   list-style: none;
   margin: 0;
@@ -390,6 +436,7 @@ h1 {
   display: grid;
   gap: 12px;
 }
+
 .hist-list li {
   display: flex;
   align-items: center;
@@ -397,17 +444,21 @@ h1 {
   gap: 12px;
   padding: 12px 14px;
 }
+
 .hist-list time {
   font-weight: 800;
 }
+
 .hist-list p {
   margin: 2px 0 0;
   color: var(--inset-muted);
   font-size: 14px;
 }
+
 .empty {
   color: var(--muted);
 }
+
 .hist .note {
   margin-inline: 0;
   max-width: none;
@@ -422,6 +473,7 @@ h1 {
   background: var(--btn-bg);
   border: var(--btn-border);
 }
+
 .info summary {
   display: flex;
   align-items: center;
@@ -431,9 +483,11 @@ h1 {
   color: var(--btn-color);
   text-shadow: var(--card-text-shadow);
 }
+
 .info details[open] {
   box-shadow: var(--btn-active-shadow);
 }
+
 .info details p {
   margin: 0 0 12px;
   color: var(--btn-color);
@@ -452,10 +506,12 @@ h1 {
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
+
 .offline-inner {
   width: min(440px, 100%);
   text-align: center;
 }
+
 .offline-ic {
   display: inline-grid;
   place-items: center;
@@ -467,14 +523,17 @@ h1 {
   background: var(--inset-bg);
   box-shadow: var(--inset-shadow);
 }
+
 .offline-inner h2 {
   font-family: var(--font-display);
   font-size: 1.6rem;
   margin-bottom: 8px;
 }
+
 .offline-inner p {
   color: var(--muted);
 }
+
 .offline-actions {
   display: flex;
   flex-wrap: wrap;

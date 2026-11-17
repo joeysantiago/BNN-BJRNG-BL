@@ -22,10 +22,12 @@ h2 {
 .note {
   color: var(--muted);
 }
+
 .lead {
   max-width: 64ch;
   margin-block: 8px 20px;
 }
+
 .note {
   margin: 16px 0 0;
   font-size: 14px;
@@ -45,18 +47,21 @@ h2 {
   min-height: 84px;
   padding: 14px 16px;
 }
+
 dt {
   color: var(--inset-muted);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.02em;
 }
+
 dd {
   margin: 0;
   font-size: 1.05rem;
   font-weight: 700;
   overflow-wrap: anywhere;
 }
+
 dd.na {
   font-size: 0.95rem;
   font-weight: 500;
