@@ -35,6 +35,13 @@ public class TrackerSmsReader : ITrackerSmsReader
 
     private static readonly Regex LoanInRegex = new(@"@yescred\b|_yesc\b", Flags);
 
+    // Bank money sent to a card issuer by name ("Rs. 9,665 sent from a/c xx2497 to slice", "Sent Rs.2000.00 … to slice small finance"): a card bill paid
+    // through its app, not a purchase. A spend on the slice card "at slice" (a bill paid with the card) stays a purchase.
+    private static readonly Regex CardIssuerRegex = new(@"\bto (?:slice|one ?card)\b", Flags);
+
+    // An income-tax refund ("credit for ITDTAX REFUND 2026-27 … of Rs 82,290.00"): money in, not a purchase given back.
+    private static readonly Regex TaxRefundRegex = new(@"\bitdtax\b|\bincome ?tax refund\b|\bit refund\b", Flags);
+
     private static readonly Regex FutureRegex = new(@"\bwill be \w+|\bdebited on holidays\b", Flags);
 
     private static readonly Regex PayeeRegex = new(@";\s*([A-Za-z][A-Za-z .&'-]{1,40}?)\s+credited\b", Flags);
@@ -53,7 +60,14 @@ public class TrackerSmsReader : ITrackerSmsReader
 
     private static readonly Regex BeneficiaryRegex = new(@"credited to the beneficiary account", Flags);
 
-    private static readonly Regex BalanceNoticeRegex = new(@"available bal(?:ance)? in .* as on|passbook balance", Flags);
+    // "Available Bal in HDFC Bank A/c XX9781 as on yesterday:15-MAR-25 is INR 1,497.07", "… A/c XX9781 on 31-MAY-23 INR 2,37,540.67".
+    private static readonly Regex BalanceNoticeRegex = new(@"available bal(?:ance)? in .*?\b(?:as )?on\b|passbook balance", Flags);
+
+    // Axis names the merchant after the time: "Spent INR 786 Axis Bank Card no. XX2273 25-09-26 00:54:59 IST FLIPKART PA Avl Limit: …".
+    private static readonly Regex TimedMerchantRegex = new(@"\d{1,2}:\d{2}:\d{2}(?:\s*IST)?\s+([A-Za-z0-9*][A-Za-z0-9&'*.\- ]{1,30}?)\s+Avl\b", Flags);
+
+    // ICICI cards name the UPI payee after the reference: "debited for INR 2,998.00 on 01-Feb-26 for UPI-639827408871-RACE BAZ. To dispute …".
+    private static readonly Regex UpiDashRegex = new(@"\bUPI-\d{6,}-([A-Za-z][A-Za-z0-9&' .]{0,30}?)(?=\.\s|\.?$|\s+to dispute)", Flags);
 
     private static readonly Regex JumboRegex = new(@"insta ?jumbo ?loan .*?total rs\.?\s*([\d,]+(?:\.\d{1,2})?)", Flags);
 
@@ -64,7 +78,7 @@ public class TrackerSmsReader : ITrackerSmsReader
     // A card bill paid from the bank: through CRED ("cred.club@axisb", "xyz@cred"), "towards your credit card", a credit card bill or payment.
     private static readonly Regex CardBillRegex = new(@"\bcred ?club\b|cred\.club|@cred\b|credit card (?:bill|payment)|towards (?:your )?(?:[a-z]+ )*credit card|\bto (?:[a-z]+ )*credit card", Flags);
 
-    private static readonly Regex CardPaymentInRegex = new(@"payment of (?:rs\.?|inr)\s*[\d,.]+ (?:has been |is )?received (?:on|towards|for) your|received towards your .*credit card|\brepayment of (?:rs\.?|inr)\s*[\d,.]+ received|payment of (?:rs\.?|inr)\s*[\d,.]+.{0,40}?was credited to your (?:credit )?card", Flags);
+    private static readonly Regex CardPaymentInRegex = new(@"payment of (?:rs\.?|inr)\s*[\d,.]+ (?:has been |is )?received (?:on|towards|for) your|received towards your .*credit card|\brepayment of (?:rs\.?|inr)\s*[\d,.]+ received|payment of (?:rs\.?|inr)\s*[\d,.]+.{0,40}?was credited to your (?:credit )?card|payment of (?:rs\.?|inr)\s*[\d,.]+ for your .{0,20}?credit card has been (?:successfully )?processed", Flags);
 
     // An auto-debit: a mandate (UMRN, NACH, ACH, ECS, e-mandate), a standing instruction (SI), autopay, an EMI or a loan.
     private static readonly Regex EmiRegex = new(@"\bumrn\b|\bemi\b|\bnach\b|\becs\b|\bach\b|\bloan\b|\bsi\b|standing instruction|\bauto ?-?debit|\bautopay\b|\be-?mandate\b|\bmandate\b", Flags);
@@ -87,7 +101,7 @@ public class TrackerSmsReader : ITrackerSmsReader
     private static readonly Regex BalanceRegex = new(@"\b(?:avl|avb|avbl|avlbl|available|total)\.?\s*(?:bal(?:ance)?|lmt|limit|amt|amount)\.?\s*(?:is\s*)?[:\-]?\s*(?:(?:rs\.?|inr|₹)\s*)?[\d,]+(?:\.\d{1,2})?(?:\s*(?:cr|dr)\b)?|\bbal\s*(?:rs\.?|inr|₹)\s*[\d,]+(?:\.\d{1,2})?", Flags);
 
     // Reminders, statements, applications and service notices: money has not moved, so no transaction is made.
-    private static readonly Regex NoticeRegex = new(@"\bis due (?:on|by)\b|\bdue (?:on|date)\b|statement (?:is sent|has been generated|is generated|generated)|e-?statement|min(?:imum)? (?:amt|amount) due|ignore if paid|\bapplication\b|re-?kyc|details are missing|process of adding|limit options|maintenance|loan facility|loan is boarded|\brequest\b|increasing the limit|mandate|has been assigned|\breminder\b|\btotal cash ?back\b|\bcredit limit\b|\bstatement:|\b(?:total|amount|min\.?) due\b|\bpay by\b", Flags);
+    private static readonly Regex NoticeRegex = new(@"\bis due (?:on|by)\b|\bdue (?:on|date)\b|statement (?:is sent|has been generated|is generated|generated)|e-?statement|min(?:imum)? (?:amt|amount) due|ignore if paid|\bapplication\b|re-?kyc|details are missing|process of adding|limit options|maintenance|loan facility|loan is boarded|\brequest\b|increasing the limit|mandate|has been assigned|\breminder\b|\btotal cash ?back\b|\bcredit limit\b|\bstatement:|\b(?:total|amount|amt|min\.?) due\b|\bpay by\b", Flags);
 
     private static readonly Regex OtpWordRegex = new(@"\b(otp|one[- ]time password|verification code|security code|auth(?:entication)? code)\b", Flags);
 
@@ -111,7 +125,7 @@ public class TrackerSmsReader : ITrackerSmsReader
 
     private static readonly Regex PromotionRegex = new(@"\b(offers?|cashback|discount|win|won|congratulations|pre-?approved|apply now|click|limited (?:period|time)|voucher|upto|sale|hurry|exclusive)\b", Flags);
 
-    private static readonly Regex[] ReferenceRegexes = [new(@"UPI\/P2[MA]\/(\d{6,22})\/", Flags), new(@"\b(?:upi\s*)?ref(?:erence)?\.?\s*(?:no\.?|number|#|id)?\s*[:.#-]?\s*([A-Z0-9]{6,22})\b", Flags), new(@"\b(?:txn|transaction)\s*(?:id|no\.?)\s*[:#-]?\s*([A-Z0-9]{6,22})\b", Flags), new(@"\butr\s*(?:no\.?)?\s*[:#-]?\s*([A-Z0-9]{6,22})\b", Flags)];
+    private static readonly Regex[] ReferenceRegexes = [new(@"UPI\/P2[MA]\/(\d{6,22})\/", Flags), new(@"\b(?:upi\s*)?ref(?:erence)?\.?\s*(?:no\.?|number|#|id)?\s*[:.#-]?\s*([A-Z0-9]{6,22})\b", Flags), new(@"\b(?:txn|transaction)\s*(?:id|no\.?)\s*[:#-]?\s*([A-Z0-9]{6,22})\b", Flags), new(@"\butr\s*(?:no\.?)?\s*[:#-]?\s*([A-Z0-9]{6,22})\b", Flags), new(@"\bUPI\s*:\s*(\d{12})\b", Flags)];
 
     private static readonly string[] Months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 
@@ -151,11 +165,12 @@ public class TrackerSmsReader : ITrackerSmsReader
     // A card purchase converted to EMIs ("converted into 12 EMIs of Rs 1,465.00 on Card XX1003") is a loan on that card with this EMI.
     public TrackerDueDto? Due(string body)
     {
-        var loan = (Regex.IsMatch(body, @"\bemi\b", Flags) && Regex.IsMatch(body, @"\bloan\b", Flags)) || EmiConvertRegex.IsMatch(body);
+        var jumbo = JumboRegex.Match(body);
+        var loan = jumbo.Success || (Regex.IsMatch(body, @"\bemi\b", Flags) && Regex.IsMatch(body, @"\bloan\b", Flags)) || EmiConvertRegex.IsMatch(body);
         var card = !loan && Regex.IsMatch(body, @"credit card", Flags);
         var number = Regex.Match(body, @"(?:loan|card)(?:\s*no\.?)?\s*(?:ending(?:\s*with)?\s*)?[x*]*\s?(\d{3,6})\b", Flags);
         // Only an amount the message calls due (an EMI, a statement total), never another one ("increase the limit from Rs 5,00,000 to Rs 7,30,000").
-        var amount = Regex.Match(body, @"(?:emis? of|(?:rs\.?|inr|₹)\s*(?=[\d,.]+\s*emi\b)|total(?: of| due| amt)?|amount due|statement .{0,40}?of inr)\s*:?\s*(?:rs\.?|inr|₹)?\s*(?:dr\.?\s*)?([\d,]+(?:\.\d{1,2})?)", Flags);
+        var amount = jumbo.Success ? jumbo : Regex.Match(body, @"(?:emis? of|(?:rs\.?|inr|₹)\s*(?=[\d,.]+\s*emi\b)|total(?: of| due| amt)?|amount due|statement .{0,40}?of inr)\s*:?\s*(?:rs\.?|inr|₹)?\s*(?:dr\.?\s*)?([\d,]+(?:\.\d{1,2})?)", Flags);
 
         if (!(loan || card) || !number.Success || !amount.Success || !decimal.TryParse(amount.Groups[1].Value.Replace(",", ""), NumberStyles.Number, CultureInfo.InvariantCulture, out var value) || value <= 0)
             return null;
@@ -183,13 +198,11 @@ public class TrackerSmsReader : ITrackerSmsReader
     }
 
     // A message that is not a transaction: a balance ("balance"), a reminder, statement or notice ("notice"), or the employer's bank telling that a salary
-    // was sent to the user ("echo": the user's own bank reports the same money). An Insta Jumbo statement is kept: it is the EMI of a loan on the card. A
-    // purchase converted to EMIs is a notice too: the purchase was counted when it was made, and each EMI is counted when it is billed.
+    // was sent to the user ("echo": the user's own bank reports the same money). An Insta Jumbo statement is a notice: it tells the loan's EMI and due date
+    // (Due), and the EMI is counted when the card is paid. A purchase converted to EMIs is a notice too: the purchase was counted when it was made, and each
+    // EMI is counted when it is billed.
     public string? Skip(string body, TrackerOwnerDto owner)
     {
-        if (JumboRegex.IsMatch(body))
-            return null;
-
         if (BalanceNoticeRegex.IsMatch(body) || (BalanceRegex.IsMatch(body) && !TransactionRegex.IsMatch(BalanceRegex.Replace(body, " "))))
             return "balance";
 
@@ -241,7 +254,8 @@ public class TrackerSmsReader : ITrackerSmsReader
             Amount = amount > 0 ? amount : 0,
             AmountText = amountMatch.Success ? amountMatch.Value : null,
             Type = type,
-            Ambiguous = debitAt >= 0 && creditAt >= 0 && !isRefund,
+            // "Acct XX260 debited …; HINDUSTAN PHARM credited" and "… credited to the beneficiary account" name who got the money: not ambiguous.
+            Ambiguous = debitAt >= 0 && creditAt >= 0 && !isRefund && !PayeeRegex.IsMatch(body) && !BeneficiaryRegex.IsMatch(body) && !Regex.IsMatch(body, @"&\s*acct?\s*\w+\s+credited\b", Flags),
             IsRefund = isRefund,
             Method = method,
             Account = account.Success ? "XX" + account.Groups[1].Value[^Math.Min(4, account.Groups[1].Value.Length)..] : null,
@@ -274,9 +288,10 @@ public class TrackerSmsReader : ITrackerSmsReader
     }
 
     // What the transaction counts towards (TrackerFlows), in this order: a card's "payment received", an EMI billed to a card, a card bill paid from the bank
-    // (CRED, "towards credit card", BBPS unless it pays a known merchant such as Jio), a card purchase or money back to a card, an EMI (an auto-debit: UMRN,
+    // (CRED, "towards credit card", BBPS unless it pays a known merchant such as Jio, money paid to a card issuer such as slice), a card purchase or money back to a card, an EMI (an auto-debit: UMRN,
     // NACH, ACH, ECS, SI, mandate, autopay, EMI, loan; one that pays a known merchant is a spend unless it says EMI or loan), money to or from the user's own
-    // name or mobile, then a plain spend; for money in: salary (the word, or an employer NEFT naming the user), money borrowed through CRED, a refund, other income.
+    // name or mobile, then a plain spend; for money in: salary (the word, or an employer NEFT naming the user), money borrowed through CRED, a refund (an
+    // income-tax refund is income), other income.
     public string Flow(TrackerParsedSmsDto parsed, string body, TrackerOwnerDto owner)
     {
         var credit = parsed.Type == TrackerTypes.Credit;
@@ -290,7 +305,7 @@ public class TrackerSmsReader : ITrackerSmsReader
         if (!credit && CardEmiRegex.IsMatch(body))
             return TrackerFlows.Emi;
 
-        if (!credit && (CardBillRegex.IsMatch(body) || (BbpsRegex.IsMatch(body) && !parsed.Known)))
+        if (!credit && (CardBillRegex.IsMatch(body) || (BbpsRegex.IsMatch(body) && !parsed.Known) || (!parsed.Card && CardIssuerRegex.IsMatch(body))))
             return TrackerFlows.CardBillPaid;
 
         if (parsed.Card)
@@ -311,7 +326,7 @@ public class TrackerSmsReader : ITrackerSmsReader
         if (LoanInRegex.IsMatch(body))
             return TrackerFlows.LoanIn;
 
-        return parsed.IsRefund ? TrackerFlows.Refund : TrackerFlows.Income;
+        return parsed.IsRefund && !TaxRefundRegex.IsMatch(body) ? TrackerFlows.Refund : TrackerFlows.Income;
     }
 
     public string Categorize(TrackerParsedSmsDto parsed, string body, IReadOnlyDictionary<string, string> rules)
@@ -492,7 +507,7 @@ public class TrackerSmsReader : ITrackerSmsReader
         else if (upiId.Success)
             raw = vpa = upiId.Groups[1].Value;
         else
-            foreach (var regex in type == TrackerTypes.Credit ? new[] { Words("from|by"), Words("at"), Words("for"), Words("to|towards") } : new[] { DatedMerchantRegex, Words("at"), InfoRegex, Words("to|towards"), Words("for") })
+            foreach (var regex in type == TrackerTypes.Credit ? new[] { Words("from|by"), Words("at"), Words("for"), Words("to|towards") } : new[] { UpiDashRegex, TimedMerchantRegex, DatedMerchantRegex, Words("at"), InfoRegex, Words("to|towards"), Words("for") })
                 if ((raw = FirstGood(regex, body)) is not null)
                     break;
 

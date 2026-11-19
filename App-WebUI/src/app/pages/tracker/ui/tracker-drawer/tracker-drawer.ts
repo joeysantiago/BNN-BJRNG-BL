@@ -35,7 +35,7 @@ export class TrackerDrawer {
     return { amount: t.amount, type: t.type, merchant: t.merchant, category: t.category, method: t.method, at: t.at, note: t.note };
   });
   /** What money out can count towards, and money in ("Mark as…"). */
-  protected readonly flows = computed<TrackerFlow[]>(() => (this.txn().type === 'debit' ? ['spend', 'cardSpend', 'emi', 'cardBillPaid', 'selfTransfer'] : ['salary', 'income', 'refund', 'cardRefund', 'loanIn', 'selfTransfer', 'cardPaymentIn']));
+  protected readonly flows = computed<TrackerFlow[]>(() => (this.txn().type === 'debit' ? ['spend', 'cardSpend', 'emi', 'cardBillPaid', 'selfTransfer'] : ['salary', 'income', 'refund', 'cardRefund', 'loanIn', 'selfTransfer', 'cardPaymentIn', 'emi']));
   /** The SMS split into plain and marked parts (amount, merchant, account, reference), so the page can mark them without inserting HTML. */
   protected readonly smsParts = computed(() => {
     const sms = this.txn().sms;

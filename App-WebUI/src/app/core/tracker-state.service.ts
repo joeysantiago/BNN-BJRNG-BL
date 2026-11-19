@@ -33,6 +33,8 @@ export class TrackerStateService {
   readonly toasts = signal<{ id: number; text: string; error: boolean }[]>([]);
   readonly opened = computed(() => this.txns().find((t) => t.id === this.open()) ?? null);
   readonly unread = computed(() => (this.data()?.alerts ?? []).filter((a) => !a.read).length);
+  /** All active loans' EMIs together: what is paid every month. */
+  readonly monthlyEmi = computed(() => this.activeLoans().reduce((n, a) => n + (a.emi ?? 0), 0));
   /** The transactions counted in totals: not ignored and not duplicates. */
   readonly live = computed(() => this.txns().filter((t) => t.status !== 'ignored' && t.status !== 'duplicate'));
   /** The dashboard's period: this month at first; a month of any year, or a whole year. */
@@ -59,6 +61,12 @@ export class TrackerStateService {
     const p = this.period();
     const locale = { en: 'en-IN', hi: 'hi-IN', ar: 'ar' }[this.i18n.lang()] ?? 'en-IN';
     return new Intl.DateTimeFormat(locale, p.kind === 'year' ? { year: 'numeric' } : { month: 'long', year: 'numeric' }).format(new Date(p.year, p.kind === 'year' ? 0 : p.month, 1));
+  });
+  /** The loans still being paid: an EMI in the last two months, or a due date still to come. A loan paid off long ago is not counted. */
+  readonly activeLoans = computed(() => {
+    const since = Date.now() - 62 * DAY;
+    const paid = new Set(this.live().filter((t) => t.loanId !== null && this.ms(t) >= since).map((t) => t.loanId));
+    return (this.data()?.accounts ?? []).filter((a) => a.type === 'loan' && (paid.has(a.id) || (a.dueOn !== null && new Date(a.dueOn).getTime() >= Date.now() - DAY)));
   });
   /** Spending of each day of the month (so far, for the current month), or of each month of the year (the line under the period's total). */
   readonly daily = computed(() => {
@@ -107,7 +115,7 @@ export class TrackerStateService {
         groups.push((g = { label, items: [], net: 0 }));
       g.items.push(t);
       if (t.status !== 'ignored' && t.status !== 'duplicate')
-        g.net += t.type === 'debit' ? -t.amount : t.amount;
+        g.net += this.out(t) ? -t.amount : t.amount;
     }
     return groups;
   });
@@ -125,7 +133,8 @@ export class TrackerStateService {
     const cardSpend = by('cardSpend') - by('cardRefund');
     const emi = by('emi');
     const cardBill = by('cardBillPaid');
-    const bankOut = by('spend') + sum(L.filter((t) => t.flow === 'emi' && t.method !== 'creditCard')) + cardBill;
+    // An EMI billed to a card leaves the bank only with the card's bill; one paid to the card (its "payment received") left the bank.
+    const bankOut = by('spend') + sum(L.filter((t) => t.flow === 'emi' && (t.method !== 'creditCard' || t.type === 'credit'))) + cardBill;
     const [from] = this.range();
     const now = Date.now();
     const today = new Date(new Date(now).setHours(0, 0, 0, 0)).getTime();
@@ -183,6 +192,11 @@ export class TrackerStateService {
     }
   }
 
+  /** Money that went out: a debit, or an EMI (one counted on the card's "payment received" is a credit to the card, but the user paid it). */
+  out(t: TrackerTxn): boolean {
+    return t.type === 'debit' || t.flow === 'emi';
+  }
+
   /** How much a transaction adds to spending: a spend, card spend or EMI its amount, a refund minus its amount, anything else nothing. */
   spent(t: TrackerTxn): number {
     return SPENDING.includes(t.flow) ? t.amount : REFUNDS.includes(t.flow) ? -t.amount : 0;
@@ -195,9 +209,9 @@ export class TrackerStateService {
     return day === today ? this.i18n.t('tracker.today') : day === today - DAY ? this.i18n.t('tracker.yesterday') : this.date(at);
   }
 
-  /** The merchant, or "Money received" / "Unknown merchant". */
+  /** The merchant, or "EMI paid" / "Money received" / "Unknown merchant". */
   title(t: TrackerTxn): string {
-    return t.merchant || this.i18n.t(t.type === 'credit' ? 'tracker.noMerchantIn' : 'tracker.noMerchantOut');
+    return t.merchant || this.i18n.t(t.flow === 'emi' ? 'tracker.emiTitle' : t.type === 'credit' ? 'tracker.noMerchantIn' : 'tracker.noMerchantOut');
   }
 
   /** The plain-language description, built in the user's language from the transaction's fields. It never invents a merchant the message does not show. */
@@ -206,6 +220,8 @@ export class TrackerStateService {
     const m = t.merchant ? 'At' : '';
     if (t.typeGuessed)
       return this.i18n.t('tracker.desc.noType', p);
+    if (t.flow === 'emi')
+      return this.i18n.t('tracker.desc.emi', p);
     if (t.type === 'credit') {
       const kind = t.category === 'salary' ? 'salary' : t.category === 'refund' ? 'refund' : t.method === 'upi' ? 'upiIn' : 'creditIn';
       return this.i18n.t(`tracker.desc.${kind}${t.merchant ? 'From' : ''}`, p);

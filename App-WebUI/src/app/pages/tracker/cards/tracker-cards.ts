@@ -30,13 +30,16 @@ export class TrackerCards {
   protected readonly bills = computed(() => this.newest(this.state.inPeriod().filter((t) => t.flow === 'cardBillPaid')));
   /** The period's totals: card purchases (less money back), bills paid from the bank, EMIs. */
   protected readonly totals = computed(() => ({ cards: this.state.totals().cardSpend, bills: this.state.totals().cardBill, emi: this.state.totals().emi }));
-  /** Each loan with its EMI and the EMIs paid in the period. */
+  /** All loans together: the active loans' EMIs of one month, and the EMIs paid in the period. */
+  protected readonly emiTotal = computed(() => ({ month: this.state.monthlyEmi(), paid: this.loans().reduce((n, l) => n + l.paid, 0) }));
+  /** Each loan with its EMI and the EMIs paid in the period; the loans still being paid first, the ones with no EMI lately after them. */
   protected readonly loans = computed(() => {
     const list = this.state.inPeriod();
+    const active = new Set(this.state.activeLoans().map((a) => a.id));
     return this.accounts().filter((a) => a.type === 'loan').map((account) => {
       const txns = this.newest(list.filter((t) => t.loanId === account.id));
-      return { account, txns, paid: this.sum(txns, 'emi') };
-    });
+      return { account, txns, paid: this.sum(txns, 'emi'), active: active.has(account.id) };
+    }).sort((a, b) => Number(b.active) - Number(a.active));
   });
   /** Each card with the period's purchases, money back, payments received and transactions; the busiest card first. */
   protected readonly cards = computed(() => {

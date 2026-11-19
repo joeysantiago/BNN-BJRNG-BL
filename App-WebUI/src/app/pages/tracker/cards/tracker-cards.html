@@ -77,6 +77,12 @@
     }
 
     <h2 class="sec-h" id="loans">{{ i18n.t('tracker.cards.loansH') }}</h2>
+    @if (loans().length) {
+      <div class="cc-sum">
+        <div class="card"><span class="k-lbl">{{ i18n.t('tracker.cards.emiTotal') }}</span><b class="num">{{ state.money(emiTotal().month) }}</b><small class="muted">{{ i18n.t('tracker.cards.emiLoans', { n: state.activeLoans().length }) }}</small></div>
+        <div class="card"><span class="k-lbl">{{ i18n.t('tracker.cards.emiPaidTotal') }}</span><b class="num">{{ state.money(emiTotal().paid) }}</b></div>
+      </div>
+    }
     @for (l of loans(); track l.account.id) {
       <section class="card cc" [attr.aria-labelledby]="'tr-ln-' + l.account.id">
         <div class="cc-head">
@@ -95,7 +101,7 @@
           } @else {
             <div class="cc-name">
               <h3 [id]="'tr-ln-' + l.account.id">{{ name(l.account) }}</h3>
-              <small>{{ l.account.provider }} •• {{ l.account.last4 }}</small>
+              <small>{{ l.account.provider }} •• {{ l.account.last4 }}@if (!l.active) { · {{ i18n.t('tracker.cards.loanIdle') }}}</small>
             </div>
             <button type="button" class="btn sm icon" [attr.aria-label]="i18n.t('tracker.cards.rename', { name: name(l.account) })" (click)="rename(l.account)"><svg stIco="edit"></svg></button>
           }

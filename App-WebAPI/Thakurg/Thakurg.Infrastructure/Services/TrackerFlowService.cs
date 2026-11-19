@@ -33,6 +33,9 @@ public class TrackerFlowService : ITrackerFlowService
 
     private readonly TrackerOptions _options;
 
+    // Why a card's payment told a second time is a duplicate (tracker.dup.cardEcho).
+    private const string CardEcho = "cardEcho";
+
     private readonly ITrackerSmsReader _reader;
 
     private readonly ITrackerRepository _repository;
@@ -50,7 +53,7 @@ public class TrackerFlowService : ITrackerFlowService
     private static readonly Regex LoanNumberRegex = new(@"\bloan\s*(?:no\.?\s*)?[x*]*(\d{3,6})\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     // A payee that is only the app, gateway or bill-payment service the money went through, not the merchant it paid.
-    private static readonly Regex GatewayRegex = new(@"^(?:amazon ?pay|paytm|phone ?pe|google ?pay|gpay|bill ?desk|razorpay|payu|cc ?avenue|cashfree|juspay|bbps|bharat bill|bill ?pay(?:ment)?|recharge|online payment)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    private static readonly Regex GatewayRegex = new(@"^(?:amazon ?pay|paytm|phone ?pe|google ?pay|gpay|bill ?desk|razorpay|payu|cc ?avenue|cashfree|juspay|bbps|bharat bill|bill ?pay(?:ment)?|recharge|online payment|slice)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     public TrackerFlowService(ITrackerRepository repository, ITrackerSmsReader reader, ITrackerSecretProtector protector, ITrackerService trackerService, IMessageService messageService, IOptions<TrackerOptions> options)
     {
@@ -89,12 +92,21 @@ public class TrackerFlowService : ITrackerFlowService
 
         await LinkLoansAsync(user, items, accounts, cancellationToken);
         MarkEchoes(items);
+        MarkCardPaymentEchoes(items);
         var counted = items.Where(i => i.T.Status is not (TrackerStatuses.Ignored or TrackerStatuses.Duplicate)).ToList();
         PairSelfTransfers(counted, limits);
         PairCardBills(counted, limits);
         await ConfirmAsync(user, counted, cancellationToken);
         await LinkSeriesAsync(user, counted, accounts, cancellationToken);
+        await LinkCardLoansAsync(user, counted, accounts, cancellationToken);
         PairRefunds(counted, limits);
+        DropUnusedLoans(items, accounts);
+
+        // What Tracker is sure of needs no check: an EMI of a known loan, a card's "payment received", and both sides of a pair (a self transfer, a card
+        // bill and the card's payment, a refund). In the "review" mode the user still checks everything.
+        if (user.ApprovalMode != TrackerApprovals.Review)
+            foreach (var item in counted.Where(i => i.T.Status == TrackerStatuses.Pending && !i.T.TypeGuessed && ((i.Flow == TrackerFlows.Emi && i.T.LoanId is not null) || i.Flow == TrackerFlows.CardPaymentIn || i.T.PairId is not null)))
+                item.T.Status = TrackerStatuses.Auto;
 
         foreach (var item in items)
         {
@@ -212,6 +224,13 @@ public class TrackerFlowService : ITrackerFlowService
 
     #region Private Methods
 
+    // An amount that can be a loan's EMI by itself: from EmiMinMinor up and not whole hundreds of rupees (₹200, ₹1,000 and ₹2,000 a month are transfers,
+    // savings or subscriptions, while an EMI is ₹12,922 or ₹1,465.00).
+    private bool EmiLike(long minor)
+    {
+        return minor >= _options.Limits.EmiMinMinor && minor % 10000 != 0;
+    }
+
     private string? Body(TrackerSmsText sms)
     {
         try
@@ -236,6 +255,20 @@ public class TrackerFlowService : ITrackerFlowService
         return Math.Abs((a.T.OccurredOn - b.T.OccurredOn).TotalHours);
     }
 
+    // A loan Tracker made from repeating payments: named by its EMI ("•• 22009"), not by a number the bank gave.
+    private static bool MadeUp(TrackerAccount a)
+    {
+        var name = a.EmiMinor is { } emi ? Math.Round(emi / 100m).ToString(System.Globalization.CultureInfo.InvariantCulture) : null;
+
+        return name is not null && a.Last4 == name[..Math.Min(8, name.Length)];
+    }
+
+    // In how many calendar months the payments were made.
+    private static int Months(List<Item> series)
+    {
+        return series.Select(i => (i.T.OccurredOn.Year, i.T.OccurredOn.Month)).Distinct().Count();
+    }
+
     private static string? AccountDigits(Item item)
     {
         return item.T.AccountLast4 is { } account ? Last4(account) : null;
@@ -254,6 +287,37 @@ public class TrackerFlowService : ITrackerFlowService
             item.T.Status = TrackerStatuses.Duplicate;
             item.T.DuplicateOfId = debit.T.Id;
             item.T.DuplicateReason = "echo";
+        }
+    }
+
+    // A card's payment told twice: HDFC sends "PAYMENT OF Rs. 12922.00 RECEIVED TOWARDS YOUR CREDIT CARD ENDING WITH 0126" and, a day later, "Payment of
+    // Rs 12922 was credited to your card ending 0126". The same amount to the same card within CardBillDays is one payment; the later one is a duplicate.
+    // One the user confirmed or ignored is left alone.
+    private void MarkCardPaymentEchoes(List<Item> items)
+    {
+        var kept = new List<Item>();
+
+        foreach (var item in items.Where(i => i.Flow == TrackerFlows.CardPaymentIn && i.T.AccountLast4 is not null && !i.T.IsEdited && i.T.Status is not (TrackerStatuses.Confirmed or TrackerStatuses.Ignored) && (i.T.Status != TrackerStatuses.Duplicate || i.T.DuplicateReason == CardEcho)).OrderBy(i => i.T.OccurredOn).ThenBy(i => i.T.Id))
+        {
+            var first = kept.FirstOrDefault(o => AccountDigits(o) == AccountDigits(item) && o.T.AmountMinor == item.T.AmountMinor && Hours(o, item) <= _options.Limits.CardBillDays * 24);
+
+            if (first is null)
+            {
+                kept.Add(item);
+
+                if (item.T.DuplicateReason == CardEcho)
+                {
+                    item.T.Status = TrackerStatuses.Pending;
+                    item.T.DuplicateOfId = null;
+                    item.T.DuplicateReason = null;
+                }
+
+                continue;
+            }
+
+            item.T.Status = TrackerStatuses.Duplicate;
+            item.T.DuplicateOfId = first.T.Id;
+            item.T.DuplicateReason = CardEcho;
         }
     }
 
@@ -355,6 +419,16 @@ public class TrackerFlowService : ITrackerFlowService
             if (bill is not null)
                 Pair(bill, item, TrackerFlows.CardBillPaid, TrackerFlows.CardPaymentIn);
         }
+    }
+
+    // A loan Tracker made from repeating payments (named by its EMI, "ICICI Bank •• 2000") that no payment points at any more, without a due date from a
+    // reminder or a name from the user, is removed: the payments that made it no longer count as EMIs.
+    private static void DropUnusedLoans(List<Item> items, List<TrackerAccount> accounts)
+    {
+        var used = items.Where(i => i.T.LoanId is not null).Select(i => i.T.LoanId!.Value).ToHashSet();
+
+        foreach (var loan in accounts.Where(a => a.AccountType == TrackerAccountTypes.Loan && a.Label is null && a.StatementDueOn is null && MadeUp(a) && !used.Contains(a.Id)))
+            loan.IsSoftDeleted = true;
     }
 
     // Both sides of the same UPI reference when one of them is the user's own; a salary moved on to another account of the user within PairHours (the NEFT
@@ -462,24 +536,30 @@ public class TrackerFlowService : ITrackerFlowService
         }
 
         await _repository.SaveChangesAsync(cancellationToken);
-        var loans = accounts.Where(a => a.AccountType == TrackerAccountTypes.Loan && a.EmiMinor is > 0).ToList();
+        // A loan named in the bank's own messages ("Personal Loan XX1881") is matched before one Tracker made from repeating payments ("•• 43843").
+        var loans = accounts.Where(a => a.AccountType == TrackerAccountTypes.Loan && a.EmiMinor is > 0).OrderBy(MadeUp).ToList();
         var tolerance = _options.Limits.EmiTolerancePercent / 100m;
 
         foreach (var item in items)
         {
-            var loan = item.Loan ?? (item.T.Type == TrackerTypes.Debit && (item.Flow == TrackerFlows.Emi || (item.Flow == TrackerFlows.Spend && item.Parsed is not { Known: true } and not { Person: true })) ? loans.FirstOrDefault(l => Math.Abs(l.EmiMinor!.Value - item.T.AmountMinor) <= l.EmiMinor.Value * tolerance) : null);
+            var loan = item.Loan ?? (item.T.Type == TrackerTypes.Debit && (item.Flow == TrackerFlows.Emi || (item.Flow == TrackerFlows.Spend && EmiLike(item.T.AmountMinor) && item.Parsed is not { Known: true } and not { Person: true })) ? loans.FirstOrDefault(l => Math.Abs(l.EmiMinor!.Value - item.T.AmountMinor) <= l.EmiMinor.Value * tolerance) : null);
 
             if (loan is not null && item.Free)
                 item.Flow = TrackerFlows.Emi;
+
+            // An auto-debit of a small or round amount that pays no loan ("SI … Rs 60", a ₹2,000 NACH) is a payment, not an EMI.
+            if (loan is null && item.Free && item.Flow == TrackerFlows.Emi && !EmiLike(item.T.AmountMinor))
+                item.Flow = TrackerFlows.Spend;
 
             item.T.LoanId = item.Flow == TrackerFlows.Emi ? loan?.Id : null;
         }
     }
 
     // Recurring payments: debits within EmiTolerancePercent of each other, about a month apart, in at least RecurringMinMonths months. At a merchant with a
-    // kind (a subscription, a phone or electricity bill: grouped by merchant) they are only marked recurring. Otherwise (grouped by account or card: an
-    // auto-debit, a spend that pays no known merchant or person, a card bill paid with the same amount every month) they are an EMI series: the loan with
-    // that EMI is found or made ("EMI ₹12,922"), and each payment counts as its EMI. Rent and salary never are; a flow the user chose is never changed.
+    // kind (a subscription, a phone or electricity bill: grouped by merchant) they are only marked recurring. Otherwise they are grouped by account or card:
+    // auto-debits (the SMS says EMI, NACH, ACH, mandate…) of an EMI-like amount, or spends of one that pay no known merchant or person in EmiMinMonths
+    // months, are an EMI series: the loan with that EMI is found or made ("EMI ₹22,001"), and each payment counts as its EMI. Any other series is only
+    // recurring. Rent and salary never are an EMI; a flow the user chose is never changed.
     private async Task LinkSeriesAsync(TrackerUser user, List<Item> counted, List<TrackerAccount> accounts, CancellationToken cancellationToken)
     {
         var debits = counted.Where(i => i.T.Type == TrackerTypes.Debit).ToList();
@@ -487,16 +567,27 @@ public class TrackerFlowService : ITrackerFlowService
         foreach (var item in Series(debits.Where(i => i.T.Kind is not null && i.T.Merchant is not null).GroupBy(i => i.T.Merchant!.ToLowerInvariant())).SelectMany(s => s))
             item.T.IsRecurring = true;
 
-        var candidates = debits.Where(i => i.Free && i.T.Kind is null && i.T.LoanId is null && i.T.ConfirmedBySmsId is null && i.Parsed is { Known: false, Person: false } && i.T.CategoryCode is not ("rent" or "salary")
-            && ((i.Flow is TrackerFlows.Spend or TrackerFlows.Emi && i.T.PairId is null) || i.Flow == TrackerFlows.CardBillPaid));
+        var candidates = debits.Where(i => i.Free && i.T.Kind is null && i.T.LoanId is null && i.T.ConfirmedBySmsId is null && i.T.PairId is null && i.Parsed is { Known: false, Person: false } && i.T.CategoryCode is not ("rent" or "salary")
+            && i.Flow is TrackerFlows.Spend or TrackerFlows.Emi);
         var tolerance = _options.Limits.EmiTolerancePercent / 100m;
 
         foreach (var series in Series(candidates.GroupBy(i => AccountDigits(i) ?? string.Empty)))
         {
             var emi = series.GroupBy(i => i.T.AmountMinor).MaxBy(g => g.Count())!.Key;
+
+            // Only an EMI-like amount is a loan's EMI: from an auto-debit the bank calls one (EMI, NACH, ACH, mandate…), or a plain payment that came back in
+            // EmiMinMonths months ("BIL*NEFT" of ₹22,001.10, ₹22,002.20…). Anything else that comes back every month is only recurring.
+            if (!EmiLike(emi) || (series.Any(i => i.Flow != TrackerFlows.Emi) && Months(series) < _options.Limits.EmiMinMonths))
+            {
+                foreach (var item in series)
+                    item.T.IsRecurring = true;
+
+                continue;
+            }
+
             var name = Math.Round(emi / 100m).ToString(System.Globalization.CultureInfo.InvariantCulture);
             name = name[..Math.Min(8, name.Length)];
-            var loan = accounts.FirstOrDefault(a => a.AccountType == TrackerAccountTypes.Loan && a.EmiMinor is > 0 && Math.Abs(a.EmiMinor.Value - emi) <= a.EmiMinor.Value * tolerance) ?? accounts.FirstOrDefault(a => a.AccountType == TrackerAccountTypes.Loan && a.Last4 == name);
+            var loan = accounts.OrderBy(MadeUp).FirstOrDefault(a => a.AccountType == TrackerAccountTypes.Loan && a.EmiMinor is > 0 && Math.Abs(a.EmiMinor.Value - emi) <= a.EmiMinor.Value * tolerance) ?? accounts.FirstOrDefault(a => a.AccountType == TrackerAccountTypes.Loan && a.Last4 == name);
 
             if (loan is null)
             {
@@ -553,6 +644,49 @@ public class TrackerFlowService : ITrackerFlowService
 
         foreach (var item in items)
             item.T.AccountId = item.T.AccountLast4 is { } number ? accounts.FirstOrDefault(a => a.AccountType != TrackerAccountTypes.Loan && a.Last4 == Last4(number))?.Id : null;
+    }
+
+    // A loan paid through a credit card: an HDFC Insta Jumbo Loan is repaid with the card's bill, so the card gets the same EMI-like payment every month
+    // (card 0126: ₹12,922; card 6124: ₹1,465–1,474). Payments to one card within EmiTolerancePercent of each other in EmiMinMonths months are that loan's
+    // EMIs: the loan with the card's number (or with that EMI, from a statement) is found or made. Each month's EMI is counted once: on the bank debit
+    // paired with the card's payment (paid through CRED, slice…), or on the card's payment itself when the bank's SMS is missing.
+    private async Task LinkCardLoansAsync(TrackerUser user, List<Item> counted, List<TrackerAccount> accounts, CancellationToken cancellationToken)
+    {
+        var tolerance = _options.Limits.EmiTolerancePercent / 100m;
+
+        // The latest series comes last, so the loan keeps the EMI it has now (card 6124: ₹1,465 today, ₹3,299 in 2024).
+        foreach (var series in Series(counted.Where(i => i.Flow == TrackerFlows.CardPaymentIn && i.T.AccountLast4 is not null).GroupBy(i => AccountDigits(i)!)).OrderBy(s => s.Max(i => i.T.OccurredOn)))
+        {
+            var emi = series.GroupBy(i => i.T.AmountMinor).MaxBy(g => g.Count())!.Key;
+
+            if (!EmiLike(emi) || Months(series) < _options.Limits.EmiMinMonths)
+                continue;
+
+            var last4 = AccountDigits(series[0])!;
+            var loan = accounts.FirstOrDefault(a => a.AccountType == TrackerAccountTypes.Loan && a.Last4 == last4) ?? accounts.FirstOrDefault(a => a.AccountType == TrackerAccountTypes.Loan && a.EmiMinor is > 0 && Math.Abs(a.EmiMinor.Value - emi) <= a.EmiMinor.Value * tolerance);
+
+            if (loan is null)
+            {
+                loan = new TrackerAccount { TrackerUserId = user.Id, AccountType = TrackerAccountTypes.Loan, Last4 = last4, Provider = series[0].T.SmsText?.SenderName ?? string.Empty, BankCode = series[0].T.BankCode };
+                accounts.Add(loan);
+                _repository.AddAccount(loan);
+            }
+
+            loan.EmiMinor = emi;
+            await _repository.SaveChangesAsync(cancellationToken);
+
+            foreach (var item in series)
+            {
+                var paid = item.T.PairId is { } pairId ? counted.FirstOrDefault(o => o.T.Id == pairId) ?? item : item;
+
+                if (!paid.Free)
+                    continue;
+
+                paid.Flow = TrackerFlows.Emi;
+                paid.T.LoanId = loan.Id;
+                paid.T.IsRecurring = true;
+            }
+        }
     }
 
     private async Task<ServiceResultDto<TrackerDataDto>> ResultAsync(TrackerCallerDto caller, string code, CancellationToken cancellationToken, params object[] arguments)

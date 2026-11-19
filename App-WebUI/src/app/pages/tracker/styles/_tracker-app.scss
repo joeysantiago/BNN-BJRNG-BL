@@ -134,28 +134,6 @@
   }
 }
 
-/* The count of pending transactions on the Activity tab. */
-.st .tab-ico {
-  position: relative;
-  display: grid;
-  place-items: center;
-}
-
-.st .tab-cnt {
-  position: absolute;
-  top: -6px;
-  inset-inline-end: -10px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 999px;
-  background: var(--k-give);
-  color: #fff;
-  font-size: 10.5px;
-  line-height: 18px;
-  text-align: center;
-}
-
 /* Chips: the category, and each status in its colour. */
 .st .chip {
   display: inline-flex;
@@ -181,8 +159,8 @@
 }
 
 .st .chip.auto {
-  background: var(--k-brand-soft);
-  color: var(--k-brand);
+  background: var(--k-get-soft);
+  color: var(--k-get);
 }
 
 .st .chip.duplicate {

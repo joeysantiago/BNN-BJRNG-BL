@@ -25,8 +25,8 @@ export type TrackerAlertType = 'newTx' | 'categorized' | 'verify' | 'duplicate' 
 /** How the money moved; the name shows through the key tracker.method.<code>. */
 export type TrackerMethod = 'upi' | 'debitCard' | 'creditCard' | 'card' | 'neft' | 'imps' | 'rtgs' | 'netBanking' | 'atm' | 'bank' | 'cash';
 
-/** Why a transaction is a duplicate (tracker.dup.<code>); echo: a bank's confirmation of a transfer already counted. */
-export type TrackerDupReason = 'sameText' | 'sameRef' | 'sameAmount' | 'echo';
+/** Why a transaction is a duplicate (tracker.dup.<code>); echo: a bank's confirmation of a transfer already counted; cardEcho: a card's payment told twice. */
+export type TrackerDupReason = 'sameText' | 'sameRef' | 'sameAmount' | 'echo' | 'cardEcho';
 
 /**
  * What a transaction counts towards (tracker.flow.<code>). Spend, card spend and EMI are spending; salary and income are income; a card bill paid leaves the

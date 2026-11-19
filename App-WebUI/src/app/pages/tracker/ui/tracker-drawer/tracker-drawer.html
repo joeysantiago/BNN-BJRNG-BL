@@ -46,7 +46,7 @@
           </div>
         </div>
       </div>
-      <p [class]="'d-amt num ' + txn().type">{{ txn().type === 'debit' ? '−' : '+' }}{{ state.money(txn().amount) }}
+      <p [class]="'d-amt num ' + (state.out(txn()) ? 'debit' : 'credit')">{{ state.out(txn()) ? '−' : '+' }}{{ state.money(txn().amount) }}
         <span class="chip">{{ i18n.t(txn().type === 'debit' ? 'tracker.d.debit' : 'tracker.d.credit') }}</span></p>
 
       @switch (txn().status) {

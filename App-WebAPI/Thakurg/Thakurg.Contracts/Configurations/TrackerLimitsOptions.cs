@@ -5,7 +5,9 @@ namespace Thakurg.Contracts.Configurations;
 // to a loan's EMI; UnnamedSelfMinor: a credit naming nobody from this amount (paise) up is the user's own money; OwnEntries and OwnNameLength: the names
 // and mobiles the user may give. ConfirmDays: how far a merchant's "payment received" SMS may be from the bank's debit it confirms; RefundDays: how long
 // after a debit a credit from the same merchant is its refund; RecurringMinMonths and RecurringDayWindow: a debit of the same amount in at least that many
-// months, about a month apart (30 days, give or take the window), is a recurring payment (an EMI, or a subscription at a known merchant).
+// months, about a month apart (30 days, give or take the window), is a recurring payment (an EMI, or a subscription at a known merchant). EmiMinMinor:
+// the smallest amount (paise) that can be a loan's EMI; a smaller payment, or a round one (whole hundreds of rupees), is never taken for an EMI by itself.
+// EmiMinMonths: in how many months a payment the SMS does not call an EMI (a NEFT, a card's bill) must come back before it is taken for one.
 public class TrackerLimitsOptions
 {
     public int PairHours { get; set; }
@@ -22,7 +24,11 @@ public class TrackerLimitsOptions
 
     public int CardBillDays { get; set; }
 
+    public int EmiMinMonths { get; set; }
+
     public int MaxSmsLength { get; set; }
+
+    public long EmiMinMinor { get; set; }
 
     public int OwnNameLength { get; set; }
 

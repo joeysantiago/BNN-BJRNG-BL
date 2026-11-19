@@ -15,5 +15,7 @@ The logos are trademarks of their owners and are used only to name the bank. Ban
 | unionb.svg | Union Bank of India | https://commons.wikimedia.org/wiki/File:Union_Bank_of_India_Logo.svg | Public domain |
 | phonpe.svg | PhonePe | https://commons.wikimedia.org/wiki/File:PhonePe_Logo.svg | Public domain |
 | gpayin.svg | Google Pay | https://commons.wikimedia.org/wiki/File:Google_Pay_Logo_(2020).svg | Public domain |
+| icicib.svg | ICICI Bank | https://commons.wikimedia.org/wiki/File:ICICI_Bank_Logo.svg (only the three vector paths of the symbol; the embedded JPEGs are left out) | Public domain |
+| fedbnk.svg | Federal Bank | https://commons.wikimedia.org/wiki/File:Federal_bank.logo.svg (the "F" of the word mark and its orange bar) | Public domain |
 
-Badge only (no clean symbol file on Commons): ICICI Bank (the file embeds a JPEG of 126 KB), Kotak Mahindra Bank (no file), Yes Bank, Federal Bank, IndusInd Bank, Paytm and Amazon Pay (word marks only, unreadable at icon size), Bank of Baroda (PNG only, CC BY-SA), slice (Commons file `Slice_(company)_logo.svg` exists but could not be downloaded: rate limited).
+Badge only (no clean symbol file on Commons): Kotak Mahindra Bank (no file), Yes Bank, IndusInd Bank, Paytm and Amazon Pay (word marks only, unreadable at icon size), Bank of Baroda (PNG only, CC BY-SA), slice (Commons file `Slice_(company)_logo.svg` exists but could not be downloaded: rate limited).

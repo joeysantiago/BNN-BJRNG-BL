@@ -8,9 +8,6 @@
         @for (n of nav; track n.path) {
           <a class="nav" [routerLink]="n.path" [queryParams]="n.query" [attr.aria-current]="current(n.path)">
             <svg [stIco]="n.icon"></svg>{{ i18n.t(n.label) }}
-            @if (n.path === '/tracker/app/transactions' && state.pending().length) {
-              <span class="cnt num">{{ state.pending().length }}</span>
-            }
           </a>
         }
       </nav>
@@ -47,7 +44,7 @@
     <nav class="tabs" [attr.aria-label]="i18n.t('tracker.nav.label')">
       <a class="tab" routerLink="/tracker/app" [attr.aria-current]="current('/tracker/app')"><svg stIco="home" [size]="22"></svg>{{ i18n.t('tracker.nav.home') }}</a>
       <a class="tab" routerLink="/tracker/app/transactions" [attr.aria-current]="current('/tracker/app/transactions')">
-        <span class="tab-ico"><svg stIco="list" [size]="22"></svg>@if (state.pending().length) {<b class="tab-cnt">{{ state.pending().length }}</b>}</span>{{ i18n.t('tracker.nav.activity') }}
+        <svg stIco="list" [size]="22"></svg>{{ i18n.t('tracker.nav.activity') }}
       </a>
       <button type="button" class="fab" [attr.aria-label]="i18n.t('tracker.add')" (click)="state.addOpen.set(true)"><svg stIco="plus" [size]="26"></svg></button>
       <a class="tab" routerLink="/tracker/app/cards" [attr.aria-current]="current('/tracker/app/cards')"><svg stIco="wallet" [size]="22"></svg>{{ i18n.t('tracker.nav.cards') }}</a>

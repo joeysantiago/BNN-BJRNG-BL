@@ -28,7 +28,7 @@ export const TRACKER_CATEGORIES: readonly TrackerCategory[] = [
 export const TRACKER_SENDERS: Readonly<Record<string, string>> = {
   HDFCBK: 'HDFC Bank', HDFCBN: 'HDFC Bank', ICICIB: 'ICICI Bank', ICICIT: 'ICICI Bank', SBIINB: 'State Bank of India', SBIUPI: 'SBI UPI', CBSSBI: 'State Bank of India', ATMSBI: 'State Bank of India',
   AXISBK: 'Axis Bank', KOTAKB: 'Kotak Mahindra Bank', YESBNK: 'Yes Bank', IDFCFB: 'IDFC First Bank', INDUSB: 'IndusInd Bank', PNBSMS: 'Punjab National Bank',
-  BOBTXN: 'Bank of Baroda', BOBSMS: 'Bank of Baroda', FEDBNK: 'Federal Bank', FEDSMS: 'Federal Bank', SLCBNK: 'slice', CANBNK: 'Canara Bank', UNIONB: 'Union Bank', PAYTMB: 'Paytm', PHONPE: 'PhonePe', GPAYIN: 'Google Pay', AMZPAY: 'Amazon Pay',
+  BOBTXN: 'Bank of Baroda', BOBSMS: 'Bank of Baroda', FEDBNK: 'Federal Bank', FEDSMS: 'Federal Bank', FEDFIB: 'Federal Bank', SBICRD: 'SBI Card', MYSBIC: 'SBI Card', CITIBA: 'Citibank', SLCBNK: 'slice', CANBNK: 'Canara Bank', UNIONB: 'Union Bank', PAYTMB: 'Paytm', PHONPE: 'PhonePe', GPAYIN: 'Google Pay', AMZPAY: 'Amazon Pay',
 };
 
 /**
@@ -37,7 +37,7 @@ export const TRACKER_SENDERS: Readonly<Record<string, string>> = {
  */
 export const TRACKER_BANKS: readonly TrackerBankMeta[] = [
   { codes: ['HDFCBK', 'HDFCBN'], logo: 'hdfcbk.svg', short: 'HDFC', color: '#004c8f' },
-  { codes: ['ICICIB', 'ICICIT'], logo: null, short: 'ICICI', color: '#ae282e' },
+  { codes: ['ICICIB', 'ICICIT'], logo: 'icicib.svg', short: 'ICICI', color: '#ae282e' },
   { codes: ['SBIINB', 'SBIUPI', 'CBSSBI', 'ATMSBI'], logo: 'sbiinb.svg', short: 'SBI', color: '#22409a' },
   { codes: ['AXISBK'], logo: 'axisbk.svg', short: 'Axis', color: '#97144d' },
   { codes: ['KOTAKB'], logo: null, short: 'Kotak', color: '#003874' },
@@ -46,7 +46,9 @@ export const TRACKER_BANKS: readonly TrackerBankMeta[] = [
   { codes: ['INDUSB'], logo: null, short: 'IndusInd', color: '#98272a' },
   { codes: ['PNBSMS'], logo: 'pnbsms.svg', short: 'PNB', color: '#a20a3a' },
   { codes: ['BOBTXN', 'BOBSMS'], logo: null, short: 'BoB', color: '#c4441a' },
-  { codes: ['FEDBNK', 'FEDSMS'], logo: null, short: 'Federal', color: '#0a4d8c' },
+  { codes: ['FEDBNK', 'FEDSMS', 'FEDFIB'], logo: 'fedbnk.svg', short: 'Federal', color: '#0a4d8c' },
+  { codes: ['SBICRD', 'MYSBIC'], logo: 'sbiinb.svg', short: 'SBI Card', color: '#22409a' },
+  { codes: ['CITIBA'], logo: null, short: 'Citi', color: '#056dae' },
   { codes: ['SLCBNK'], logo: null, short: 'slice', color: '#5b21b6' },
   { codes: ['CANBNK'], logo: 'canbnk.svg', short: 'Canara', color: '#0072bc' },
   { codes: ['UNIONB'], logo: 'unionb.svg', short: 'Union', color: '#c8102e' },

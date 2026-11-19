@@ -12,7 +12,7 @@
     </span>
   </span>
   <span class="tx-amt">
-    <b class="num" [class]="txn().type">{{ txn().type === 'debit' ? '−' : '+' }}{{ state.money(txn().amount) }}</b>
+    <b class="num" [class]="state.out(txn()) ? 'debit' : 'credit'">{{ state.out(txn()) ? '−' : '+' }}{{ state.money(txn().amount) }}</b>
     <small [class]="'chip ' + txn().status">{{ i18n.t('tracker.status.' + txn().status) }}</small>
   </span>
 </button>

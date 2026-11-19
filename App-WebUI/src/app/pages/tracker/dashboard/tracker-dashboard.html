@@ -70,7 +70,7 @@
         </a>
         <a class="card kpi" routerLink="/tracker/app/cards" fragment="loans">
           <span class="k-ic p"><svg stIco="layers"></svg></span><span class="k-lbl">{{ i18n.t('tracker.kpi.emi') }}</span>
-          <b class="num">{{ state.money(round(state.totals().emi)) }}</b><small>{{ i18n.t('tracker.kpi.emiSub') }}</small>
+          <b class="num">{{ state.money(round(state.totals().emi)) }}</b><small>{{ state.current() && state.monthlyEmi() > state.totals().emi ? i18n.t('tracker.kpi.emiOf', { total: state.money(round(state.monthlyEmi())) }) : i18n.t('tracker.kpi.emiSub') }}</small>
         </a>
         <a class="card kpi" routerLink="/tracker/app/transactions" [queryParams]="{ f: 'pending' }">
           <span class="k-ic y"><svg stIco="alert"></svg></span><span class="k-lbl">{{ i18n.t('tracker.kpi.verify') }}</span>
@@ -130,7 +130,7 @@
             <div class="queue-item">
               <span class="av" [style.background]="cat(t.category).color + '22'" aria-hidden="true">{{ cat(t.category).emoji }}</span>
               <button type="button" class="q-main" (click)="state.open.set(t.id)"><b>{{ state.title(t) }}</b><span>{{ state.describe(t) }}</span></button>
-              <b class="num" [class]="t.type">{{ t.type === 'debit' ? '−' : '+' }}{{ state.money(t.amount) }}</b>
+              <b class="num" [class]="state.out(t) ? 'debit' : 'credit'">{{ state.out(t) ? '−' : '+' }}{{ state.money(t.amount) }}</b>
               <button type="button" class="btn sm icon ok" [disabled]="state.busy()" [attr.aria-label]="i18n.t('tracker.confirmOne', { name: state.title(t) })" (click)="confirm(t.id)"><svg stIco="check"></svg></button>
               <button type="button" class="btn sm icon" [disabled]="state.busy()" [attr.aria-label]="i18n.t('tracker.ignoreOne', { name: state.title(t) })" (click)="ignore(t.id)"><svg stIco="x"></svg></button>
             </div>
