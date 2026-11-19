@@ -81,7 +81,7 @@ export class TrackerPhoneService {
     }
   }
 
-  /** Turns tracking on, pauses, resumes or turns it off: on the phone first (the notice and Android's popup), then in the account. A refusal changes nothing. */
+  /** Turns tracking on, pauses, resumes or turns it off: on the phone first (Android's own SMS permission popup), then in the account. A refusal changes nothing. */
   async tracking(action: TrackerTrackingAction): Promise<void> {
     if (this.sms && !(await this.phone(this.sms, action)))
       return;

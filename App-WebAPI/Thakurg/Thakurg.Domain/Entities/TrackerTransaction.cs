@@ -4,7 +4,8 @@ namespace Thakurg.Domain.Entities;
 
 // A Tracker transaction (TrackerTransactions). AmountMinor is in paise; SmsText is the original SMS, deleted separately on request. FlowCode is what it
 // counts towards (TrackerFlows); FlowEdited when the user chose it. PairId links the two sides of one movement (a self transfer, a card bill and the card's
-// "payment received"). AccountId is the bank account or card, LoanId the loan of an EMI (both TrackerAccounts).
+// "payment received"). AccountId is the bank account or card, LoanId the loan of an EMI (both TrackerAccounts). BankCode is the bank of the SMS
+// (Tracker:Senders code); ConfirmedBySmsId the merchant's own "payment received" SMS that confirmed it; IsRecurring an amount paid about every month.
 public class TrackerTransaction : BaseEntity
 {
     public int Id { get; set; }
@@ -15,9 +16,13 @@ public class TrackerTransaction : BaseEntity
 
     public int Confidence { get; set; }
 
+    public bool IsRecurring { get; set; }
+
     public bool TypeGuessed { get; set; }
 
     public long AmountMinor { get; set; }
+
+    public string? BankCode { get; set; }
 
     public string? Merchant { get; set; }
 
@@ -39,6 +44,8 @@ public class TrackerTransaction : BaseEntity
 
     public string? AccountLast4 { get; set; }
 
+    public int? ConfirmedBySmsId { get; set; }
+
     public TrackerSmsText? SmsText { get; set; }
 
     public string? DuplicateReason { get; set; }
@@ -52,6 +59,8 @@ public class TrackerTransaction : BaseEntity
     public string Source { get; set; } = string.Empty;
 
     public string Status { get; set; } = string.Empty;
+
+    public TrackerSmsText? ConfirmedBySms { get; set; }
 
     public string FlowCode { get; set; } = string.Empty;
 

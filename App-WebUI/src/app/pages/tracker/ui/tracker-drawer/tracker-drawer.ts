@@ -1,3 +1,4 @@
+import { TrackerBank } from '../tracker-bank/tracker-bank';
 import { TrackerForm } from '../tracker-form/tracker-form';
 import { TrackerIcon } from '../tracker-icon/tracker-icon';
 import { I18nService } from '../../../../core/i18n.service';
@@ -13,7 +14,7 @@ import { TrackerFlow, TrackerTxn, TrackerTxnRequest } from '../../../../core/mod
  */
 @Component({
   selector: 'app-tracker-drawer',
-  imports: [TrackerIcon, TrackerForm],
+  imports: [TrackerBank, TrackerIcon, TrackerForm],
   templateUrl: './tracker-drawer.html',
   host: { '(document:keydown.escape)': 'close()' },
 })

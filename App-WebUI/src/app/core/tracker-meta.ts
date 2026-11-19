@@ -1,4 +1,4 @@
-import { TrackerAlertType, TrackerCategory, TrackerFilter, TrackerMethod } from './models/tracker.model';
+import { TrackerAlertType, TrackerBankMeta, TrackerCategory, TrackerFilter, TrackerMethod } from './models/tracker.model';
 
 /**
  * Tracker's fixed lists, the same as the prototype (App-Prototype/assets/js/snaptracker.js). In the API branches they are the seed rows of
@@ -30,6 +30,34 @@ export const TRACKER_SENDERS: Readonly<Record<string, string>> = {
   AXISBK: 'Axis Bank', KOTAKB: 'Kotak Mahindra Bank', YESBNK: 'Yes Bank', IDFCFB: 'IDFC First Bank', INDUSB: 'IndusInd Bank', PNBSMS: 'Punjab National Bank',
   BOBTXN: 'Bank of Baroda', BOBSMS: 'Bank of Baroda', FEDBNK: 'Federal Bank', FEDSMS: 'Federal Bank', SLCBNK: 'slice', CANBNK: 'Canara Bank', UNIONB: 'Union Bank', PAYTMB: 'Paytm', PHONPE: 'PhonePe', GPAYIN: 'Google Pay', AMZPAY: 'Amazon Pay',
 };
+
+/**
+ * The banks and payment apps of TRACKER_SENDERS: the logo in public/banks (null: no clean logo file, the badge shows the short name on the brand colour)
+ * and the sender codes that are theirs. The sources and licences of the logos are in public/banks/SOURCES.md.
+ */
+export const TRACKER_BANKS: readonly TrackerBankMeta[] = [
+  { codes: ['HDFCBK', 'HDFCBN'], logo: 'hdfcbk.svg', short: 'HDFC', color: '#004c8f' },
+  { codes: ['ICICIB', 'ICICIT'], logo: null, short: 'ICICI', color: '#ae282e' },
+  { codes: ['SBIINB', 'SBIUPI', 'CBSSBI', 'ATMSBI'], logo: 'sbiinb.svg', short: 'SBI', color: '#22409a' },
+  { codes: ['AXISBK'], logo: 'axisbk.svg', short: 'Axis', color: '#97144d' },
+  { codes: ['KOTAKB'], logo: null, short: 'Kotak', color: '#003874' },
+  { codes: ['YESBNK'], logo: null, short: 'Yes', color: '#00518f' },
+  { codes: ['IDFCFB'], logo: 'idfcfb.svg', short: 'IDFC', color: '#9c1d26' },
+  { codes: ['INDUSB'], logo: null, short: 'IndusInd', color: '#98272a' },
+  { codes: ['PNBSMS'], logo: 'pnbsms.svg', short: 'PNB', color: '#a20a3a' },
+  { codes: ['BOBTXN', 'BOBSMS'], logo: null, short: 'BoB', color: '#c4441a' },
+  { codes: ['FEDBNK', 'FEDSMS'], logo: null, short: 'Federal', color: '#0a4d8c' },
+  { codes: ['SLCBNK'], logo: null, short: 'slice', color: '#5b21b6' },
+  { codes: ['CANBNK'], logo: 'canbnk.svg', short: 'Canara', color: '#0072bc' },
+  { codes: ['UNIONB'], logo: 'unionb.svg', short: 'Union', color: '#c8102e' },
+  { codes: ['PAYTMB'], logo: null, short: 'Paytm', color: '#002e6e' },
+  { codes: ['PHONPE'], logo: 'phonpe.svg', short: 'PhonePe', color: '#5f259f' },
+  { codes: ['GPAYIN'], logo: 'gpayin.svg', short: 'GPay', color: '#1a5fd0' },
+  { codes: ['AMZPAY'], logo: null, short: 'Amazon Pay', color: '#232f3e' },
+];
+
+/** The bank of a sender code ("HDFCBK", or a full header such as "AD-HDFCBK"), or null for none or one that is not known. */
+export const trackerBank = (code: string | null | undefined): TrackerBankMeta | null => (code ? TRACKER_BANKS.find((b) => b.codes.includes(code.toUpperCase().split('-').pop() ?? '')) ?? null : null);
 
 /** The ways money moves, in the order of the manual form. */
 export const TRACKER_METHODS: readonly TrackerMethod[] = ['upi', 'debitCard', 'creditCard', 'card', 'netBanking', 'neft', 'imps', 'rtgs', 'atm', 'bank', 'cash'];

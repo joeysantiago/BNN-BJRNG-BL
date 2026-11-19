@@ -33,16 +33,17 @@ public static partial class DependencyInjection
 
     private static bool IsValidTracker(TrackerOptions options)
     {
-        var limits = options.Limits is { MaxAlerts: > 0, NoteLength: > 0, MaxSmsLength: > 0, MaxImportBatch: > 0, MaxAmountMinor: > 0, MerchantLength: > 0, DuplicateMinutes: > 0, MinAutoApprovePercent: > 0, PairHours: > 0, CardBillDays: > 0, EmiTolerancePercent: >= 0, UnnamedSelfMinor: > 0, OwnEntries: > 0, OwnNameLength: > 0 } && options.Limits.MaxAutoApprovePercent is > 0 and < 100 && options.Limits.MinAutoApprovePercent < options.Limits.MaxAutoApprovePercent;
+        var limits = options.Limits is { MaxAlerts: > 0, NoteLength: > 0, MaxSmsLength: > 0, MaxImportBatch: > 0, MaxAmountMinor: > 0, MerchantLength: > 0, DuplicateMinutes: > 0, MinAutoApprovePercent: > 0, PairHours: > 0, CardBillDays: > 0, EmiTolerancePercent: >= 0, UnnamedSelfMinor: > 0, OwnEntries: > 0, OwnNameLength: > 0, ConfirmDays: > 0, RefundDays: > 0, RecurringMinMonths: >= 2, RecurringDayWindow: > 0 and < 15 } && options.Limits.MaxAutoApprovePercent is > 0 and < 100 && options.Limits.MinAutoApprovePercent < options.Limits.MaxAutoApprovePercent;
         var newUser = TrackerApprovals.All.Contains(options.NewUser.ApprovalMode) && options.NewUser.AutoApprovePercent >= options.Limits.MinAutoApprovePercent && options.NewUser.AutoApprovePercent <= options.Limits.MaxAutoApprovePercent && options.NewUser.AlertTypes.All(TrackerAlertTypes.All.Contains);
-        var lists = options.Categories.Contains("other") && options.Senders.Count > 0 && options.Merchants.All(m => m.Name.Length > 0 && options.Categories.Contains(m.Category) && IsPattern(m.Pattern));
+        var senders = options.Senders.Count > 0 && options.Senders.All(s => s.Value.Name.Length > 0 && s.Value.Code.Length is > 0 and <= 10) && options.MerchantSenders.All(m => m.Code.Length == 6 && m.Merchant.Length > 0 && options.Categories.Contains(m.Category) && !options.Senders.ContainsKey(m.Code));
+        var lists = options.Categories.Contains("other") && senders && options.Merchants.All(m => m.Name.Length > 0 && options.Categories.Contains(m.Category) && IsPattern(m.Pattern));
 
         return limits && newUser && lists && options.CurrencyCode.Length == 3 && TimeZoneInfo.TryFindSystemTimeZoneById(options.TimeZone, out _);
     }
 
     static partial void AddTrackerFeature(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddOptions<TrackerOptions>().Bind(configuration.GetSection(TrackerOptions.SectionName)).Validate(IsValidTracker, "Tracker:Limits, Tracker:NewUser, Tracker:Categories (with \"other\"), Tracker:Senders, Tracker:Merchants (valid patterns of known categories), Tracker:CurrencyCode and a known Tracker:TimeZone must be set.").ValidateOnStart();
+        services.AddOptions<TrackerOptions>().Bind(configuration.GetSection(TrackerOptions.SectionName)).Validate(IsValidTracker, "Tracker:Limits, Tracker:NewUser, Tracker:Categories (with \"other\"), Tracker:Senders (with a name and code), Tracker:MerchantSenders (6-character codes that are not banks, of known categories), Tracker:Merchants (valid patterns of known categories), Tracker:CurrencyCode and a known Tracker:TimeZone must be set.").ValidateOnStart();
 
         services.AddScoped<ITrackerRepository, TrackerRepository>();
 

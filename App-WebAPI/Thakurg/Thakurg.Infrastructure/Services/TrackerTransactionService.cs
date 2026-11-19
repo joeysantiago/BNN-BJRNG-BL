@@ -36,6 +36,9 @@ public class TrackerTransactionService : ITrackerTransactionService
 
     private readonly ITrackerSecretProtector _protector;
 
+    // A category that tells nothing about the merchant ("other", or one that comes from the flow) is not remembered.
+    private static readonly string[] Unlearned = ["other", "cash", "emi", "salary", "transfer", "refund"];
+
     public TrackerTransactionService(ITrackerRepository repository, ITrackerSmsServices sms, ITrackerService trackerService, IMessageService messageService, IOptions<TrackerOptions> options)
     {
         _repository = repository;
@@ -70,17 +73,20 @@ public class TrackerTransactionService : ITrackerTransactionService
         var sender = string.IsNullOrWhiteSpace(request.Sender) ? GuessSender(body) : request.Sender.Trim();
         var result = await ProcessAsync(user, sender, body, DateTime.UtcNow, true, cancellationToken);
 
-        if (result.Txn is null)
+        if (result.Txn is null && !result.Confirmation)
             return new TrackerSmsReadDto { Result = result, State = await _trackerService.GetStateAsync(caller, cancellationToken) };
 
-        // The new transaction may pair with an earlier one (a self transfer, a card bill), so every flow is worked out again.
+        // The new transaction may pair with an earlier one (a self transfer, a card bill), and a merchant's "payment received" may confirm one, so every
+        // flow is worked out again.
         await _flows.ReflowAsync(user, cancellationToken);
         var state = await _trackerService.GetStateAsync(caller, cancellationToken);
-        result.Txn = state.Txns.FirstOrDefault(t => t.Id == result.Txn.Id) ?? result.Txn;
+        result.Txn = result.Txn is null ? null : state.Txns.FirstOrDefault(t => t.Id == result.Txn.Id) ?? result.Txn;
 
         return new TrackerSmsReadDto { Result = result, State = state };
     }
 
+    // Confirm, ignore, restore, or "not a duplicate" (which puts it back in the user's check list). Confirming a transaction the user had to check also
+    // remembers its merchant's category (TrackerCategoryRules), so the next one from that merchant is sure enough to be approved by itself.
     public async Task<ServiceResultDto<TrackerDataDto>> ActAsync(TrackerCallerDto caller, int id, string action, CancellationToken cancellationToken)
     {
         var transaction = await TransactionAsync(caller, id, cancellationToken);
@@ -92,7 +98,11 @@ public class TrackerTransactionService : ITrackerTransactionService
             "not-duplicate" => MessageCodes.TrackerNotDuplicate,
             _ => throw new BusinessException(MessageCodes.TrackerInvalid, 400),
         };
+        var learn = action == "confirm" && transaction.Status == TrackerStatuses.Pending && transaction.Merchant is not null && !Unlearned.Contains(transaction.CategoryCode);
         transaction.Status = action switch { "ignore" => TrackerStatuses.Ignored, "not-duplicate" => TrackerStatuses.Pending, _ => TrackerStatuses.Confirmed };
+
+        if (learn)
+            await LearnAsync(transaction, cancellationToken);
 
         if (action == "not-duplicate")
         {
@@ -105,7 +115,6 @@ public class TrackerTransactionService : ITrackerTransactionService
         return await ResultAsync(caller, code, cancellationToken);
     }
 
-    // Confirm, ignore, restore, or "not a duplicate" (which puts it back in the user's check list).
     public async Task<TrackerImportReadDto> ImportSmsAsync(TrackerCallerDto caller, TrackerImportRequestDto request, CancellationToken cancellationToken)
     {
         if (request.Messages is not { Count: > 0 } || request.Messages.Count > _options.Limits.MaxImportBatch)
@@ -114,6 +123,7 @@ public class TrackerTransactionService : ITrackerTransactionService
         var user = await UserAsync(caller, cancellationToken);
         var result = new TrackerImportResultDto();
         var latest = DateTime.UtcNow.AddDays(1);
+        var confirmations = 0;
 
         foreach (var message in request.Messages.OrderBy(m => m.ReceivedAt.ToUniversalTime()))
         {
@@ -124,11 +134,14 @@ public class TrackerTransactionService : ITrackerTransactionService
                 result.Skipped++;
             else if (await _repository.HasSmsAsync(user.Id, Hash(body), receivedAt, cancellationToken))
                 result.Already++;
-            else
-                Count(result, (await ProcessAsync(user, message.Sender?.Trim() ?? string.Empty, body, receivedAt, false, cancellationToken)).Outcome);
+            else if (await ProcessAsync(user, message.Sender?.Trim() ?? string.Empty, body, receivedAt, false, cancellationToken) is { } read)
+            {
+                Count(result, read.Outcome);
+                confirmations += read.Confirmation ? 1 : 0;
+            }
         }
 
-        if (result.Created + result.Duplicates > 0)
+        if (result.Created + result.Duplicates + confirmations > 0)
             await _flows.ReflowAsync(user, cancellationToken);
 
         return new TrackerImportReadDto { Result = result, State = await _trackerService.GetStateAsync(caller, cancellationToken) };
@@ -203,7 +216,7 @@ public class TrackerTransactionService : ITrackerTransactionService
     // A pasted SMS often comes without its sender: the bank named in the text stands in for it (AD-HDFCBK-S for "HDFC Bank").
     private string GuessSender(string body)
     {
-        var hit = _options.Senders.FirstOrDefault(s => body.Contains(Regex.Replace(s.Value, " Bank$", string.Empty), StringComparison.OrdinalIgnoreCase));
+        var hit = _options.Senders.FirstOrDefault(s => body.Contains(Regex.Replace(s.Value.Name, " Bank$", string.Empty), StringComparison.OrdinalIgnoreCase));
 
         return hit.Key is null ? string.Empty : $"AD-{hit.Key}-S";
     }
@@ -269,6 +282,18 @@ public class TrackerTransactionService : ITrackerTransactionService
         transaction.OccurredOn = request.At.ToUniversalTime();
     }
 
+    // The merchant's category as the user's rule, unless the user already has one for it (a rule chosen with "remember" is never changed).
+    private async Task LearnAsync(TrackerTransaction transaction, CancellationToken cancellationToken)
+    {
+        var key = transaction.Merchant!.ToLowerInvariant();
+        var rule = (await _repository.GetRulesAsync(transaction.TrackerUserId, cancellationToken)).FirstOrDefault(r => r.MerchantKey == key);
+
+        if (rule is null)
+            _repository.AddRule(new TrackerCategoryRule { TrackerUserId = transaction.TrackerUserId, MerchantKey = key, CategoryCode = transaction.CategoryCode });
+        else
+            rule.CategoryCode ??= transaction.CategoryCode;
+    }
+
     private async Task<TrackerUser> UserAsync(TrackerCallerDto caller, CancellationToken cancellationToken)
     {
         return await _repository.GetUserAsync(caller.UserId, cancellationToken) ?? throw new BusinessException(MessageCodes.AuthSessionInvalid, 401);
@@ -320,8 +345,9 @@ public class TrackerTransactionService : ITrackerTransactionService
 
         var parsedSender = _reader.ParseSender(sender);
         var senderName = parsedSender is { } s ? _reader.SenderName(s.Code) : null;
+        var merchant = parsedSender is { } m && senderName is null ? _reader.MerchantSender(m.Code) : null;
 
-        if (parsedSender is null || senderName is null)
+        if (parsedSender is null || (senderName is null && merchant is null))
         {
             Step("phone", "sender", false, new() { ["sender"] = sender.Length > 0 ? sender : "—" });
 
@@ -329,7 +355,7 @@ public class TrackerTransactionService : ITrackerTransactionService
         }
 
         var kind = parsedSender.Value.Kind switch { "S" => "service", "P" => "promotional", "G" => "government", _ => "transactional" };
-        Step("phone", "sender", true, new() { ["name"] = senderName, ["kind"] = kind });
+        Step("phone", "sender", true, new() { ["name"] = senderName ?? merchant!.Merchant, ["kind"] = kind });
 
         if (_reader.IsOtp(body))
         {
@@ -356,6 +382,11 @@ public class TrackerTransactionService : ITrackerTransactionService
             return await SkipAsync(() => user.FilteredFailed++, "failed");
         }
 
+        // A merchant's own SMS is never a transaction: a "payment received" is kept to confirm the bank's debit of the same amount (TrackerFlowService), and
+        // like any other notice it is counted among the filtered ones.
+        if (merchant is not null)
+            return await ConfirmationAsync(user, sender, merchant, body, receivedAt, steps, cancellationToken);
+
         var owner = TrackerMapper.Owner(user);
 
         // A balance, a reminder, a statement or a notice is not a transaction; what a reminder or statement says is due is kept on the loan or card.
@@ -364,7 +395,7 @@ public class TrackerTransactionService : ITrackerTransactionService
             Step("server", "notice", false, new() { ["why"] = why });
 
             if (why == "notice" && _reader.Due(body) is { } due)
-                await _flows.RecordDueAsync(user, due, senderName, cancellationToken);
+                await _flows.RecordDueAsync(user, due, senderName ?? string.Empty, _reader.BankCode(parsedSender.Value.Code), cancellationToken);
 
             return await SkipAsync(() => Ignore(user, why), why);
         }
@@ -383,6 +414,7 @@ public class TrackerTransactionService : ITrackerTransactionService
         Step("server", "details", true, new() { ["amount"] = parsed.Amount, ["type"] = parsed.Type ?? string.Empty, ["method"] = parsed.Method, ["account"] = parsed.Account ?? string.Empty, ["ref"] = parsed.Ref ?? string.Empty });
         var rules = (await _repository.GetRulesAsync(user.Id, cancellationToken)).Where(r => r.CategoryCode is not null).ToDictionary(r => r.MerchantKey, r => r.CategoryCode!);
         var category = _reader.Categorize(parsed, body, rules);
+        var ruled = parsed.Merchant is not null && rules.ContainsKey(parsed.Merchant.ToLowerInvariant());
         var marks = new[] { parsed.AmountText, parsed.MerchantRaw, parsed.AccountText, parsed.RefText }.Where(m => !string.IsNullOrEmpty(m));
         var hash = Hash(body);
         var transaction = new TrackerTransaction
@@ -394,6 +426,7 @@ public class TrackerTransactionService : ITrackerTransactionService
             AmountMinor = (long)Math.Round(parsed.Amount * 100),
             CurrencyCode = _options.CurrencyCode,
             Merchant = Cut(parsed.Merchant, _options.Limits.MerchantLength),
+            BankCode = _reader.BankCode(parsedSender.Value.Code),
             CategoryCode = category,
             FlowCode = _reader.Flow(parsed, body, owner),
             Kind = parsed.MerchantKind,
@@ -401,9 +434,9 @@ public class TrackerTransactionService : ITrackerTransactionService
             AccountLast4 = parsed.Account,
             Reference = Cut(parsed.Ref, 30),
             OccurredOn = parsed.At,
-            Confidence = _reader.Confidence(parsed, category),
+            Confidence = _reader.Confidence(parsed, category, ruled),
             Note = string.Empty,
-            SmsText = new TrackerSmsText { SenderHeader = Cut(sender.ToUpperInvariant(), 20)!, SenderName = senderName, BodyProtected = _protector.Protect(body), BodyHash = hash, Marks = JsonSerializer.Serialize(marks), ReceivedOn = receivedAt },
+            SmsText = new TrackerSmsText { TrackerUserId = user.Id, SenderHeader = Cut(sender.ToUpperInvariant(), 20)!, SenderName = senderName ?? string.Empty, BodyProtected = _protector.Protect(body), BodyHash = hash, Marks = JsonSerializer.Serialize(marks), ReceivedOn = receivedAt },
         };
         Step("server", "category", true, new() { ["category"] = category, ["found"] = parsed.Known ? "known" : parsed.Merchant is not null ? "text" : "none" });
 
@@ -441,6 +474,22 @@ public class TrackerTransactionService : ITrackerTransactionService
         await _repository.TrimAlertsAsync(user.Id, _options.Limits.MaxAlerts, cancellationToken);
 
         return answer;
+    }
+
+    // A merchant's "payment received" (with an amount, and not the same text again) is kept without a transaction, until it confirms the bank's debit.
+    private async Task<TrackerSmsResultDto> ConfirmationAsync(TrackerUser user, string sender, TrackerMerchantSenderOptions merchant, string body, DateTime receivedAt, List<TrackerStepDto> steps, CancellationToken cancellationToken)
+    {
+        var hash = Hash(body);
+        var confirmation = _reader.IsConfirmation(body) && _reader.Parse(body, receivedAt).Amount > 0 && !(await _repository.GetConfirmationsAsync(user.Id, cancellationToken)).Any(t => t.BodyHash == hash && (t.ReceivedOn - receivedAt).Duration() < TimeSpan.FromDays(1));
+        steps.Add(new TrackerStepDto { Where = "server", Key = "notice", Ok = false, Args = new() { ["why"] = "notice" } });
+
+        if (confirmation)
+            _repository.AddSmsText(new TrackerSmsText { TrackerUserId = user.Id, SenderHeader = Cut(sender.ToUpperInvariant(), 20)!, SenderName = merchant.Merchant, BodyProtected = _protector.Protect(body), BodyHash = hash, Marks = "[]", ReceivedOn = receivedAt });
+
+        user.FilteredNotice++;
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return new TrackerSmsResultDto { Outcome = "skipped", Reason = "notice", Confirmation = confirmation, Steps = steps };
     }
 
     #endregion

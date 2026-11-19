@@ -1,6 +1,8 @@
 namespace Thakurg.Contracts.Tracker;
 
 // One transaction. Amount is in rupees; the UI builds the description from these fields in the user's language.
+// BankCode is the bank of its SMS (Tracker:Senders code); ConfirmedBy the merchant whose own "payment received" SMS confirmed it ("Jio");
+// IsRecurring when the same amount is paid about every month (an EMI series or a subscription).
 public class TrackerTxnDto
 {
     public int Id { get; set; }
@@ -31,13 +33,19 @@ public class TrackerTxnDto
 
     public string? Account { get; set; }
 
+    public bool IsRecurring { get; set; }
+
     public bool TypeGuessed { get; set; }
+
+    public string? BankCode { get; set; }
 
     public string? Merchant { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
     public TrackerSmsDto? Sms { get; set; }
+
+    public string? ConfirmedBy { get; set; }
 
     public string Note { get; set; } = string.Empty;
 

@@ -3,7 +3,8 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Infrastructure.Persistence;
 
-// The tables of Tracker (SqlScripts/CREATE/Tracker). A transaction owns its original SMS text (TransactionId).
+// The tables of Tracker (SqlScripts/CREATE/Tracker). A transaction owns its original SMS text (TransactionId); a merchant's "payment received" text
+// has no transaction of its own and confirms another one (ConfirmedBySmsId).
 public partial class CommonDbContext
 {
     public DbSet<TrackerUser> TrackerUsers => Set<TrackerUser>();
@@ -29,6 +30,7 @@ public partial class CommonDbContext
         modelBuilder.Entity<TrackerCategoryRule>().ToTable("TrackerCategoryRules");
         modelBuilder.Entity<TrackerTransaction>().ToTable("TrackerTransactions");
         modelBuilder.Entity<TrackerTransaction>().HasOne(t => t.SmsText).WithOne().HasForeignKey<TrackerSmsText>(s => s.TransactionId);
+        modelBuilder.Entity<TrackerTransaction>().HasOne(t => t.ConfirmedBySms).WithMany().HasForeignKey(t => t.ConfirmedBySmsId);
     }
 
     #endregion

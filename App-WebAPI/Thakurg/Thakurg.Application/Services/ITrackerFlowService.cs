@@ -11,7 +11,7 @@ public interface ITrackerFlowService
 {
     Task ReflowAsync(TrackerUser user, CancellationToken cancellationToken);
 
-    Task RecordDueAsync(TrackerUser user, TrackerDueDto due, string provider, CancellationToken cancellationToken);
+    Task RecordDueAsync(TrackerUser user, TrackerDueDto due, string provider, string? bankCode, CancellationToken cancellationToken);
 
     Task<ServiceResultDto<TrackerDataDto>> SaveOwnerAsync(TrackerCallerDto caller, TrackerOwnerDto request, CancellationToken cancellationToken);
 

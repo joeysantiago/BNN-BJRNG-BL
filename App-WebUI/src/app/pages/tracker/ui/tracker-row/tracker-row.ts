@@ -1,3 +1,4 @@
+import { TrackerBank } from '../tracker-bank/tracker-bank';
 import { I18nService } from '../../../../core/i18n.service';
 import { trackerCategory } from '../../../../core/tracker-meta';
 import { TrackerTxn } from '../../../../core/models/tracker.model';
@@ -7,6 +8,7 @@ import { TrackerStateService } from '../../../../core/tracker-state.service';
 /** One transaction in a list (Dashboard, Activity): category, merchant, description, time, method, source, amount and status. Opens its details. */
 @Component({
   selector: 'app-tracker-row',
+  imports: [TrackerBank],
   templateUrl: './tracker-row.html',
   host: { style: 'display: contents' },
 })

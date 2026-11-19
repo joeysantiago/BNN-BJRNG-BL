@@ -58,6 +58,15 @@
   color: var(--k-warn);
 }
 
+.st .note.ok-note {
+  background: var(--k-get-soft);
+  color: var(--k-text);
+}
+
+.st .note.ok-note .ico {
+  color: var(--k-get);
+}
+
 .st .small {
   font-size: 13px;
 }
@@ -185,6 +194,21 @@
   color: #c4b5fd;
 }
 
+/* A transaction that comes back every month (a subscription, an EMI). */
+.st .chip.rec {
+  background: color-mix(in srgb, #0ea5e9 14%, transparent);
+  color: #0369a1;
+}
+
+.st[data-kt='dark'] .chip.rec {
+  color: #7dd3fc;
+}
+
+.st .tx-meta .chip.rec {
+  padding: 0 7px;
+  font-size: 11px;
+}
+
 /* A transaction in a list. */
 .st .tl {
   display: grid;
@@ -263,6 +287,7 @@
 .st .tx-meta {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 4px;
   color: var(--k-faint);
   font-size: 12px;

@@ -28,7 +28,7 @@ public static class TrackerMapper
 
     public static TrackerAccountDto ToDto(TrackerAccount account)
     {
-        return new TrackerAccountDto { Id = account.Id, Type = account.AccountType, Last4 = account.Last4, Provider = account.Provider, Label = account.Label, Emi = account.EmiMinor / 100m, StatementTotal = account.StatementTotalMinor / 100m, DueOn = account.StatementDueOn is { } due ? Utc(due) : null };
+        return new TrackerAccountDto { Id = account.Id, Type = account.AccountType, Last4 = account.Last4, Provider = account.Provider, BankCode = account.BankCode, Label = account.Label, Emi = account.EmiMinor / 100m, StatementTotal = account.StatementTotalMinor / 100m, DueOn = account.StatementDueOn is { } due ? Utc(due) : null };
     }
 
     // The SMS text is decrypted only here, for the user who owns it; a text that can no longer be read (lost keys) shows as deleted.
@@ -55,6 +55,9 @@ public static class TrackerMapper
             Ref = t.Reference,
             Account = t.AccountLast4,
             Merchant = t.Merchant,
+            BankCode = t.BankCode,
+            IsRecurring = t.IsRecurring,
+            ConfirmedBy = t.ConfirmedBySms?.SenderName,
             Confidence = t.Confidence,
             Source = t.Source,
             Status = t.Status,

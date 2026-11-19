@@ -4,7 +4,11 @@
     <span class="tx-title">{{ state.title(txn()) }}</span>
     <span class="tx-desc">{{ state.describe(txn()) }}</span>
     <span class="tx-meta">
+      <app-tracker-bank [code]="txn().bankCode ?? null" [size]="16" />
       <span>{{ state.time(txn().at) }}</span>·<span>{{ i18n.t('tracker.method.' + txn().method) }}</span>·<span>{{ i18n.t(txn().source === 'sms' ? 'tracker.src.sms' : 'tracker.src.manual') }}</span>
+      @if (txn().isRecurring) {
+        <span class="chip rec">{{ i18n.t('tracker.recurring') }}</span>
+      }
     </span>
   </span>
   <span class="tx-amt">

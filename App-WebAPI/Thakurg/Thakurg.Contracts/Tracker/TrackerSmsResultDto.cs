@@ -5,6 +5,8 @@ public class TrackerSmsResultDto
 {
     public string? Reason { get; set; }
 
+    public bool Confirmation { get; set; }
+
     public TrackerTxnDto? Txn { get; set; }
 
     public string Outcome { get; set; } = string.Empty;

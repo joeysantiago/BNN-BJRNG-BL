@@ -1,5 +1,6 @@
 import { I18nService } from '../../../core/i18n.service';
 import { TrackerRow } from '../ui/tracker-row/tracker-row';
+import { TrackerBank } from '../ui/tracker-bank/tracker-bank';
 import { TrackerIcon } from '../ui/tracker-icon/tracker-icon';
 import { TrackerPeriod } from '../ui/tracker-period/tracker-period';
 import { TrackerStateService } from '../../../core/tracker-state.service';
@@ -13,7 +14,7 @@ import { TrackerAccount, TrackerFlow, TrackerTxn } from '../../../core/models/tr
  */
 @Component({
   selector: 'app-tracker-cards',
-  imports: [TrackerIcon, TrackerRow, TrackerPeriod],
+  imports: [TrackerBank, TrackerIcon, TrackerRow, TrackerPeriod],
   templateUrl: './tracker-cards.html',
   styleUrl: './tracker-cards.scss',
   encapsulation: ViewEncapsulation.None,

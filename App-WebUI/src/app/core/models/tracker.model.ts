@@ -102,6 +102,7 @@ export interface TrackerTxn {
   flowEdited: boolean;
   kind: string | null;
   dupOf: number | null;
+  isRecurring: boolean;
   typeGuessed: boolean;
   loanId: number | null;
   method: TrackerMethod;
@@ -110,8 +111,10 @@ export interface TrackerTxn {
   status: TrackerStatus;
   account: string | null;
   sms: TrackerSms | null;
+  bankCode: string | null;
   merchant: string | null;
   accountId: number | null;
+  confirmedBy: string | null;
   dupWhy: TrackerDupReason | null;
 }
 
@@ -174,6 +177,7 @@ export interface TrackerAccount {
   emi: number | null;
   dueOn: string | null;
   label: string | null;
+  bankCode: string | null;
   type: TrackerAccountType;
   statementTotal: number | null;
 }
@@ -196,6 +200,14 @@ export interface TrackerTotals {
   spending: number;
   bankSpend: number;
   cardSpend: number;
+}
+
+/** A bank or payment app: its SMS sender codes, its logo in public/banks (null: none, the badge shows), and the short name and brand colour of the badge. */
+export interface TrackerBankMeta {
+  color: string;
+  short: string;
+  logo: string | null;
+  codes: readonly string[];
 }
 
 /** A category: its code (name tracker.cat.<code>), colour and emoji. */

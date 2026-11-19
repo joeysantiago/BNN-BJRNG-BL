@@ -1,0 +1,7 @@
+@if (bank(); as b) {
+  @if (src(); as s) {
+    <img class="bk-logo" [src]="s" [width]="size()" [height]="size()" [alt]="alt()" loading="lazy" decoding="async" (error)="failed.set(s)" />
+  } @else {
+    <span class="bk-badge" role="img" [attr.aria-label]="alt()" [style.background]="b.color">{{ b.short }}</span>
+  }
+}

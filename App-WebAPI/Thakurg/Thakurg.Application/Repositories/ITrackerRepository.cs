@@ -2,12 +2,15 @@ using Thakurg.Domain.Entities;
 
 namespace Thakurg.Application.Repositories;
 
-// Tracker's rows of one user: the profile, the transactions with their SMS texts, the alerts and the category rules. Every query is limited to the user.
+// Tracker's rows of one user: the profile, the transactions with their SMS texts (and the merchant texts that confirm them), the alerts and the
+// category rules. Every query is limited to the user.
 public interface ITrackerRepository
 {
     void AddAlert(TrackerAlert alert);
 
     void AddAccount(TrackerAccount account);
+
+    void AddSmsText(TrackerSmsText text);
 
     void AddRule(TrackerCategoryRule rule);
 
@@ -32,6 +35,8 @@ public interface ITrackerRepository
     Task<TrackerUser?> FindUserByAccountAsync(int accountUserId, CancellationToken cancellationToken);
 
     Task<List<TrackerCategoryRule>> GetRulesAsync(int userId, CancellationToken cancellationToken);
+
+    Task<List<TrackerSmsText>> GetConfirmationsAsync(int userId, CancellationToken cancellationToken);
 
     Task RemoveTransactionAsync(TrackerTransaction transaction, CancellationToken cancellationToken);
 

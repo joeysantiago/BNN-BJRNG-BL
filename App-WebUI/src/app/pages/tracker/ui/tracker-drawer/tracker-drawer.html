@@ -40,6 +40,9 @@
             @if (txn().edited) {
               <span class="chip">{{ i18n.t('tracker.d.edited') }}</span>
             }
+            @if (txn().isRecurring) {
+              <span class="chip rec">{{ i18n.t('tracker.recurring') }}</span>
+            }
           </div>
         </div>
       </div>
@@ -63,6 +66,9 @@
           <p class="note"><svg stIco="info" [size]="18"></svg>{{ i18n.t('tracker.d.ignoredNote') }}</p>
         }
       }
+      @if (txn().confirmedBy; as by) {
+        <p class="note ok-note"><svg stIco="check" [size]="18"></svg>{{ i18n.t('tracker.d.confirmedBy', { merchant: by }) }}</p>
+      }
 
       <div class="ai">
         <p class="ai-h"><svg stIco="spark" [size]="16"></svg>{{ i18n.t(txn().edited ? 'tracker.d.descEdited' : 'tracker.d.descGen') }}</p>
@@ -76,7 +82,7 @@
         <div><dt>{{ i18n.t('tracker.d.when') }}</dt><dd class="num">{{ state.date(txn().at) }} {{ state.time(txn().at) }}</dd></div>
         <div><dt>{{ i18n.t('tracker.form.method') }}</dt><dd>{{ i18n.t('tracker.method.' + txn().method) }}</dd></div>
         @if (txn().account) {
-          <div><dt>{{ i18n.t('tracker.d.account') }}</dt><dd class="num">{{ txn().account }}</dd></div>
+          <div><dt>{{ i18n.t('tracker.d.account') }}</dt><dd class="num"><app-tracker-bank [code]="txn().bankCode ?? null" [size]="24" />{{ txn().account }}</dd></div>
         }
         @if (txn().ref) {
           <div><dt>{{ i18n.t('tracker.d.ref') }}</dt><dd class="num">{{ txn().ref }}</dd></div>

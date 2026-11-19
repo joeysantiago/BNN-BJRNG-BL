@@ -20,7 +20,11 @@
     @for (c of cards(); track c.account.id) {
       <section class="card cc" [attr.aria-labelledby]="'tr-cc-' + c.account.id">
         <div class="cc-head">
-          <span class="k-ic" aria-hidden="true"><svg stIco="wallet"></svg></span>
+          @if (c.account.bankCode) {
+            <app-tracker-bank [code]="c.account.bankCode" [size]="36" />
+          } @else {
+            <span class="k-ic" aria-hidden="true"><svg stIco="wallet"></svg></span>
+          }
           @if (editing() === c.account.id) {
             <form class="cc-rename" (submit)="$event.preventDefault(); save(c.account)">
               <label class="sr-only" [for]="'tr-cc-name-' + c.account.id">{{ i18n.t('tracker.cards.nameLabel') }}</label>
@@ -76,7 +80,11 @@
     @for (l of loans(); track l.account.id) {
       <section class="card cc" [attr.aria-labelledby]="'tr-ln-' + l.account.id">
         <div class="cc-head">
-          <span class="k-ic p" aria-hidden="true"><svg stIco="layers"></svg></span>
+          @if (l.account.bankCode) {
+            <app-tracker-bank [code]="l.account.bankCode" [size]="36" />
+          } @else {
+            <span class="k-ic p" aria-hidden="true"><svg stIco="layers"></svg></span>
+          }
           @if (editing() === l.account.id) {
             <form class="cc-rename" (submit)="$event.preventDefault(); save(l.account)">
               <label class="sr-only" [for]="'tr-ln-name-' + l.account.id">{{ i18n.t('tracker.cards.nameLabel') }}</label>

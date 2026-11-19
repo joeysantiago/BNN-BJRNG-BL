@@ -1,7 +1,7 @@
 namespace Thakurg.Contracts.Configurations;
 
-// Tracker (Tracker in appsettings.json): the starting settings of a new user, the limits, the categories, the SMS senders it reads and the merchant
-// dictionary of the reader. A missing section fails at startup.
+// Tracker (Tracker in appsettings.json): the starting settings of a new user, the limits, the categories, the SMS senders it reads (banks, and merchants
+// whose "payment received" SMS confirms a bank's debit) and the merchant dictionary of the reader. A missing section fails at startup.
 public class TrackerOptions
 {
     public const string SectionName = "Tracker";
@@ -16,7 +16,9 @@ public class TrackerOptions
 
     public TrackerNewUserOptions NewUser { get; set; } = new();
 
-    public Dictionary<string, string> Senders { get; set; } = [];
-
     public List<TrackerMerchantOptions> Merchants { get; set; } = [];
+
+    public Dictionary<string, TrackerSenderOptions> Senders { get; set; } = [];
+
+    public List<TrackerMerchantSenderOptions> MerchantSenders { get; set; } = [];
 }

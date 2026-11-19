@@ -4,7 +4,7 @@ namespace Thakurg.Domain.Entities;
 
 // A bank account, credit card or loan of a Tracker user (TrackerAccounts), found in the SMS: AccountType is bank, card or loan (TrackerAccountTypes),
 // Last4 the last digits the bank shows. A card keeps its latest statement (total and due date); a loan its EMI (EmiMinor, in paise), by which EMI debits
-// are linked to it. Label is the user's own name for it ("ICICI salary", "Car loan").
+// are linked to it. Label is the user's own name for it ("ICICI salary", "Car loan"). BankCode is the bank's code of Tracker:Senders ("HDFCBK").
 public class TrackerAccount : BaseEntity
 {
     public int Id { get; set; }
@@ -12,6 +12,8 @@ public class TrackerAccount : BaseEntity
     public string? Label { get; set; }
 
     public long? EmiMinor { get; set; }
+
+    public string? BankCode { get; set; }
 
     public int TrackerUserId { get; set; }
 

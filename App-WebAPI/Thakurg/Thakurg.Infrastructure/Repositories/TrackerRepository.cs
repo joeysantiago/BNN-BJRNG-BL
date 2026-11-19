@@ -23,6 +23,11 @@ public class TrackerRepository : ITrackerRepository
         _dbContext.TrackerAlerts.Add(alert);
     }
 
+    public void AddSmsText(TrackerSmsText text)
+    {
+        _dbContext.TrackerSmsTexts.Add(text);
+    }
+
     public void AddRule(TrackerCategoryRule rule)
     {
         _dbContext.TrackerCategoryRules.Add(rule);
@@ -52,9 +57,8 @@ public class TrackerRepository : ITrackerRepository
         await strategy.ExecuteAsync(async () =>
         {
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
-            var ids = _dbContext.TrackerTransactions.Where(t => t.TrackerUserId == userId).Select(t => t.Id);
-            await _dbContext.TrackerSmsTexts.Where(s => ids.Contains(s.TransactionId)).ExecuteDeleteAsync(cancellationToken);
-            await _dbContext.TrackerTransactions.Where(t => t.TrackerUserId == userId).ExecuteUpdateAsync(t => t.SetProperty(x => x.DuplicateOfId, (int?)null).SetProperty(x => x.PairId, (int?)null), cancellationToken);
+            await _dbContext.TrackerTransactions.Where(t => t.TrackerUserId == userId).ExecuteUpdateAsync(t => t.SetProperty(x => x.DuplicateOfId, (int?)null).SetProperty(x => x.PairId, (int?)null).SetProperty(x => x.ConfirmedBySmsId, (int?)null), cancellationToken);
+            await _dbContext.TrackerSmsTexts.Where(s => s.TrackerUserId == userId).ExecuteDeleteAsync(cancellationToken);
             await _dbContext.TrackerTransactions.Where(t => t.TrackerUserId == userId).ExecuteDeleteAsync(cancellationToken);
             await _dbContext.TrackerAccounts.Where(a => a.TrackerUserId == userId).ExecuteDeleteAsync(cancellationToken);
             await _dbContext.TrackerAlerts.Where(a => a.TrackerUserId == userId).ExecuteDeleteAsync(cancellationToken);
@@ -64,10 +68,11 @@ public class TrackerRepository : ITrackerRepository
         });
     }
 
+    // Every SMS text of the user: those of the transactions and the merchant texts that confirmed them (the transactions keep what they were given).
     public async Task DeleteSmsTextsAsync(int userId, CancellationToken cancellationToken)
     {
-        var ids = _dbContext.TrackerTransactions.Where(t => t.TrackerUserId == userId).Select(t => t.Id);
-        await _dbContext.TrackerSmsTexts.Where(s => ids.Contains(s.TransactionId)).ExecuteDeleteAsync(cancellationToken);
+        await _dbContext.TrackerTransactions.Where(t => t.TrackerUserId == userId && t.ConfirmedBySmsId != null).ExecuteUpdateAsync(t => t.SetProperty(x => x.ConfirmedBySmsId, (int?)null), cancellationToken);
+        await _dbContext.TrackerSmsTexts.Where(s => s.TrackerUserId == userId).ExecuteDeleteAsync(cancellationToken);
     }
 
     public Task<TrackerUser?> GetUserAsync(int userId, CancellationToken cancellationToken)
@@ -121,9 +126,15 @@ public class TrackerRepository : ITrackerRepository
         return _dbContext.TrackerUsers.AsNoTracking().WhereActive().FirstOrDefaultAsync(u => u.UserId == accountUserId, cancellationToken);
     }
 
+    // The merchant texts of the user ("payment received" from Jio, Airtel…): they have no transaction of their own and confirm a bank's transaction.
+    public Task<List<TrackerSmsText>> GetConfirmationsAsync(int userId, CancellationToken cancellationToken)
+    {
+        return _dbContext.TrackerSmsTexts.WhereActive().Where(s => s.TrackerUserId == userId && s.TransactionId == null).OrderBy(s => s.ReceivedOn).ToListAsync(cancellationToken);
+    }
+
     public Task<List<TrackerTransaction>> GetTransactionsAsync(int userId, CancellationToken cancellationToken)
     {
-        return _dbContext.TrackerTransactions.WhereActive().Include(t => t.SmsText).Where(t => t.TrackerUserId == userId).OrderByDescending(t => t.OccurredOn).ToListAsync(cancellationToken);
+        return _dbContext.TrackerTransactions.WhereActive().Include(t => t.SmsText).Include(t => t.ConfirmedBySms).Where(t => t.TrackerUserId == userId).OrderByDescending(t => t.OccurredOn).ToListAsync(cancellationToken);
     }
 
     // Deletes one transaction and its SMS text; transactions that were its duplicates or its pair keep their status but no longer point at it.
@@ -141,20 +152,20 @@ public class TrackerRepository : ITrackerRepository
 
     public Task<TrackerTransaction?> GetTransactionAsync(int userId, int id, CancellationToken cancellationToken)
     {
-        return _dbContext.TrackerTransactions.WhereActive().Include(t => t.SmsText).FirstOrDefaultAsync(t => t.Id == id && t.TrackerUserId == userId, cancellationToken);
+        return _dbContext.TrackerTransactions.WhereActive().Include(t => t.SmsText).Include(t => t.ConfirmedBySms).FirstOrDefaultAsync(t => t.Id == id && t.TrackerUserId == userId, cancellationToken);
     }
 
     // The transactions that could be the same payment: the same reference, the same SMS text, or the same amount in the time window. The service decides.
     // A message imported before: the same text received at the same moment.
     public Task<bool> HasSmsAsync(int userId, string bodyHash, DateTime receivedOn, CancellationToken cancellationToken)
     {
-        return _dbContext.TrackerTransactions.WhereActive().AnyAsync(t => t.TrackerUserId == userId && t.SmsText != null && t.SmsText.BodyHash == bodyHash && t.SmsText.ReceivedOn == receivedOn, cancellationToken);
+        return _dbContext.TrackerSmsTexts.WhereActive().AnyAsync(s => s.TrackerUserId == userId && s.BodyHash == bodyHash && s.ReceivedOn == receivedOn, cancellationToken);
     }
 
     public Task<List<TrackerTransaction>> GetDuplicateCandidatesAsync(int userId, string? reference, string bodyHash, long amountMinor, DateTime from, DateTime to, CancellationToken cancellationToken)
     {
         // Three narrow lookups, each on its own index (same text, same reference, same amount in the time window), instead of one OR that scans the table for every message.
-        var ids = _dbContext.TrackerSmsTexts.Where(s => s.BodyHash == bodyHash).Select(s => s.TransactionId)
+        var ids = _dbContext.TrackerSmsTexts.Where(s => s.BodyHash == bodyHash && s.TransactionId != null).Select(s => s.TransactionId!.Value)
             .Union(_dbContext.TrackerTransactions.Where(t => t.TrackerUserId == userId && t.OccurredOn >= from && t.OccurredOn <= to && t.AmountMinor == amountMinor).Select(t => t.Id))
             .Union(_dbContext.TrackerTransactions.Where(t => reference != null && t.TrackerUserId == userId && t.Reference == reference).Select(t => t.Id));
 
