@@ -1,4 +1,5 @@
 import { ApiService } from './api.service';
+import { isNativeApp } from './native-app';
 import { I18nService } from './i18n.service';
 import { isPlatformBrowser } from '@angular/common';
 import { SettingsService } from './settings.service';
@@ -14,6 +15,8 @@ const CHANNEL = 'thakurg-auth';
 const RENEW_BEFORE_MS = environment.timings.renewBeforeMs;
 const DEVICE_KEY = 'thakurg-device';
 const REFRESH_LOCK = 'thakurg-refresh';
+/** The Android app keeps the refresh token here: its WebView may drop the cross-site refresh cookie, which logged the user out at every start. */
+const NATIVE_TOKEN_KEY = 'thakurg-rt';
 
 /**
  * The common login of the whole site (e-mail and password). The access token lives in memory only; the refresh token is an HttpOnly cookie
@@ -227,6 +230,7 @@ export class AuthService {
     this.signedInHere.set(false);
     this.restoring = Promise.resolve(false);
     clearTimeout(this.renewTimer);
+    this.keepToken(null);
   }
 
   /** A route of the current page has a guard, so it needs the login. */
@@ -260,6 +264,15 @@ export class AuthService {
       void this.router.navigate(['/login'], { queryParams: { next: this.router.url } });
   }
 
+  /** The refresh token the Android app keeps on the device; always null in a browser, which uses the HttpOnly cookie. */
+  private keptToken(): string | null {
+    try {
+      return isNativeApp() ? localStorage.getItem(NATIVE_TOKEN_KEY) : null;
+    } catch {
+      return null;
+    }
+  }
+
   /** One refresh at a time in this tab, and across tabs (Web Locks), because every refresh replaces the cookie. */
   private refresh(): Promise<boolean> {
     this.refreshing ??= this.refreshOnce().finally(() => (this.refreshing = null));
@@ -279,6 +292,8 @@ export class AuthService {
     this.token = result.accessToken;
     this.expiresAt = Date.now() + result.expiresInSeconds * 1000;
     this.user.set(result.user);
+    if (result.refreshToken)
+      this.keepToken(result.refreshToken);
     this.scheduleRenew();
     this.post({ type: 'session', token: this.token, expiresAt: this.expiresAt, user: result.user });
   }
@@ -327,13 +342,32 @@ export class AuthService {
   private async refreshOnce(): Promise<boolean> {
     const run = async () => {
       try {
-        this.apply(await this.api.send<AuthResult>('POST', '/auth/refresh', this.init(), TIMEOUT));
+        const init = this.init();
+        const kept = this.keptToken();
+        if (kept)
+          init.headers = { ...(init.headers as Record<string, string>), 'X-Refresh-Token': kept };
+        this.apply(await this.api.send<AuthResult>('POST', '/auth/refresh', init, TIMEOUT));
         return true;
       } catch {
         return false;
       }
     };
     return 'locks' in navigator ? navigator.locks.request(REFRESH_LOCK, run) : run();
+  }
+
+  /** Keeps (or with null forgets) the Android app's refresh token, so the login survives closing the app. */
+  private keepToken(token: string | null): void {
+    if (!this.browser || !isNativeApp())
+      return;
+    try {
+      if (token) {
+        localStorage.setItem(NATIVE_TOKEN_KEY, token);
+      } else {
+        localStorage.removeItem(NATIVE_TOKEN_KEY);
+      }
+    } catch {
+      // No storage: the app falls back to the cookie.
+    }
   }
 
   private onTabMessage(message: AuthTabMessage): void {

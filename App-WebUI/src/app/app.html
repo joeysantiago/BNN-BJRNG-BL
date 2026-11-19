@@ -2,10 +2,10 @@
   <a class="skip" href="#main" (click)="skip($event)">{{ i18n.t('a11y.skip') }}</a>
   <app-site-header />
 }
-<main id="main" tabindex="-1" [class.bare]="bare()">
+<main id="main" tabindex="-1" [class.bare]="bare()" [class.nofoot]="signedIn()">
   <router-outlet />
 </main>
-@if (!bare()) {
+@if (!bare() && !signedIn()) {
   <app-site-footer />
 }
 <app-site-toasts />

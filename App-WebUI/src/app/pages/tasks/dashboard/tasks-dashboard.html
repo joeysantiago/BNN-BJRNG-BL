@@ -8,15 +8,15 @@
 
   <div class="ptabs" role="tablist" [attr.aria-label]="i18n.t('tasks.tabs.label')">
     @for (tab of tabs; track tab) {
-      <button type="button" role="tab" class="ptab" [id]="'tasks-tab-' + tab" aria-controls="tasks-list" [attr.aria-selected]="mine() && state.tab() === tab && !overdueOn()" (click)="setTab(tab)">
-        {{ i18n.t('tasks.tab.' + tab) }}<span class="c num">{{ state.count(tab, overdueOn() ? 'all' : null, null) }}</span>
+      <button type="button" role="tab" class="ptab" [id]="'tasks-tab-' + tab" aria-controls="tasks-list" [attr.aria-selected]="mine() && state.tab() === tab && !overdueOn()" [title]="i18n.t('tasks.tab.' + tab)" (click)="setTab(tab)">
+        <app-task-icon [name]="tab === 'all' ? 'list' : tab === 'active' ? 'todo' : 'done'" [size]="20" /><span class="sr-only">{{ i18n.t('tasks.tab.' + tab) }}</span><span class="c num">{{ state.count(tab, overdueOn() ? 'all' : null, null) }}</span>
       </button>
     }
-    <button type="button" role="tab" class="ptab od" id="tasks-tab-overdue" aria-controls="tasks-list" [attr.aria-selected]="mine() && overdueOn()" (click)="showOverdue()">
-      {{ i18n.t('tasks.scope.overdue') }}<span class="c num">{{ state.count('active', 'overdue', null) }}</span>
+    <button type="button" role="tab" class="ptab od" id="tasks-tab-overdue" aria-controls="tasks-list" [attr.aria-selected]="mine() && overdueOn()" [title]="i18n.t('tasks.scope.overdue')" (click)="showOverdue()">
+      <app-task-icon name="alert" [size]="20" /><span class="sr-only">{{ i18n.t('tasks.scope.overdue') }}</span><span class="c num">{{ state.count('active', 'overdue', null) }}</span>
     </button>
-    <button type="button" role="tab" class="ptab" id="tasks-tab-shared" aria-controls="tasks-list" [attr.aria-selected]="!mine()" (click)="showShared()">
-      {{ i18n.t('tasks.tab.shared') }}<span class="c num">{{ state.shared().length }}</span>
+    <button type="button" role="tab" class="ptab" id="tasks-tab-shared" aria-controls="tasks-list" [attr.aria-selected]="!mine()" [title]="i18n.t('tasks.tab.shared')" (click)="showShared()">
+      <app-task-icon name="users" [size]="20" /><span class="sr-only">{{ i18n.t('tasks.tab.shared') }}</span><span class="c num">{{ state.shared().length }}</span>
     </button>
   </div>
 

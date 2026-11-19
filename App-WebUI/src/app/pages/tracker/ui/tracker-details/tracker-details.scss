@@ -30,3 +30,47 @@
 .row .btn {
   min-height: 44px;
 }
+
+/* On the Profile page (Your details card): the same text boxes, gaps and save bar as the name and language above. */
+:host(.in-profile) {
+  display: block;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line, rgba(127, 127, 127, 0.25));
+}
+
+:host(.in-profile) .details-form {
+  gap: 14px;
+}
+
+:host(.in-profile) .details-form .muted {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+:host(.in-profile) .field .input {
+  min-height: 46px;
+  padding: 10px 14px;
+  border: var(--inset-border);
+  border-radius: 14px;
+  background: var(--inset-bg);
+  box-shadow: var(--inset-shadow);
+  color: var(--inset-text);
+  font: 500 16px var(--font-body);
+}
+
+:host(.in-profile) .row {
+  flex-direction: row-reverse;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+:host(.in-profile) .status {
+  margin: 0;
+  font-weight: 600;
+}
+
+:host(.in-profile) .status.bad {
+  color: var(--danger);
+}

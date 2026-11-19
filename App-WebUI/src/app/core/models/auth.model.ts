@@ -30,6 +30,7 @@ export interface AuthUser {
 export interface AuthResult {
   user: AuthUser;
   accessToken: string;
+  refreshToken?: string;
   expiresInSeconds: number;
 }
 

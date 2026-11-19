@@ -66,7 +66,7 @@ public class AuthController : ControllerBase
     [EnableRateLimiting(SecurityExtensions.AuthRefreshPolicy)]
     public async Task<ActionResult<ApiResponse<AuthResultDto>>> Refresh(CancellationToken cancellationToken)
     {
-        var signIn = await _authService.RefreshAsync(Request.Cookies[_auth.RefreshCookie.Name], HttpContext.AuthCaller(), cancellationToken);
+        var signIn = await _authService.RefreshAsync(Request.RefreshTokenOf(_auth),HttpContext.AuthCaller(), cancellationToken);
         Response.WriteAuthCookies(_auth, signIn);
 
         return Ok(ApiResponse<AuthResultDto>.SuccessResponse(signIn.Auth));

@@ -6,8 +6,8 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { FeatureId, FeatureInfo, SettingsSection } from '../../../core/models/app-settings.model';
 
 /**
- * A list of site switches with its own Save button (Settings > Features for one group, Settings > General for one app). The switches are drafts that preview
- * at once in this browser; Save writes the unsaved edits of their groups. Needs the Edit right of Site options; with View only, the switches are read-only.
+ * A list of site switches with its own Save button (Settings > Features for one group, Settings > General for one app). Each switch is saved as soon as it
+ * is changed; Save writes the unsaved edits of their groups again after a failed save. Needs the Edit right of Site options; with View only, the switches are read-only.
  */
 @Component({
   selector: 'app-feature-switches',
@@ -53,8 +53,10 @@ export class FeatureSwitches {
     }
   }
 
-  toggle(id: FeatureId, ev: Event): void {
+  /** A switch is saved at once, so it keeps its value after a reload or the next login. Save stays to try again after a failed save. */
+  async toggle(id: FeatureId, ev: Event): Promise<void> {
     this.cfg.setFeature(id, (ev.target as HTMLInputElement).checked);
+    await this.save();
   }
 
   // #endregion

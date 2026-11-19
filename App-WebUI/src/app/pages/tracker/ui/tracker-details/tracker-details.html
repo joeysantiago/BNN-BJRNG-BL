@@ -13,5 +13,9 @@
     @if (prompt()) {
       <button type="button" class="btn" (click)="done.emit()">{{ i18n.t('tracker.details.later') }}</button>
     }
+    <!-- The Profile page has no Tracker toasts: the answer of the save shows here. -->
+    @if (!prompt() && state.toasts().at(-1); as t) {
+      <p class="status" [class.bad]="t.error" [attr.role]="t.error ? 'alert' : 'status'">{{ t.text }}</p>
+    }
   </div>
 </form>

@@ -51,33 +51,6 @@
         }
       </div>
 
-      <div class="ed-row">
-        <div class="field"><span>{{ i18n.t('tasks.ed.due') }}</span><app-task-date-picker [label]="i18n.t('tasks.ed.due')" [(value)]="due" /></div>
-        <label class="field"><span>{{ i18n.t('tasks.ed.time') }}</span><input class="in" type="time" name="time" [disabled]="!due()" [value]="time()" (input)="time.set($any($event.target).value)" /></label>
-        <label class="field"><span>{{ i18n.t('tasks.ed.repeat') }}</span>
-          <select class="in" name="repeat" (change)="repeat.set($any($event.target).value)">
-            @for (r of repeats; track r) {
-              <option [value]="r" [selected]="repeat() === r">{{ i18n.t('tasks.repeat.' + r) }}</option>
-            }
-          </select>
-        </label>
-        <div class="set-row bare">
-          <div class="txt"><b>{{ i18n.t('tasks.ed.reminder') }}</b><small>{{ i18n.t(state.settings()?.notificationsEnabled ? 'tasks.ed.reminderOn' : 'tasks.ed.reminderOff') }}</small></div>
-          <label class="switch"><input type="checkbox" [checked]="remind()" [attr.aria-label]="i18n.t('tasks.ed.reminder')" (change)="remind.set($any($event.target).checked)" /><i></i></label>
-        </div>
-        @if (repeat() === 'custom') {
-          <div class="field"><span>{{ i18n.t('tasks.ed.every') }}</span>
-            <div class="row nowrap"><input class="in every" type="number" min="1" max="99" [attr.aria-label]="i18n.t('tasks.ed.every')" [value]="every()" (input)="every.set(+$any($event.target).value || 1)" />
-              <select class="in" [attr.aria-label]="i18n.t('tasks.ed.unit')" (change)="unit.set($any($event.target).value)">
-                @for (u of units; track u) {
-                  <option [value]="u" [selected]="unit() === u">{{ i18n.t('tasks.unit.' + u + 's') }}</option>
-                }
-              </select>
-            </div>
-          </div>
-        }
-      </div>
-
       <div class="sec">
         <div class="sec-h">
           <app-task-icon name="tasks" [size]="16" />{{ i18n.t('tasks.checklist.title') }}@if (items().length) {<span class="num">· {{ i18n.t('tasks.progress', { done: ticked(), total: items().length }) }}</span>}<span class="sp"></span>
@@ -104,10 +77,40 @@
         </div>
       </div>
 
+      <div class="ed-row">
+        <div class="field"><span>{{ i18n.t('tasks.ed.due') }}</span><app-task-date-picker [label]="i18n.t('tasks.ed.due')" [(value)]="due" /></div>
+        <label class="field"><span>{{ i18n.t('tasks.ed.time') }}</span><input class="in" type="time" name="time" [disabled]="!due()" [value]="time()" (input)="time.set($any($event.target).value)" /></label>
+      </div>
+
       <label class="field">
         <span>{{ i18n.t('tasks.ed.description') }}</span>
         <textarea class="in" name="description" maxlength="2000" [placeholder]="i18n.t('tasks.ed.descriptionPlaceholder')" [value]="description()" (input)="description.set($any($event.target).value)"></textarea>
       </label>
+
+      <div class="ed-row">
+        <label class="field"><span>{{ i18n.t('tasks.ed.repeat') }}</span>
+          <select class="in" name="repeat" (change)="repeat.set($any($event.target).value)">
+            @for (r of repeats; track r) {
+              <option [value]="r" [selected]="repeat() === r">{{ i18n.t('tasks.repeat.' + r) }}</option>
+            }
+          </select>
+        </label>
+        <div class="set-row bare">
+          <div class="txt"><b>{{ i18n.t('tasks.ed.reminder') }}</b><small>{{ i18n.t(state.settings()?.notificationsEnabled ? 'tasks.ed.reminderOn' : 'tasks.ed.reminderOff') }}</small></div>
+          <label class="switch"><input type="checkbox" [checked]="remind()" [attr.aria-label]="i18n.t('tasks.ed.reminder')" (change)="remind.set($any($event.target).checked)" /><i></i></label>
+        </div>
+        @if (repeat() === 'custom') {
+          <div class="field"><span>{{ i18n.t('tasks.ed.every') }}</span>
+            <div class="row nowrap"><input class="in every" type="number" min="1" max="99" [attr.aria-label]="i18n.t('tasks.ed.every')" [value]="every()" (input)="every.set(+$any($event.target).value || 1)" />
+              <select class="in" [attr.aria-label]="i18n.t('tasks.ed.unit')" (change)="unit.set($any($event.target).value)">
+                @for (u of units; track u) {
+                  <option [value]="u" [selected]="unit() === u">{{ i18n.t('tasks.unit.' + u + 's') }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        }
+      </div>
 
       <div class="sec">
         <div class="sec-h">

@@ -52,9 +52,10 @@ export class TrackerPhoneService {
     this.busy = true;
     try {
       const status = await this.sms.getStatus();
-      // The first time the whole inbox (every past bank SMS); after that, from where the last sync stopped (the phone keeps that point).
+      // The first time the whole inbox (every past bank SMS); after that, from where the last sync stopped (the phone keeps that point and readInbox
+      // starts after it). Never from the day tracking was turned on: a first read that stopped part way would then skip every SMS up to that day.
       if (status.enabled)
-        await this.send(this.sms, status.inboxReadUntil ? Date.parse(tracking.since ?? '') || Date.now() : 0, false);
+        await this.send(this.sms, 0, false);
     } catch {
       // What was not sent stays on the phone (the queue and the inbox position move only after an upload), so the next sync sends it.
     } finally {

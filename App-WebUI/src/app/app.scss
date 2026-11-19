@@ -9,3 +9,8 @@ main:not(.bare) {
     var(--foot-space, calc(var(--foot-h) + env(safe-area-inset-bottom))) + 24px
   );
 }
+
+/* A logged-in user has no site footer (app.ts signedIn), so only the safe area is kept. */
+main.nofoot:not(.bare) {
+  padding-block-end: calc(env(safe-area-inset-bottom) + 24px);
+}

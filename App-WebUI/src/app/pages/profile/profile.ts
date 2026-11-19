@@ -6,7 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
 import { UserAvatar } from '../../shared/user-avatar';
-import { FEATURE_PROFILE } from '../../feature-routes';
+import { FEATURE_PROFILE, FEATURE_PROFILE_DETAILS } from '../../feature-routes';
 import { LookupService } from '../../core/lookup.service';
 import { LookupItem } from '../../core/models/lookup.model';
 import { ProfileDetails } from '../../core/models/auth.model';
@@ -58,6 +58,8 @@ export class Profile {
   protected readonly stateId = signal<number | null>(null);
   protected readonly countryId = signal<number | null>(null);
   protected readonly saving = signal<ProfileForm | null>(null);
+  /** The fields the user's apps add to the "Your details" card (FEATURE_PROFILE_DETAILS), for example Tracker's names and mobile numbers. */
+  protected readonly detailPanels = signal<Type<unknown>[]>([]);
   protected readonly details = signal<ProfileDetails | null>(null);
   protected readonly pwNotice = signal<ProfileNotice | null>(null);
   protected readonly infoNotice = signal<ProfileNotice | null>(null);
@@ -192,6 +194,8 @@ export class Profile {
   /** Loads the profile parts of the apps this account may open (the guard has restored the login before this page opens). */
   private async loadPanels(): Promise<void> {
     const own = FEATURE_PROFILE.filter((p) => this.auth.hasApp(p.app)).sort((a, b) => a.order - b.order);
+    const fields = FEATURE_PROFILE_DETAILS.filter((p) => this.auth.hasApp(p.app)).sort((a, b) => a.order - b.order);
+    this.detailPanels.set(await Promise.all(fields.map((p) => p.load())));
     this.panels.set(await Promise.all(own.map((p) => p.load())));
   }
 

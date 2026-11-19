@@ -31,5 +31,8 @@ export const FEATURE_APPS: string[] = ['speedtest', 'creta', 'nexon', 'youtube',
 /** The settings each app brings to Settings > General (its own section there), loaded lazily. Each feature branch lists its own; shared lists none. */
 export const FEATURE_SETTINGS: FeaturePanel[] = [{ app: 'khata', order: 1, load: () => import('./pages/khata/settings-panel/khata-settings-panel').then((m) => m.KhataSettingsPanel) }, { app: 'tasks', order: 2, load: () => import('./pages/tasks/settings-panel/tasks-settings-panel').then((m) => m.TasksSettingsPanel) }, { app: 'tracker', order: 3, load: () => import('./pages/tracker/settings-panel/tracker-settings-panel').then((m) => m.TrackerSettingsPanel) }];
 
+/** The fields each app adds to the Profile page's "Your details" card (Tracker: the names and mobile numbers banks write), loaded lazily. Each feature branch lists its own; shared lists none. */
+export const FEATURE_PROFILE_DETAILS: FeaturePanel[] = [{ app: 'tracker', order: 1, load: () => import('./pages/tracker/ui/tracker-details/tracker-details').then((m) => m.TrackerDetails) }];
+
 /** The parts each app brings to the Profile page (for example deleting the data a user keeps in that app), loaded lazily. Each feature branch lists its own; shared lists none. */
 export const FEATURE_PROFILE: FeaturePanel[] = [{ app: 'khata', order: 1, load: () => import('./pages/khata/profile-panel/khata-profile-panel').then((m) => m.KhataProfilePanel) }, { app: 'tasks', order: 2, load: () => import('./pages/tasks/profile-panel/tasks-profile-panel').then((m) => m.TasksProfilePanel) }, { app: 'tracker', order: 3, load: () => import('./pages/tracker/profile-panel/tracker-profile-panel').then((m) => m.TrackerProfilePanel) }];

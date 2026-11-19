@@ -27,6 +27,8 @@ export class App {
   protected readonly i18n = inject(I18nService);
   private readonly cfg = inject(SettingsService);
   private readonly back = inject(NativeBackService);
+  /** The footer (About, Privacy, Terms, copyright) is for visitors and the login page; a logged-in user does not see it. Prerendered pages keep it for search engines. */
+  protected readonly signedIn = computed(() => !!this.auth.user());
 
   /** The Atrium HR app, Khataebook (its public page /khata and the app /khata/app), the Tasks app (/tasks/app) and the Tracker app (/tracker/app) bring their own navigation, so the site header and footer are hidden there. */
   protected readonly bare = computed(() => /^\/(HR|khata|tasks\/app|tracker\/app)(\/|$|[?#])/.test(this.url()));

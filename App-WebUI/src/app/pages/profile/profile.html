@@ -60,6 +60,10 @@
               }
             </div>
           </form>
+          <!-- The fields the user's apps add here (FEATURE_PROFILE_DETAILS of feature-routes.ts), for example Tracker's names and mobile numbers. -->
+          @for (panel of detailPanels(); track $index) {
+            <ng-container *ngComponentOutlet="panel" />
+          }
         </section>
 
         <section class="card" aria-labelledby="profile-apps">

@@ -9,6 +9,8 @@ public static class AuthHttpExtensions
 {
     private const string DeviceHeader = "X-Device";
 
+    private const string RefreshHeader = "X-Refresh-Token";
+
     #region Public Methods
 
     public static AuthCallerDto AuthCaller(this HttpContext context)
@@ -22,10 +24,22 @@ public static class AuthHttpExtensions
         response.Cookies.Delete(auth.RefreshCookie.Name, BuildCookie(auth.RefreshCookie, null));
     }
 
+    // The refresh token the caller sent: the Android app's header (it keeps the token on the device), else the browser's cookie.
+    public static string? RefreshTokenOf(this HttpRequest request, AuthOptions auth)
+    {
+        var header = request.Headers[RefreshHeader].ToString();
+
+        return string.IsNullOrEmpty(header) ? request.Cookies[auth.RefreshCookie.Name] : header;
+    }
+
+    // The Android app (an origin in Auth:NativeAppOrigins) also gets the refresh token in the answer: its WebView may not keep the cross-site cookie.
     public static void WriteAuthCookies(this HttpResponse response, AuthOptions auth, SignInDto signIn)
     {
         response.Cookies.Append(auth.AccessCookie.Name, signIn.Auth.AccessToken, BuildCookie(auth.AccessCookie, DateTime.UtcNow.AddSeconds(signIn.Auth.ExpiresInSeconds)));
         response.Cookies.Append(auth.RefreshCookie.Name, signIn.RefreshToken, BuildCookie(auth.RefreshCookie, signIn.RefreshExpiresOn));
+
+        if (auth.NativeAppOrigins.Contains(response.HttpContext.Request.Headers.Origin.ToString(), StringComparer.OrdinalIgnoreCase))
+            signIn.Auth.RefreshToken = signIn.RefreshToken;
     }
 
     #endregion

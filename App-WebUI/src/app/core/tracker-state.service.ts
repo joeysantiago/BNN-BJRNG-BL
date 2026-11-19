@@ -92,11 +92,13 @@ export class TrackerStateService {
     }
     return rows;
   });
-  /** The Activity list: the period's transactions of the open filter and search, newest first, grouped by day with each day's net amount. */
+  /**
+   * The Activity list: every transaction of the open filter and search (Activity has no period, so not only the dashboard's month), newest first, grouped
+   * by day with each day's net amount. It uses the same test as the filter counts, so a count never promises rows the list hides.
+   */
   readonly days = computed<TrackerDay[]>(() => {
     const q = this.search().trim().toLowerCase();
-    const [from, to] = this.range();
-    const list = this.txns().filter((t) => this.ms(t) >= from && this.ms(t) < to && this.passes(t, this.filter())).filter((t) => !q || [t.merchant, this.describe(t), this.i18n.t('tracker.cat.' + t.category), this.i18n.t('tracker.method.' + t.method), t.sms?.body, String(t.amount)].some((v) => v && v.toLowerCase().includes(q))).sort((a, b) => b.at.localeCompare(a.at));
+    const list = this.txns().filter((t) => this.passes(t, this.filter())).filter((t) => !q || [t.merchant, this.describe(t), this.i18n.t('tracker.cat.' + t.category), this.i18n.t('tracker.method.' + t.method), t.sms?.body, String(t.amount)].some((v) => v && v.toLowerCase().includes(q))).sort((a, b) => b.at.localeCompare(a.at));
     const groups: TrackerDay[] = [];
     for (const t of list) {
       const label = this.dayLabel(t.at);

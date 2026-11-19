@@ -17,6 +17,9 @@ public class AuthOptions
 
     public AuthOtpOptions Otp { get; set; } = new();
 
+    // The origins of the Android app (Capacitor serves it on https://localhost). Its WebView may drop the cross-site refresh cookie, so it gets the refresh token in the answer.
+    public List<string> NativeAppOrigins { get; set; } = [];
+
     public List<string> BlockedEmailDomains { get; set; } = [];
 
     public AuthCookieOptions AccessCookie { get; set; } = new();
